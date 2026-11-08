@@ -1,7 +1,7 @@
 // Vercel serverless function: forwards Bible API requests to YouVersion with the App Key from an
 // environment variable (YV_APP_KEY). The key is never sent to the browser.
 // Called as /api/yv/v1/<rest of the YouVersion path>?<query>
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.status(405).json({ error: "method not allowed" });
     return;
