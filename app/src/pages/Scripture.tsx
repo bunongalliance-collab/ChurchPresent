@@ -109,7 +109,8 @@ function newSlide(kind: Kind): StudySlide {
 
 // One verse from the Vercel function (or the Vite dev stand-in). The key stays on the server.
 async function fetchVerse(bible: string, code: string, ch: number, v: number): Promise<string> {
-  const r = await fetch(`/api/yv/v1/bibles/${encodeURIComponent(bible)}/passages/${code}.${ch}.${v}`);
+  const path = `v1/bibles/${encodeURIComponent(bible)}/passages/${code}.${ch}.${v}`;
+  const r = await fetch(`/api/yv?path=${encodeURIComponent(path)}`);
   if (r.status === 404) throw new Error("Verse not found. Check the book, chapter and verse.");
   if (!r.ok) throw new Error(`Bible service returned ${r.status}.`);
   const j = (await r.json()) as { content?: string };

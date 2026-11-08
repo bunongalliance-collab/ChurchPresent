@@ -10,7 +10,8 @@ function yvDevProxy(key: string): Plugin {
     configureServer(server) {
       server.middlewares.use('/api/yv', async (req, res) => {
         const url = new URL(req.url || '/', 'http://localhost')
-        const sub = url.pathname.replace(/^\/+/, '')
+        const sub = url.searchParams.get('path') || ''
+        url.searchParams.delete('path')
         if (!key) { res.statusCode = 500; res.end(JSON.stringify({ error: 'YV_APP_KEY is not set' })); return }
         if (!sub.startsWith('v1/') || sub.includes('..')) { res.statusCode = 404; res.end(JSON.stringify({ error: 'not found' })); return }
         try {
