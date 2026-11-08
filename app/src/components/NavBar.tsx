@@ -1,0 +1,85 @@
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
+
+// Shared navigation for the app's pages. The current page is marked with aria-current.
+// Sign in and sign out live here, so they are the same on every page.
+const PAGES = [
+  { href: "#", label: "Lyrics" },
+  { href: "#scripture", label: "Scripture" },
+  { href: "#builder", label: "Presentation Builder" },
+  { href: "#presentations", label: "Presentations" },
+  { href: "#notes", label: "Notes" },
+  { href: "#projector", label: "Projector" },
+];
+
+export default function NavBar() {
+  const hash = (window.location.hash || "#").split(":")[0];
+  const [session, setSession] = useState<Session | null>(null);
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  async function auth(kind: "in" | "up") {
+    if (!supabase) return;
+    if (!email.trim() || pass.length < 6) { setMsg("Enter an email and a password of 6+ characters."); return; }
+    const creds = { email: email.trim(), password: pass };
+    const { data, error } = kind === "up" ? await supabase.auth.signUp(creds) : await supabase.auth.signInWithPassword(creds);
+    if (error) { setMsg(error.message); return; }
+    if (kind === "up" && !data.session) { setMsg("Account created. Check your email to confirm, then sign in."); return; }
+    setPass(""); setMsg(""); setOpen(false);
+  }
+
+  return (
+    <nav className="navbar" aria-label="Main">
+      <span className="brand">Church Tools</span>
+      <ul>
+        {PAGES.map((p) => {
+          const current = p.href === hash || (p.href === "#" && hash === "");
+          return (
+            <li key={p.href}>
+              <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
+                {p.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+      {supabase && (
+        <div className="nav-auth">
+          {session ? (
+            <>
+              <span className="nav-who">{session.user.email}</span>
+              <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
+            </>
+          ) : (
+            <>
+              <button className="secondary small" onClick={() => { setOpen((v) => !v); setMsg(""); }} aria-expanded={open}>
+                {open ? "Close" : "Sign in"}
+              </button>
+              {open && (
+                <div className="nav-auth-panel">
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} />
+                  <div className="row">
+                    <button onClick={() => auth("in")}>Sign in</button>
+                    <button className="secondary" onClick={() => auth("up")}>Create account</button>
+                  </div>
+                  {msg && <p className="status error">{msg}</p>}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </nav>
+  );
+}
