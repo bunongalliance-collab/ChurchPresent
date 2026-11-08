@@ -15,6 +15,7 @@ const DEFAULT_BIBLES: BibleVersion[] = [
 ];
 const BIBLES_KEY = "scriptureBibles";
 const LOOK_KEY = "scriptureLookDefaults";
+const SCRIPTURE_DRAFT = "scriptureDraft";
 
 function loadBibles(): BibleVersion[] {
   try {
@@ -67,6 +68,7 @@ interface StudySlide {
   verseFrom?: string;
   verseTo?: string;
   text: string;        // one line per row
+  fetchedText?: string; // the text as it was last fetched; used to tell whether it was edited by hand
   fmt?: SlideFmt;      // bold, italic, underline and text colour for this slide
 }
 interface Look {
@@ -89,16 +91,6 @@ const DEFAULT_LOOK: Look = {
   numColor: "#f2c14e", labelColor: "#f2c14e", customSize: 0,
 };
 const uid = () => Math.random().toString(36).slice(2, 10);
-// Slide formatting as CSS, for the preview
-function fmtCss(f?: SlideFmt): React.CSSProperties {
-  if (!f) return {};
-  return {
-    fontWeight: f.bold === false ? 400 : 700,
-    fontStyle: f.italic ? "italic" : undefined,
-    textDecoration: f.underline ? "underline" : undefined,
-    color: f.color || undefined,
-  };
-}
 
 function newSlide(kind: Kind): StudySlide {
   return {
@@ -153,8 +145,12 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
 
 export default function Scripture() {
   // Study
-  const [title, setTitle] = useState("Scripture study");
-  const [slides, setSlides] = useState<StudySlide[]>([]);
+  // The unsaved study is kept for this browser tab, so moving to another page keeps it
+  const draft = useMemo(() => {
+    try { return JSON.parse(sessionStorage.getItem(SCRIPTURE_DRAFT) || "null"); } catch { return null; }
+  }, []);
+  const [title, setTitle] = useState<string>(draft?.title ?? "Scripture study");
+  const [slides, setSlides] = useState<StudySlide[]>(draft?.slides ?? []);
   // The look settings are remembered in this browser, so your colours become the defaults
   const [look, setLook] = useState<Look>(() => {
     try { return { ...DEFAULT_LOOK, ...JSON.parse(localStorage.getItem(LOOK_KEY) || "{}") }; } catch { return DEFAULT_LOOK; }
@@ -162,8 +158,11 @@ export default function Scripture() {
   useEffect(() => {
     try { localStorage.setItem(LOOK_KEY, JSON.stringify(look)); } catch { /* storage blocked */ }
   }, [look]);
-  const [selectedId, setSelectedId] = useState("");
-  const [currentId, setCurrentId] = useState("");
+  const [selectedId, setSelectedId] = useState<string>(draft?.selectedId ?? "");
+  const [currentId, setCurrentId] = useState<string>(draft?.currentId ?? "");
+  useEffect(() => {
+    try { sessionStorage.setItem(SCRIPTURE_DRAFT, JSON.stringify({ title, slides, selectedId, currentId })); } catch { /* storage blocked */ }
+  }, [title, slides, selectedId, currentId]);
   const [previewIndex, setPreviewIndex] = useState(0);
 
   // Saved studies and account
@@ -187,7 +186,11 @@ export default function Scripture() {
   const user = session?.user ?? null;
   const selected = slides.find((s) => s.id === selectedId) ?? null;
   const output = useMemo(() => buildOutput(slides, look), [slides, look]);
-  const preview = output.slides[Math.min(previewIndex, Math.max(0, output.slides.length - 1))];
+  // The preview follows the slide picked in the middle column; with nothing picked it shows the whole study
+  const shown = useMemo(
+    () => (selected ? buildOutput([selected], look).slides : output.slides),
+    [selected, look, output],
+  );
 
   // ---------- Account and saved studies ----------
   async function loadSaved() {
@@ -328,7 +331,9 @@ export default function Scripture() {
     if (!ref) { say("Choose a book, chapter and verse first.", true); return; }
     const bible = selected.bible || bibles[0]?.id;
     if (!bible) { say("Add a Bible version first.", true); return; }
-    if (selected.text.trim() && !window.confirm("Replace the text on this slide with the fetched passage?")) return;
+    // Ask only when the text was typed or changed by hand since the last fetch
+    const editedByHand = selected.text.trim() !== "" && selected.text !== selected.fetchedText;
+    if (editedByHand && !window.confirm("Replace the text you typed on this slide with the fetched passage?")) return;
     setBusy(true);
     say("Fetching…");
     try {
@@ -339,7 +344,7 @@ export default function Scripture() {
       }
       const label = `${bookName(ref.code)} ${ref.ch}:${ref.v1}${ref.v2 !== ref.v1 ? `-${ref.v2}` : ""}`;
       update(selected.id, {
-        text: lines.join("\n"), title: label, bible, book: ref.code,
+        text: lines.join("\n"), fetchedText: lines.join("\n"), title: label, bible, book: ref.code,
         chapter: String(ref.ch), verseFrom: String(ref.v1), verseTo: String(ref.v2),
       });
       say(`Loaded ${lines.length} verse${lines.length === 1 ? "" : "s"}: ${label}.`);
@@ -420,6 +425,8 @@ export default function Scripture() {
   }
 
   // ---------- Layout ----------
+  const settingsSummary = `${look.aspect} · ${look.font} · ${look.customSize > 0 ? `${look.customSize} pt` : "Auto size"} · ${look.perSlide} lines per slide`;
+
   return (
     <>
       <NavBar />
@@ -427,89 +434,98 @@ export default function Scripture() {
         <header className="sc-top">
           <div className="sc-title">
             <h1>Scripture Slides</h1>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Study title" />
           </div>
           <div className="sc-actions">
             <select value={currentId} onChange={(e) => (e.target.value ? openStudy(e.target.value) : newStudy())} aria-label="Open a saved study">
-              <option value="">{saved.length ? "Open a saved study…" : user ? "No saved studies yet" : "Sign in to see saved studies"}</option>
+              <option value="">{saved.length ? "Saved studies…" : user ? "No saved studies" : "Sign in to see studies"}</option>
               {saved.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
             </select>
-            <button onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
-            <button onClick={addToPresentation} disabled={busy || !user}>Add to presentation</button>
+            <input className="sc-study-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Study title" placeholder="Study title" />
+            <button className="secondary" onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
+            <button className="secondary" onClick={addToPresentation} disabled={busy || !user}>Add to presentation</button>
             <button className="secondary" onClick={newStudy}>New</button>
-            <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
-            <button className="secondary" onClick={deleteStudy} disabled={!currentId}>Delete</button>
-            <button onClick={present} disabled={!output.slides.length}>Present</button>
+            <details className="sc-more">
+              <summary>More</summary>
+              <div className="sc-menu">
+                <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
+                <button className="secondary danger" onClick={deleteStudy} disabled={!currentId}>Delete</button>
+              </div>
+            </details>
+            <button className="primary" onClick={present} disabled={!output.slides.length}>Present</button>
             <button className="secondary" onClick={downloadPptx} disabled={!output.slides.length}>Download .pptx</button>
           </div>
         </header>
 
         {supabase && !user && (
           <div className="sc-signin">
-            <span>Not signed in: sign in to save studies.</span>
+            <span>Sign in to save studies</span>
             <input type="email" placeholder="Email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} />
             <input type="password" placeholder="Password" value={authPass} onChange={(e) => setAuthPass(e.target.value)} />
-            <button onClick={() => authAction("in")}>Sign in</button>
-            <button className="secondary" onClick={() => authAction("up")}>Create account</button>
+            <button className="secondary small" onClick={() => authAction("in")}>Sign in</button>
+            <button className="secondary small" onClick={() => authAction("up")}>Create account</button>
           </div>
         )}
-        {user && <p className="sc-who">Signed in as {user.email}</p>}
-        <p className={error ? "status error" : "status"} role="status">{status}</p>
 
-        <div className="sc-settings" aria-label="Settings">
-            <div className="grid2">
-              <div>
-                <label htmlFor="sc-font">Font</label>
-                <select id="sc-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
-                  {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="sc-aspect">Shape</label>
-                <select id="sc-aspect" value={look.aspect} onChange={(e) => setLook({ ...look, aspect: e.target.value as "16:9" | "4:3" })}>
-                  <option value="16:9">16:9 widescreen</option>
-                  <option value="4:3">4:3</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="sc-per">Lines per slide</label>
-                <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
-                  {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="sc-size">Size (pt)</label>
-                <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
-              </div>
-              <div className="colors">
-                <label>Background</label>
-                <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} />
-                <label>Text</label>
-                <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} />
-              </div>
-              <div className="colors">
-                <label>Verse no.</label>
-                <input type="color" value={look.numColor} onChange={(e) => setLook({ ...look, numColor: e.target.value })} />
-                <label>Titles</label>
-                <input type="color" value={look.labelColor} onChange={(e) => setLook({ ...look, labelColor: e.target.value })} />
+        <p className={error ? "sc-status error" : "sc-status"} role="status">{status}</p>
+
+        <details className="sc-presentation">
+          <summary>Presentation Settings <span className="sc-summary">{settingsSummary}</span></summary>
+          <div className="sc-settings">
+            <div className="sc-group">
+              <h3>Layout</h3>
+              <label htmlFor="sc-aspect">Shape</label>
+              <select id="sc-aspect" value={look.aspect} onChange={(e) => setLook({ ...look, aspect: e.target.value as "16:9" | "4:3" })}>
+                <option value="16:9">16:9 widescreen</option>
+                <option value="4:3">4:3</option>
+              </select>
+              <label htmlFor="sc-per">Lines per slide</label>
+              <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
+                {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div className="sc-group">
+              <h3>Typography</h3>
+              <label htmlFor="sc-font">Font</label>
+              <select id="sc-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
+                {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <label htmlFor="sc-size">Font size (pt)</label>
+              <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
+            </div>
+            <div className="sc-group">
+              <h3>Colors</h3>
+              <div className="sc-colors">
+                <label>Background <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
+                <label>Text <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} /></label>
+                <label>Verse number <input type="color" value={look.numColor} onChange={(e) => setLook({ ...look, numColor: e.target.value })} /></label>
+                <label>Title <input type="color" value={look.labelColor} onChange={(e) => setLook({ ...look, labelColor: e.target.value })} /></label>
               </div>
             </div>
-            <label className="check"><input type="checkbox" checked={look.verseNumbers} onChange={(e) => setLook({ ...look, verseNumbers: e.target.checked })} /> Verse numbers</label>
-            <label className="check"><input type="checkbox" checked={look.showLabels} onChange={(e) => setLook({ ...look, showLabels: e.target.checked })} /> Show slide labels</label>
-        </div>
+            <div className="sc-group">
+              <h3>Display</h3>
+              <label className="check"><input type="checkbox" checked={look.verseNumbers} onChange={(e) => setLook({ ...look, verseNumbers: e.target.checked })} /> Show verse numbers</label>
+              <label className="check"><input type="checkbox" checked={look.showLabels} onChange={(e) => setLook({ ...look, showLabels: e.target.checked })} /> Show slide labels</label>
+            </div>
+          </div>
+        </details>
+
         <div className="sc-body">
-          {/* Left: edit the selected slide */}
+          {/* Edit the selected slide */}
           <section className="sc-col sc-edit" aria-label="Edit slide">
-            <h2>Edit slide</h2>
-            {!selected && <p className="empty">Pick a slide on the left to edit it.</p>}
+            {!selected && <p className="sc-empty">Pick a slide on the right to edit it, or add a new one.</p>}
             {selected?.kind === "passage" && (
               <>
-                <label htmlFor="sc-bible">Bible version</label>
-                <div className="row">
-                  <select id="sc-bible" value={selected.bible || bibles[0]?.id} onChange={(e) => update(selected.id, { bible: e.target.value })}>
-                    {bibles.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                  </select>
-                  <button className="secondary small" onClick={() => setShowBibles((v) => !v)}>{showBibles ? "Close" : "Manage versions"}</button>
+                <div className="sc-field">
+                  <span className="sc-label">Bible version</span>
+                  <div className="sc-radios" role="radiogroup" aria-label="Bible version">
+                    {bibles.map((b) => (
+                      <label key={b.id} className="sc-radio">
+                        <input type="radio" name="bible" value={b.id} checked={(selected.bible || bibles[0]?.id) === b.id} onChange={() => update(selected.id, { bible: b.id })} />
+                        {b.name}
+                      </label>
+                    ))}
+                  </div>
+                  <button className="link small" onClick={() => setShowBibles((v) => !v)}>{showBibles ? "Close versions" : "Manage versions"}</button>
                 </div>
                 {showBibles && (
                   <div className="sc-box">
@@ -529,102 +545,120 @@ export default function Scripture() {
                   </div>
                 )}
 
-                <label>Passage</label>
-                <div className="passage-pick">
-                  <select value={selected.book ?? ""} onChange={(e) => update(selected.id, { book: e.target.value })} aria-label="Book">
-                    <option value="">Book…</option>
-                    {BOOKS.map(([name, code]) => <option key={code} value={code}>{name}</option>)}
-                  </select>
-                  <input type="number" min={1} value={selected.chapter ?? ""} placeholder="Chapter" aria-label="Chapter" onChange={(e) => update(selected.id, { chapter: e.target.value })} />
-                  <input type="number" min={1} value={selected.verseFrom ?? ""} placeholder="From" aria-label="First verse" onChange={(e) => update(selected.id, { verseFrom: e.target.value })} />
-                  <input type="number" min={1} value={selected.verseTo ?? ""} placeholder="To" aria-label="Last verse" onChange={(e) => update(selected.id, { verseTo: e.target.value })} />
+                <div className="sc-field">
+                  <span className="sc-label">Passage</span>
+                  <div className="passage-pick">
+                    <select value={selected.book ?? ""} onChange={(e) => update(selected.id, { book: e.target.value })} aria-label="Book">
+                      <option value="">Book…</option>
+                      {BOOKS.map(([name, code]) => <option key={code} value={code}>{name}</option>)}
+                    </select>
+                    <input type="number" min={1} value={selected.chapter ?? ""} placeholder="Chapter" aria-label="Chapter" onChange={(e) => update(selected.id, { chapter: e.target.value })} />
+                    <input type="number" min={1} value={selected.verseFrom ?? ""} placeholder="From" aria-label="First verse" onChange={(e) => update(selected.id, { verseFrom: e.target.value })} />
+                    <input type="number" min={1} value={selected.verseTo ?? ""} placeholder="To" aria-label="Last verse" onChange={(e) => update(selected.id, { verseTo: e.target.value })} />
+                  </div>
+                  <button className="fetch" onClick={fetchPassage} disabled={busy}>{busy ? "Fetching…" : "Fetch passage"}</button>
                 </div>
-                <div className="row">
-                  <button onClick={fetchPassage} disabled={busy}>{busy ? "Fetching…" : "Fetch passage"}</button>
+                <div className="sc-field">
+                  <label className="sc-label" htmlFor="sc-label">Slide label</label>
+                  <input id="sc-label" value={selected.title} onChange={(e) => update(selected.id, { title: e.target.value })} />
                 </div>
-                <label>Label on slide</label>
-                <input value={selected.title} onChange={(e) => update(selected.id, { title: e.target.value })} />
               </>
             )}
             {selected && selected.kind !== "passage" && (
-              <>
-                <label>Slide title</label>
-                <input value={selected.title} onChange={(e) => update(selected.id, { title: e.target.value })} />
-              </>
+              <div className="sc-field">
+                <label className="sc-label" htmlFor="sc-title">Slide title</label>
+                <input id="sc-title" value={selected.title} onChange={(e) => update(selected.id, { title: e.target.value })} />
+              </div>
             )}
             {selected && (
               <>
-                <label>Text (one line per row)</label>
-                <textarea className="sc-text" value={selected.text} onChange={(e) => update(selected.id, { text: e.target.value })} />
-                <label>Slide formatting</label>
-                <div className="row fmt-row">
-                  <button className={`secondary small${selected.fmt?.bold ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bold: !selected.fmt?.bold } })} aria-pressed={!!selected.fmt?.bold}><b>B</b></button>
-                  <button className={`secondary small${selected.fmt?.italic ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, italic: !selected.fmt?.italic } })} aria-pressed={!!selected.fmt?.italic}><i>I</i></button>
-                  <button className={`secondary small${selected.fmt?.underline ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, underline: !selected.fmt?.underline } })} aria-pressed={!!selected.fmt?.underline}><u>U</u></button>
-                  <label className="fmt-color">Text colour <input type="color" value={selected.fmt?.color || look.fg} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, color: e.target.value } })} /></label>
-                  <button className="secondary small" onClick={() => update(selected.id, { fmt: undefined })}>Reset</button>
+                <div className="sc-field">
+                  <label className="sc-label" htmlFor="sc-text">Text (one verse or line per row)</label>
+                  <textarea id="sc-text" className="sc-text" value={selected.text} onChange={(e) => update(selected.id, { text: e.target.value })} />
+                </div>
+                <div className="sc-field">
+                  <span className="sc-label">Formatting</span>
+                  <div className="fmt-toolbar">
+                    <button className={`tool${selected.fmt?.bold ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bold: !selected.fmt?.bold } })} aria-pressed={!!selected.fmt?.bold} aria-label="Bold"><b>B</b></button>
+                    <button className={`tool${selected.fmt?.italic ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, italic: !selected.fmt?.italic } })} aria-pressed={!!selected.fmt?.italic} aria-label="Italic"><i>I</i></button>
+                    <button className={`tool${selected.fmt?.underline ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, underline: !selected.fmt?.underline } })} aria-pressed={!!selected.fmt?.underline} aria-label="Underline"><u>U</u></button>
+                    <label className="tool-color" title="Text colour">Colour <input type="color" value={selected.fmt?.color || look.fg} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, color: e.target.value } })} /></label>
+                    <button className="tool" onClick={() => update(selected.id, { fmt: undefined })}>Reset</button>
+                  </div>
                 </div>
               </>
             )}
           </section>
 
-          {/* Middle: slides in order */}
+          {/* The slide sequence */}
           <section className="sc-col sc-slides" aria-label="Slides">
-            <h2>Slides</h2>
-            <div className="row">
+            <div className="sc-add">
               <button className="secondary small" onClick={() => addSlide("passage")}>+ Passage</button>
               <button className="secondary small" onClick={() => addSlide("custom")}>+ Custom</button>
               <button className="secondary small" onClick={() => addSlide("questions")}>+ Questions</button>
             </div>
             <ol className="sc-list">
               {slides.map((s, i) => (
-                <li key={s.id} className={`sc-item ${s.kind}${selectedId === s.id ? " selected" : ""}`}>
+                <li key={s.id} className={`sc-item${selectedId === s.id ? " selected" : ""}`}>
                   <button className="sc-pick" onClick={() => setSelectedId(s.id)}>
-                    <span className="seq-num">{i + 1}</span>
+                    <span className="sc-num">{i + 1}</span>
                     <span className="sc-pick-text">
                       <strong>{s.title || (s.kind === "passage" ? "Passage (not fetched)" : "Untitled")}</strong>
                       <small>{s.kind === "passage" ? "Passage" : s.kind === "questions" ? "Questions" : "Custom"}</small>
                     </span>
                   </button>
-                  <span className="sc-item-tools">
-                    <button className="secondary small" onClick={() => move(s.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-                    <button className="secondary small" onClick={() => move(s.id, 1)} disabled={i === slides.length - 1} aria-label="Move down">↓</button>
-                    <button className="secondary small" onClick={() => duplicateSlide(s.id)}>Copy</button>
-                    <button className="secondary small" onClick={() => removeSlide(s.id)}>Remove</button>
-                  </span>
+                  <details className="sc-dots">
+                    <summary aria-label="Slide actions">⋯</summary>
+                    <div className="sc-menu">
+                      <button className="secondary small" onClick={() => move(s.id, -1)} disabled={i === 0}>Move up</button>
+                      <button className="secondary small" onClick={() => move(s.id, 1)} disabled={i === slides.length - 1}>Move down</button>
+                      <button className="secondary small" onClick={() => duplicateSlide(s.id)}>Copy</button>
+                      <button className="secondary small danger" onClick={() => removeSlide(s.id)}>Remove</button>
+                    </div>
+                  </details>
                 </li>
               ))}
             </ol>
-            {!slides.length && <p className="empty">No slides yet. Add a passage, custom or questions slide.</p>}
+            {!slides.length && <p className="sc-empty">No slides yet. Add a passage, custom or questions slide.</p>}
           </section>
 
-          {/* 3. Look and preview */}
-          <section className="sc-col sc-look" aria-label="Preview and look">
-            <h2>Preview</h2>
-            {preview ? (
+          {/* The finished slides, several cards at once. Click a card to select that slide. */}
+          <section className="sc-col sc-preview" aria-label="Preview">
+            {shown.length ? (
               <>
-                <div className={`sc-stage${look.aspect === "4:3" ? " ratio-43" : ""}`} style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }}>
-                  <div className="sc-stage-text" style={fmtCss(preview.fmt)}>
-                    {preview.rows.map((row, ri) => (
-                      <div key={ri}>
-                        {row.split(/\u0001(\d{1,3})/).map((part, k) => {
-                          if (!part) return null;
-                          if (k % 2) return <span key={k} style={{ color: look.numColor, fontSize: "0.5em", verticalAlign: "0.7em" }}>{part} </span>;
-                          return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                  {preview.label && <div className="sc-stage-tag" style={{ color: look.labelColor }}>{preview.label}</div>}
+                <div className="sc-cards">
+                  {shown.map((sl, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`sc-card${Math.min(previewIndex, shown.length - 1) === i ? " current" : ""}${look.aspect === "4:3" ? " ratio-43" : ""}`}
+                      style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }}
+                      onClick={() => setPreviewIndex(i)}
+                      aria-label={`Slide ${i + 1}`}
+                    >
+                      <span className="sc-card-num">{i + 1}</span>
+                      <span className="sc-card-text">
+                        {sl.rows.map((row, ri) => (
+                          <span key={ri} className="sc-card-row">
+                            {row.split(/\u0001(\d{1,3})/).map((part, k) => {
+                              if (!part) return null;
+                              if (k % 2) return <span key={k} className="sc-card-vnum" style={{ color: look.numColor }}>{part} </span>;
+                              return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
+                            })}
+                          </span>
+                        ))}
+                      </span>
+                      {sl.label && <span className="sc-card-tag" style={{ color: look.labelColor }}>{sl.label}</span>}
+                    </button>
+                  ))}
                 </div>
-                <div className="row">
-                  <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.max(0, i - 1))} disabled={previewIndex === 0}>← Prev</button>
-                  <span>{Math.min(previewIndex, output.slides.length - 1) + 1} / {output.slides.length}</span>
-                  <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.min(output.slides.length - 1, i + 1))} disabled={previewIndex >= output.slides.length - 1}>Next →</button>
+                <div className="sc-nav">
+                  <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.max(0, i - 1))} disabled={previewIndex === 0}>← Previous</button>
+                  <span className="sc-counter">{Math.min(previewIndex, shown.length - 1) + 1} / {shown.length}</span>
+                  <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.min(shown.length - 1, i + 1))} disabled={previewIndex >= shown.length - 1}>Next →</button>
                 </div>
               </>
-            ) : <p className="empty">Nothing to preview yet.</p>}
-
+            ) : <p className="sc-empty">Nothing to preview yet.</p>}
           </section>
         </div>
       </div>

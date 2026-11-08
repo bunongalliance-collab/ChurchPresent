@@ -179,7 +179,7 @@ export default function Presentations() {
             <h1>Presentations</h1>
             <p className="sub">Your saved presentations. Open one to keep editing, or present it straight from here.</p>
           </div>
-          <button onClick={() => { window.location.hash = "#builder"; }}>New presentation</button>
+          <button className="primary" onClick={() => { window.location.hash = "#builder"; }}>New presentation</button>
         </header>
 
         {!supabase && <p className="status error">Saving needs the Supabase settings in app/.env.local.</p>}

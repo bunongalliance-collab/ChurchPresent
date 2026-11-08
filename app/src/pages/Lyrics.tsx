@@ -4,8 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import {
-  buildDeck, expandShortcuts, FONTS, MAX_PT, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W,
-  parseBulk, sizeWarning, takeMetaLines, type Slide,
+  buildDeck, expandShortcuts, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
 } from "../lib/slides";
 
 // A saved song. Signed in: stored in Supabase (lyric_songs). Otherwise: this browser only (localStorage).
@@ -30,6 +29,7 @@ interface SavedSong {
 }
 
 const SONGS_KEY = "lyricsSongs";
+const LYRICS_DRAFT = "lyricsDraft";
 const PROJECTOR_KEY = "lyricsDeck";
 
 function loadLocal(): SavedSong[] {
@@ -54,27 +54,47 @@ function sortedSongs(songs: SavedSong[]): SavedSong[] {
   });
 }
 
+// Song ids that are in the Presentation Builder's working presentation (kept for this browser tab)
+function songIdsInPresentation(): Set<string> {
+  try {
+    const d = JSON.parse(sessionStorage.getItem("builderDraft") || "null");
+    const items: { kind?: string; songId?: string }[] = d?.items ?? [];
+    return new Set(items.filter((i) => i.kind === "song" && i.songId).map((i) => i.songId as string));
+  } catch {
+    return new Set();
+  }
+}
+
 export default function Lyrics() {
   // Form
-  const [songTitle, setSongTitle] = useState("");
-  const [songNumber, setSongNumber] = useState("");
-  const [lyrics, setLyrics] = useState("");
-  const [font, setFont] = useState("Arial");
-  const [perSlide, setPerSlide] = useState(4);
-  const [customSize, setCustomSize] = useState("");
-  const [colorBg, setColorBg] = useState("#213648");
-  const [colorText, setColorText] = useState("#f5f2ea");
-  const [showTitle, setShowTitle] = useState(true);
-  const [showLabels, setShowLabels] = useState(true);
-  const [removeRepeats, setRemoveRepeats] = useState(false);
+  // The unsaved song and its formatting are kept for this browser tab, so moving to another page keeps them
+  const draft = useMemo(() => {
+    try { return JSON.parse(sessionStorage.getItem(LYRICS_DRAFT) || "null"); } catch { return null; }
+  }, []);
+  const [songTitle, setSongTitle] = useState<string>(draft?.songTitle ?? "");
+  const [songNumber, setSongNumber] = useState<string>(draft?.songNumber ?? "");
+  const [lyrics, setLyrics] = useState<string>(draft?.lyrics ?? "");
+  const [font, setFont] = useState<string>(draft?.font ?? "Arial");
+  const [perSlide, setPerSlide] = useState<number>(draft?.perSlide ?? 4);
+  const [customSize, setCustomSize] = useState<string>(draft?.customSize ?? "");
+  const [colorBg, setColorBg] = useState<string>(draft?.colorBg ?? "#213648");
+  const [colorText, setColorText] = useState<string>(draft?.colorText ?? "#f5f2ea");
+  const [showTitle, setShowTitle] = useState<boolean>(draft?.showTitle ?? true);
+  const [showLabels, setShowLabels] = useState<boolean>(draft?.showLabels ?? true);
+  const [removeRepeats, setRemoveRepeats] = useState<boolean>(draft?.removeRepeats ?? false);
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(LYRICS_DRAFT, JSON.stringify({
+        songTitle, songNumber, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats,
+      }));
+    } catch { /* storage blocked */ }
+  }, [songTitle, songNumber, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats]);
   // How many preview slides sit side by side (a smaller preview shows more slides at once)
-  const [previewCols, setPreviewCols] = useState(3);
 
   // Saved songs and account
   const [songs, setSongs] = useState<SavedSong[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [session, setSession] = useState<Session | null>(null);
-  const [bulkText, setBulkText] = useState("");
   const [status, setStatus] = useState("Paste lyrics to start.");
   const [statusIsError, setStatusIsError] = useState(false);
 
@@ -135,11 +155,8 @@ export default function Lyrics() {
       refreshSongs(s?.user ?? null);
     });
     return () => sub.subscription.unsubscribe();
-    // refreshSongs is stable enough for a one-time subscription
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const user = session?.user ?? null;
+    const user = session?.user ?? null;
 
   function fillForm(song: SavedSong | null) {
     setSelectedId(song?.id ?? "");
@@ -204,10 +221,17 @@ export default function Lyrics() {
   }
 
   // Save the song, then open the Presentation Builder, where it is at the top of Recent songs
+  // Stays on this page: confirms the song was saved and listed for the Presentation Builder
   async function onAddToPresentation() {
     const saved = await saveCurrent();
-    if (!saved) { say("Paste lyrics and sign in first, so the song can be saved.", true); return; }
-    window.location.hash = "#builder";
+    if (!saved) { say("Not added. Paste lyrics and sign in first, so the song can be saved.", true); return; }
+    setAddedNow((cur) => [...cur.filter((x) => x.id !== saved.id), { id: saved.id, title: saved.title || "(untitled)", number: saved.number }]);
+    // Visible confirmation: a toast and a short "Added" label on the button
+    setToast(`Added "${saved.title || "(untitled)"}" to the presentation`);
+    setJustAdded(true);
+    window.setTimeout(() => setToast(""), 3000);
+    window.setTimeout(() => setJustAdded(false), 2000);
+    say(`Added "${saved.title || "(untitled)"}" to the presentation. Open the Presentation Builder to arrange it.`);
   }
 
   async function onNext() {
@@ -232,43 +256,6 @@ export default function Lyrics() {
     fillForm(null);
   }
 
-  // ---------- Account ----------
-
-  // Copy songs saved in this browser into the account (skips ones already imported)
-  async function importSongs() {
-    if (!supabase || !user) return;
-    const local = loadLocal();
-    if (!local.length) { say("No songs saved in this browser."); return; }
-    const { data: have } = await supabase.from("lyric_songs").select("local_id").not("local_id", "is", null);
-    const done = new Set((have || []).map((r) => r.local_id));
-    const rows = local
-      .filter((s) => !done.has(s.id))
-      .map((s) => ({ title: s.title, song_number: s.number, lyrics: s.lyrics, local_id: s.id }));
-    if (!rows.length) { say("All browser songs are already in your account."); return; }
-    const { error } = await supabase.from("lyric_songs").insert(rows);
-    if (error) { say("Import failed: " + error.message, true); return; }
-    await refreshSongs(user);
-    say(`Imported ${rows.length} song${rows.length === 1 ? "" : "s"}.`);
-  }
-
-  async function bulkSave() {
-    const found = parseBulk(bulkText);
-    if (!found.length) { say('Nothing to save. Each song must start with a "Title, ..." line.', true); return; }
-    if (!supabase || !user) { say("Sign in to save several songs at once.", true); return; }
-    const key = (s: { title: string; number: string }) => `${s.number}|${s.title}`.toLowerCase();
-    const have = new Set(songs.map((s) => key(s)));
-    const fresh = found.filter((s) => !have.has(key(s)));
-    if (fresh.length) {
-      const { error } = await supabase
-        .from("lyric_songs")
-        .insert(fresh.map((s) => ({ title: s.title, song_number: s.number, lyrics: s.lyrics })));
-      if (error) { say("Bulk save failed: " + error.message, true); return; }
-    }
-    setBulkText("");
-    await refreshSongs(user);
-    const skipped = found.length - fresh.length;
-    say(`Saved ${fresh.length} song${fresh.length === 1 ? "" : "s"}${skipped ? `, skipped ${skipped} already saved` : ""}.`);
-  }
 
   // ---------- Editor helpers ----------
   // Shortcuts ("v1" → "Verse 1") and Title/Number lines move as you type
@@ -329,143 +316,193 @@ export default function Lyrics() {
 
   const sorted = sortedSongs(songs);
 
+  // Songs added from this page in this browser tab, so each add can be confirmed and listed
+  const [addedNow, setAddedNow] = useState<{ id: string; title: string; number: string }[]>(() => {
+    try { return JSON.parse(sessionStorage.getItem("lyricsAddedNow") || "[]"); } catch { return []; }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem("lyricsAddedNow", JSON.stringify(addedNow)); } catch { /* storage blocked */ }
+  }, [addedNow]);
+
+  const inPresentation = new Set<string>([...songIdsInPresentation(), ...addedNow.map((x) => x.id)]);
+  const selectedInPresentation = !!selectedId && inPresentation.has(selectedId);
+
+  const [toast, setToast] = useState("");
+  const [justAdded, setJustAdded] = useState(false);
+
+  // Slide shown in the main preview (the thumbnails below pick it)
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const shownIdx = Math.min(previewIdx, Math.max(0, slides.length - 1));
+  const current = slides[shownIdx];
+  const sizeMode: "auto" | "manual" = customSize ? "manual" : "auto";
+  const appearanceSummary = `${font} · ${perSlide} lines · ${customSize ? `${customSize} pt` : "Automatic font size"}`;
+
   return (
     <>
-    <NavBar />
-    <div className="lyrics-page">
-      {returnToBuilder && (
-        <div className="return-bar">
-          <span>Editing a song for a presentation.</span>
-          <button onClick={() => {
-            try { sessionStorage.removeItem("returnToBuilder"); } catch { /* storage blocked */ }
-            window.location.hash = "#builder";
-          }}>Back to Presentation Builder</button>
-        </div>
-      )}
-      <header>
-        <h1>Lyrics to Slides</h1>
-        <p className="sub">Paste lyrics, choose a look, then download or open the projector view.</p>
-      </header>
+      <NavBar />
+      {toast && <div className="ly-toast" role="status" aria-live="polite">✓ {toast}</div>}
+      <div className="ly">
+        <header className="ly-top">
+          <div>
+            <h1>Lyrics</h1>
+            <p className="ly-sub">Manage songs and prepare presentation slides.</p>
+          </div>
+          <div className="ly-top-actions">
+            <button className="secondary" onClick={openProjector} disabled={!slides.length}>Open Projector</button>
+            <button className="secondary" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
+          </div>
+        </header>
 
-      <div className="layout">
-        <section className="panel">
-          {supabase && user && (
-            <div className="account">
-              <div className="row">
-                <button className="secondary" onClick={importSongs}>Import browser songs</button>
+        {returnToBuilder && (
+          <div className="return-bar">
+            <span>Editing a song for a presentation.</span>
+            <button onClick={() => {
+              try { sessionStorage.removeItem("returnToBuilder"); } catch { /* storage blocked */ }
+              window.location.hash = "#builder";
+            }}>Back to Presentation Builder</button>
+          </div>
+        )}
+
+        <div className="ly-body">
+          {/* Left: the song */}
+          <section className="ly-col ly-editor" aria-label="Song editor">
+            <select className="ly-saved" value={selectedId} onChange={(e) => fillForm(songs.find((s) => s.id === e.target.value) ?? null)} aria-label="Saved songs">
+              <option value="">{songs.length ? "Choose a saved song…" : "No saved songs yet"}</option>
+              {sorted.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+            </select>
+
+            {selectedInPresentation && <span className="ly-chip">In presentation</span>}
+            <div className="ly-actions">
+              <button className="secondary" onClick={onSave}>Save Song</button>
+              <button className="secondary" onClick={onNext}>Next Song</button>
+              <button className={`primary ly-add${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
+              <details className="ly-more">
+                <summary>More</summary>
+                <div className="ly-menu">
+                  <button className="secondary danger" onClick={onDelete} disabled={!selectedId}>Delete song</button>
+                </div>
+              </details>
+            </div>
+
+            <div className="ly-title-row">
+              <div className="ly-grow">
+                <label htmlFor="songTitle">Song title</label>
+                <input id="songTitle" value={songTitle} placeholder="Amazing Grace" onChange={(e) => setSongTitle(e.target.value)} />
               </div>
-              <label>Bulk add (each song starts with a "Title, ..." line)</label>
-              <textarea value={bulkText} onChange={(e) => setBulkText(e.target.value)} />
-              <button className="secondary" onClick={bulkSave}>Save all songs</button>
+              <div className="ly-num">
+                <label htmlFor="songNumber">Number</label>
+                <input id="songNumber" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
+              </div>
             </div>
-          )}
 
-          <label htmlFor="savedSongs">Saved songs</label>
-          <select id="savedSongs" value={selectedId} onChange={(e) => fillForm(songs.find((s) => s.id === e.target.value) ?? null)}>
-            <option value="">{songs.length ? "Choose a saved song" : "No saved songs yet"}</option>
-            {sorted.map((s) => <option key={s.id} value={s.id}>{songLabel(s)}</option>)}
-          </select>
-          <div className="row">
-            <button className="secondary" onClick={onSave}>Save song</button>
-            <button className="secondary" onClick={onNext}>Next song</button>
-            <button onClick={onAddToPresentation}>Add to presentation</button>
-          </div>
-          <button className="secondary" onClick={onDelete} disabled={!selectedId}>Delete selected song</button>
-
-          <div className="grid2">
-            <div>
-              <label htmlFor="songTitle">Song title</label>
-              <input id="songTitle" value={songTitle} placeholder="Amazing Grace" onChange={(e) => setSongTitle(e.target.value)} />
+            <div className="ly-lyrics-field">
+              <label htmlFor="lyrics">Lyrics</label>
+              <textarea
+                id="lyrics"
+                ref={lyricsRef}
+                className="ly-lyrics"
+                value={lyrics}
+                placeholder={"[Verse 1]\nLine one of the verse\n\n[Chorus]\nChorus line one"}
+                onChange={(e) => onLyricsChange(e.target.value, e.target.selectionStart)}
+              />
             </div>
-            <div>
-              <label htmlFor="songNumber">Song number</label>
-              <input id="songNumber" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
-            </div>
-          </div>
 
-          <label htmlFor="lyrics">Lyrics</label>
-          <textarea
-            id="lyrics"
-            ref={lyricsRef}
-            className="lyrics"
-            value={lyrics}
-            placeholder={"[Verse 1]\nLine one of the verse\n\n[Chorus]\nChorus line one"}
-            onChange={(e) => onLyricsChange(e.target.value, e.target.selectionStart)}
-          />
+            <p className={statusIsError ? "ly-status error" : "ly-status"} role="status">{status}</p>
+            {warning && <p className="ly-status">{warning}</p>}
+            {addedNow.length > 0 && (
+              <div className="ly-added-now">
+                <span className="ly-label">Added this session ({addedNow.length})</span>
+                <ul>
+                  {addedNow.map((a) => <li key={a.id}>{a.number ? `${a.number}. ` : ""}{a.title}</li>)}
+                </ul>
+                <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
+              </div>
+            )}
 
-          <div className="grid2">
-            <div>
-              <label htmlFor="font">Font</label>
-              <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
-                {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="perSlide">Maximum lines per slide</label>
-              <select id="perSlide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
-                {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="fontSize">Font size (pt)</label>
-              <input id="fontSize" type="number" min={20} max={200} placeholder="Automatic" value={customSize} onChange={(e) => setCustomSize(e.target.value)} />
-            </div>
-            <div className="colors">
-              <label>Colours</label>
-              <input type="color" value={colorBg} title="Background" onChange={(e) => setColorBg(e.target.value)} />
-              <input type="color" value={colorText} title="Text" onChange={(e) => setColorText(e.target.value)} />
-            </div>
-          </div>
-
-          <label className="check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Add a title slide</label>
-          <label className="check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Show section labels on slides (V1, C1)</label>
-          <label className="check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeated text</label>
-
-          <div className="row">
-            <button onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint (.pptx)</button>
-
-          </div>
-          <p className={statusIsError ? "status error" : "status"}>{warning || status}</p>
-        </section>
-
-        <section className="panel preview">
-          <div className="preview-head">
-            <button className="secondary" onClick={openProjector} disabled={!slides.length}>Open projector view</button>
-            <p className="summary">
-            {slides.length
-              ? `${slides.length} slide${slides.length === 1 ? "" : "s"} · ${deck.size} pt text · ${font}`
-                + (deck.notes.repeats ? ` · ${deck.notes.repeats} repeat${deck.notes.repeats === 1 ? "" : "s"} shown once` : "")
-              : ""}
-            </p>
-            <label className="size-pick">
-              Preview size
-              <select value={previewCols} onChange={(e) => setPreviewCols(parseInt(e.target.value, 10))}>
-                <option value={4}>Small</option>
-                <option value={3}>Medium</option>
-                <option value={2}>Large</option>
-                <option value={1}>Full width</option>
-              </select>
-            </label>
-          </div>
-          <div className="slides" style={{ gridTemplateColumns: `repeat(${previewCols}, minmax(0, 1fr))` }}>
-            {slides.map((lines, i) => (
-              <div key={i}>
-                <div className="slide-num">Slide {i + 1}</div>
-                <div className="slide" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }}>
-                  <div className="slide-inner" style={{ fontSize: `${(deck.size / SLIDE_W_PT) * 100}cqw` }}>
-                    {lines.join("\n")}
+            <details className="ly-appearance">
+              <summary>Slide Appearance <span className="ly-summary">{appearanceSummary}</span></summary>
+              <div className="ly-appearance-grid">
+                <div className="ly-group">
+                  <h3>Typography</h3>
+                  <label htmlFor="font">Font</label>
+                  <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
+                    {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+                  </select>
+                  <label htmlFor="perSlide">Maximum lines per slide</label>
+                  <select id="perSlide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
+                    {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                  <span className="ly-label">Font size</span>
+                  <div className="ly-size-mode" role="radiogroup" aria-label="Font size mode">
+                    <label><input type="radio" name="sizeMode" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Automatic</label>
+                    <label><input type="radio" name="sizeMode" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
                   </div>
-                  {lines.label && showLabels && (
-                    <div className="slide-tag" style={{ opacity: lines.label.startsWith("V") ? 0.65 : 1 }}>{lines.label}</div>
-                  )}
+                  <div className="ly-slider">
+                    <input
+                      id="fontSize"
+                      type="range"
+                      min={20}
+                      max={200}
+                      step={1}
+                      disabled={sizeMode === "auto"}
+                      value={customSize ? parseInt(customSize, 10) : 60}
+                      onChange={(e) => setCustomSize(e.target.value)}
+                      aria-label="Font size in points"
+                    />
+                    <output>{customSize ? `${customSize} pt` : "Auto"}</output>
+                  </div>
+                </div>
+                <div className="ly-group">
+                  <h3>Colors</h3>
+                  <div className="ly-colors">
+                    <label>Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
+                    <label>Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
+                  </div>
+                </div>
+                <div className="ly-group">
+                  <h3>Display</h3>
+                  <label className="check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Add title slide</label>
+                  <label className="check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Show section labels</label>
+                  <label className="check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeated text</label>
                 </div>
               </div>
-            ))}
-          </div>
-          {!slides.length && <p className="empty">Paste lyrics to see slides. Maximum size is {MAX_PT} pt.</p>}
-        </section>
+            </details>
+          </section>
+
+          {/* Right: the preview */}
+          <section className="ly-col ly-preview" aria-label="Slide preview">
+            <div className="ly-preview-head">
+              <h2>Slide Preview</h2>
+              <span className="ly-sub">Generated from the current lyrics</span>
+            </div>
+
+            {current ? (
+              <div className="ly-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }}>
+                <div className="ly-stage-text" style={{ fontSize: `${(deck.size / SLIDE_W_PT) * 100}cqw` }}>{current.join("\n")}</div>
+                {current.label && showLabels && <div className="ly-stage-tag">{current.label}</div>}
+              </div>
+            ) : <p className="ly-empty">Paste lyrics to see slides.</p>}
+
+            {slides.length > 0 && (
+              <div className="ly-nav">
+                <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))} disabled={shownIdx === 0}>← Previous</button>
+                <span className="ly-counter">Slide {shownIdx + 1} of {slides.length}</span>
+                <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.min(slides.length - 1, i + 1))} disabled={shownIdx >= slides.length - 1}>Next →</button>
+              </div>
+            )}
+
+            <div className="ly-thumbs" role="list">
+              {slides.map((sl, i) => (
+                <button key={i} role="listitem" className={`ly-thumb${i === shownIdx ? " current" : ""}`} onClick={() => setPreviewIdx(i)} style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }} aria-label={`Slide ${i + 1}`}>
+                  <span className="ly-thumb-num">{i + 1}</span>
+                  <span className="ly-thumb-text">{sl.join(" ")}</span>
+                  {sl.label && showLabels && <span className="ly-thumb-tag">{sl.label}</span>}
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
-    </div>
     </>
   );
 }

@@ -67,7 +67,7 @@ export default function Notes() {
             <h1>Notes</h1>
             <p className="sub">Your own notes. Kept in this browser, so they work offline.</p>
           </div>
-          <button onClick={add}>New note</button>
+          <button className="primary" onClick={add}>New note</button>
         </header>
         <div className="notes-grid">
           <ul className="notes-list">

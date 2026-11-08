@@ -227,7 +227,9 @@ export default function Builder() {
   const previewSlides = deck.slides;
   const [previewIndex, setPreviewIndex] = useState(0);
   useEffect(() => { setPreviewIndex((i) => Math.min(i, Math.max(0, previewSlides.length - 1))); }, [previewSlides.length]);
-  const current = previewSlides[previewIndex];
+  // The preview follows the selected item; with nothing selected it shows the whole presentation
+  const selectedEntry = items.find((x) => x.id === selectedItem) ?? null;
+  const shownSlides = selectedEntry ? flatten([selectedEntry], settings, 0).slides : previewSlides;
   // Which item and slide the preview is on, for the editor
   const currentItem = itemsWithFlags.find((x) => x.id === selectedItem) ?? null;
 
@@ -358,7 +360,7 @@ export default function Builder() {
           <button className="secondary" onClick={newPresentation}>New</button>
           <button className="secondary" onClick={duplicatePresentation}>Duplicate</button>
           <button className="secondary" onClick={deletePresentation}>Delete</button>
-          <button onClick={present} disabled={!items.length}>Present</button>
+          <button className="primary" onClick={present} disabled={!items.length}>Present</button>
         </div>
       </div>
       <p className="status">{status}</p>
@@ -424,26 +426,38 @@ export default function Builder() {
         {/* C. Slide preview and editing */}
         <section className="panel preview">
           <h2>Preview</h2>
-          {current ? (
+          {shownSlides.length ? (
             <>
-              <div className="slide big" style={{ background: current?.bg ?? settings.bg, color: current?.fg ?? settings.fg, fontFamily: `${current?.font ?? settings.font}, sans-serif` }}>
-                <div className="slide-inner">
-                  {(current.rows ?? []).map((row, ri) => (
-                    <div key={ri}>
-                      {row.split(/\u0001(\d{1,3})/).map((part, k) => {
-                        if (!part) return null;
-                        if (k % 2) return <span key={k} style={{ color: current.numColor || "#f2c14e", fontSize: "0.5em", verticalAlign: "0.7em" }}>{part} </span>;
-                        return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
-                      })}
-                    </div>
-                  ))}
-                </div>
-                {current.label && settings.showLabels && <div className="slide-tag">{current.label}</div>}
+              <div className="pv-cards">
+                {shownSlides.map((sl, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`pv-card${Math.min(previewIndex, shownSlides.length - 1) === i ? " current" : ""}`}
+                    style={{ background: sl.bg ?? settings.bg, color: sl.fg ?? settings.fg, fontFamily: `${sl.font ?? settings.font}, sans-serif` }}
+                    onClick={() => setPreviewIndex(i)}
+                    aria-label={`Slide ${i + 1}`}
+                  >
+                    <span className="pv-num">{i + 1}</span>
+                    <span className="pv-text">
+                      {(sl.rows ?? []).map((row, ri) => (
+                        <span key={ri} className="pv-row">
+                          {row.split(/\u0001(\d{1,3})/).map((part, k) => {
+                            if (!part) return null;
+                            if (k % 2) return <span key={k} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
+                            return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
+                          })}
+                        </span>
+                      ))}
+                    </span>
+                    {sl.label && settings.showLabels && <span className="pv-tag">{sl.label}</span>}
+                  </button>
+                ))}
               </div>
               <div className="row">
                 <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.max(0, i - 1))} disabled={previewIndex === 0}>← Prev</button>
-                <span>{previewIndex + 1} / {previewSlides.length}</span>
-                <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.min(previewSlides.length - 1, i + 1))} disabled={previewIndex >= previewSlides.length - 1}>Next →</button>
+                <span>{Math.min(previewIndex, shownSlides.length - 1) + 1} / {shownSlides.length}</span>
+                <button className="secondary small" onClick={() => setPreviewIndex((i) => Math.min(shownSlides.length - 1, i + 1))} disabled={previewIndex >= shownSlides.length - 1}>Next →</button>
               </div>
             </>
           ) : <p className="empty">No slides yet.</p>}
