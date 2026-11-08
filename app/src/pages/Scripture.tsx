@@ -226,10 +226,11 @@ export default function Scripture() {
   }
 
   // Save: insert a new study, or update the open one. Shows the real result either way.
-  async function save() {
-    if (!supabase) { say("Saving needs the Supabase settings in app/.env.local.", true); return; }
-    if (!user) { say("Sign in above to save studies to your account.", true); return; }
-    if (!title.trim()) { say("Give the study a title first.", true); return; }
+  // Returns the saved study's id, or null if nothing was saved
+  async function save(): Promise<string | null> {
+    if (!supabase) { say("Saving needs the Supabase settings in app/.env.local.", true); return null; }
+    if (!user) { say("Sign in above to save studies to your account.", true); return null; }
+    if (!title.trim()) { say("Give the study a title first.", true); return null; }
     const data: StudyData = { ...look, slides };
     const reference = slides.find((s) => s.kind === "passage" && s.title)?.title ?? "";
     const row = { study_title: title.trim(), reference, data };
@@ -239,10 +240,17 @@ export default function Scripture() {
       : supabase.from("scripture_studies").insert({ ...row, owner_id: user.id }).select("id").single();
     const { data: result, error: err } = await q;
     setBusy(false);
-    if (err) { say("Could not save: " + err.message, true); return; }
+    if (err) { say("Could not save: " + err.message, true); return null; }
     setCurrentId(result.id);
     await loadSaved();
     say(`Saved "${title.trim()}".`);
+    return result.id;
+  }
+
+  // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures
+  async function addToPresentation() {
+    const id = await save();
+    if (id) window.location.hash = "#builder";
   }
 
   function openStudy(id: string) {
@@ -427,6 +435,7 @@ export default function Scripture() {
               {saved.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
             </select>
             <button onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
+            <button onClick={addToPresentation} disabled={busy || !user}>Add to presentation</button>
             <button className="secondary" onClick={newStudy}>New</button>
             <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
             <button className="secondary" onClick={deleteStudy} disabled={!currentId}>Delete</button>
