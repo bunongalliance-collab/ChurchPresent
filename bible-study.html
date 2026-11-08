@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bible Study Slides</title>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+  /* Design: the Cloudflare style reference (churchApp/design.md). White canvas, hairline rules, Graphite Ink
+     text, and one orange accent for the main action only. Font: Inter as the substitute for STK Bureau Sans. */
+  :root {
+    --paper: #ffffff; --ink: #262626; --quiet: #676767; --tertiary: #727272; --hairline: #f0f0f0;
+    --control: #d4d4d4; --orange: #ff5e1f; --pill-black: #1f1f1f; --peach: #ffeee8; --crimson: #b52831;
+    --ease: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+  /* Dark theme: the same roles with the dark palette. Follows the system setting unless a choice is saved. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12151b; --ink: #e8ebf1; --quiet: #9aa3b2; --tertiary: #8a93a3; --hairline: #242a35;
+      --control: #3a4150; --peach: #2a1d19; --pill-black: #0b1220;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12151b; --ink: #e8ebf1; --quiet: #9aa3b2; --tertiary: #8a93a3; --hairline: #242a35;
+    --control: #3a4150; --peach: #2a1d19; --pill-black: #0b1220;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 Inter, Arial, sans-serif; letter-spacing: -0.04px; }
+  a { color: var(--ink); text-underline-offset: 3px; transition: color .2s var(--ease); }
+  a:hover { color: var(--quiet); }
+  .topbar { max-width: 1200px; height: 72px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 1px solid var(--hairline); }
+  .wordmark { font-size: 16px; font-weight: 500; }
+  .topbar nav { display: flex; gap: 8px; }
+  .pill-link { display: inline-block; padding: 6px 12px; border: 1px solid var(--control); border-radius: 9999px;
+    color: var(--ink); text-decoration: none; font-weight: 500; transition: border-color .2s var(--ease); }
+  .pill-link:hover { border-color: var(--ink); }
+  main { max-width: 1200px; min-height: calc(100vh - 72px); margin: 0 auto; padding: 32px 24px 64px;
+    border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
+  h1 { font-size: 32px; font-weight: 500; line-height: 1; letter-spacing: -0.8px; margin: 0 0 8px; }
+  .sub { color: var(--quiet); font-size: 19.2px; line-height: 1.2; letter-spacing: -0.48px; margin: 0 0 32px; max-width: 760px; }
+  .grid { display: grid; gap: 32px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .grid { grid-template-columns: 360px 1fr; } }
+  .stack { display: grid; gap: 32px; align-content: start; }
+  .card { background: var(--paper); border: 1px solid var(--hairline); border-radius: 4px; padding: 32px; }
+  h2 { font-size: 18px; font-weight: 500; line-height: 1.2; letter-spacing: -0.45px; margin: 0 0 16px; }
+  label { display: block; font-size: 14px; color: var(--quiet); letter-spacing: -0.14px; margin: 16px 0 8px; }
+  input[type="text"], input[type="date"], input[type="number"], textarea, select { width: 100%; padding: 8px 12px;
+    border: 1px solid var(--control); border-radius: 8px; background: var(--paper); color: var(--ink); font: inherit; font-size: 16px; }
+  input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, textarea:focus, select:focus { outline: none; border-color: var(--ink); }
+  textarea { min-height: 200px; resize: vertical; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row input[type="color"] { width: 44px; height: 36px; border: 1px solid var(--control); border-radius: 8px; background: none; padding: 2px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: 16px; min-height: 44px;
+    padding: 12px 24px; border: 1px solid var(--orange); border-radius: 9999px; background: var(--orange); color: var(--pill-black);
+    font: inherit; font-weight: 500; line-height: 1.5; cursor: pointer; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
+  .btn:hover { background: #ff7038; border-color: #ff7038; }
+  .btn.secondary { background: var(--paper); border-color: var(--control); color: var(--ink); }
+  .btn.secondary:hover { border-color: var(--ink); background: var(--paper); }
+  .btn.small { width: auto; margin-top: 8px; min-height: 36px; padding: 6px 16px; font-size: 14px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn:focus-visible, .fmt-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .custom-box, .block { border-top: 1px dashed var(--hairline); padding-top: 8px; margin-top: 16px; }
+  .labrow { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+  .labrow label { margin: 16px 0 0; }
+  input.ttl { width: 100%; padding: 6px 12px; font-size: 14px; }
+  .grip { cursor: grab; color: var(--tertiary); font-size: 14px; letter-spacing: -2px; user-select: none; margin-right: 4px; }
+  .grip:active { cursor: grabbing; }
+  .moving { opacity: .5; outline: 2px dashed var(--ink); outline-offset: 4px; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 14px; color: var(--ink); }
+  .summary { font-size: 14px; color: var(--quiet); margin: 0 0 16px; }
+  .slides { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .slide { position: relative; container-type: inline-size; aspect-ratio: 16 / 9; border-radius: 4px; border: 1px solid var(--hairline);
+    display: flex; align-items: center; justify-content: center; padding: 4.5% 1.9% 10.1%; text-align: center; overflow: hidden; }
+  .slide.overflow { outline: 2px solid var(--crimson); }
+  .slide-inner { width: 100%; white-space: pre-line; font-weight: 700; line-height: 1.35; }
+  .slide-tag { position: absolute; bottom: 8%; right: 1.9%; font-weight: 700; white-space: pre-line; text-align: right; line-height: 1.2; text-transform: uppercase; }
+  .slide-num { font-size: 13px; color: var(--tertiary); margin-bottom: 4px; }
+  .vnum { font-size: 0.5em; font-weight: 700; line-height: 0; vertical-align: 0.7em; }
+  .notes { font-size: 14px; color: var(--quiet); margin-top: 8px; }
+  .warn { color: var(--crimson); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  /* Each text box is a hidden textarea (its value keeps the formatting as markers) and an editor that shows it */
+  .fmt-editor { min-height: 120px; border: 1px solid var(--control); border-radius: 8px; padding: 8px 12px; background: var(--paper);
+    color: var(--ink); font: inherit; font-size: 16px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; outline: none; }
+  .fmt-editor:focus { border-color: var(--ink); }
+  .fmtbar { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .fmt-btn { border: 1px solid var(--control); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 4px 12px;
+    font: inherit; font-size: 14px; cursor: pointer; transition: background-color .2s var(--ease), color .2s var(--ease); }
+  .fmt-btn.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .fmtbar input[type="color"] { width: 36px; height: 32px; border: 1px solid var(--control); border-radius: 6px; background: none; padding: 2px; }
+  @media (max-width: 859px) { .fmt-btn, .btn, .pill-link { min-height: 44px; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="wordmark">Bible Study Slides</span>
+  <nav>
+    <a class="pill-link" href="index.html">Thumbnail maker</a>
+    <a class="pill-link" href="lyrics.html">Lyrics to slides</a>
+    <button class="pill-link" id="themeToggle" type="button">Dark</button>
+  </nav>
+</header>
+<main>
+  <h1>Bible Study Slides</h1>
+  <p class="sub">Paste the passage in any language, add questions and custom slides, then format, arrange and present them.</p>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card">
+        <h2>1. Study</h2>
+        <label for="savedStudies" style="margin-top:0">Saved studies</label>
+        <select id="savedStudies"></select>
+        <div class="two">
+          <button class="btn secondary" id="saveStudy" style="margin-top:8px">Save study</button>
+          <button class="btn secondary" id="newStudy" style="margin-top:8px">New study</button>
+        </div>
+        <button class="btn secondary" id="deleteStudy" style="margin-top:8px">Delete selected study</button>
+
+        <label for="studyTitle">Study title (title slide)</label>
+        <input id="studyTitle" type="text" placeholder="Walking in the light">
+        <div class="two">
+          <div>
+            <label for="reference" style="margin-top:0">Passage reference</label>
+            <input id="reference" type="text" placeholder="John 3:16-21">
+          </div>
+          <div>
+            <label for="studyDate" style="margin-top:0">Date</label>
+            <input id="studyDate" type="date">
+          </div>
+        </div>
+
+        <div id="passageBoxes">
+          <div class="block" data-id="passage4">
+            <div class="labrow">
+              <span class="grip" title="Drag to move">⋮⋮</span>
+              <label for="passage4">Passage 4 (blank = not shown)</label>
+              <input id="title4" class="ttl" type="text" placeholder="Slide title">
+            </div>
+            <textarea id="passage4" style="min-height:120px" placeholder="16 ..."></textarea>
+          </div>
+          <div class="block" data-id="passage5">
+            <div class="labrow">
+              <span class="grip" title="Drag to move">⋮⋮</span>
+              <label for="passage5">Passage 5 (blank = not shown)</label>
+              <input id="title5" class="ttl" type="text" placeholder="Slide title">
+            </div>
+            <textarea id="passage5" style="min-height:120px" placeholder="16 ..."></textarea>
+          </div>
+          <div class="block" data-id="passageBunong">
+            <div class="labrow">
+              <span class="grip" title="Drag to move">⋮⋮</span>
+              <label for="passageBunong">Bunong passage (blank = not shown)</label>
+              <input id="titleBunong" class="ttl" type="text" placeholder="Slide title">
+            </div>
+            <textarea id="passageBunong" style="min-height:120px" placeholder="16 ..."></textarea>
+          </div>
+          <div class="block" data-id="passageVi">
+            <div class="labrow">
+              <span class="grip" title="Drag to move">⋮⋮</span>
+              <label for="passageVi">Vietnamese passage (blank = not shown)</label>
+              <input id="titleVi" class="ttl" type="text" placeholder="Slide title">
+            </div>
+            <textarea id="passageVi" style="min-height:120px" placeholder="16 Vì Đức Chúa Trời yêu thế gian..."></textarea>
+          </div>
+          <div class="block" data-id="passageEn">
+            <div class="labrow">
+              <span class="grip" title="Drag to move">⋮⋮</span>
+              <label for="passageEn">English passage (blank = not shown)</label>
+              <input id="titleEn" class="ttl" type="text" placeholder="Slide title">
+            </div>
+            <textarea id="passageEn" style="min-height:120px" placeholder="16 For God so loved the world that he gave his only Son..."></textarea>
+          </div>
+        </div>
+
+        <label for="questions">Discussion questions (one per line, optional)</label>
+        <textarea id="questions" style="min-height:120px" placeholder="What does this verse tell us about God's love?&#10;How can we share that love this week?"></textarea>
+
+        <label>Custom slides (each box is one slide; blank boxes are skipped)</label>
+        <div id="customSlides"></div>
+        <button class="btn secondary small" id="addCustom" type="button">+ Add a custom slide</button>
+      </section>
+
+      <section class="card">
+        <h2>2. Projector settings</h2>
+        <label for="font" style="margin-top:0">Font</label>
+        <select id="font">
+          <option value="Arial">Arial (clear on projectors)</option>
+          <option value="Verdana">Verdana (widest letters)</option>
+          <option value="Calibri">Calibri (compact)</option>
+          <option value="Georgia">Georgia (serif, reads like a Bible)</option>
+        </select>
+        <label for="fontSize">Font size in pt (blank = automatic)</label>
+        <input id="fontSize" type="number" min="10" max="200" placeholder="Automatic">
+        <label>Colors</label>
+        <div class="row">
+          <input id="colorBg" type="color" value="#213648" title="Background">
+          <span class="notes">Background</span>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <input id="colorText" type="color" value="#f5f2ea" title="Text">
+          <span class="notes">Text (use high contrast for projectors)</span>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <input id="colorNum" type="color" value="#f2c14e" title="Verse numbers">
+          <span class="notes">Verse numbers (smaller, to stand out)</span>
+        </div>
+        <label class="check"><input id="showTitle" type="checkbox" checked> Add a title slide</label>
+        <label class="check"><input id="showLabels" type="checkbox" checked> Show the reference or question number in the corner</label>
+
+        <button class="btn secondary" id="download" disabled>Download PowerPoint (.pptx)</button>
+        <button class="btn" id="projector" disabled>Open projector view</button>
+        <div class="notes" id="status">Paste a passage to start.</div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Preview</h2>
+      <p class="summary" id="summary"></p>
+      <div class="slides" id="slides"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // Widescreen 16:9 slide: 13.33 × 7.5 in (960 × 540 pt). Text stays inside the side and top margins
+  // and above the reference label, which sits in the bottom margin.
+  const SLIDE_W_IN = 13.333, SLIDE_H_IN = 7.5;
+  const MARGIN_IN = 0.6;            // top and bottom margin
+  const SIDE_IN = 0.25;             // side margin: the text runs nearly edge to edge
+  const LABEL_OPACITY = 0.5;        // slide titles (bottom right) are faded
+  let LABEL_H_IN, labelPt, USABLE_H; // title area height and size, and the text height above it; set by setLabelLines()
+  // One title is 40 pt. Stacked titles (several boxes on one slide) use 28 pt, one line each.
+  // The text area above them shrinks to match, so nothing overlaps.
+  function setLabelLines(n) {
+    labelPt = n > 1 ? 28 : 40;
+    LABEL_H_IN = (n * labelPt * 1.2) / 72 + 0.1;
+    USABLE_H = SLIDE_H_IN - 2 * MARGIN_IN - LABEL_H_IN;
+  }
+  setLabelLines(1);
+  // Share of the slide width that the bottom margin takes up, for the preview and the projector
+  // (the slide height is 56.25% of its width)
+  const padBottomPct = () => ((MARGIN_IN + LABEL_H_IN) / SLIDE_H_IN) * 56.25;
+  const USABLE_W = SLIDE_W_IN - 2 * SIDE_IN;
+  const SLIDE_W_PT = 960;
+  const MAX_PT = 60, MIN_PT = 28;   // automatic size range. A typed size can be outside it.
+  const LINE_H = 1.35;              // line height as a multiple of the font size (PowerPoint at 1.1 spacing)
+  const FIT = 0.96;                 // use 96% of the text box, so small measuring differences do not overflow
+  const READABLE_PT = 28;           // below this, the text is hard to read from the back of a room
+  const CONTRAST_MIN = 7;           // projectors wash out pale text; below this, warn
+  // The passage boxes in the order they are arranged on the page. That order is the order the languages
+  // appear on each slide.
+  const DEFAULT_ORDER = ["passageBunong", "passageVi", "passageEn"];
+  const langIds = () => [...$("passageBoxes").children].map((b) => b.dataset.id);
+  const measurer = document.createElement("canvas").getContext("2d");
+
+  // Characters the font has no glyph for. The browser then draws them in the generic fallback family, so
+  // their width matches that family alone (checked against both monospace and serif).
+  function missingChars(text, font) {
+    const chars = [...new Set([...text].filter((c) => c.trim()))];
+    const widthIn = (f, c) => { measurer.font = `100px ${f}`; return measurer.measureText(c).width; };
+    const sameAsFallback = (c, generic) => widthIn(`"${font}", ${generic}`, c) === widthIn(generic, c);
+    return chars.filter((c) => sameAsFallback(c, "monospace") && sameAsFallback(c, "serif"));
+  }
+
+  // Lines a text takes when wrapped at this size. The width is measured with the chosen font, so the
+  // count matches what the slide shows. Verse-number markers are not drawn, so they are left out.
+  function rowsFor(text, size, font) {
+    measurer.font = `bold ${size}px ${font}`;
+    const maxW = USABLE_W * 72;   // the full width inside the side margins
+    let rows = 1, line = "";
+    for (const w of plainText(text).replace(/\u0001/g, "").split(" ")) {
+      const trial = line ? `${line} ${w}` : w;
+      if (!line || measurer.measureText(trial).width <= maxW) line = trial;
+      else { rows++; line = w; }
+    }
+    return rows;
+  }
+  // A slide holds 4 to 6 rows, depending on the font size. Automatic size aims for 5 rows.
+  const MIN_ROWS = 4, MAX_ROWS = 6, TARGET_ROWS = 5;
+  // Rows the text area can hold at this size, before the 6-row limit
+  function rowsRoom(size) {
+    return Math.floor((USABLE_H * 72 * FIT) / (size * LINE_H));
+  }
+  // Most rows a slide holds at this size
+  function maxRowsAt(size) {
+    return Math.min(MAX_ROWS, rowsRoom(size));
+  }
+  // True if these lines fit on one slide at this size. With dots, the space for " ..." is included.
+  function fits(lines, size, font, dots = false) {
+    const rows = lines.reduce((n, t, i) => n + rowsFor(i === lines.length - 1 && dots ? `${t} ...` : t, size, font), 0);
+    return rows <= maxRowsAt(size);
+  }
+
+  // Split lines across as many slides as needed: at line breaks where possible, and at word
+  // boundaries when one line is too long for a slide. Every slide is checked, so none overflows.
+  function splitToFit(lines, size, font, dots = false) {
+    const out = [];
+    let cur = [];
+    for (const paragraph of lines) {
+      let words = paragraph.split(" ");
+      while (words.length) {
+        let k = words.length;
+        while (k > 1 && !fits([...cur, words.slice(0, k).join(" ")], size, font, dots)) k--;
+        if (k === 1 && cur.length && !fits([...cur, words[0]], size, font, dots)) {
+          out.push(cur);
+          cur = [];
+          continue;
+        }
+        cur.push(words.slice(0, k).join(" "));
+        words = words.slice(k);
+        if (words.length) {
+          out.push(cur);
+          cur = [];
+        }
+      }
+    }
+    if (cur.length) out.push(cur);
+    return out;
+  }
+
+  // One slide if the lines fit; otherwise they are split across slides
+  function fitLines(lines, size, font) {
+    return fits(lines, size, font) ? [lines] : splitToFit(lines, size, font);
+  }
+
+  // Largest size (pt) that still holds 5 rows, and at which every verse, question and custom slide fits on one slide
+  function autoSize(verses, questions, extras, font) {
+    for (let s = MAX_PT; s > MIN_PT; s -= 2) {
+      if (rowsRoom(s) >= TARGET_ROWS && verses.every((v) => fits(chunkLines([v]), s, font))
+        && questions.every((q) => fits([q], s, font))
+        && extras.every((lines) => fits(lines, s, font))) return s;
+    }
+    return MIN_PT;
+  }
+
+  // Split pasted text into verses. A new verse starts at each line break and at each verse
+  // number ("...the world. 17 For God..."), so a run-on paste still splits into verses.
+  function verseUnits(text) {
+    const units = [];
+    for (const raw of text.normalize("NFC").split("\n")) {
+      for (const part of raw.split(/\s+(?=\d{1,3}\s+(?:\{[^}]*\})?\p{Lu})/u)) {
+        const v = part.replace(/\s+/g, " ").trim();
+        if (v) units.push(v);
+      }
+    }
+    return units;
+  }
+
+  // Each language box is split into verses. Verses are matched by their number, so the Bunong,
+  // Vietnamese and English text of one verse sit together. Blank boxes are skipped.
+  // A verse number is marked with \u0001 so it can be drawn smaller and highlighted.
+  function verseGroups() {
+    const byVerse = new Map();
+    for (const id of langIds()) {
+      verseUnits($(id).value).forEach((text, i) => {
+        const m = text.match(/^(\d{1,3})\s+/);
+        const key = m ? `v${m[1]}` : `p${i}`;
+        if (!byVerse.has(key)) byVerse.set(key, {});
+        const marked = text.replace(/^(\d{1,3})\s+/, "\u0001$1 ");
+        const prev = byVerse.get(key)[id];
+        byVerse.get(key)[id] = prev ? `${prev} ${marked}` : marked;
+      });
+    }
+    return [...byVerse.values()];
+  }
+
+  // The text of a group of verses as running paragraphs, one per language (blank languages are left out)
+  function chunkLines(group) {
+    return langIds().map((id) => group.map((v) => v[id] || "").filter(Boolean).join(" ")).filter(Boolean);
+  }
+
+  // Inline formatting inside a text box: {b}bold{/b}, {u}underline{/u}, {c:#rrggbb}color{/c}
+  const MARK_RE = /\{\/?(?:b|u|c(?::#[0-9a-fA-F]{6})?)\}/g;
+  const plainText = (t) => t.replace(MARK_RE, "");
+
+  // Split text into words, each with the formatting in effect where it starts. Markers are removed.
+  function parseWords(text, base) {
+    const words = [];
+    const stack = [];
+    let f = { ...base };
+    let word = null, wordF = null;
+    const re = /\{(\/?)(b|u|c)(?::(#[0-9a-fA-F]{6}))?\}|(\s+)|([^\s{]+|\{)/g;
+    let m;
+    while ((m = re.exec(text))) {
+      if (m[2]) {
+        if (m[1]) {
+          if (stack.length) f = stack.pop();
+        } else {
+          stack.push(f);
+          f = { ...f };
+          if (m[2] === "b") f.bold = true;
+          if (m[2] === "u") f.underline = true;
+          if (m[2] === "c") f.color = m[3];
+        }
+      } else if (m[4]) {
+        if (word !== null) { words.push({ w: word, f: wordF }); word = null; }
+      } else {
+        if (word === null) { word = ""; wordF = { ...f }; }
+        word += m[5];
+      }
+    }
+    if (word !== null) words.push({ w: word, f: wordF });
+    return words;
+  }
+
+  // Group words into segments that share one formatting: [{ text, f }]
+  function segsOf(words) {
+    const segs = [];
+    for (const { w, f } of words) {
+      const last = segs[segs.length - 1];
+      if (last && JSON.stringify(last.f) === JSON.stringify(f)) last.text += ` ${w}`;
+      else segs.push({ text: w, f });
+    }
+    return segs;
+  }
+
+  // Passage words in reading order. Each word keeps its language and its formatting, so a slide can show
+  // each language as its own paragraph. A verse number is marked with \u0001 so it can be drawn smaller.
+  function passageTokens(verses) {
+    const tokens = [];
+    for (const g of verses) {
+      for (const id of langIds()) {
+        if (g[id]) parseWords(g[id], fmtOfId(id)).forEach(({ w, f }) => tokens.push({ lang: id, w, f }));
+      }
+    }
+    return tokens;
+  }
+
+  // Group consecutive words of one language into a line of text on the slide
+  function tokensToRows(tokens) {
+    const rows = [];
+    let lang = null;
+    for (const t of tokens) {
+      if (t.lang !== lang) { rows.push({ lang: t.lang, words: [] }); lang = t.lang; }
+      rows[rows.length - 1].words.push(t);
+    }
+    return rows.map((r) => {
+      const segs = segsOf(r.words);
+      return { lang: r.lang, segs, text: segs.map((s) => s.text).join(" ") };
+    });
+  }
+
+  // Formatting of a text box: bold (on unless turned off), underline (off unless turned on), and a color (blank = the slide's color)
+  function fmtOf(owner) {
+    return {
+      bold: owner.dataset.bold !== "0",
+      underline: owner.dataset.underline === "1",
+      color: owner.dataset.color || "",
+    };
+  }
+  const fmtOfId = (id) => fmtOf($(id).closest(".block"));
+  const DEFAULT_FMT = { bold: true, underline: false, color: "" };
+  // Set a text box's formatting from a saved { bold, underline, color }
+  function setFmtData(owner, f) {
+    if (!f) return;
+    owner.dataset.bold = f.bold ? "1" : "0";
+    owner.dataset.underline = f.underline ? "1" : "0";
+    if (f.color) owner.dataset.color = f.color;
+    else delete owner.dataset.color;
+  }
+
+  // The passage flows on as continuous text: each slide takes as many words as fit, and a new slide
+  // starts where the next word does not fit. A slide that would hold only a word or two takes words
+  // back from the slide before it, so no slide is left nearly empty. A slide followed by more
+  // passage ends with " ..." to show that it continues.
+  // The titles of the given language boxes, one per line
+  function languageTitle(ids) {
+    return ids.map((id) => $(id.replace("passage", "title")).value.trim()).filter(Boolean).join("\n");
+  }
+  const MIN_WORDS = 4;
+  // Pack word tokens onto slides in one greedy pass. A slide that would hold only a word or two takes words
+  // back from the slide before it. With dots, a slide followed by more text ends with " ..." to show it continues.
+  // Returns, per slide, its lines as { lang, text, segs }.
+  function packTokens(tokens, size, font, dots) {
+    const fitsSlide = (ts) => fits(tokensToRows(ts).map((r) => r.text), size, font, dots);
+    const slides = [];
+    let cur = [];
+    for (const t of tokens) {
+      if (!cur.length || fitsSlide([...cur, t])) {
+        cur.push(t);
+      } else {
+        slides.push(cur);
+        cur = [t];
+      }
+    }
+    if (cur.length) slides.push(cur);
+    for (let i = slides.length - 1; i > 0; i--) {
+      const prev = slides[i - 1];
+      while (slides[i].length < MIN_WORDS && prev.length > MIN_WORDS) {
+        const next = [prev[prev.length - 1], ...slides[i]];
+        if (!fitsSlide(next)) break;
+        prev.pop();
+        slides[i] = next;
+      }
+    }
+    return slides.map((ts, i) => {
+      const lines = tokensToRows(ts);
+      if (dots && i < slides.length - 1) {
+        const last = lines[lines.length - 1];
+        last.segs[last.segs.length - 1].text += " ...";
+        last.text += " ...";
+      }
+      return lines;
+    });
+  }
+
+  function packPassage(verses, size, font, reference) {
+    const seen = new Set();
+    return packTokens(passageTokens(verses), size, font, true).map((lines, i) => {
+      // A box's title shows once, on the first slide that holds its text. The reference shows on the first slide.
+      const fresh = [...new Set(lines.map((r) => r.lang))].filter((id) => !seen.has(id));
+      fresh.forEach((id) => seen.add(id));
+      return { rows: lines.map((r) => r.text), segs: lines.map((r) => r.segs), label: languageTitle(fresh) || (i === 0 ? reference : "") };
+    });
+  }
+
+  // Word tokens for one custom box. Each line is its own paragraph, so each line gets its own language key.
+  function customTokens(c) {
+    return c.lines.flatMap((line, k) => parseWords(line, c.fmt).map(({ w, f }) => ({ lang: `L${k}`, w, f })));
+  }
+
+  // Format the date field as "Sunday, 8 November 2026"
+  function dateText(v) {
+    if (!v) return "";
+    return new Date(v + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+
+  // Contrast ratio between two colors (21 is the most, 1 the least), per WCAG
+  function contrast(a, b) {
+    const lum = (hex) => {
+      const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+        .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  // Largest size (pt) at which the longest word still fits across a slide
+  function widestWordLimit(slides, font) {
+    const words = slides.flatMap((s) => s.rows.join(" ").replace(/\u0001/g, "").split(/\s+/)).filter(Boolean);
+    const maxW = USABLE_W * 72 * FIT;
+    for (let s = 400; s >= 10; s -= 2) {
+      measurer.font = `bold ${s}px ${font}`;
+      if (words.every((w) => measurer.measureText(w).width <= maxW)) return s;
+    }
+    return 0;
+  }
+
+  // Custom slide boxes: each box is one slide. Blank boxes are not put on a slide.
+  const customBox = $("customSlides");
+  // Each custom box: its title (shown on its slide) and its text
+  const customItems = () => [...customBox.querySelectorAll(".custom-box")].map((w) => ({
+    title: w.querySelector(".custom-title").value.trim(),
+    text: w.querySelector(".custom-text").value,
+    fmt: fmtOf(w),
+  }));
+  function renumberCustom() {
+    [...customBox.querySelectorAll(".custom-label")].forEach((el, i) => { el.textContent = `Custom slide ${i + 1}`; });
+  }
+  // Bold, underline and text color for one text box. Bold is on by default; the color is cleared with Auto.
+  // The markers that show one element's formatting in the editor
+  const colorHex = (c) => {
+    measurer.fillStyle = "#000000";
+    measurer.fillStyle = c;
+    return measurer.fillStyle;
+  };
+  function marksOf(node) {
+    const marks = [];
+    const style = node.style || {};
+    if (node.tagName === "B" || node.tagName === "STRONG" || Number(style.fontWeight) >= 600 || style.fontWeight === "bold") {
+      marks.push(["{b}", "{/b}"]);
+    }
+    if (node.tagName === "U" || (style.textDecoration || "").includes("underline")) marks.push(["{u}", "{/u}"]);
+    const color = node.tagName === "FONT" ? node.getAttribute("color") : style.color;
+    if (color) marks.push([`{c:${colorHex(color)}}`, "{/c}"]);
+    return marks;
+  }
+
+  // The editor's content as marker text, which is what the rest of the page reads
+  function domToMarkers(root) {
+    let out = "";
+    const walk = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) { out += node.textContent; return; }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      if (node.tagName === "BR") { out += "\n"; return; }
+      if ((node.tagName === "DIV" || node.tagName === "P") && out && !out.endsWith("\n")) out += "\n";
+      const marks = marksOf(node);
+      marks.forEach(([open]) => { out += open; });
+      node.childNodes.forEach(walk);
+      marks.reverse().forEach(([, close]) => { out += close; });
+    };
+    root.childNodes.forEach(walk);
+    return out.replace(/\n$/, "");
+  }
+
+  // Draw marker text in the editor: the formatting shows and the markers do not
+  function markersToDom(text, el) {
+    el.textContent = "";
+    let f = { b: false, u: false, c: "" };
+    const stack = [];
+    const re = /\{(\/?)(b|u|c)(?::(#[0-9a-fA-F]{6}))?\}/g;
+    const emit = (chunk) => {
+      chunk.split("\n").forEach((line, i) => {
+        if (i) el.append(document.createElement("br"));
+        if (!line) return;
+        let node = document.createTextNode(line);
+        if (f.c) { const s = document.createElement("span"); s.style.color = f.c; s.append(node); node = s; }
+        if (f.u) { const u = document.createElement("u"); u.append(node); node = u; }
+        if (f.b) { const b = document.createElement("b"); b.append(node); node = b; }
+        el.append(node);
+      });
+    };
+    let last = 0;
+    let hit;
+    while ((hit = re.exec(text))) {
+      emit(text.slice(last, hit.index));
+      last = re.lastIndex;
+      if (hit[1]) {
+        f = stack.length ? stack.pop() : { b: false, u: false, c: "" };
+      } else {
+        stack.push({ ...f });
+        if (hit[2] === "b") f.b = true;
+        if (hit[2] === "u") f.u = true;
+        if (hit[2] === "c") f.c = hit[3];
+      }
+    }
+    emit(text.slice(last));
+  }
+
+  // Put a text box next to an editor that shows its formatting. The hidden textarea keeps the marker text.
+  function wrapTextBox(area) {
+    const editor = document.createElement("div");
+    editor.className = "fmt-editor";
+    editor.contentEditable = "true";
+    editor.spellcheck = false;
+    area.after(editor);
+    area.hidden = true;
+    area._editor = editor;
+    markersToDom(area.value, editor);
+    editor.addEventListener("input", () => {
+      area.value = domToMarkers(editor);
+      area.dispatchEvent(new Event("input"));
+    });
+    // Paste plain text only, so pasted fonts and colors do not come along
+    editor.addEventListener("paste", (e) => {
+      e.preventDefault();
+      document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
+    });
+  }
+
+  // Set a box's text and redraw its editor
+  function setBoxValue(area, text) {
+    area.value = text;
+    if (area._editor) markersToDom(text, area._editor);
+  }
+
+  // True when text is selected inside this editor
+  function selectionIn(editor) {
+    const s = window.getSelection();
+    return !!s && !s.isCollapsed && editor.contains(s.anchorNode) && editor.contains(s.focusNode);
+  }
+
+  // Remove text color from the selection, or from the whole editor when nothing is selected
+  function clearColor(editor, onlySelection) {
+    const s = window.getSelection();
+    const range = onlySelection && s.rangeCount ? s.getRangeAt(0) : null;
+    editor.querySelectorAll("font[color], [style*='color']").forEach((el) => {
+      if (range && !range.intersectsNode(el)) return;
+      el.replaceWith(...el.childNodes);
+    });
+    editor.dispatchEvent(new Event("input"));
+  }
+
+  // Bold, underline and text color. With text selected in the box, they apply to just that text; with nothing
+  // selected, they apply to the whole box. Pressing a button keeps the selection.
+  function formatBar(owner, area) {
+    const editor = area._editor;
+    const bar = document.createElement("div");
+    bar.className = "fmtbar";
+    const keepSelection = (b) => b.addEventListener("mousedown", (e) => e.preventDefault());
+    const toggle = (text, title, style, key, isDefaultOn, command) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "fmt-btn";
+      b.textContent = text;
+      b.title = title;
+      b.style.cssText = style;
+      const isOn = () => (isDefaultOn ? owner.dataset[key] !== "0" : owner.dataset[key] === "1");
+      const show = () => b.classList.toggle("on", isOn());
+      keepSelection(b);
+      b.addEventListener("click", () => {
+        if (selectionIn(editor)) {
+          document.execCommand(command);
+          editor.dispatchEvent(new Event("input"));
+          return;
+        }
+        owner.dataset[key] = isOn() ? "0" : "1";
+        show();
+        renderPreview();
+      });
+      show();
+      return b;
+    };
+    const color = document.createElement("input");
+    color.type = "color";
+    color.title = "Text color (select text first to color just that part)";
+    color.value = owner.dataset.color || "#ffffff";
+    // Moving the picker changes the whole box; with text selected, the color is applied when the picker closes
+    // Clicking the picker can take the selection away from the text, so the selection is remembered first
+    let saved = null;
+    color.addEventListener("mousedown", () => {
+      saved = selectionIn(editor) ? window.getSelection().getRangeAt(0).cloneRange() : null;
+    });
+    color.addEventListener("input", () => {
+      if (saved) return;
+      owner.dataset.color = color.value;
+      editor.style.color = color.value;
+      renderPreview();
+    });
+    color.addEventListener("change", () => {
+      if (!saved) return;
+      const s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(saved);
+      saved = null;
+      document.execCommand("foreColor", false, color.value);
+      editor.dispatchEvent(new Event("input"));
+    });
+    const auto = document.createElement("button");
+    auto.type = "button";
+    auto.className = "fmt-btn";
+    auto.textContent = "Auto";
+    auto.title = "Use the slide's text color";
+    keepSelection(auto);
+    auto.addEventListener("click", () => {
+      if (selectionIn(editor)) {
+        clearColor(editor, true);
+        return;
+      }
+      clearColor(editor, false);
+      delete owner.dataset.color;
+      editor.style.color = "";
+      color.value = $("colorText").value;
+      renderPreview();
+    });
+    bar.append(
+      toggle("B", "Bold", "font-weight:700", "bold", true, "bold"),
+      toggle("U", "Underline", "text-decoration:underline", "underline", false, "underline"),
+      color,
+      auto,
+    );
+    return bar;
+  }
+
+  // A label and a small input on one line, the input at the right, after the grip
+  function labRow(...nodes) {
+    const row = document.createElement("div");
+    row.className = "labrow";
+    row.append(...nodes);
+    return row;
+  }
+  function gripEl() {
+    const g = document.createElement("span");
+    g.className = "grip";
+    g.title = "Drag to move";
+    g.textContent = "⋮⋮";
+    return g;
+  }
+  function addCustomBox(item = { title: "", text: "" }) {
+    const wrap = document.createElement("div");
+    wrap.className = "custom-box";
+    setFmtData(wrap, item.fmt);
+    const label = document.createElement("label");
+    label.className = "custom-label";
+    const title = document.createElement("input");
+    title.type = "text";
+    title.className = "ttl custom-title";
+    title.placeholder = "Slide title";
+    title.value = item.title || "";
+    title.addEventListener("input", renderPreview);
+    const area = document.createElement("textarea");
+    area.className = "custom-text";
+    area.style.minHeight = "90px";
+    area.value = item.text || "";
+    area.addEventListener("input", renderPreview);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "btn secondary small";
+    remove.textContent = "Remove this slide";
+    remove.addEventListener("click", () => {
+      wrap.remove();
+      renumberCustom();
+      renderPreview();
+    });
+    wrap.append(labRow(gripEl(), label, title), area, remove);
+    wrapTextBox(area);
+    wrap.append(formatBar(wrap, area));
+    customBox.appendChild(wrap);
+    renumberCustom();
+  }
+
+  // Build the whole deck: title slide, then the passage, then the questions, then custom slides
+  function buildDeck() {
+    const font = $("font").value;
+    const custom = parseInt($("fontSize").value, 10);
+    // NFC joins accents with their letters, so the same text always draws and measures the same way
+    const reference = $("reference").value.trim().normalize("NFC");
+    const title = $("studyTitle").value.trim().normalize("NFC");
+    const verses = verseGroups();
+    // Titles that will show on a slide: one line each, so the title area is sized for the most that can stack
+    const titled = langIds().filter((id) => $(id).value.trim() && $(id.replace("passage", "title")).value.trim()).length;
+    setLabelLines(Math.max(1, titled));
+    const questions = $("questions").value.normalize("NFC").split("\n").map((q) => q.trim()).filter(Boolean);
+    // Each custom box is one slide, with its lines kept as they are. Blank boxes are skipped.
+    const extras = customItems()
+      .map((c) => ({ title: c.title, fmt: c.fmt, lines: c.text.normalize("NFC").split("\n").map((l) => l.trim()).filter(Boolean) }))
+      .filter((c) => c.lines.length);
+    const hasContent = verses.length + questions.length + extras.length > 0;
+    const size = custom > 0 ? custom : hasContent ? autoSize(verses, questions, extras.map((c) => c.lines), font) : MAX_PT;
+
+    const slides = [];
+    // Titles and questions are plain text in the default style
+    const plainSegs = (rows) => rows.map((t) => [{ text: t, f: DEFAULT_FMT }]);
+    const titleLines = [title.toUpperCase(), reference, dateText($("studyDate").value)].filter(Boolean);
+    if (titleLines.length && $("showTitle").checked) {
+      for (const rows of fitLines(titleLines, size, font)) slides.push({ label: "", rows, segs: plainSegs(rows) });
+    }
+    for (const s of packPassage(verses, size, font, reference)) slides.push({ label: s.label, rows: s.rows, segs: s.segs, verse: true });
+    questions.forEach((q, i) => {
+      for (const rows of fitLines([q], size, font)) slides.push({ label: `Question ${i + 1}`, rows, segs: plainSegs(rows) });
+    });
+    // A custom box keeps its own formatting; its lines pack like the passage, without the continuing dots
+    for (const c of extras) {
+      for (const lines of packTokens(customTokens(c), size, font, false)) {
+        slides.push({ label: c.title, rows: lines.map((r) => r.text), segs: lines.map((r) => r.segs) });
+      }
+    }
+    return { font, size, slides, customSize: custom > 0 };
+  }
+
+  // Put lines into an element. A line is a list of segments, each with its own formatting. Verse numbers
+  // (marked with \u0001) are drawn smaller and in the verse-number color, inline.
+  function styleSpan(span, f) {
+    if (!f) return;
+    span.style.fontWeight = f.bold ? "700" : "400";
+    if (f.underline) span.style.textDecoration = "underline";
+    if (f.color) span.style.color = f.color;
+  }
+  function fillText(el, segsPerLine, numColor) {
+    segsPerLine.forEach((segs, i) => {
+      if (i) el.append("\n");
+      segs.forEach((seg, j) => {
+        if (j) el.append(" ");
+        const span = document.createElement("span");
+        styleSpan(span, seg.f);
+        const parts = numColor ? seg.text.split(/\u0001(\d{1,3})/) : [seg.text.replace(/\u0001/g, "")];
+        parts.forEach((part, k) => {
+          if (k % 2) {
+            const n = document.createElement("span");
+            n.className = "vnum";
+            n.style.color = numColor;
+            n.textContent = part + " ";
+            span.append(n);
+          } else if (part) {
+            span.append(k ? part.replace(/^ /, "") : part);
+          }
+        });
+        el.append(span);
+      });
+    });
+  }
+
+  function renderPreview() {
+    const { font, size, slides, customSize } = buildDeck();
+    const box = $("slides");
+    box.innerHTML = "";
+    const bg = $("colorBg").value, fg = $("colorText").value;
+    const overflowing = [];
+    slides.forEach((s, i) => {
+      const wrap = document.createElement("div");
+      const num = document.createElement("div");
+      num.className = "slide-num";
+      num.textContent = `Slide ${i + 1}`;
+      const card = document.createElement("div");
+      card.className = "slide";
+      card.style.background = bg;
+      card.style.color = fg;
+      card.style.fontFamily = `${font}, sans-serif`;
+      card.style.paddingBottom = `${padBottomPct()}%`;
+      const inner = document.createElement("div");
+      inner.className = "slide-inner";
+      inner.style.fontSize = `${(size / SLIDE_W_PT) * 100}cqw`;
+      fillText(inner, s.segs, s.verse ? $("colorNum").value : null);
+      card.appendChild(inner);
+      if (s.label && $("showLabels").checked) {
+        const tag = document.createElement("div");
+        tag.className = "slide-tag";
+        tag.textContent = s.label;
+        tag.style.opacity = LABEL_OPACITY;
+        tag.style.fontSize = `calc(${labelPt} / ${SLIDE_W_PT} * 100cqw)`;
+        card.appendChild(tag);
+      }
+      wrap.append(num, card);
+      box.appendChild(wrap);
+      // Check the real layout too: the text must end above the reference label area
+      if (inner.offsetHeight > card.clientHeight * (USABLE_H / SLIDE_H_IN) + 1 || inner.scrollWidth > card.clientWidth) {
+        card.classList.add("overflow");
+        overflowing.push(i + 1);
+      }
+    });
+
+    const n = slides.length;
+    $("summary").textContent = n ? `${n} slide${n === 1 ? "" : "s"} · ${size} pt text · ${font}` : "";
+    $("download").disabled = n === 0;
+    $("projector").disabled = n === 0;
+
+    const warnings = [];
+    if (overflowing.length) {
+      const limit = widestWordLimit(slides, font);
+      warnings.push(`Slide ${overflowing.join(", ")} runs past the edge. Try a smaller size${limit ? ` (the longest word fits up to ${limit} pt)` : ""}.`);
+    }
+    // Characters the chosen font cannot draw would show as blank or as a substitute
+    const allText = slides.flatMap((s) => s.rows).join(" ").replace(/\u0001/g, "") + slides.map((s) => s.label).join(" ");
+    const missing = missingChars(allText, font);
+    if (missing.length) warnings.push(`${font} has no glyph for ${missing.slice(0, 12).join(" ")}. Pick another font.`);
+    // Passage slides with only a word or two can only be avoided at a smaller size
+    const passageSlides = slides.filter((s) => s.verse);
+    const thin = passageSlides.length > 1 ? passageSlides.filter((s) => {
+      const words = s.rows.join(" ").replace(/\u0001/g, "").replace(/ \.\.\.$/, "").split(/\s+/).filter(Boolean);
+      return words.length < MIN_WORDS;
+    }).length : 0;
+    if (thin) warnings.push(`${thin} passage slide${thin > 1 ? "s have" : " has"} fewer than ${MIN_WORDS} words at this size. Try a smaller size.`);
+    if (customSize && rowsRoom(size) < MIN_ROWS) warnings.push(`At ${size} pt only ${rowsRoom(size)} rows fit. Use a smaller size for 4 to 6 rows.`);
+    if (customSize && size < READABLE_PT) warnings.push(`${size} pt is small for a room. Below ${READABLE_PT} pt is hard to read from the back.`);
+    const ratio = contrast(bg, fg);
+    if (ratio < CONTRAST_MIN) warnings.push(`Text and background contrast is ${ratio.toFixed(1)}:1. Use a darker background or lighter text for the projector.`);
+    const status = $("status");
+    status.classList.toggle("warn", warnings.length > 0);
+    status.textContent = !n
+      ? "Paste a passage or questions to start."
+      : warnings.length ? warnings.join(" ") : "Ready. Review the slides, then download.";
+  }
+
+  // PowerPoint run options for one row's formatting
+  function rowOpts(f) {
+    if (!f) return {};
+    const o = { bold: f.bold };
+    if (f.underline) o.underline = { style: "sng" };
+    if (f.color) o.color = f.color.replace("#", "");
+    return o;
+  }
+
+  function download() {
+    const { font, size, slides } = buildDeck();
+    if (!slides.length) return;
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE";
+    const title = $("studyTitle").value.trim();
+    pptx.title = title || "Bible study";
+    const bg = $("colorBg").value.replace("#", "");
+    const fg = $("colorText").value.replace("#", "");
+    const showLabels = $("showLabels").checked;
+    for (const s of slides) {
+      const sl = pptx.addSlide();
+      sl.background = { color: bg };
+      if (s.label && showLabels) {
+        sl.addText(s.label.toUpperCase(), {
+          x: SLIDE_W_IN - SIDE_IN - 8, y: SLIDE_H_IN - MARGIN_IN - LABEL_H_IN, w: 8, h: LABEL_H_IN,
+          fontFace: font, fontSize: labelPt, bold: true, color: fg, transparency: Math.round((1 - LABEL_OPACITY) * 100),
+          align: "right", valign: "bottom", margin: 0,
+        });
+      }
+      // Verse numbers get their own smaller, colored run. Each language paragraph ends with a line break.
+      const numColor = s.verse ? $("colorNum").value.replace("#", "") : "";
+      const runs = [];
+      s.segs.forEach((line, i) => {
+        const start = runs.length;
+        line.forEach((seg, j) => {
+          if (j) runs.push({ text: " ", options: rowOpts(seg.f) });
+          const parts = numColor ? seg.text.split(/\u0001(\d{1,3})/) : [seg.text.replace(/\u0001/g, "")];
+          parts.forEach((part, k) => {
+            if (k % 2) runs.push({ text: part + " ", options: { color: numColor, fontSize: Math.round(size * 0.5) } });
+            else if (part) runs.push({ text: k ? part.replace(/^ /, "") : part, options: rowOpts(seg.f) });
+          });
+        });
+        if (i < s.segs.length - 1 && runs.length > start) runs[runs.length - 1].options.breakLine = true;
+      });
+      sl.addText(runs, {
+        x: SIDE_IN, y: MARGIN_IN, w: USABLE_W, h: USABLE_H,
+        fontFace: font, fontSize: size, bold: true, color: fg,
+        align: "center", valign: "middle", margin: 0,
+        lineSpacingMultiple: 1.1, fit: "none",
+      });
+    }
+    const safe = (title || "bible-study").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "bible-study";
+    pptx.writeFile({ fileName: `${safe}.pptx` });
+  }
+
+  // Send the same slides to the projector page. It reads them from localStorage under this key.
+  $("projector").addEventListener("click", () => {
+    const { font, size, slides } = buildDeck();
+    const deck = {
+      font,
+      size,
+      bg: $("colorBg").value,
+      fg: $("colorText").value,
+      showLabels: $("showLabels").checked,
+      numColor: $("colorNum").value,
+      reserve: true,   // the text stops above the slide title, as in the downloaded file
+      tagPt: labelPt,
+      tagOpacity: LABEL_OPACITY,
+      padBottomPct: padBottomPct(),
+      slides: slides.map((s) => ({ label: s.label || "", rows: [...s.rows], segs: s.segs, verse: !!s.verse })),
+    };
+    try {
+      localStorage.setItem("lyricsDeck", JSON.stringify(deck));
+    } catch (_) { /* storage blocked: the projector page will show its message */ }
+    window.open("projector.html", "_blank");
+  });
+
+  // ---------- Saved studies (kept in this browser) ----------
+  const STUDIES_KEY = "bibleStudies";
+  const FIELDS = ["studyTitle", "reference", "studyDate", "passage4", "passage5", "passageBunong", "passageVi", "passageEn", "title4", "title5", "titleBunong", "titleVi", "titleEn", "questions"];
+  const studySelect = $("savedStudies");
+
+  function loadStudies() {
+    try { return JSON.parse(localStorage.getItem(STUDIES_KEY) || "[]"); } catch (_) { return []; }
+  }
+  function storeStudies(list) {
+    try { localStorage.setItem(STUDIES_KEY, JSON.stringify(list)); } catch (_) { /* storage blocked */ }
+  }
+  function studyLabel(s) {
+    const first = (s.passageEn || s.passageBunong || s.passageVi || "").split("\n").find((l) => l.trim()) || "";
+    return s.studyTitle || s.reference || first.slice(0, 40) || "(untitled)";
+  }
+  function renderStudyList(selectedId = "") {
+    const list = loadStudies();
+    studySelect.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = list.length ? "Choose a saved study" : "No saved studies yet";
+    studySelect.appendChild(blank);
+    for (const s of list) {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = studyLabel(s);
+      studySelect.appendChild(o);
+    }
+    studySelect.value = selectedId;
+  }
+  function fillForm(study) {
+    for (const id of FIELDS) setBoxValue($(id), study ? study[id] || "" : "");
+    setPassageOrder(study && study.order ? study.order : DEFAULT_ORDER);
+    for (const b of document.querySelectorAll("#passageBoxes .block")) {
+      setFmtData(b, study && study.fmt ? study.fmt[b.dataset.id] || DEFAULT_FMT : DEFAULT_FMT);
+      b.querySelector(".fmtbar").replaceWith(formatBar(b, b.querySelector("textarea")));
+    }
+    customBox.innerHTML = "";
+    (study && study.custom && study.custom.length ? study.custom : [{}]).forEach((c) => addCustomBox(typeof c === "string" ? { text: c } : c));
+    // Studies saved before the language boxes had one passage box, which is put in the English box
+    if (study && study.passage && !study.passageEn) $("passageEn").value = study.passage;
+    renderPreview();
+  }
+  function saveCurrent() {
+    const data = Object.fromEntries(FIELDS.map((id) => [id, $(id).value]));
+    data.custom = customItems();
+    data.order = langIds();
+    data.fmt = Object.fromEntries([...document.querySelectorAll("#passageBoxes .block")].map((b) => [b.dataset.id, fmtOf(b)]));
+    if (!langIds().some((id) => $(id).value.trim()) && !data.questions.trim() && !data.custom.some((c) => c.text.trim())) return null;
+    const list = loadStudies();
+    const existing = list.find((s) => s.id === studySelect.value);
+    const study = { id: existing ? existing.id : String(Date.now()), ...data, savedAt: new Date().toISOString() };
+    if (existing) Object.assign(existing, study);
+    else list.unshift(study);
+    storeStudies(list);
+    renderStudyList(study.id);
+    return study;
+  }
+  function setStatusText(msg) {
+    $("status").textContent = msg;
+  }
+
+  $("saveStudy").addEventListener("click", () => {
+    setStatusText(saveCurrent() ? "Study saved in this browser." : "Paste a passage or questions before saving.");
+  });
+  $("newStudy").addEventListener("click", () => {
+    studySelect.value = "";
+    fillForm(null);
+    setStatusText("Ready for a new study.");
+  });
+  studySelect.addEventListener("change", () => {
+    const study = loadStudies().find((s) => s.id === studySelect.value);
+    if (study) fillForm(study);
+  });
+  $("deleteStudy").addEventListener("click", () => {
+    const id = studySelect.value;
+    if (!id) return;
+    if (!confirm("Delete this saved study?")) return;
+    storeStudies(loadStudies().filter((s) => s.id !== id));
+    renderStudyList("");
+    fillForm(null);
+  });
+  $("addCustom").addEventListener("click", () => {
+    addCustomBox();
+    renderPreview();
+    customBox.lastElementChild.querySelector("textarea").focus();
+  });
+
+  // Preview updates as you type or change a setting
+  for (const id of ["studyTitle", "reference", "studyDate", "passage4", "passage5", "passageBunong", "passageVi", "passageEn", "title4", "title5", "titleBunong", "titleVi", "titleEn", "questions", "fontSize"]) {
+    $(id).addEventListener("input", renderPreview);
+  }
+  for (const id of ["font", "colorBg", "colorText", "colorNum", "showTitle", "showLabels"]) {
+    $(id).addEventListener("change", renderPreview);
+  }
+  $("download").addEventListener("click", download);
+
+  // Put the passage boxes in the given order
+  function setPassageOrder(order) {
+    const box = $("passageBoxes");
+    order.forEach((id) => {
+      const b = box.querySelector(`[data-id="${id}"]`);
+      if (b) box.appendChild(b);
+    });
+  }
+
+  // Slide the other blocks smoothly into their new places when one is moved (a FLIP animation):
+  // remember where each block was, make the change, then animate each block from its old spot.
+  function animateMove(container, itemSel, change) {
+    const items = [...container.querySelectorAll(`:scope > ${itemSel}`)];
+    const before = new Map(items.map((el) => [el, el.getBoundingClientRect().top]));
+    change();
+    for (const el of items) {
+      const dy = before.get(el) - el.getBoundingClientRect().top;
+      if (dy) el.animate([{ transform: `translateY(${dy}px)` }, { transform: "translateY(0)" }], { duration: 180, easing: "ease-out" });
+    }
+  }
+
+  // Drag a block by its grip to move it. The grip is on the block, so a title and its textarea always move together.
+  function makeReorderable(container, itemSel) {
+    let moving = null;
+    container.addEventListener("pointerdown", (e) => {
+      const item = e.target.closest(".grip")?.closest(itemSel);
+      if (!item || item.parentElement !== container) return;
+      moving = item;
+      item.draggable = true;
+    });
+    // A press that did not start a drag: switch dragging back off so the textareas work normally
+    document.addEventListener("pointerup", () => {
+      if (moving && !moving.classList.contains("moving")) {
+        moving.draggable = false;
+        moving = null;
+      }
+    });
+    container.addEventListener("dragstart", (e) => {
+      if (!moving) return;
+      e.dataTransfer.setData("text/plain", "");
+      moving.classList.add("moving");
+    });
+    container.addEventListener("dragover", (e) => {
+      if (!moving) return;
+      e.preventDefault();
+      const after = [...container.querySelectorAll(`:scope > ${itemSel}`)]
+        .filter((c) => c !== moving)
+        .find((c) => e.clientY < c.getBoundingClientRect().top + c.offsetHeight / 2);
+      animateMove(container, itemSel, () => container.insertBefore(moving, after || null));
+    });
+    const finish = () => {
+      if (!moving) return;
+      const landed = moving;
+      landed.classList.remove("moving");
+      landed.draggable = false;
+      moving = null;
+      // A short highlight where the block lands
+      landed.animate([{ backgroundColor: "#ffeee8" }, { backgroundColor: "rgba(255,238,232,0)" }], { duration: 500 });
+      renderPreview();
+    };
+    container.addEventListener("dragend", finish);
+    container.addEventListener("drop", (e) => { e.preventDefault(); finish(); });
+  }
+  for (const b of document.querySelectorAll("#passageBoxes .block")) {
+    const area = b.querySelector("textarea");
+    wrapTextBox(area);
+    b.append(formatBar(b, area));
+  }
+  makeReorderable($("passageBoxes"), ".block");
+  makeReorderable(customBox, ".custom-box");
+
+  // Light or dark. The choice is remembered in this browser; without one, the system setting applies.
+  const themeButton = $("themeToggle");
+  const isDark = () => document.documentElement.dataset.theme === "dark"
+    || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+  const showTheme = () => { themeButton.textContent = isDark() ? "Light" : "Dark"; };
+  try {
+    if (localStorage.getItem("bibleTheme")) document.documentElement.dataset.theme = localStorage.getItem("bibleTheme");
+  } catch (_) { /* storage blocked: the system setting applies */ }
+  themeButton.addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("bibleTheme", next); } catch (_) { /* storage blocked */ }
+    showTheme();
+  });
+  showTheme();
+
+  addCustomBox();
+  renderStudyList("");
+  renderPreview();
+})();
+</script>
+</body>
+</html>

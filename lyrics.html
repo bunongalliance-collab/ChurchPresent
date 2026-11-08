@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyrics to Slides</title>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --text: #1b1f27; --muted: #5c6470;
+    --line: #dfe3ea; --accent: #1f4f8a; --accent-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151b; --panel: #1b2029; --text: #e8ebf1; --muted: #9aa3b2;
+      --line: #2c3340; --accent: #5b8fd6; --accent-text: #0b1220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
+  a { color: var(--accent); }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .grid { grid-template-columns: 340px 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+  input[type="text"], textarea, select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
+  textarea { min-height: 260px; resize: vertical; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row input[type="color"] { width: 44px; height: 36px; border: none; background: none; padding: 0; }
+  .btn { margin-top: 16px; width: 100%; padding: 11px; border: none; border-radius: 8px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 600; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .summary { font-size: 14px; margin: 0 0 12px; }
+  .slides { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .slide {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    padding: 4.5%;
+    text-align: center;
+    overflow: hidden;
+  }
+  .slide-inner { width: 100%; white-space: pre-line; font-weight: 700; line-height: 1.3; }
+  .slide-tag { position: absolute; bottom: 3%; right: 4.5%; font-size: calc(28 / 960 * 100cqw); font-weight: 700; opacity: .85; }
+  .slide-num { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .notes { font-size: 13px; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lyrics to Slides</h1>
+  <p class="sub">Paste the lyrics. Blank lines and labels start a new slide. Labels can be written as [Chorus], Chorus 1, c1, v2, and so on. For the title slide, add lines like "Title, Amazing Grace" and "Number, 90". The text is sized so it reads from the back of the room. <a href="index.html">← Thumbnail maker</a></p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1. Lyrics</h2>
+      <div id="account" style="margin-bottom:12px" hidden>
+        <div id="accountOut">
+          <label for="authEmail" style="margin-top:0">Anyone can view songs. Sign in to save, edit or delete</label>
+          <input id="authEmail" type="email" placeholder="Email" autocomplete="email">
+          <input id="authPass" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="margin-top:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn secondary" id="signIn" style="margin-top:8px">Sign in</button>
+            <button class="btn secondary" id="signUp" style="margin-top:8px">Create account</button>
+          </div>
+        </div>
+        <div id="accountIn" hidden>
+          <p id="whoami" style="margin:0 0 4px"></p>
+          <details style="margin:8px 0">
+            <summary>Add many songs at once</summary>
+            <textarea id="bulkText" style="min-height:140px" placeholder="Title, Song one&#10;Number, 1&#10;&#10;Verse 1&#10;...&#10;&#10;Title, Song two&#10;Number, 2&#10;..."></textarea>
+            <button class="btn secondary" id="bulkSave" style="margin-top:8px">Save all songs</button>
+          </details>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn secondary" id="importSongs" style="margin-top:8px">Import browser songs</button>
+            <button class="btn secondary" id="signOut" style="margin-top:8px">Sign out</button>
+          </div>
+        </div>
+      </div>
+      <label for="savedSongs" style="margin-top:0">Saved songs</label>
+      <select id="savedSongs"></select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn secondary" id="saveSong" style="margin-top:8px">Save song</button>
+        <button class="btn secondary" id="nextSong" style="margin-top:8px">Next song</button>
+      </div>
+      <button class="btn secondary" id="deleteSong" style="margin-top:8px">Delete selected song</button>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+        <div>
+          <label for="songTitle" style="margin-top:0">Song title (adds a title slide)</label>
+          <input id="songTitle" type="text" placeholder="Amazing Grace">
+        </div>
+        <div>
+          <label for="songNumber" style="margin-top:0">Song number</label>
+          <input id="songNumber" type="text" placeholder="90">
+        </div>
+      </div>
+
+      <label for="lyrics">Paste lyrics</label>
+      <textarea id="lyrics" placeholder="[Verse 1]&#10;Line one of the verse&#10;Line two of the verse&#10;&#10;[Chorus]&#10;Chorus line one&#10;Chorus line two"></textarea>
+
+
+      <h2 style="margin-top:20px">2. Projector settings</h2>
+      <label for="font">Font</label>
+      <select id="font">
+        <option value="Arial">Arial (clear on projectors)</option>
+        <option value="Verdana">Verdana (widest letters)</option>
+        <option value="Calibri">Calibri (compact)</option>
+        <option value="Georgia">Georgia (serif)</option>
+      </select>
+      <label for="perSlide">Maximum lines per slide</label>
+      <select id="perSlide">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+      <label for="fontSize">Font size in pt (blank = automatic)</label>
+      <input id="fontSize" type="number" min="20" max="200" placeholder="Automatic">
+      <label>Colors</label>
+      <div class="row">
+        <input id="colorBg" type="color" value="#213648" title="Background">
+        <span class="notes">Background</span>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <input id="colorText" type="color" value="#f5f2ea" title="Text">
+        <span class="notes">Text (use high contrast for projectors)</span>
+      </div>
+      <label class="check"><input id="showTitle" type="checkbox" checked> Add a title slide</label>
+      <label class="check"><input id="showLabels" type="checkbox" checked> Show section labels on slides (V1, C1)</label>
+      <label class="check"><input id="removeRepeats" type="checkbox"> Remove repeated text (off keeps repeats as typed)</label>
+
+      <button class="btn" id="download" disabled>Download PowerPoint (.pptx)</button>
+      <button class="btn secondary" id="projector" disabled>Open projector view</button>
+      <div class="notes" id="status">Paste lyrics to start.</div>
+    </section>
+
+    <section class="card">
+      <h2>Preview</h2>
+      <p class="summary" id="summary"></p>
+      <div class="slides" id="slides"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // Widescreen 16:9 slide (13.33 × 7.5 in = 960 × 540 pt)
+  const SLIDE_W_IN = 13.333, SLIDE_H_IN = 7.5;
+  const MARGIN_IN = 0.6;                       // safe area on all sides
+  const USABLE_W = SLIDE_W_IN - 2 * MARGIN_IN; // inches
+  const USABLE_H = SLIDE_H_IN - 2 * MARGIN_IN;
+  const SLIDE_W_PT = 960;
+  const MAX_PT = 84, MIN_PT = 28;              // 84 pt is the most that 4 rows fill the slide height
+  const LINE_H = 1.3;                          // line height as a multiple of font size
+  // Average character width as a fraction of font size, per font (bold adds about 5%)
+  const CHAR_W = { Arial: 0.53, Verdana: 0.6, Calibri: 0.49, Georgia: 0.56 };
+  // Title and number lines: "Title, Amazing Grace", "Title: ...", "Number, 90", "#90", "Number #90".
+  // They fill the title slide and are not sung, so they are removed from the slides.
+  function metaOf(line) {
+    let m = line.match(/^\s*title\s*[:,\-]\s*(.+?)\s*$/i);
+    if (m) return { title: m[1] };
+    m = line.match(/^\s*(?:song\s*)?(?:number|no\.?)?\s*[:,]?\s*#\s*(\d+)\s*$/i)
+      || line.match(/^\s*(?:song\s*)?number\s*[:,]?\s*(?:as\s*)?#?\s*[:,]?\s*(\d+)\s*$/i);
+    if (m) return { number: m[1] };
+    return null;
+  }
+
+  // Section labels: [Verse 1], Verse 2, Chorus, v1, c2, bridge 1, and so on.
+  // Returns the short label for slides (V1, C2, C, B1), or "" if the line is not a label.
+  const LABEL_WORDS = { v: "V", verse: "V", c: "C", chorus: "C", b: "B", bridge: "B", "pre-chorus": "PC", prechorus: "PC", intro: "I", outro: "O", tag: "T", ending: "E", refrain: "C", "plõ mpro": "C", "plo mpro": "C" };
+  function labelOf(line) {
+    // The label word may be two words long, such as "Plõ mpro" (Bunong for chorus)
+    const m = line.match(/^\s*(\[)?\s*([\p{L}-]+(?: [\p{L}-]+)?)\s*(\d*)\s*:?\s*(\])?\s*$/iu);
+    if (!m) return "";
+    const word = m[2].toLowerCase();
+    const short = LABEL_WORDS[word];
+    if (!short) return "";
+    // A lone "v", "c" or "b" counts only with a number or brackets, so a lyric line is not mistaken for a label
+    if (!m[3] && !m[1] && word.length === 1) return "";
+    // Choruses show the word on the slide, without a number
+    if (short === "C") return "Chorus";
+    return short + m[3];
+  }
+
+  // Break a pasted line into short phrases: where a capital letter follows a lowercase one
+  // (a stanza run on with no space, like "toyPăng"), and at each comma or period.
+  // A phrase longer than TARGET_WORDS is split into even pieces, so lines stay about 8 words.
+  // Lines are kept between MIN_WORDS and TARGET_WORDS words where the text allows it.
+  const TARGET_WORDS = 8, MIN_WORDS = 6;
+  function splitLine(line) {
+    const phrases = [];
+    for (const piece of line.replace(/(\p{Ll})(\p{Lu})/gu, "$1\n$2").split("\n")) {
+      for (const clause of piece.match(/[^,.;:]+[,.;:]*/g) || []) {
+        const words = clause.replace(/[,.;:]+$/, "").trim().split(/\s+/).filter(Boolean);
+        if (!words.length) continue;
+        const count = Math.ceil(words.length / TARGET_WORDS);
+        const per = Math.ceil(words.length / count);
+        for (let i = 0; i < words.length; i += per) phrases.push(words.slice(i, i + per));
+      }
+    }
+    // Merge short phrases from the same line, as long as the result is 8 words or fewer
+    const merged = [];
+    for (const p of phrases) {
+      const last = merged[merged.length - 1];
+      if (last && (last.length < MIN_WORDS || p.length < MIN_WORDS) && last.length + p.length <= TARGET_WORDS) {
+        merged[merged.length - 1] = last.concat(p);
+      } else {
+        merged.push(p);
+      }
+    }
+    return merged.map((w) => w.join(" "));
+  }
+
+  // Remove repeats so each part is shown once. Runs of 6+ identical words in a row
+  // (a stanza run on, like "...toy Păng yơh...") keep only the first copy.
+  // notes.repeats counts what was removed.
+  function cleanRepeats(text, notes) {
+    const spaced = text.replace(/(\p{Ll})(\p{Lu})/gu, "$1 $2");
+    const tokens = [];
+    const re = /(\s*)(\S+)/gu;
+    let m;
+    while ((m = re.exec(spaced))) {
+      const breaks = (m[1].match(/\n/g) || []).length;
+      // k is the word without case or punctuation, so "toy," and "toy" count as the same word
+      const k = m[2].toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+      tokens.push({ w: m[2], k, brk: tokens.length ? Math.min(breaks, 2) : 0 });
+    }
+    const n = tokens.length;
+    const same = (a, b, len) => {
+      for (let k = 0; k < len; k++) if (tokens[a + k].k !== tokens[b + k].k) return false;
+      return true;
+    };
+    const out = [];
+    let i = 0;
+    while (i < n) {
+      let best = 0;
+      // Shortest repeating block first, so every copy of the stanza is counted
+      for (let L = 6; L <= Math.floor((n - i) / 2); L++) {
+        if (same(i, i + L, L)) { best = L; break; }
+      }
+      if (!best) { out.push(tokens[i]); i++; continue; }
+      let reps = 1;
+      while (i + (reps + 1) * best <= n && same(i, i + reps * best, best)) reps++;
+      out.push(...tokens.slice(i, i + best));
+      notes.repeats += reps - 1;
+      i += reps * best;
+    }
+    return out.map((t, k) => (k === 0 ? "" : t.brk ? "\n".repeat(t.brk) : " ") + t.w).join("");
+  }
+
+  // Split lyrics into slides: blank lines and labels end a section, and long sections are split by maxLines
+  function buildSlides(text, maxLines, notes) {
+    const cleaned = notes.removeRepeats ? cleanRepeats(text.normalize("NFC"), notes) : text.normalize("NFC");
+    const sections = [];
+    const seen = new Set();
+    let cur = [];
+    let curLabel = "";
+    // A section with the same text as an earlier one (such as a chorus) is shown once.
+    // Single-line sections are kept, so "Amen" is not dropped.
+    const flush = () => {
+      if (cur.length) {
+        cur.label = curLabel;
+        const key = cur.join("|").toLowerCase();
+        if (cur.length >= 2 && seen.has(key) && notes.removeRepeats) notes.repeats++;
+        else { seen.add(key); sections.push(cur); }
+      }
+      cur = [];
+    };
+    // NFC joins accented letters into single characters, so the length checks are accurate
+    for (const raw of cleaned.split("\n")) {
+      const line = raw.trim();
+      const meta = metaOf(line);
+      if (meta) {
+        flush();
+        if (meta.title) notes.title = meta.title;
+        if (meta.number) notes.number = meta.number;
+        continue;
+      }
+      const lab = labelOf(line);
+      if (lab) { flush(); curLabel = lab; continue; }
+      // A blank line ends a section. A label followed by a blank line still labels the next lines.
+      if (!line) {
+        if (cur.length) {
+          flush();
+          curLabel = "";
+        }
+        continue;
+      }
+      cur.push(...splitLine(line));
+    }
+    flush();
+    // Each section is returned whole; current() fills its slides to the full width
+    return sections;
+  }
+
+  // Largest font size (pt) that fits these lines in the safe area. Long lines wrap and count as extra rows.
+  function fitSize(lines, font) {
+    const w = CHAR_W[font] * 1.05;
+    for (let s = MAX_PT; s >= MIN_PT; s -= 2) {
+      const charsPerRow = Math.floor((USABLE_W * 72) / (w * s));
+      let rows = 0;
+      for (const ln of lines) rows += Math.max(1, Math.ceil(ln.length / charsPerRow));
+      if (rows * s * LINE_H <= USABLE_H * 72) return s;
+    }
+    return MIN_PT;
+  }
+
+  // One size for the whole deck, so every slide looks the same on the projector.
+  // The size is set so a line of about 8 words fills the width, and 4 lines fit the height.
+  function deckSize(slides, font, perSlide) {
+    // The longest single word must fit across the width; rows are then filled with as many words as fit
+    let maxChars = 0;
+    for (const s of slides) {
+      for (const line of s) {
+        for (const w of line.split(/\s+/)) maxChars = Math.max(maxChars, w.length);
+      }
+    }
+    if (!maxChars) maxChars = 10;
+    const widthPt = (USABLE_W * 72) / (CHAR_W[font] * 1.05 * maxChars);
+    const heightPt = (USABLE_H * 72) / (perSlide * LINE_H);
+    return Math.max(MIN_PT, Math.min(MAX_PT, Math.floor(Math.min(widthPt, heightPt))));
+  }
+
+  // Break any row that is too wide at this size into rows of about equal length, with at least
+  // 2 words each, so no row is left with a single word. A row that cannot be split this way stays whole.
+  function fitRows(lines, font, size) {
+    const maxW = USABLE_W * 72;
+    const widthOf = (t) => t.length * CHAR_W[font] * 1.05 * size;
+    const out = [];
+    for (const line of lines) {
+      if (widthOf(line) <= maxW) { out.push(line); continue; }
+      const words = line.split(" ");
+      let done = false;
+      for (let k = Math.ceil(widthOf(line) / maxW); k <= Math.floor(words.length / 2) && !done; k++) {
+        let at = 0;
+        const pieces = [];
+        for (let i = 0; i < k; i++) {
+          const n = Math.floor(words.length / k) + (i < words.length % k ? 1 : 0);
+          pieces.push(words.slice(at, at + n).join(" "));
+          at += n;
+        }
+        if (pieces.every((p) => widthOf(p) <= maxW)) {
+          out.push(...pieces);
+          done = true;
+        }
+      }
+      if (!done) out.push(line);
+    }
+    return out;
+  }
+
+  // Lay out one section (a verse, chorus, or bridge) as slides of up to perSlide rows.
+  // A section that fits stays on one slide. A longer one is split at line breaks, never inside a word.
+  function packSection(sec, font, size, perSlide) {
+    const maxW = USABLE_W * 72;
+    const widthOf = (t) => t.length * CHAR_W[font] * 1.05 * size;
+    // Wrap each lyric phrase on its own: words wrap inside a phrase, and a new phrase starts a new row.
+    // Each row remembers whether it starts a phrase, so a split can fall at a line break.
+    // Fill each row across the slide with as many words as fit, then start the next row
+    const rows = [];
+    let cur = "";
+    for (const phrase of sec) {
+      for (const word of phrase.split(/\s+/).filter(Boolean)) {
+        const next = cur ? `${cur} ${word}` : word;
+        if (cur && widthOf(next) > maxW) {
+          rows.push(cur);
+          cur = word;
+        } else {
+          cur = next;
+        }
+      }
+    }
+    if (cur) rows.push(cur);
+    // The whole section fits on one slide: keep it together. A longer one is split into the fewest
+    // slides, sharing the rows evenly and breaking at line starts where possible.
+    // Split into the fewest slides, sharing the rows evenly
+    const count = Math.ceil(rows.length / perSlide);
+    const target = Math.ceil(rows.length / count) || 1;
+    const slides = [];
+    for (let i = 0; i < rows.length; i += target) slides.push(rows.slice(i, i + target));
+    const countWords = (sl) => sl.join(" ").split(/\s+/).filter(Boolean).length;
+    // The last slide of a verse needs at least 4 words. Take the missing words from the end of
+    // the slide before it, keeping at least one word in each of its rows.
+    if (slides.length > 1 && countWords(slides[slides.length - 1]) < 4) {
+      const prev = slides[slides.length - 2];
+      const last = slides[slides.length - 1];
+      let need = 4 - countWords(last);
+      const moved = [];
+      for (let r = prev.length - 1; r >= 0 && need > 0; r--) {
+        const ws = prev[r].split(" ");
+        const take = Math.min(need, ws.length - 1);
+        if (take > 0) {
+          moved.unshift(ws.splice(ws.length - take, take).join(" "));
+          prev[r] = ws.join(" ");
+          need -= take;
+        }
+      }
+      if (moved.length) {
+        const mv = moved.join(" ");
+        if (last.length < perSlide) last.unshift(mv);
+        else last[0] = mv + " " + last[0];
+      }
+    }
+    return slides.map((sl) => {
+      sl.label = sec.label;
+      return sl;
+    });
+  }
+
+  function current() {
+    const font = $("font").value;
+    const perSlide = parseInt($("perSlide").value, 10);
+    const notes = { repeats: 0, removeRepeats: $("removeRepeats").checked };
+    const slides = buildSlides($("lyrics").value, perSlide, notes);
+    // Title and number come from the lyrics box if typed there, otherwise from the Song title field
+    // The boxes above the lyrics win; "Title, ..." and "Number, ..." lines in the lyrics are the fallback
+    const title = $("songTitle").value.trim() || notes.title || "";
+    const number = ($("songNumber").value.trim() || notes.number || "").replace(/^#/, "");
+    const titleLines = [title, number ? `#${number}` : ""].filter(Boolean);
+    const titleSlide = titleLines.length && $("showTitle").checked ? [titleLines] : [];
+    const all = [...titleSlide, ...slides];
+    // A typed size overrides the automatic one, and may be larger than the automatic maximum
+    const custom = parseInt($("fontSize").value, 10);
+    const size = custom > 0 ? custom : all.length ? deckSize(all, font, perSlide) : MAX_PT;
+    const packed = slides.flatMap((sec) => packSection(sec, font, size, perSlide));
+    return { font, slides, title, titleSlide, all: [...titleSlide, ...packed], size, notes };
+  }
+
+  function renderPreview() {
+    const { font, all, size, notes } = current();
+    const box = $("slides");
+    box.innerHTML = "";
+    const bg = $("colorBg").value, fg = $("colorText").value;
+    all.forEach((lines, i) => {
+      const wrap = document.createElement("div");
+      const num = document.createElement("div");
+      num.className = "slide-num";
+      num.textContent = `Slide ${i + 1}`;
+      const card = document.createElement("div");
+      card.className = "slide";
+      card.style.background = bg;
+      card.style.color = fg;
+      card.style.fontFamily = `${font}, sans-serif`;
+      const inner = document.createElement("div");
+      inner.className = "slide-inner";
+      // Size as a share of the slide width, so the preview matches the file
+      inner.style.fontSize = `${(size / SLIDE_W_PT) * 100}cqw`;
+      inner.textContent = lines.join("\n");
+      card.appendChild(inner);
+      if (lines.label && $("showLabels").checked) {
+        const tag = document.createElement("div");
+        tag.className = "slide-tag";
+        tag.textContent = lines.label;
+        // Verse labels (V1, V2) are soft so they don't compete with the words
+        if (lines.label.startsWith("V")) tag.style.opacity = 0.65;
+        card.appendChild(tag);
+      }
+      wrap.append(num, card);
+      box.appendChild(wrap);
+    });
+
+    $("summary").textContent = all.length
+      ? `${all.length} slide${all.length === 1 ? "" : "s"} · ${size} pt text · ${font}`
+        + (notes.repeats ? ` · ${notes.repeats} repeat${notes.repeats === 1 ? "" : "s"} shown once` : "")
+      : "";
+    $("download").disabled = all.length === 0;
+    $("projector").disabled = all.length === 0;
+    $("status").textContent = all.length ? "Ready. Review the slides, then download." : "Paste lyrics to start.";
+    // Warn when the chosen size is too big for the slide (the estimate ignores extra wrapped rows)
+    const tooWide = all.some((s) => s.some((l) => l.length * CHAR_W[font] * 1.05 * size > USABLE_W * 72));
+    const tooTall = all.some((s) => s.length * size * LINE_H > USABLE_H * 72);
+    if (all.length && (tooWide || tooTall)) {
+      $("status").textContent = "Warning: at this size some lines may wrap or run past the edge of the slide. Try a smaller size.";
+      $("status").style.color = "#c0392b";
+    } else {
+      $("status").style.color = "";
+    }
+  }
+
+  function download() {
+    const { font, all, titleSlide, title, size } = current();
+    if (!all.length) return;
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE";
+    pptx.title = title || "Lyrics";
+    const bg = $("colorBg").value.replace("#", "");
+    const fg = $("colorText").value.replace("#", "");
+    const showLabels = $("showLabels").checked;
+    for (const lines of all) {
+      const sl = pptx.addSlide();
+      sl.background = { color: bg };
+      if (lines.label && showLabels) {
+        sl.addText(lines.label, {
+          x: SLIDE_W_IN - MARGIN_IN - 3, y: SLIDE_H_IN - MARGIN_IN - 0.5, w: 3, h: 0.5,
+          fontFace: font, fontSize: 28, bold: true, color: fg,
+          transparency: lines.label.startsWith("V") ? 35 : 0,
+          align: "right", valign: "bottom", margin: 0,
+        });
+      }
+      sl.addText(lines.join("\n"), {
+        x: MARGIN_IN, y: MARGIN_IN, w: USABLE_W, h: USABLE_H,
+        fontFace: font, fontSize: size, bold: true, color: fg,
+        align: "center", valign: "middle", margin: 0,
+        lineSpacingMultiple: 1.1, fit: "none",
+      });
+    }
+    const safe = (title || "lyrics").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "lyrics";
+    pptx.writeFile({ fileName: `${safe}.pptx` });
+  }
+
+  // Turn a typed shortcut line into the full word as you type: "v1" becomes "Verse 1",
+  // "c2" becomes "Chorus 2", "b1" becomes "Bridge 1". The cursor stays at the end of that line.
+  const FULL_WORD = { v: "Verse", c: "Chorus", b: "Bridge" };
+  function expandShortcuts(ta) {
+    const lines = ta.value.split("\n");
+    const caretLine = ta.value.slice(0, ta.selectionStart).split("\n").length - 1;
+    let changed = false;
+    const out = lines.map((l) => {
+      const m = l.match(/^(\s*)(v|c|b)\s*(\d+)\s*:?\s*$/i);
+      if (!m) return l;
+      changed = true;
+      return `${m[1]}${FULL_WORD[m[2].toLowerCase()]} ${m[3]}`;
+    });
+    if (!changed) return;
+    const before = out.slice(0, caretLine).reduce((s, l) => s + l.length + 1, 0);
+    ta.value = out.join("\n");
+    ta.selectionStart = ta.selectionEnd = before + out[caretLine].length;
+  }
+  // Move "Title: ..." and "Number: ..." lines from the lyrics into the title and number boxes.
+  // Only finished lines (above the cursor's line) are read, so a title is not taken mid-typing.
+  function takeMetaLines(ta) {
+    const caret = ta.selectionStart;
+    const caretLine = ta.value.slice(0, caret).split("\n").length - 1;
+    const kept = [];
+    let removedBeforeCaret = 0;
+    let changed = false;
+    ta.value.split("\n").forEach((l, i) => {
+      const m = i < caretLine ? metaOf(l) : null;
+      if (m && (m.title || m.number)) {
+        changed = true;
+        if (m.title) $("songTitle").value = m.title;
+        if (m.number) $("songNumber").value = m.number;
+        removedBeforeCaret += l.length + 1;
+        return;
+      }
+      kept.push(l);
+    });
+    if (!changed) return;
+    ta.value = kept.join("\n");
+    ta.selectionStart = ta.selectionEnd = Math.max(0, caret - removedBeforeCaret);
+  }
+
+  const lyricsBox = $("lyrics");
+  lyricsBox.addEventListener("input", () => {
+    expandShortcuts(lyricsBox);
+    takeMetaLines(lyricsBox);
+    renderPreview();
+  });
+  for (const id of ["songTitle", "songNumber"]) $(id).addEventListener("input", renderPreview);
+  for (const id of ["font", "perSlide", "colorBg", "colorText", "showTitle", "showLabels", "removeRepeats"]) $(id).addEventListener("change", renderPreview);
+  $("fontSize").addEventListener("input", renderPreview);
+  $("download").addEventListener("click", download);
+
+  // Send the same slides to the projector page. It reads them from localStorage.
+  $("projector").addEventListener("click", () => {
+    const { font, all, size } = current();
+    const deck = {
+      font,
+      size,
+      bg: $("colorBg").value,
+      fg: $("colorText").value,
+      showLabels: $("showLabels").checked,
+      slides: all.map((s) => ({ label: s.label || "", rows: [...s] })),
+    };
+    try {
+      localStorage.setItem("lyricsDeck", JSON.stringify(deck));
+    } catch (_) { /* storage blocked: the projector page will show its message */ }
+    window.open("projector.html", "_blank");
+  });
+  // ---------- Saved songs ----------
+  // Signed in: songs live in Supabase (any device). Not signed in, or Supabase not set up: this browser only.
+  const SONGS_KEY = "lyricsSongs";
+  const songSelect = $("savedSongs");
+  const cfg = window.SUPABASE_CONFIG || {};
+  const sb = window.supabase && cfg.url && cfg.anonKey ? window.supabase.createClient(cfg.url, cfg.anonKey) : null;
+  let user = null;
+  let songs = [];
+
+  function loadLocal() {
+    try { return JSON.parse(localStorage.getItem(SONGS_KEY) || "[]"); } catch (_) { return []; }
+  }
+  function storeLocal(list) {
+    try { localStorage.setItem(SONGS_KEY, JSON.stringify(list)); } catch (_) { /* storage blocked */ }
+  }
+  const fromRow = (r) => ({ id: r.id, title: r.title, number: r.song_number, lyrics: r.lyrics, owner: r.owner_id });
+  const toRow = (s) => ({ title: s.title, song_number: s.number, lyrics: s.lyrics });
+
+  async function refreshSongs(selectedId = "") {
+    if (sb) {
+      // Reading is public: everyone sees the shared songs, signed in or not
+      const { data, error } = await sb.from("lyric_songs").select("*").order("updated_at", { ascending: false });
+      if (error) { setStatusText("Could not load songs: " + error.message); songs = []; }
+      else songs = data.map(fromRow);
+    } else {
+      songs = loadLocal();
+    }
+    renderSongList(selectedId);
+  }
+  function songLabel(s) {
+    const first = (s.lyrics || "").split("\n").find((l) => l.trim()) || "";
+    const name = s.title || first.slice(0, 40) || "(untitled)";
+    return s.number ? s.number + ". " + name : name;
+  }
+  // Sort by song number (numeric, so 9 comes before 10). Songs with no number go last, then by name.
+  function sortedSongs() {
+    const num = (s) => { const n = parseFloat(s.number); return isNaN(n) ? Infinity : n; };
+    return songs.slice().sort((a, b) => {
+      const d = num(a) - num(b);
+      if (d !== 0 && !isNaN(d)) return d;
+      return songLabel(a).localeCompare(songLabel(b), undefined, { numeric: true });
+    });
+  }
+  function renderSongList(selectedId = "") {
+    songSelect.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = songs.length ? "Choose a saved song" : "No saved songs yet";
+    songSelect.appendChild(blank);
+    for (const s of sortedSongs()) {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = songLabel(s);
+      songSelect.appendChild(o);
+    }
+    songSelect.value = selectedId;
+  }
+  // Put a song into the form and refresh the preview
+  function fillForm(song) {
+    $("lyrics").value = song ? song.lyrics : "";
+    $("songTitle").value = song ? song.title || "" : "";
+    $("songNumber").value = song ? song.number || "" : "";
+    $("songNumber").dispatchEvent(new Event("input"));
+    $("lyrics").dispatchEvent(new Event("input"));
+    $("songTitle").dispatchEvent(new Event("input"));
+  }
+  // Save the form as a song: update the selected one, or add a new one
+  async function saveCurrent() {
+    const text = $("lyrics").value;
+    if (!text.trim()) return null;
+    if (sb && !user) { setStatusText("Sign in to save songs. Everyone can view them without signing in."); return null; }
+    let existing = songs.find((s) => s.id === songSelect.value);
+    // A song someone else saved can't be changed: saving makes your own copy
+    if (sb && existing && existing.owner !== user.id) existing = null;
+    const song = {
+      id: existing ? existing.id : String(Date.now()),
+      title: $("songTitle").value.trim(),
+      number: $("songNumber").value.trim(),
+      lyrics: text,
+    };
+    if (sb && user) {
+      const q = existing
+        ? sb.from("lyric_songs").update(toRow(song)).eq("id", existing.id).select().single()
+        : sb.from("lyric_songs").insert(toRow(song)).select().single();
+      const { data, error } = await q;
+      if (error) { setStatusText("Could not save: " + error.message); return null; }
+      song.id = data.id;
+    } else {
+      song.savedAt = new Date().toISOString();
+      const list = loadLocal();
+      const local = list.find((s) => s.id === song.id);
+      if (local) Object.assign(local, song);
+      else list.unshift(song);
+      storeLocal(list);
+    }
+    await refreshSongs(song.id);
+    return song;
+  }
+
+  $("saveSong").addEventListener("click", async () => {
+    if (await saveCurrent()) setStatusText(sb ? "Song saved." : "Song saved in this browser.");
+    else if (!$("lyrics").value.trim()) setStatusText("Paste lyrics before saving.");
+  });
+  $("nextSong").addEventListener("click", async () => {
+    await saveCurrent();
+    songSelect.value = "";
+    fillForm(null);
+    setStatusText("Ready for the next song.");
+  });
+  songSelect.addEventListener("change", () => {
+    const song = songs.find((s) => s.id === songSelect.value);
+    if (song) fillForm(song);
+  });
+  $("deleteSong").addEventListener("click", async () => {
+    const id = songSelect.value;
+    if (!id) return;
+    if (sb && !user) { setStatusText("Sign in to delete songs."); return; }
+    if (!confirm("Delete this saved song?")) return;
+    if (sb && user) {
+      const mine = songs.find((s) => s.id === id);
+      if (mine && mine.owner !== user.id) { setStatusText("You can only delete songs you saved."); return; }
+      const { error } = await sb.from("lyric_songs").delete().eq("id", id);
+      if (error) { setStatusText("Could not delete: " + error.message); return; }
+    } else {
+      storeLocal(loadLocal().filter((s) => s.id !== id));
+    }
+    await refreshSongs("");
+    fillForm(null);
+  });
+
+  // ---------- Account (only shown when supabase-config.js is filled in) ----------
+  function renderAccount() {
+    $("account").hidden = !sb;
+    $("accountOut").hidden = !!user;
+    $("accountIn").hidden = !user;
+    if (user) $("whoami").textContent = "Signed in as " + user.email;
+  }
+  async function authAction(kind) {
+    const email = $("authEmail").value.trim();
+    const password = $("authPass").value;
+    if (!email || password.length < 6) { setStatusText("Enter an email and a password of 6+ characters."); return; }
+    const { data, error } = kind === "up"
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password });
+    if (error) { setStatusText(error.message); return; }
+    if (kind === "up" && !data.session) setStatusText("Account created. Check your email to confirm it, then sign in.");
+  }
+  $("signIn").addEventListener("click", () => authAction("in"));
+  $("signUp").addEventListener("click", () => authAction("up"));
+  $("signOut").addEventListener("click", () => sb.auth.signOut());
+  // Copy songs saved in this browser into the account (skips ones already imported)
+  $("importSongs").addEventListener("click", async () => {
+    const local = loadLocal();
+    if (!local.length) { setStatusText("No songs saved in this browser."); return; }
+    const { data: have } = await sb.from("lyric_songs").select("local_id").not("local_id", "is", null);
+    const done = new Set((have || []).map((r) => r.local_id));
+    const rows = local.filter((s) => !done.has(s.id)).map((s) => ({ ...toRow(s), local_id: s.id }));
+    if (!rows.length) { setStatusText("All browser songs are already in your account."); return; }
+    const { error } = await sb.from("lyric_songs").insert(rows);
+    if (error) { setStatusText("Import failed: " + error.message); return; }
+    await refreshSongs("");
+    setStatusText("Imported " + rows.length + " song" + (rows.length === 1 ? "" : "s") + ".");
+  });
+
+  // Bulk add: paste several songs, each starting with a "Title, ..." line (and optionally "Number, ...")
+  function parseBulk(text) {
+    const out = [];
+    let cur = null;
+    for (const line of text.replace(/\r/g, "").split("\n")) {
+      const t = line.match(/^\s*title\s*[,:]\s*(.+?)\s*$/i);
+      const n = line.match(/^\s*number\s*[,:#]?\s*#?\s*(.+?)\s*$/i);
+      if (t) { cur = { title: t[1], number: "", lines: [] }; out.push(cur); }
+      else if (cur && n && !cur.number && !cur.lines.some((l) => l.trim())) cur.number = n[1];
+      else if (cur) cur.lines.push(line);
+    }
+    return out
+      .map((s) => ({ title: s.title, number: s.number, lyrics: s.lines.join("\n").trim() }))
+      .filter((s) => s.lyrics);
+  }
+  $("bulkSave").addEventListener("click", async () => {
+    const found = parseBulk($("bulkText").value);
+    if (!found.length) { setStatusText('Nothing to save. Each song must start with a "Title, ..." line.'); return; }
+    const key = (s) => (s.number + "|" + s.title).toLowerCase();
+    const have = new Set(songs.map((s) => key(s)));
+    const fresh = found.filter((s) => !have.has(key(s)));
+    if (fresh.length) {
+      const { error } = await sb.from("lyric_songs").insert(fresh.map(toRow));
+      if (error) { setStatusText("Bulk save failed: " + error.message); return; }
+    }
+    $("bulkText").value = "";
+    await refreshSongs("");
+    const skipped = found.length - fresh.length;
+    setStatusText("Saved " + fresh.length + " song" + (fresh.length === 1 ? "" : "s") + (skipped ? ", skipped " + skipped + " already saved." : "."));
+  });
+
+  if (sb) {
+    sb.auth.onAuthStateChange((_event, session) => {
+      user = session ? session.user : null;
+      renderAccount();
+      refreshSongs("");
+    });
+  }
+  renderAccount();
+
+  function setStatusText(msg) {
+    $("status").textContent = msg;
+  }
+
+  refreshSongs("");
+  renderPreview();
+})();
+</script>
+</body>
+</html>
