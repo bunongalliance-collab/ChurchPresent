@@ -13,7 +13,7 @@ export const MIN_PT = 28;
 export const LINE_H = 1.3;
 
 // Average character width as a fraction of font size, per font (bold adds about 5%)
-export const CHAR_W: Record<string, number> = { Arial: 0.53, Verdana: 0.6, Calibri: 0.49, Georgia: 0.56 };
+export const CHAR_W: Record<string, number> = { Arial: 0.487, Verdana: 0.58, Calibri: 0.44, Georgia: 0.52 }; // average bold character width, measured (x1.05 safety factor applied in the engine)
 export const FONTS = Object.keys(CHAR_W);
 
 // Visible length of text: formatting markers (bold, colour, highlight, verse-number marks) take no space
@@ -202,7 +202,7 @@ export function flowLines(lines: string[], font: string, size: number, maxRows =
 }
 
 // Lay out one section as slides of up to perSlide rows. A section that fits stays on one slide.
-export function packSection(sec: Slide, font: string, size: number, perSlide: number): Slide[] {
+export function packSection(sec: Slide, font: string, size: number, perSlide: number, paragraphBreaks = false): Slide[] {
   const maxW = USABLE_W * 72;
   const widthOf = (t: string) => visLen(t) * CHAR_W[font] * 1.05 * size;
   const rows: string[] = [];
@@ -210,6 +210,8 @@ export function packSection(sec: Slide, font: string, size: number, perSlide: nu
   for (const phrase of sec) {
     for (const word of phrase.split(/\s+/).filter(Boolean)) {
       const next = cur ? `${cur} ${word}` : word;
+      // With paragraph breaks on, every verse (a word marked as a verse number) starts a new row
+      if (cur && paragraphBreaks && word.startsWith("\u0001")) { rows.push(cur); cur = word; continue; }
       if (cur && widthOf(next) > maxW) {
         rows.push(cur);
         cur = word;
@@ -270,6 +272,7 @@ export function buildDeck(opts: {
   songTitle: string;
   songNumber: string;
   customSize: number;
+  paragraphBreaks?: boolean; // justified text: each verse starts its own row
 }): Deck {
   const notes: Notes = { repeats: 0, removeRepeats: opts.removeRepeats };
   const sections = buildSections(opts.lyrics, notes);
@@ -279,7 +282,7 @@ export function buildDeck(opts: {
   const titleSlide: Slide[] = titleLines.length && opts.showTitle ? [Object.assign(titleLines, {}) as Slide] : [];
   const all = [...titleSlide, ...sections];
   const size = opts.customSize > 0 ? opts.customSize : all.length ? deckSize(all, opts.font, opts.perSlide) : MAX_PT;
-  const packed = sections.flatMap((sec) => packSection(sec, opts.font, size, opts.perSlide));
+  const packed = sections.flatMap((sec) => packSection(sec, opts.font, size, opts.perSlide, !!opts.paragraphBreaks));
   return {
     font: opts.font,
     size,

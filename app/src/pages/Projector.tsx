@@ -1,4 +1,4 @@
-import { VERSE_SPLIT } from "../lib/richtext";
+import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 
 // A slide as saved by the lyrics page (and later the scripture and builder pages).
@@ -15,7 +15,7 @@ export interface ProjSlide {
   rows?: string[];
   segs?: Seg[][];
   size?: number;
-  align?: "left" | "center" | "right";
+  align?: "left" | "center" | "right" | "justify";
   verse?: boolean;
 }
 export interface ProjDeck {
@@ -89,6 +89,7 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
   const lines: Seg[][] = slide.segs ?? (slide.rows ?? []).map((r) => [{ text: r, f: null }]);
   const numColor = slide.verse ? (slide.numColor || deck.numColor || "#f2c14e") : null;
   const textStyle = { "--size": slide.size || deck.size } as React.CSSProperties;
+  const ends = paragraphEnds(lines.map((l) => l.map((s) => s.text).join("")));
   return (
     <div
       className={`stage${deck.reserve ? " reserve" : ""}${extraClass}`}
@@ -96,10 +97,15 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
       onClick={onClick}
     >
       <div className="text" style={{ ...textStyle, paddingBottom: deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
-        <div style={{ width: "100%", textAlign: slide.align ?? "center", ...fmtStyle(slide.fmt) }}>
-          {lines.map((segs, i) => (
-            <div key={i}>{lineNodes(segs, numColor)}</div>
-          ))}
+        <div style={{ width: "100%", textAlign: slide.align === "justify" ? "justify" : slide.align ?? "center", ...fmtStyle(slide.fmt) }}>
+          {slide.align === "justify"
+            // Justified: each paragraph (verse) is one block, so the browser wraps it and fills the full width
+            ? groupParagraphs(ends).map((grp, gi) => (
+              <div key={gi} style={{ textAlign: "justify" }}>
+                {grp.map((i, k) => <span key={i}>{k > 0 ? " " : null}{lineNodes(lines[i], numColor)}</span>)}
+              </div>
+            ))
+            : lines.map((segs, i) => <div key={i}>{lineNodes(segs, numColor)}</div>)}
         </div>
       </div>
       {slide.label && deck.showLabels && (

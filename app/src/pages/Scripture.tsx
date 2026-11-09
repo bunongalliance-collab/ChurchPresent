@@ -5,7 +5,8 @@ import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { buildDeck, COLOR_PRESETS, flowLines, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
-import { carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
+import { breakRow } from "../lib/pptx";
+import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { editorHtml, editorToText, fmtAt, markerToVisible, NO_FMT, spaceVerseNumbers, tokenLenAt, visibleToMarker } from "../lib/richeditor";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
@@ -81,16 +82,18 @@ interface Look {
   fg: string;
   verseNumbers: boolean;
   showLabels: boolean;
+  verseNewLines: boolean; // each verse starts on its own line
   numColor: string;    // verse numbers
   labelColor: string;  // slide titles and labels
   customSize: number;  // font size in pt; 0 = automatic
+  align: "left" | "center" | "right" | "justify"; // text alignment on every slide
 }
 interface StudyData extends Look { slides: StudySlide[] }
 interface SavedStudy { id: string; title: string; reference: string; data: StudyData }
 
 const DEFAULT_LOOK: Look = {
-  font: "Arial", perSlide: 4, aspect: "16:9", bg: "#213648", fg: "#f5f2ea", verseNumbers: true, showLabels: false,
-  numColor: "#f2c14e", labelColor: "#f2c14e", customSize: 0,
+  font: "Arial", perSlide: 4, aspect: "16:9", bg: "#213648", fg: "#f5f2ea", verseNumbers: true, showLabels: false, verseNewLines: false,
+  numColor: "#f2c14e", labelColor: "#f2c14e", customSize: 0, align: "left",
 };
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -114,7 +117,7 @@ async function fetchVerse(bible: string, code: string, ch: number, v: number): P
 // Rows for the projector and the .pptx, using the shared engine for passage and custom text
 // A slide's own format: text formatting, plus its font size (pt) and background colour
 type SlideFormat = SlideFmt & { size?: number; bg?: string; numColor?: string };
-export interface OutSlide { label: string; rows: string[]; verse: boolean; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
+export interface OutSlide { label: string; rows: string[]; verse: boolean; align?: "left" | "center" | "right" | "justify"; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
 
 export function buildOutput(slides: StudySlide[], look: Look): { size: number; slides: OutSlide[] } {
   const all = slides.filter((s) => s.text.trim()).map((s) => s.text).join("\n");
@@ -126,14 +129,17 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
   for (const sl of slides) {
     const lines = carryFormatting(sl.text.split("\n").filter((l) => l.trim()));
     if (!lines.length) continue;
+    // A fixed font size fills each slide down to its height (up to 15 lines); automatic size uses the lines-per-slide setting
+    const fillPer = (sl.fmt?.size || look.customSize) > 0 ? 15 : look.perSlide;
     if (sl.kind === "passage") {
       // Mark a leading verse number so it can take the verse-number colour
       // Mark each verse number before the engine splits the text, so the marker survives
       // wherever the number lands (even in the middle of a row where two verses share it)
       const marked = lines.map((l) => markVerses(l, look.verseNumbers));
       const deck = buildDeck({
-        lyrics: marked.join("\n"), font: look.font, perSlide: look.perSlide, removeRepeats: false,
+        lyrics: marked.join("\n"), font: look.font, perSlide: fillPer, removeRepeats: false,
         showTitle: false, songTitle: "", songNumber: "", customSize: sl.fmt?.size || look.customSize || 0,
+        paragraphBreaks: look.verseNewLines,
       });
       // Mark each verse number at the start of a row, so it can be drawn smaller and in its own colour
       carryFormattingSlides(deck.slides).forEach((rows) => pieces.push({
@@ -150,12 +156,16 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
       }
     }
   }
-  return { size, slides: pieces.map((p) => ({ ...p, label: look.showLabels ? p.label : "" })) };
+  return { size, slides: pieces.map((p) => ({ ...p, label: look.showLabels ? p.label : "", align: look.align })) };
 }
 
+// Flex alignment for a column of rows, matching the text alignment
+const alignItemsOf = (a: Look["align"]) => (a === "justify" ? "stretch" : a === "left" ? "flex-start" : a === "right" ? "flex-end" : "center");
+
 // Draws the rows of a slide: verse numbers in their own size and colour, formatted text as formatted
-function renderRows(rows: RichSeg[][], numColor: string, vnumClass: string) {
-  return rows.map((line, ri) => (
+function renderRows(rows: RichSeg[][], numColor: string, vnumClass: string, align: Look["align"] = "left") {
+  const ends = paragraphEnds(rows.map((line) => line.map((s) => s.text).join("")));
+  const rowNode = (line: RichSeg[], ri: number) => (
     <span key={ri} className="sc-row-line">
       {line.map((seg, k) =>
         seg.text.split(VERSE_SPLIT).map((part, j) => {
@@ -169,6 +179,13 @@ function renderRows(rows: RichSeg[][], numColor: string, vnumClass: string) {
         })
       )}
     </span>
+  );
+  if (align !== "justify") return rows.map((line, ri) => rowNode(line, ri));
+  // Justified: each paragraph (verse) is one block, so the browser wraps it and fills the full width
+  return groupParagraphs(ends).map((grp, gi) => (
+    <div key={`p${gi}`} className="sc-para" style={{ textAlign: "justify" }}>
+      {grp.map((ri, k) => <span key={ri}>{k > 0 ? " " : null}{rowNode(rows[ri], ri)}</span>)}
+    </div>
   ));
 }
 
@@ -640,6 +657,7 @@ export default function Scripture() {
       font: look.font, size: output.size, bg: look.bg, fg: look.fg, showLabels: look.showLabels,
       numColor: look.numColor, labelColor: look.labelColor,
       slides: output.slides.map((s) => ({
+        align: look.align,
         label: s.label, rows: s.rows, verse: s.verse, fmt: s.fmt, bg: s.bg, fg: s.fg, numColor: s.numColor ?? look.numColor, size: s.size ?? output.size,
         segs: (s.segs ?? s.rows.map((r) => parseRich(r))).map((line) => line.map((seg) => ({
           text: seg.text,
@@ -677,6 +695,7 @@ export default function Scripture() {
         italic: !!s.fmt?.italic, underline: s.fmt?.underline ? { style: "sng" } : undefined,
         color: hex(s.fmt?.color || look.fg),
       };
+      const jEnds = s.align === "justify" ? paragraphEnds(s.rows ?? []) : null;
       (s.segs ?? s.rows.map((r) => parseRich(r))).forEach((line, ri, all) => {
         line.forEach((seg) => {
           seg.text.split(VERSE_SPLIT).forEach((part, k) => {
@@ -690,11 +709,11 @@ export default function Scripture() {
             });
           });
         });
-        if (ri < all.length - 1 && runs.length) runs[runs.length - 1].options.breakLine = true;
+        if (ri < all.length - 1) breakRow(runs, jEnds?.[ri] ?? true);
       });
       sl.addText(runs as never, {
         x: MARGIN_IN, y: MARGIN_IN, w: w - 2 * MARGIN_IN, h: uh,
-        align: "center", valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
+        align: look.align, valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
       });
     }
     const safe = (title || "scripture").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "scripture";
@@ -763,6 +782,13 @@ export default function Scripture() {
           <div className="sc-settings">
             <div className="sc-group">
               <h3>Layout</h3>
+              <label htmlFor="sc-align">Text alignment</label>
+              <select id="sc-align" value={look.align} onChange={(e) => setLook({ ...look, align: e.target.value as Look["align"] })}>
+                <option value="left">Left</option>
+                <option value="center">Centre</option>
+                <option value="right">Right</option>
+                <option value="justify">Justify</option>
+              </select>
               <label htmlFor="sc-aspect">Shape</label>
               <select id="sc-aspect" value={look.aspect} onChange={(e) => setLook({ ...look, aspect: e.target.value as "16:9" | "4:3" })}>
                 <option value="16:9">16:9 widescreen</option>
@@ -770,7 +796,7 @@ export default function Scripture() {
               </select>
               <label htmlFor="sc-per">Lines per slide</label>
               <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
-                {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
+                {Array.from({ length: 14 }, (_, k) => k + 2).map((n) => <option key={n} value={n}>{n}</option>)}
               </select>
             </div>
             <div className="sc-group">
@@ -801,6 +827,7 @@ export default function Scripture() {
               <h3>Display</h3>
               <label className="check"><input type="checkbox" checked={look.verseNumbers} onChange={(e) => setLook({ ...look, verseNumbers: e.target.checked })} /> Show verse numbers</label>
               <label className="check"><input type="checkbox" checked={look.showLabels} onChange={(e) => setLook({ ...look, showLabels: e.target.checked })} /> Show slide labels</label>
+              <label className="check" title="Each verse starts on its own line, so its last line can stay short"><input type="checkbox" checked={look.verseNewLines} onChange={(e) => setLook({ ...look, verseNewLines: e.target.checked })} /> Each verse on its own line</label>
             </div>
           </div>
         </details>
@@ -872,6 +899,7 @@ export default function Scripture() {
                   <label className="sc-label" htmlFor="sc-text">Text (one verse or line per row)</label>
                   <VerseTextBox key={selected.id} id="sc-text" value={selected.text} onChange={(v) => update(selected.id, { text: v })} onSelect={onSelect} />
                 </div>
+                <div className="sc-format-dock">
                 <div className="sc-field">
                   <span className="sc-label">Formatting</span>
                   <div className="fmt-toolbar">
@@ -914,6 +942,7 @@ export default function Scripture() {
                         style={{ background: p.bg, color: p.fg, boxShadow: `inset 0 -5px 0 ${p.num}` }} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bg: p.bg, color: p.fg, numColor: p.num } })}>Aa</button>
                     ))}
                   </div>
+                </div>
                 </div>
               </>
             )}
@@ -981,8 +1010,8 @@ export default function Scripture() {
                   const cur = shown[Math.min(previewIndex, shown.length - 1)];
                   return (
                     <div className={`sc-big${look.aspect === "4:3" ? " ratio-43" : ""}`} style={{ background: cur.bg ?? look.bg, color: cur.fg ?? look.fg, fontFamily: `${cur.font ?? look.font}, sans-serif` }}>
-                      <div className="sc-big-text" style={{ fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
-                        {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum")}
+                      <div className="sc-big-text" style={{ textAlign: look.align, fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
+                        {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum", look.align)}
                       </div>
                       {cur.label && look.showLabels && <div className="sc-big-tag" style={{ color: look.labelColor }}>{cur.label}</div>}
                     </div>
@@ -999,8 +1028,8 @@ export default function Scripture() {
                       aria-label={`Slide ${i + 1}`}
                     >
                       <span className="sc-card-num">{i + 1}</span>
-                      <span className="sc-card-text">
-                        {renderRows(sl.segs ?? sl.rows.map((r) => parseRich(r)), sl.numColor ?? look.numColor, "sc-card-vnum")}
+                      <span className="sc-card-text" style={{ alignItems: alignItemsOf(look.align), textAlign: look.align, fontSize: `${((sl.size ?? output.size) / 960) * 100}cqw` }}>
+                        {renderRows(sl.segs ?? sl.rows.map((r) => parseRich(r)), sl.numColor ?? look.numColor, "sc-card-vnum", look.align)}
                       </span>
                       {sl.label && <span className="sc-card-tag" style={{ color: look.labelColor }}>{sl.label}</span>}
                     </button>

@@ -326,3 +326,18 @@ export function setColors(text: string, start: number, end: number, want: { c?: 
 export function carryLines(text: string): string {
   return carryFormatting(text.split("\n")).join("\n");
 }
+
+// Justified text: a row is the end of a paragraph (and so is not stretched) when it is the last row
+// or the next row starts a new verse. Every other row fills the full width.
+export function paragraphEnds(rows: string[]): boolean[] {
+  return rows.map((_, i) => i >= rows.length - 1 || rows[i + 1].startsWith("\u0001"));
+}
+
+// Groups consecutive rows into paragraphs: a paragraph ends at a row that paragraphEnds marks
+export function groupParagraphs(ends: boolean[]): number[][] {
+  const out: number[][] = [];
+  let cur: number[] = [];
+  ends.forEach((end, i) => { cur.push(i); if (end) { out.push(cur); cur = []; } });
+  if (cur.length) out.push(cur);
+  return out;
+}

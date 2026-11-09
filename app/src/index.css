@@ -36,8 +36,8 @@ button:disabled { opacity: 0.5; cursor: default; }
 html:has(.stage), html:has(.projector-blackout), html:has(.projector-message) { height: 100%; overflow: hidden; }
 body:has(.stage), body:has(.projector-blackout), body:has(.projector-message) { height: 100%; overflow: hidden; background: #000; }
 .stage { position: fixed; inset: 0; margin: auto; width: min(100vw, 177.78vh); height: min(100vh, 56.25vw); aspect-ratio: 16 / 9; container-type: inline-size; overflow: hidden; }
-.stage .text { position: absolute; inset: 0; padding: 4.5%; display: flex; align-items: center; justify-content: center; text-align: center; white-space: pre-line; font-weight: 700; line-height: 1.3; font-size: calc(var(--size) / 960 * 100cqw); }
-.stage.reserve .text { padding-bottom: 10.1%; padding-left: 1.9%; padding-right: 1.9%; }
+.stage .text { position: absolute; inset: 0; padding: 2.5%; display: flex; align-items: center; justify-content: center; text-align: center; white-space: pre-line; font-weight: 700; line-height: 1.3; font-size: calc(var(--size) / 960 * 100cqw); }
+.stage.reserve .text { padding-bottom: 8%; padding-left: 1.5%; padding-right: 1.5%; }
 .stage .tag { position: absolute; bottom: 4%; right: 4.5%; font-weight: 700; font-size: calc(28 / 960 * 100cqw); white-space: pre-line; text-align: right; line-height: 1.2; }
 .stage.reserve .tag { bottom: 8%; right: 1.9%; }
 .stage .vnum { font-size: 0.5em; font-weight: 700; line-height: 0; vertical-align: 0.7em; }
@@ -138,7 +138,7 @@ button.small { padding: 4px 8px; font-size: 0.85rem; }
 .sc-item-tools { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
 .sc-edit .sc-text { min-height: 200px; }
 .sc-box { border: 1px dashed var(--line); border-radius: 8px; padding: 8px; margin: 8px 0; display: grid; gap: 6px; }
-.sc-stage { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 4.5%; }
+.sc-stage { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 2.5%; }
 .sc-stage.ratio-43 { aspect-ratio: 4 / 3; }
 .sc-stage-text { white-space: pre-line; text-align: center; font-weight: 700; line-height: 1.3; font-size: 4.2cqw; }
 .sc-stage-tag { position: absolute; right: 4.5%; bottom: 4%; font-size: 3cqw; font-weight: 700; }
@@ -339,18 +339,18 @@ button.small { padding: 2px 6px; font-size: 0.75rem; }
 
 /* Scripture preview: many slide cards at once */
 .sc-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 70vh; overflow-y: auto; padding: 2px; }
-.sc-card { position: relative; display: block; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; padding: 6% 6% 9%; text-align: center; border: 2px solid transparent !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.sc .sc-card { position: relative; display: block; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; padding: 2.5%; text-align: center; border: 2px solid transparent !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .sc-card.ratio-43 { aspect-ratio: 4 / 3; }
 .sc-card.current { border-color: var(--sc-accent) !important; }
 .sc-card-num { position: absolute; left: 6px; top: 4px; font-size: 10px; opacity: 0.6; }
-.sc-card-text { display: flex; flex-direction: column; justify-content: center; height: 100%; font-weight: 700; line-height: 1.3; font-size: 4.6cqw; white-space: normal; }
+.sc-card-text { display: flex; flex-direction: column; justify-content: center; height: 100%; width: 100%; font-weight: 700; line-height: 1.3; white-space: normal; }
 .sc-card-row { display: block; }
 .sc-card-vnum { font-size: 0.5em; vertical-align: 0.7em; }
 .sc-card-tag { position: absolute; right: 6px; bottom: 4px; font-size: 6cqw; font-weight: 700; }
 
 /* Builder preview: several cards at once */
 .pv-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 60vh; overflow-y: auto; padding: 2px; }
-.pv-card { position: relative; display: block; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; padding: 6% 6% 9%; text-align: center; border: 2px solid transparent; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.pv-card { position: relative; display: block; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 6px; overflow: hidden; padding: 4.5%; text-align: center; border: 2px solid transparent; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .pv-card.current { border-color: #019A66; }
 .pv-num { position: absolute; left: 6px; top: 4px; font-size: 10px; opacity: 0.6; }
 .pv-text { display: flex; flex-direction: column; justify-content: center; height: 100%; font-weight: 700; line-height: 1.3; font-size: 4.6cqw; }
@@ -578,9 +578,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 .sc .vtb-num { font-size: 0.6em; font-weight: 700; color: var(--num, #f2c14e); vertical-align: 0.45em; }
 
 /* Scripture: large preview of the selected slide, above the cards */
-.sc .sc-big { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 4.5%; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); margin-bottom: 10px; }
+.sc .sc-big { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 2.5%; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); margin-bottom: 10px; }
 .sc .sc-big.ratio-43 { aspect-ratio: 4 / 3; }
-.sc .sc-big-text { white-space: pre-line; text-align: center; font-weight: 700; line-height: 1.3; font-size: 4.2cqw; }
+.sc .sc-big-text { width: 100%; white-space: pre-line; text-align: center; font-weight: 700; line-height: 1.3; font-size: 4.2cqw; }
 .sc .sc-big-vnum { font-size: 0.5em; vertical-align: 0.7em; }
 .sc .sc-big-tag { position: absolute; right: 4.5%; bottom: 4%; font-size: 3cqw; font-weight: 700; }
 
@@ -651,3 +651,8 @@ button:disabled { opacity: 0.4; cursor: default; }
 .sc .sc-signin-link { background: none !important; border: none !important; padding: 4px 2px !important; color: var(--sc-muted, #9aa7b0); text-decoration: underline; font-size: 0.82rem; cursor: pointer; }
 .sc .sc-signin-link:hover { color: #f1f4f5; }
 @media (max-width: 700px) { .sc .sc-signin input { flex: 1 1 140px; width: auto; } }
+
+/* Desktop only: keep the large preview in view while the passage is long, and pin the formatting controls to the bottom */
+@media (min-width: 901px) {
+  .sc .sc-format-dock { position: sticky; bottom: 0; z-index: 5; margin: 0 -14px -14px; padding: 10px 14px 14px; background: var(--sc-panel); border-top: 1px solid var(--sc-line, rgba(255,255,255,0.12)); border-radius: 0 0 10px 10px; box-shadow: 0 -8px 16px rgba(0,0,0,0.25); }
+}

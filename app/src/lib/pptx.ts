@@ -3,6 +3,14 @@ import { VERSE_SPLIT } from "./richtext";
 // Verse numbers (marked with \u0001) take the verse-number colour, and each slide keeps its formatting.
 import PptxGenJS from "pptxgenjs";
 import { MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "./slides";
+import { paragraphEnds } from "./richtext";
+
+// Ends a row of text: a line break, or (for justified text) a space so the words run on as one paragraph
+export function breakRow(runs: { text: string; options: Record<string, unknown> }[], end: boolean) {
+  if (!runs.length) return;
+  if (end) runs[runs.length - 1].options.breakLine = true;
+  else runs[runs.length - 1].text += " ";
+}
 import type { ProjDeck } from "../pages/Projector";
 
 const hex = (c: string) => c.replace("#", "");
@@ -35,6 +43,7 @@ export function downloadDeckPptx(deck: ProjDeck, title: string) {
       color: hex(s.fmt?.color || s.fg || deckFg),
     };
     const runs: { text: string; options: Record<string, unknown> }[] = [];
+    const ends = s.align === "justify" ? paragraphEnds(s.rows ?? []) : null;
     (s.rows ?? []).forEach((row, ri) => {
       row.split(VERSE_SPLIT).forEach((part, k) => {
         if (!part) return;
@@ -44,11 +53,11 @@ export function downloadDeckPptx(deck: ProjDeck, title: string) {
           options: isNum ? { ...base, color: hex(s.numColor || numColor), fontSize: Math.round((s.size || deck.size) * 0.5) } : { ...base },
         });
       });
-      if (ri < (s.rows ?? []).length - 1 && runs.length) runs[runs.length - 1].options.breakLine = true;
+      if (ri < (s.rows ?? []).length - 1) breakRow(runs, ends?.[ri] ?? true);
     });
     sl.addText(runs as never, {
       x: MARGIN_IN, y: MARGIN_IN, w: SLIDE_W_IN - 2 * MARGIN_IN, h: USABLE_H,
-      align: "center", valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
+      align: s.align ?? "left", valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
     });
   }
   const safe = (title || "presentation").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "presentation";
