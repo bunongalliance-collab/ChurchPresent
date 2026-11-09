@@ -66,15 +66,15 @@ export default function NavBar() {
                 {open ? "Close" : "Sign in"}
               </button>
               {open && (
-                <div className="nav-auth-panel">
+                <form className="nav-auth-panel" onSubmit={(e) => { e.preventDefault(); auth("in"); }}>
                   <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                   <input type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} />
                   <div className="row">
-                    <button onClick={() => auth("in")}>Sign in</button>
-                    <button className="secondary" onClick={() => auth("up")}>Create account</button>
+                    <button type="submit">Sign in</button>
+                    <button type="button" className="secondary" onClick={() => auth("up")}>Create account</button>
                   </div>
                   {msg && <p className="status error">{msg}</p>}
-                </div>
+                </form>
               )}
             </>
           )}

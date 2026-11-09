@@ -623,3 +623,31 @@ button:disabled { opacity: 0.4; cursor: default; }
   .fmt-swatch-row .swatch { flex: 1 1 0; width: auto; min-width: 14px; max-width: 26px; }
   .fmt-swatch-row .fmt-swatches + .fmt-swatches { padding-left: 10px; border-left: 1px solid var(--line, rgba(255,255,255,0.15)); }
 }
+
+/* Quick move up/down arrows on each slide in the Scripture slide list */
+.sc .sc-arrows { display: flex; flex-direction: column; gap: 2px; flex: none; }
+.sc .sc-arrow { padding: 0 !important; width: 26px; height: 18px; font-size: 0.7rem; line-height: 1; background: rgba(241,244,245,0.06); border: 1px solid rgba(241,244,245,0.22); border-radius: 4px; color: inherit; cursor: pointer; }
+.sc .sc-arrow:hover:not(:disabled) { border-color: var(--sc-accent, #019a66); }
+.sc .sc-arrow:disabled { opacity: 0.25; cursor: default; }
+
+/* Drag and drop in the Scripture slide list */
+.sc .sc-item[draggable="true"] { cursor: grab; }
+.sc .sc-item.dragging { opacity: 0.45; }
+.sc .sc-item.drop-before { box-shadow: 0 -3px 0 0 var(--sc-accent, #019a66); }
+.sc .sc-item.drop-after { box-shadow: 0 3px 0 0 var(--sc-accent, #019a66); }
+
+/* Scripture sign-in bar: stands out as a call to action (message, fields, main button, then a quiet link) */
+.sc .sc-signin {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  margin: 10px 0 0; padding: 12px 14px;
+  background: linear-gradient(90deg, rgba(1, 154, 102, 0.16), rgba(1, 154, 102, 0.05));
+  border: 1px solid rgba(1, 154, 102, 0.45); border-left: 4px solid var(--sc-accent, #019a66); border-radius: 10px;
+}
+.sc .sc-signin-text { display: flex; flex-direction: column; margin-right: auto; min-width: 200px; }
+.sc .sc-signin-text strong { font-size: 0.95rem; color: #f1f4f5; }
+.sc .sc-signin-text small { font-size: 0.78rem; color: var(--sc-muted, #9aa7b0); }
+.sc .sc-signin input { width: 190px; padding: 6px 9px; }
+.sc .sc-signin button.primary { padding: 6px 16px; font-weight: 700; }
+.sc .sc-signin-link { background: none !important; border: none !important; padding: 4px 2px !important; color: var(--sc-muted, #9aa7b0); text-decoration: underline; font-size: 0.82rem; cursor: pointer; }
+.sc .sc-signin-link:hover { color: #f1f4f5; }
+@media (max-width: 700px) { .sc .sc-signin input { flex: 1 1 140px; width: auto; } }

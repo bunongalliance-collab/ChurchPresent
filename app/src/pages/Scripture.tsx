@@ -563,6 +563,19 @@ export default function Scripture() {
       return next;
     });
   }
+  // Drag and drop in the slide list: dropAt is the position the dragged slide goes before
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropAt, setDropAt] = useState<number | null>(null);
+  function moveTo(id: string, at: number) {
+    setSlides((cur) => {
+      const i = cur.findIndex((s) => s.id === id);
+      if (i < 0) return cur;
+      const next = cur.slice();
+      const [it] = next.splice(i, 1);
+      next.splice(at > i ? at - 1 : at, 0, it);
+      return next;
+    });
+  }
   function duplicateSlide(id: string) {
     setSlides((cur) => {
       const i = cur.findIndex((s) => s.id === id);
@@ -731,13 +744,16 @@ export default function Scripture() {
         </header>
 
         {supabase && !user && (
-          <div className="sc-signin">
-            <span>Sign in to save studies</span>
-            <input type="email" placeholder="Email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} />
-            <input type="password" placeholder="Password" value={authPass} onChange={(e) => setAuthPass(e.target.value)} />
-            <button className="secondary small" onClick={() => authAction("in")}>Sign in</button>
-            <button className="secondary small" onClick={() => authAction("up")}>Create account</button>
-          </div>
+          <form className="sc-signin" onSubmit={(e) => { e.preventDefault(); authAction("in"); }}>
+            <div className="sc-signin-text">
+              <strong>Sign in to save your studies</strong>
+              <small>Your saved studies follow you to any device.</small>
+            </div>
+            <input type="email" placeholder="Email" autoComplete="email" aria-label="Email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} />
+            <input type="password" placeholder="Password" autoComplete="current-password" aria-label="Password" value={authPass} onChange={(e) => setAuthPass(e.target.value)} />
+            <button type="submit" className="primary">Sign in</button>
+            <button type="button" className="sc-signin-link" onClick={() => authAction("up")}>Create account</button>
+          </form>
         )}
 
         <p className={error ? "sc-status error" : "sc-status"} role="status">{status}</p>
@@ -916,7 +932,21 @@ export default function Scripture() {
             </div>
             <ol className="sc-list">
               {slides.map((s, i) => (
-                <li key={s.id} className={`sc-item${selectedId === s.id ? " selected" : ""}`}>
+                <li
+                  key={s.id}
+                  className={`sc-item${selectedId === s.id ? " selected" : ""}${dragId === s.id ? " dragging" : ""}${dragId && dragId !== s.id && dropAt === i ? " drop-before" : ""}${dragId && dragId !== s.id && dropAt === i + 1 && i === slides.length - 1 ? " drop-after" : ""}`}
+                  draggable
+                  onDragStart={(e) => { setDragId(s.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", s.id); }}
+                  onDragOver={(e) => {
+                    if (!dragId) return;
+                    e.preventDefault();
+                    const box = e.currentTarget.getBoundingClientRect();
+                    setDropAt(e.clientY < box.top + box.height / 2 ? i : i + 1);
+                  }}
+                  onDrop={(e) => { e.preventDefault(); if (dragId && dropAt !== null) moveTo(dragId, dropAt); setDragId(null); setDropAt(null); }}
+                  onDragEnd={() => { setDragId(null); setDropAt(null); }}
+                  title="Drag to reorder"
+                >
                   <button className="sc-pick" onClick={() => setSelectedId(s.id)}>
                     <span className="sc-num">{i + 1}</span>
                     <span className="sc-pick-text">
@@ -924,6 +954,10 @@ export default function Scripture() {
                       <small>{s.kind === "passage" ? "Passage" : s.kind === "questions" ? "Questions" : "Custom"}</small>
                     </span>
                   </button>
+                  <span className="sc-arrows">
+                    <button type="button" className="sc-arrow" onClick={() => move(s.id, -1)} disabled={i === 0} aria-label={`Move slide ${i + 1} up`} title="Move up">▲</button>
+                    <button type="button" className="sc-arrow" onClick={() => move(s.id, 1)} disabled={i === slides.length - 1} aria-label={`Move slide ${i + 1} down`} title="Move down">▼</button>
+                  </span>
                   <details className="sc-dots">
                     <summary aria-label="Slide actions">⋯</summary>
                     <div className="sc-menu">
