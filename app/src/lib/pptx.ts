@@ -1,3 +1,4 @@
+import { VERSE_SPLIT } from "./richtext";
 // Shared PowerPoint export: turns projector slides into a 16:9 .pptx file.
 // Verse numbers (marked with \u0001) take the verse-number colour, and each slide keeps its formatting.
 import PptxGenJS from "pptxgenjs";
@@ -35,7 +36,7 @@ export function downloadDeckPptx(deck: ProjDeck, title: string) {
     };
     const runs: { text: string; options: Record<string, unknown> }[] = [];
     (s.rows ?? []).forEach((row, ri) => {
-      row.split(/\u0001(\d{1,3})/).forEach((part, k) => {
+      row.split(VERSE_SPLIT).forEach((part, k) => {
         if (!part) return;
         const isNum = !!s.verse && k % 2 === 1;
         runs.push({

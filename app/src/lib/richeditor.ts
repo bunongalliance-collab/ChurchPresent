@@ -3,9 +3,9 @@
 //   marker offset  = position in the stored text (with markers)
 //   visible offset = position in what the user sees (without markers)
 
-const TOKEN_RE = /^(\*\*|~~|__|\{#[0-9a-fA-F]{6}\}|\{\/\}|\{h#[0-9a-fA-F]{6}\}|\{\/h\})/;
+const TOKEN_RE = /^(\*\*|~~|__|\{#[0-9a-fA-F]{6}\}|\{\/\}|\{h#[0-9a-fA-F]{6}\}|\{\/h\}|\{\/?[vn]\})/;
 
-export type Fmt = { b: boolean; i: boolean; u: boolean; c?: string; h?: string };
+export type Fmt = { b: boolean; i: boolean; u: boolean; c?: string; h?: string; v?: boolean; n?: boolean };
 export const NO_FMT: Fmt = { b: false, i: false, u: false };
 
 // Length of the marker token starting at index i (0 if there is none)
@@ -63,6 +63,10 @@ export function fmtAt(s: string, m: number): Fmt {
     else if (tok === "__") f.u = !f.u;
     else if (tok === "{/}") f.c = undefined;
     else if (tok === "{/h}") f.h = undefined;
+    else if (tok === "{v}") { f.v = true; f.n = false; }
+    else if (tok === "{n}") { f.n = true; f.v = false; }
+    else if (tok === "{/v}") f.v = false;
+    else if (tok === "{/n}") f.n = false;
     else if (tok.startsWith("{#")) f.c = tok.slice(2, 8).replace(/^/, "#");
     else if (tok.startsWith("{h#")) f.h = tok.slice(3, 9).replace(/^/, "#");
     i += t;
@@ -94,6 +98,10 @@ export function editorHtml(s: string): string {
       else if (tok === "__") f.u = !f.u;
       else if (tok === "{/}") f.c = undefined;
       else if (tok === "{/h}") f.h = undefined;
+      else if (tok === "{v}") { f.v = true; f.n = false; }
+      else if (tok === "{n}") { f.n = true; f.v = false; }
+      else if (tok === "{/v}") f.v = false;
+      else if (tok === "{/n}") f.n = false;
       else if (tok.startsWith("{#")) f.c = `#${tok.slice(2, 8)}`;
       else if (tok.startsWith("{h#")) f.h = `#${tok.slice(3, 9)}`;
       i += t;
@@ -101,10 +109,12 @@ export function editorHtml(s: string): string {
     push();
     // the verse number at the start of a line gets its own style (it is still plain text)
     const html = runs.map((r) => {
-      const attrs = [r.f.b ? 'data-b="1"' : "", r.f.i ? 'data-i="1"' : "", r.f.u ? 'data-u="1"' : "", r.f.c ? `data-c="${r.f.c}"` : "", r.f.h ? `data-h="${r.f.h}"` : ""].filter(Boolean).join(" ");
+      const attrs = [r.f.b ? 'data-b="1"' : "", r.f.i ? 'data-i="1"' : "", r.f.u ? 'data-u="1"' : "", r.f.c ? `data-c="${r.f.c}"` : "", r.f.h ? `data-h="${r.f.h}"` : "", r.f.v ? 'data-v="1"' : "", r.f.n ? 'data-n="1"' : ""].filter(Boolean).join(" ");
       const style = [r.f.b ? "font-weight:700" : "", r.f.i ? "font-style:italic" : "", r.f.u ? "text-decoration:underline" : "", r.f.c ? `color:${r.f.c}` : "", r.f.h ? `background:${r.f.h}` : ""].filter(Boolean).join(";");
       // Verse numbers (a number followed by a space, at the start or after a space or punctuation) are styled
-      const body = esc(r.text).replace(VERSE_RE_HTML, (_m, lead: string, num: string) => `${lead}<span class="vtb-num">${num}</span>`);
+      // {v} text is drawn like a verse number; {n} text never is
+      if (r.f.v) return `<span ${attrs} class="vtb-num" style="${style}">${esc(r.text)}</span>`;
+      const body = r.f.n ? esc(r.text) : esc(r.text).replace(VERSE_RE_HTML, (_m, lead: string, num: string) => `${lead}<span class="vtb-num">${num}</span>`);
       return `<span ${attrs} style="${style}">${body}</span>`;
     }).join("");
     return `<div>${html || "<br>"}</div>`;
@@ -118,6 +128,7 @@ export function editorToText(root: HTMLElement): string {
   return lines.map((div) => {
     let out = "";
     let open: Fmt = { b: false, i: false, u: false };
+    let mode = "";
     const walk = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         const txt = node.textContent ?? "";
@@ -127,6 +138,10 @@ export function editorToText(root: HTMLElement): string {
           b: !!el?.dataset.b, i: !!el?.dataset.i, u: !!el?.dataset.u,
           c: el?.dataset.c || undefined, h: el?.dataset.h || undefined,
         };
+        // the verse mode can sit on the span itself or on its parent (the auto verse-number span is inside)
+        const host = el?.closest("[data-v],[data-n]") as HTMLElement | null;
+        const wantMode = host && root.contains(host) ? (host.dataset.v ? "v" : "n") : "";
+        if (mode !== wantMode) { if (mode) out += `{/${mode}}`; if (wantMode) out += `{${wantMode}}`; mode = wantMode; }
         // close what turns off, then open what turns on
         if (open.h && open.h !== want.h) { out += "{/h}"; open.h = undefined; }
         if (open.c && open.c !== want.c) { out += "{/}"; open.c = undefined; }
@@ -148,6 +163,7 @@ export function editorToText(root: HTMLElement): string {
     if (open.u) out += "__";
     if (open.i) out += "~~";
     if (open.b) out += "**";
+    if (mode) out += `{/${mode}}`;
     return out;
   }).join("\n");
 }

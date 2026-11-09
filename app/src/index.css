@@ -612,3 +612,14 @@ button:disabled { opacity: 0.4; cursor: default; }
 .sc .vtb-edit:focus { border-color: #019A66; }
 .sc .vtb-edit .vtb-num { font-size: 0.6em; font-weight: 700; color: var(--num, #f2c14e); vertical-align: 0.45em; }
 .sc .tool.on { background: rgba(1, 154, 102, 0.25); border-color: #019A66; color: #fff; }
+.sc .sc-savebar { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+.sc .sc-savebar .sc-study-title { flex: 1; min-width: 0; width: auto; }
+
+/* Text colours and highlight colours side by side on desktop, stacked on small screens */
+.fmt-swatch-row { display: flex; flex-direction: column; }
+@media (min-width: 900px) {
+  .fmt-swatch-row { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 10px; }
+  .fmt-swatch-row .fmt-swatches { flex: 1 1 0; min-width: 0; flex-wrap: nowrap; gap: 3px; }
+  .fmt-swatch-row .swatch { flex: 1 1 0; width: auto; min-width: 14px; max-width: 26px; }
+  .fmt-swatch-row .fmt-swatches + .fmt-swatches { padding-left: 10px; border-left: 1px solid var(--line, rgba(255,255,255,0.15)); }
+}

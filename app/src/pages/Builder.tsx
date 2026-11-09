@@ -5,7 +5,7 @@ import { buildDeck, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
 import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
-import { parseRich } from "../lib/richtext";
+import { carryFormatting, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
 
 // Formatted segments for the projector and preview, from the slide text
 const toSegs = (rows: string[]): Seg[][] => rows.map((r) => parseRich(r).map((seg) => ({
@@ -101,7 +101,7 @@ export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
       it.slides.forEach((sl) => slides.push({ label: sl.label, rows: sl.rows, segs: toSegs(sl.rows), verse: sl.verse, fmt: sl.fmt, numColor: sl.numColor ?? it.numColor, size: sl.size ?? it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
     } else if (it.kind === "custom") {
       // Custom slides get the same verse-number marks as scripture
-      const rows = it.text.split("\n").filter((l) => l.trim()).map((l) => l.replace(/(^|[\s.;:!?,])(\d{1,3})(?=\s)/g, "$1\u0001$2"));
+      const rows = carryFormatting(it.text.split("\n").filter((l) => l.trim())).map((l) => markVerses(l, true));
       slides.push({ label: "", rows, segs: toSegs(rows), verse: true, numColor: "#f2c14e", size });
     } else {
       it.slides.forEach((rows, i) => slides.push({ label: it.slideLabels[i] ?? "", rows, size: it.size, bg: it.look?.bg, fg: it.look?.fg, font: it.look?.font }));
@@ -524,7 +524,7 @@ export default function Builder() {
                       {(sl.segs ?? toSegs(sl.rows ?? [])).map((line, ri) => (
                         <span key={ri} className="pv-row">
                           {line.map((seg, k) =>
-                            seg.text.split(/\u0001(\d{1,3})/).map((part, j) => {
+                            seg.text.split(VERSE_SPLIT).map((part, j) => {
                               if (!part) return null;
                               if (j % 2) return <span key={`${k}-${j}`} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
                               return <span key={`${k}-${j}`} style={{ fontWeight: seg.f?.bold ? 700 : undefined, fontStyle: seg.f?.italic ? "italic" : undefined, textDecoration: seg.f?.underline ? "underline" : undefined, color: seg.f?.color, backgroundColor: seg.f?.highlight }}>{j ? part.replace(/^ /, "") : part}</span>;

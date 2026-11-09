@@ -17,7 +17,7 @@ export const CHAR_W: Record<string, number> = { Arial: 0.53, Verdana: 0.6, Calib
 export const FONTS = Object.keys(CHAR_W);
 
 // Visible length of text: formatting markers (bold, colour, highlight, verse-number marks) take no space
-const MARKER_RE = /\*\*|~~|__|\{#[0-9a-fA-F]{6}\}|\{\/\}|\{h#[0-9a-fA-F]{6}\}|\{\/h\}|\u0001/g;
+const MARKER_RE = /\*\*|~~|__|\{#[0-9a-fA-F]{6}\}|\{\/\}|\{h#[0-9a-fA-F]{6}\}|\{\/h\}|\{\/?[vn]\}|[\u0001-\u0003]/g;
 export const visLen = (t: string) => t.replace(MARKER_RE, "").length;
 
 
@@ -176,6 +176,31 @@ export function deckSize(slides: string[][], font: string, perSlide: number): nu
   return Math.max(MIN_PT, Math.min(MAX_PT, Math.floor(Math.min(widthPt, heightPt))));
 }
 
+// How many rows fit on one slide at a font size (at least 1)
+export function rowsThatFit(size: number): number {
+  return Math.max(1, Math.floor((USABLE_H * 72) / (size * LINE_H)));
+}
+
+// Wrap lines to the slide width and split them across slides so nothing overflows.
+// Line breaks the user typed are kept; long lines wrap onto extra rows.
+export function flowLines(lines: string[], font: string, size: number, maxRows = Infinity): string[][] {
+  const maxW = USABLE_W * 72;
+  const widthOf = (t: string) => visLen(t) * CHAR_W[font] * 1.05 * size;
+  const rows: string[] = [];
+  for (const line of lines) {
+    let cur = "";
+    for (const word of line.split(/\s+/).filter(Boolean)) {
+      const next = cur ? `${cur} ${word}` : word;
+      if (cur && widthOf(next) > maxW) { rows.push(cur); cur = word; } else cur = next;
+    }
+    if (cur) rows.push(cur);
+  }
+  const per = Math.min(maxRows, rowsThatFit(size));
+  const out: string[][] = [];
+  for (let i = 0; i < rows.length; i += per) out.push(rows.slice(i, i + per));
+  return out;
+}
+
 // Lay out one section as slides of up to perSlide rows. A section that fits stays on one slide.
 export function packSection(sec: Slide, font: string, size: number, perSlide: number): Slide[] {
   const maxW = USABLE_W * 72;
@@ -194,6 +219,8 @@ export function packSection(sec: Slide, font: string, size: number, perSlide: nu
     }
   }
   if (cur) rows.push(cur);
+  // Never put more rows on a slide than fit its height at this size; extra rows flow to the next slide
+  perSlide = Math.min(perSlide, rowsThatFit(size));
   const count = Math.ceil(rows.length / perSlide);
   const target = Math.ceil(rows.length / count) || 1;
   const slides: string[][] = [];

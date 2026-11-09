@@ -1,3 +1,4 @@
+import { VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 
 // A slide as saved by the lyrics page (and later the scripture and builder pages).
@@ -57,7 +58,7 @@ function fmtStyle(f?: SlideFmt): React.CSSProperties {
 // Split one text line into segments, drawing verse numbers (marked with \u0001) small and coloured
 function lineNodes(segs: Seg[], numColor: string | null) {
   return segs.map((seg, j) => {
-    const parts = numColor ? seg.text.split(/\u0001(\d{1,3})/) : [seg.text.replace(/\u0001/g, "")];
+    const parts = numColor ? seg.text.split(VERSE_SPLIT) : [seg.text.replace(/[\u0001-\u0003]/g, "")];
     const style: React.CSSProperties = {};
     if (seg.f) {
       style.fontWeight = seg.f.bold ? 700 : 400;
