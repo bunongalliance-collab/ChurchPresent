@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
-import { buildDeck, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
+import { buildDeck, COLOR_PRESETS, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
+import { colorSelection, comboSelection, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripColorMarkers, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
+import { editorHtml, editorToText, fmtAt, markerToVisible, NO_FMT, spaceVerseNumbers, visibleToMarker } from "../lib/richeditor";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
 interface BibleVersion { id: string; name: string }
@@ -69,7 +71,7 @@ interface StudySlide {
   verseTo?: string;
   text: string;        // one line per row
   fetchedText?: string; // the text as it was last fetched; used to tell whether it was edited by hand
-  fmt?: SlideFmt;      // bold, italic, underline and text colour for this slide
+  fmt?: SlideFormat;      // bold, italic, underline and text colour for this slide
 }
 interface Look {
   font: string;
@@ -112,7 +114,9 @@ async function fetchVerse(bible: string, code: string, ch: number, v: number): P
 // Rows for the projector and the .pptx, using the shared engine for passage and custom text
 // Marker for a verse number: \u0001 before the number, so the projector and .pptx colour it
 const VERSE_MARK = "\u0001";
-export interface OutSlide { label: string; rows: string[]; verse: boolean; fmt?: SlideFmt; bg?: string; fg?: string; font?: string }
+// A slide's own format: text formatting, plus its font size (pt) and background colour
+type SlideFormat = SlideFmt & { size?: number; bg?: string; numColor?: string };
+export interface OutSlide { label: string; rows: string[]; verse: boolean; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
 
 export function buildOutput(slides: StudySlide[], look: Look): { size: number; slides: OutSlide[] } {
   const pieces: OutSlide[] = [];
@@ -121,18 +125,22 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
     if (!lines.length) continue;
     if (sl.kind === "passage") {
       // Mark a leading verse number so it can take the verse-number colour
+      // Mark each verse number before the engine splits the text, so the marker survives
+      // wherever the number lands (even in the middle of a row where two verses share it)
+      const marked = look.verseNumbers ? lines.map((l) => l.replace(/(^|[\s.;:!?,])(\d{1,3})(?=\s)/g, `$1${VERSE_MARK}$2`)) : lines;
       const deck = buildDeck({
-        lyrics: lines.join("\n"), font: look.font, perSlide: look.perSlide, removeRepeats: false,
+        lyrics: marked.join("\n"), font: look.font, perSlide: look.perSlide, removeRepeats: false,
         showTitle: false, songTitle: "", songNumber: "", customSize: look.customSize || 0,
       });
       // Mark each verse number at the start of a row, so it can be drawn smaller and in its own colour
       deck.slides.forEach((rows) => pieces.push({
         label: sl.title,
-        rows: rows.map((r) => (look.verseNumbers ? r.replace(/^(\d{1,3})(?=\s)/, `${VERSE_MARK}$1`) : r)),
-        verse: true, fmt: sl.fmt, bg: look.bg, fg: look.fg, font: look.font,
+        rows,
+        verse: true, segs: rows.map((r) => parseRich(r)), fmt: sl.fmt, bg: sl.fmt?.bg ?? look.bg, fg: sl.fmt?.color ?? look.fg, font: look.font, size: sl.fmt?.size, numColor: sl.fmt?.numColor ?? look.numColor,
       }));
     } else {
-      pieces.push({ label: sl.title, rows: lines, verse: false, fmt: sl.fmt, bg: look.bg, fg: look.fg, font: look.font });
+      const markedLines = lines.map((l) => (look.verseNumbers ? l.replace(/(^|[\s.;:!?,])(\d{1,3})(?=\s)/g, `$1${VERSE_MARK}$2`) : l));
+      pieces.push({ label: sl.title, rows: markedLines, verse: true, segs: markedLines.map((l) => parseRich(l)), fmt: sl.fmt, bg: sl.fmt?.bg ?? look.bg, fg: sl.fmt?.color ?? look.fg, font: look.font, size: sl.fmt?.size, numColor: sl.fmt?.numColor ?? look.numColor });
     }
   }
   const all = slides.filter((s) => s.text.trim()).map((s) => s.text).join("\n");
@@ -141,6 +149,128 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
     showTitle: false, songTitle: "", songNumber: "", customSize: 0,
   }).size : 84;
   return { size, slides: pieces.map((p) => ({ ...p, label: look.showLabels ? p.label : "" })) };
+}
+
+// Draws the rows of a slide: verse numbers in their own size and colour, formatted text as formatted
+function renderRows(rows: RichSeg[][], numColor: string, vnumClass: string) {
+  return rows.map((line, ri) => (
+    <span key={ri} className="sc-row-line">
+      {line.map((seg, k) =>
+        seg.text.split(/\u0001(\d{1,3})/).map((part, j) => {
+          if (!part) return null;
+          if (j % 2) return <span key={`${k}-${j}`} className={vnumClass} style={{ color: numColor }}>{part} </span>;
+          return (
+            <span key={`${k}-${j}`} style={{ fontWeight: seg.bold ? 700 : undefined, fontStyle: seg.italic ? "italic" : undefined, textDecoration: seg.underline ? "underline" : undefined, color: seg.color, backgroundColor: seg.highlight }}>
+              {j ? part.replace(/^ /, "") : part}
+            </span>
+          );
+        })
+      )}
+    </span>
+  ));
+}
+
+// Selection helpers for the formatted editor (offsets are visible-text offsets)
+function blockOf(el: HTMLElement, node: Node): Node {
+  let n: Node = node;
+  while (n.parentNode && n.parentNode !== el) n = n.parentNode;
+  return n;
+}
+function visibleOffset(el: HTMLElement, node: Node, off: number): number {
+  if (node === el) {
+    return Array.from(el.children).slice(0, off).reduce((v, d) => v + (d.textContent ?? "").length + 1, 0);
+  }
+  const block = blockOf(el, node);
+  let v = 0;
+  for (const d of Array.from(el.children)) {
+    if (d === block) break;
+    v += (d.textContent ?? "").length + 1;
+  }
+  const r = document.createRange();
+  r.setStart(block, 0);
+  r.setEnd(node, off);
+  return v + r.toString().length;
+}
+function locate(el: HTMLElement, v: number): { node: Node; off: number } {
+  let rest = v;
+  const blocks = Array.from(el.children);
+  for (const d of blocks) {
+    const len = (d.textContent ?? "").length;
+    if (rest <= len) {
+      const w = document.createTreeWalker(d, NodeFilter.SHOW_TEXT);
+      let n = w.nextNode();
+      let r = rest;
+      while (n) {
+        const tl = n.textContent?.length ?? 0;
+        if (r <= tl) return { node: n, off: r };
+        r -= tl;
+        n = w.nextNode();
+      }
+      return { node: d, off: d.childNodes.length };
+    }
+    rest -= len + 1;
+  }
+  const last = blocks[blocks.length - 1];
+  return last ? { node: last, off: last.childNodes.length } : { node: el, off: 0 };
+}
+// Puts the caret or selection back at the given stored-text offsets after a formatting change
+function setTextSelection(el: HTMLElement, text: string, start: number, end: number) {
+  const a = locate(el, markerToVisible(text, start));
+  const b = locate(el, markerToVisible(text, end));
+  const r = document.createRange();
+  r.setStart(a.node, a.off);
+  r.setEnd(b.node, b.off);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(r);
+}
+
+// The formatted text editor. It shows the formatting and hides the markers; the stored text keeps them.
+function VerseTextBox({ id, value, onChange, onSelect }: { id: string; value: string; onChange: (v: string) => void; onSelect: (start: number, end: number) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const last = useRef<string>("\u0000");
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el && value !== last.current) {
+      el.innerHTML = editorHtml(value);
+      last.current = value;
+    }
+  }, [value]);
+  useEffect(() => {
+    const onSel = () => {
+      const el = ref.current;
+      const sel = window.getSelection();
+      if (!el || !sel || sel.rangeCount === 0 || !sel.anchorNode || !el.contains(sel.anchorNode)) return;
+      const a = visibleOffset(el, sel.anchorNode, sel.anchorOffset);
+      const b = sel.focusNode ? visibleOffset(el, sel.focusNode, sel.focusOffset) : a;
+      const s1 = visibleToMarker(last.current, Math.min(a, b));
+      const s2 = visibleToMarker(last.current, Math.max(a, b));
+      onSelect(s1, s2);
+    };
+    document.addEventListener("selectionchange", onSel);
+    return () => document.removeEventListener("selectionchange", onSel);
+  }, [onSelect]);
+  return (
+    <div
+      id={id}
+      ref={ref}
+      className="vtb-edit"
+      contentEditable
+      suppressContentEditableWarning
+      spellCheck={false}
+      onInput={() => {
+        const el = ref.current;
+        if (!el) return;
+        const t = editorToText(el);
+        last.current = t;
+        onChange(t);
+      }}
+      onPaste={(e) => {
+        e.preventDefault();
+        document.execCommand("insertText", false, spaceVerseNumbers(e.clipboardData.getData("text/plain")));
+      }}
+    />
+  );
 }
 
 export default function Scripture() {
@@ -183,6 +313,57 @@ export default function Scripture() {
   const [busy, setBusy] = useState(false);
 
   const say = (m: string, e = false) => { setStatus(m); setError(e); };
+
+  const [pickColor, setPickColor] = useState("#ff5050");
+  const [pickHighlight, setPickHighlight] = useState("#fff176");
+  // The selection inside the text box, as stored-text offsets
+  const [sel, setSel] = useState({ start: 0, end: 0 });
+  const onSelect = useCallback((start: number, end: number) => setSel({ start, end }), []);
+  // The formatting at the selection, so the B / I / U buttons show whether they are on
+  const activeNow = () => (selected ? fmtAt(selected.text, sel.start) : NO_FMT);
+
+  // Applies a text colour or a highlight to the selected text only. Choosing the colour that is
+  // already there removes it (a toggle). An earlier colour in the selection is replaced.
+  function applyColorHex(hex: string, kind: "text" | "highlight") {
+    if (!selected) return;
+    const { start: a, end: b } = sel;
+    if (a === b) { say("Select the text in the text box first, then choose a colour.", true); return; }
+    const key = kind === "text" ? "c" : "h";
+    const already = fmtAt(selected.text, a)[key] === hex;
+    const part = stripColorMarkers(selected.text.slice(a, b), kind);
+    const cleaned = selected.text.slice(0, a) + part + selected.text.slice(b);
+    if (already) {
+      update(selected.id, { text: cleaned });
+      requestAnimationFrame(() => { const el = document.getElementById("sc-text"); if (el) setTextSelection(el, cleaned, a, a + part.length); });
+      return;
+    }
+    // A highlight comes with a text colour that reads clearly on it
+    const r = kind === "text"
+      ? colorSelection(cleaned, a, a + part.length, hex)
+      : comboSelection(cleaned, a, a + part.length, contrastText(hex), hex);
+    if (!r) return;
+    update(selected.id, { text: r.text });
+    requestAnimationFrame(() => { const el = document.getElementById("sc-text"); if (el) setTextSelection(el, r.text, r.start, r.end); });
+  }
+  function applyColor() { applyColorHex(pickColor, "text"); }
+  function applyHighlight() { applyColorHex(pickHighlight, "highlight"); }
+  // Removes the formatting markers from the selected text (or from all of it when nothing is selected)
+  function clearMarkers() {
+    if (!selected) return;
+    const hasSel = sel.start !== sel.end;
+    const from = hasSel ? sel.start : 0;
+    const to = hasSel ? sel.end : selected.text.length;
+    update(selected.id, { text: selected.text.slice(0, from) + stripMarkers(selected.text.slice(from, to)) + selected.text.slice(to) });
+  }
+  // Bold, italic or underline only the selected text; the button shows whether it is on
+  function applyMarker(token: string) {
+    if (!selected) return;
+    if (sel.start === sel.end) { say("Select the text in the text box first, then press B, I or U.", true); return; }
+    const r = toggleMarker(selected.text, sel.start, sel.end, token);
+    if (!r) return;
+    update(selected.id, { text: r.text });
+    requestAnimationFrame(() => { const el = document.getElementById("sc-text"); if (el) setTextSelection(el, r.text, r.start, r.end); });
+  }
   const user = session?.user ?? null;
   const selected = slides.find((s) => s.id === selectedId) ?? null;
   const output = useMemo(() => buildOutput(slides, look), [slides, look]);
@@ -256,7 +437,33 @@ export default function Scripture() {
     if (id) window.location.hash = "#builder";
   }
 
+  // Favourite and recently used studies (this browser). Search covers the title, the reference and the passage labels.
+  const SC_FAV_KEY = "scriptureFavorites";
+  const SC_RECENT_KEY = "scriptureRecent";
+  const [scFavorites, setScFavorites] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(SC_FAV_KEY) || "[]"); } catch { return []; }
+  });
+  const [scRecent, setScRecent] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(SC_RECENT_KEY) || "[]"); } catch { return []; }
+  });
+  const [studyQuery, setStudyQuery] = useState("");
+  useEffect(() => { try { localStorage.setItem(SC_FAV_KEY, JSON.stringify(scFavorites)); } catch { /* blocked */ } }, [scFavorites]);
+  useEffect(() => { try { localStorage.setItem(SC_RECENT_KEY, JSON.stringify(scRecent)); } catch { /* blocked */ } }, [scRecent]);
+
+  const sq = studyQuery.trim().toLowerCase();
+  const studyMatches = sq
+    ? saved.filter((st) => `${st.title} ${st.reference} ${st.data.slides.map((x) => x.title).join(" ")}`.toLowerCase().includes(sq))
+    : [];
+  const studyFavs = saved.filter((st) => scFavorites.includes(st.id));
+  const studyRecent = scRecent.map((id) => saved.find((st) => st.id === id)).filter((st): st is SavedStudy => !!st);
+
+  function toggleStudyFavorite() {
+    if (!currentId) return;
+    setScFavorites((cur) => (cur.includes(currentId) ? cur.filter((x) => x !== currentId) : [...cur, currentId]));
+  }
+
   function openStudy(id: string) {
+    setScRecent((cur) => [id, ...cur.filter((x) => x !== id)].slice(0, 8));
     const s = saved.find((x) => x.id === id);
     if (!s) return;
     const { slides: ss, ...rest } = s.data;
@@ -331,9 +538,6 @@ export default function Scripture() {
     if (!ref) { say("Choose a book, chapter and verse first.", true); return; }
     const bible = selected.bible || bibles[0]?.id;
     if (!bible) { say("Add a Bible version first.", true); return; }
-    // Ask only when the text was typed or changed by hand since the last fetch
-    const editedByHand = selected.text.trim() !== "" && selected.text !== selected.fetchedText;
-    if (editedByHand && !window.confirm("Replace the text you typed on this slide with the fetched passage?")) return;
     setBusy(true);
     say("Fetching…");
     try {
@@ -375,7 +579,13 @@ export default function Scripture() {
     const deck: ProjDeck = {
       font: look.font, size: output.size, bg: look.bg, fg: look.fg, showLabels: look.showLabels,
       numColor: look.numColor, labelColor: look.labelColor,
-      slides: output.slides.map((s) => ({ label: s.label, rows: s.rows, verse: s.verse, fmt: s.fmt, numColor: look.numColor, size: output.size })),
+      slides: output.slides.map((s) => ({
+        label: s.label, rows: s.rows, verse: s.verse, fmt: s.fmt, numColor: s.numColor ?? look.numColor, size: s.size ?? output.size,
+        segs: (s.segs ?? s.rows.map((r) => parseRich(r))).map((line) => line.map((seg) => ({
+          text: seg.text,
+          f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null,
+        }))),
+      })),
     };
     try { localStorage.setItem(PROJECTOR_KEY, JSON.stringify(deck)); } catch { /* storage blocked */ }
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
@@ -403,17 +613,24 @@ export default function Scripture() {
       // Build text runs: verse numbers in their colour, the slide's formatting on the rest
       const runs: { text: string; options: Record<string, unknown> }[] = [];
       const base = {
-        fontFace: look.font, fontSize: output.size, bold: s.fmt?.bold ?? true,
+        fontFace: look.font, fontSize: s.size ?? output.size, bold: s.fmt?.bold ?? true,
         italic: !!s.fmt?.italic, underline: s.fmt?.underline ? { style: "sng" } : undefined,
         color: hex(s.fmt?.color || look.fg),
       };
-      s.rows.forEach((row, ri) => {
-        row.split(/\u0001(\d{1,3})/).forEach((part, k) => {
-          if (!part) return;
-          const isNum = s.verse && k % 2 === 1;
-          runs.push({ text: isNum ? `${part} ` : k ? part.replace(/^ /, "") : part, options: isNum ? { ...base, color: hex(look.numColor) } : { ...base } });
+      (s.segs ?? s.rows.map((r) => parseRich(r))).forEach((line, ri, all) => {
+        line.forEach((seg) => {
+          seg.text.split(/\u0001(\d{1,3})/).forEach((part, k) => {
+            if (!part) return;
+            const isNum = !!s.verse && k % 2 === 1;
+            runs.push({
+              text: isNum ? `${part} ` : k ? part.replace(/^ /, "") : part,
+              options: isNum
+                ? { ...base, color: hex(s.numColor ?? look.numColor), fontSize: Math.round((s.size ?? output.size) * 0.5) }
+                : { ...base, bold: seg.bold ?? base.bold, italic: seg.italic || base.italic, underline: seg.underline ? { style: "sng" } : base.underline, color: seg.color ? hex(seg.color) : base.color, ...(seg.highlight ? { highlight: hex(seg.highlight) } : {}) },
+            });
+          });
         });
-        if (ri < s.rows.length - 1 && runs.length) runs[runs.length - 1].options.breakLine = true;
+        if (ri < all.length - 1 && runs.length) runs[runs.length - 1].options.breakLine = true;
       });
       sl.addText(runs as never, {
         x: MARGIN_IN, y: MARGIN_IN, w: w - 2 * MARGIN_IN, h: uh,
@@ -436,12 +653,24 @@ export default function Scripture() {
             <h1>Scripture Slides</h1>
           </div>
           <div className="sc-actions">
+            <input className="sc-search" type="search" value={studyQuery} onChange={(e) => setStudyQuery(e.target.value)} placeholder="Search studies" aria-label="Search saved studies" />
+            <button className={`sc-star${currentId && scFavorites.includes(currentId) ? " on" : ""}`} onClick={toggleStudyFavorite} disabled={!currentId} aria-label="Favourite this study" aria-pressed={!!currentId && scFavorites.includes(currentId)} title="Favourite">★</button>
             <select value={currentId} onChange={(e) => (e.target.value ? openStudy(e.target.value) : newStudy())} aria-label="Open a saved study">
               <option value="">{saved.length ? "Saved studies…" : user ? "No saved studies" : "Sign in to see studies"}</option>
-              {saved.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+              {sq ? (
+                <optgroup label={`Results (${studyMatches.length})`}>
+                  {studyMatches.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}
+                </optgroup>
+              ) : (
+                <>
+                  {studyFavs.length > 0 && <optgroup label="Favourites">{studyFavs.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
+                  {studyRecent.length > 0 && <optgroup label="Recently used">{studyRecent.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
+                  <optgroup label="All studies">{saved.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>
+                </>
+              )}
             </select>
             <input className="sc-study-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Study title" placeholder="Study title" />
-            <button className="secondary" onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
+            <button className="primary" onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
             <button className="secondary" onClick={addToPresentation} disabled={busy || !user}>Add to presentation</button>
             <button className="secondary" onClick={newStudy}>New</button>
             <details className="sc-more">
@@ -494,6 +723,12 @@ export default function Scripture() {
             </div>
             <div className="sc-group">
               <h3>Colors</h3>
+              <div className="sc-presets" role="group" aria-label="Recommended colours">
+                {COLOR_PRESETS.map((p) => (
+                  <button key={p.name} type="button" className={`sc-preset${look.bg === p.bg && look.fg === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
+                    style={{ background: p.bg, color: p.fg }} onClick={() => setLook({ ...look, bg: p.bg, fg: p.fg })}>Aa</button>
+                ))}
+              </div>
               <div className="sc-colors">
                 <label>Background <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
                 <label>Text <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} /></label>
@@ -574,16 +809,45 @@ export default function Scripture() {
               <>
                 <div className="sc-field">
                   <label className="sc-label" htmlFor="sc-text">Text (one verse or line per row)</label>
-                  <textarea id="sc-text" className="sc-text" value={selected.text} onChange={(e) => update(selected.id, { text: e.target.value })} />
+                  <VerseTextBox id="sc-text" value={selected.text} onChange={(v) => update(selected.id, { text: v })} onSelect={onSelect} />
                 </div>
                 <div className="sc-field">
                   <span className="sc-label">Formatting</span>
                   <div className="fmt-toolbar">
-                    <button className={`tool${selected.fmt?.bold ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bold: !selected.fmt?.bold } })} aria-pressed={!!selected.fmt?.bold} aria-label="Bold"><b>B</b></button>
-                    <button className={`tool${selected.fmt?.italic ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, italic: !selected.fmt?.italic } })} aria-pressed={!!selected.fmt?.italic} aria-label="Italic"><i>I</i></button>
-                    <button className={`tool${selected.fmt?.underline ? " on" : ""}`} onClick={() => update(selected.id, { fmt: { ...selected.fmt, underline: !selected.fmt?.underline } })} aria-pressed={!!selected.fmt?.underline} aria-label="Underline"><u>U</u></button>
-                    <label className="tool-color" title="Text colour">Colour <input type="color" value={selected.fmt?.color || look.fg} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, color: e.target.value } })} /></label>
-                    <button className="tool" onClick={() => update(selected.id, { fmt: undefined })}>Reset</button>
+                    <button className={`tool${activeNow().b? " on" : ""}`} onClick={() => applyMarker("**")} aria-pressed={!!activeNow().b} aria-label="Bold selected text" title="Bold selected text"><b>B</b></button>
+                    <button className={`tool${activeNow().i? " on" : ""}`} onClick={() => applyMarker("~~")} aria-pressed={!!activeNow().i} aria-label="Italic selected text" title="Italic selected text"><i>I</i></button>
+                    <button className={`tool${activeNow().u? " on" : ""}`} onClick={() => applyMarker("__")} aria-pressed={!!activeNow().u} aria-label="Underline selected text" title="Underline selected text"><u>U</u></button>
+                    <label className="tool-color" title="Text colour for the selected text">Text <input type="color" value={pickColor} onChange={(e) => { setPickColor(e.target.value); applyColorHex(e.target.value, "text"); }} /></label>
+                    <button className="tool" onClick={applyColor} aria-label="Colour the selected text">Colour</button>
+                    <label className="tool-color" title="Highlight colour for the selected text">Highlight <input type="color" value={pickHighlight} onChange={(e) => { setPickHighlight(e.target.value); applyColorHex(e.target.value, "highlight"); }} /></label>
+                    <button className="tool" onClick={applyHighlight} aria-label="Highlight the selected text">Mark</button>
+                    <button className="tool" onClick={clearMarkers} aria-label="Clear formatting of the selected text">Clear</button>
+                    <label className="tool-color" title="Verse number colour">Verse no. <input type="color" value={selected.fmt?.numColor || look.numColor} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, numColor: e.target.value } })} /></label>
+                    <button className="tool" onClick={() => update(selected.id, { fmt: undefined, text: stripMarkers(selected.text) })} title="Remove all formatting from this slide">Reset</button>
+                  </div>
+                  <div className="fmt-swatches" aria-label="Ready-made text colours">
+                    {TEXT_COLOR_OPTIONS.map((c) => (
+                      <button key={c} type="button" className="swatch" title={`Text ${c}`} aria-label={`Text colour ${c}`} style={{ color: c }} onClick={() => applyColorHex(c, "text")}>A</button>
+                    ))}
+                  </div>
+                  <div className="fmt-swatches" aria-label="Ready-made highlight colours">
+                    {HIGHLIGHT_OPTIONS.map((c) => (
+                      <button key={c} type="button" className="swatch swatch-bg" title={`Highlight ${c}`} aria-label={`Highlight colour ${c}`} style={{ background: c }} onClick={() => applyColorHex(c, "highlight")}>A</button>
+                    ))}
+                  </div>
+                  <div className="fmt-size">
+                    <span className="sc-label">Font size</span>
+                    <span className="fmt-small">A</span>
+                    <input type="range" min={20} max={200} step={1} value={selected.fmt?.size ?? output.size} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, size: parseInt(e.target.value, 10) } })} aria-label="Font size for this slide" />
+                    <span className="fmt-large">A</span>
+                    <output>{selected.fmt?.size ? `${selected.fmt.size} pt` : `Auto (${output.size} pt)`}</output>
+                    <button className="tool" onClick={() => update(selected.id, { fmt: { ...selected.fmt, size: undefined } })} disabled={!selected.fmt?.size}>Auto</button>
+                  </div>
+                  <div className="fmt-presets" role="group" aria-label="Recommended colours for this slide">
+                    {COLOR_PRESETS.map((p) => (
+                      <button key={p.name} type="button" className={`sc-preset${selected.fmt?.bg === p.bg && selected.fmt?.color === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
+                        style={{ background: p.bg, color: p.fg, boxShadow: `inset 0 -5px 0 ${p.num}` }} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bg: p.bg, color: p.fg, numColor: p.num } })}>Aa</button>
+                    ))}
                   </div>
                 </div>
               </>
@@ -626,6 +890,17 @@ export default function Scripture() {
           <section className="sc-col sc-preview" aria-label="Preview">
             {shown.length ? (
               <>
+                {(() => {
+                  const cur = shown[Math.min(previewIndex, shown.length - 1)];
+                  return (
+                    <div className={`sc-big${look.aspect === "4:3" ? " ratio-43" : ""}`} style={{ background: cur.bg ?? look.bg, color: cur.fg ?? look.fg, fontFamily: `${cur.font ?? look.font}, sans-serif` }}>
+                      <div className="sc-big-text" style={{ fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
+                        {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum")}
+                      </div>
+                      {cur.label && look.showLabels && <div className="sc-big-tag" style={{ color: look.labelColor }}>{cur.label}</div>}
+                    </div>
+                  );
+                })()}
                 <div className="sc-cards">
                   {shown.map((sl, i) => (
                     <button
@@ -638,15 +913,7 @@ export default function Scripture() {
                     >
                       <span className="sc-card-num">{i + 1}</span>
                       <span className="sc-card-text">
-                        {sl.rows.map((row, ri) => (
-                          <span key={ri} className="sc-card-row">
-                            {row.split(/\u0001(\d{1,3})/).map((part, k) => {
-                              if (!part) return null;
-                              if (k % 2) return <span key={k} className="sc-card-vnum" style={{ color: look.numColor }}>{part} </span>;
-                              return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
-                            })}
-                          </span>
-                        ))}
+                        {renderRows(sl.segs ?? sl.rows.map((r) => parseRich(r)), sl.numColor ?? look.numColor, "sc-card-vnum")}
                       </span>
                       {sl.label && <span className="sc-card-tag" style={{ color: look.labelColor }}>{sl.label}</span>}
                     </button>

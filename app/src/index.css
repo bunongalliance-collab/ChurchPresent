@@ -493,3 +493,122 @@ button:disabled { opacity: 0.4; cursor: default; }
 @keyframes ly-toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 .ly-add.flash { animation: ly-pulse 0.6s ease-out 2; }
 @keyframes ly-pulse { 0% { box-shadow: 0 0 0 0 rgba(1, 154, 102, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(1, 154, 102, 0); } }
+
+/* Builder: drag-and-drop order, type badges and drop indicator */
+.sequence .seq-item { transition: box-shadow 0.12s, opacity 0.12s; cursor: grab; }
+.sequence .seq-item.dragging { opacity: 0.45; }
+.sequence .seq-item.drop-before { box-shadow: 0 -3px 0 0 #019A66; }
+.seq-grip { color: var(--muted); letter-spacing: -2px; margin-right: 2px; }
+.kind-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 4px; padding: 1px 6px; background: rgba(241,244,245,0.1); color: var(--text); }
+.kind-badge.song { background: rgba(1,154,102,0.18); color: #5FD3A8; }
+.kind-badge.scripture { background: rgba(143,179,209,0.18); color: #8FB3D1; }
+.kind-badge.custom { background: rgba(242,193,78,0.16); color: #F2C14E; }
+.seq-drop-end { list-style: none; border: 1px dashed var(--muted); border-radius: 8px; padding: 8px; color: var(--muted); font-size: 0.8rem; text-align: center; }
+.seq-drop-end.active { border-color: #019A66; color: #5FD3A8; box-shadow: 0 -3px 0 0 #019A66; }
+.pv-from { margin: -4px 0 6px; font-size: 0.8rem; }
+
+/* Presenter window: current slide, next slide and count (never shown on the audience screen) */
+.pres { min-height: 100vh; background: #111D27; color: #F1F4F5; padding: 16px 18px; font-size: 0.9rem; }
+.pres-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.pres-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start; }
+.pres-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: #A6B5C0; margin-bottom: 4px; }
+.stage.in-pres { position: relative; inset: auto; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; }
+.pres-end { aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; border: 1px dashed #A6B5C0; border-radius: 6px; color: #A6B5C0; }
+.pres-help { color: #A6B5C0; font-size: 0.8rem; margin-top: 12px; }
+@media (max-width: 760px) { .pres-row { grid-template-columns: 1fr; } }
+
+/* Projector waiting screen (W key). The welcome text can be set in this browser with localStorage key projectorWelcome. */
+.projector-waiting { position: fixed; inset: 0; background: #000; color: #F1F4F5; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6vw; font-family: Arial, sans-serif; font-weight: 700; font-size: 6vw; }
+
+/* Projector reliability: long words and long lines wrap inside the slide and never run off it */
+.stage .text { overflow-wrap: anywhere; word-break: normal; min-width: 0; }
+.stage, .stage.in-pres { container-type: inline-size; }
+.stage .text > div { max-width: 100%; }
+
+/* Presenter window: controls, jump list and connection warning */
+.pres-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.pres-warn { color: #E07A6A; margin: 10px 0 0; font-size: 0.85rem; }
+.pres-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; margin-top: 12px; max-height: 40vh; overflow-y: auto; }
+.pres-jump { display: flex; gap: 8px; align-items: center; text-align: left; background: transparent; color: #F1F4F5; border: 1px solid rgba(241,244,245,0.12); border-radius: 6px; padding: 6px 8px; min-width: 0; }
+.pres-jump.current { border-color: #019A66; box-shadow: 0 0 0 1px #019A66 inset; }
+.pres-jump-num { font-size: 0.72rem; color: #A6B5C0; min-width: 18px; }
+.pres-jump-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; }
+
+/* Lyrics: song search and favourites */
+.ly-search-row { display: flex; gap: 6px; align-items: center; }
+.ly-search { flex: 1; min-width: 0; }
+.ly-star { padding: 4px 9px; font-size: 1rem; line-height: 1; color: var(--ly-muted); }
+.ly-star.on { color: #F2C14E; border-color: rgba(242, 193, 78, 0.5); }
+.ly-star:disabled { opacity: 0.35; }
+
+/* Scripture: study search and favourites */
+.sc .sc-search { width: 150px; }
+.sc .sc-star { padding: 4px 8px; font-size: 1rem; line-height: 1; color: var(--sc-muted); }
+.sc .sc-star.on { color: #F2C14E; border-color: rgba(242, 193, 78, 0.5); }
+.sc .sc-star:disabled { opacity: 0.35; }
+
+/* Presentations: duplicate form, service date and grouping */
+.pl-dup { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid rgba(1,154,102,0.35); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.pl-dup input { min-width: 160px; }
+.pl-group h3 { font-size: 0.8rem; margin: 12px 0 6px; color: var(--muted); font-weight: 600; }
+.pl-row input[type="date"] { min-width: 130px; }
+
+/* Presentations: compact rows */
+.pl-head, .pl-row { padding: 4px 8px; gap: 6px; grid-template-columns: minmax(160px, 2fr) 130px minmax(110px, 1fr) 60px 70px 60px 56px minmax(260px, 2.6fr); }
+.pl-row { min-height: 0; }
+.pl-row > span { font-size: 0.8rem; line-height: 1.2; }
+.pl-row input[type="date"] { padding: 2px 4px; font-size: 0.75rem; min-width: 0; width: 100%; }
+.pl-actions { flex-wrap: nowrap; gap: 3px; }
+.pl-actions button { padding: 2px 6px; font-size: 0.72rem; white-space: nowrap; }
+.pl-title strong { font-weight: 600; }
+@media (max-width: 900px) { .pl-head { display: none; } .pl-row { grid-template-columns: 1fr 1fr; } }
+.recent-x { padding: 0 6px; line-height: 1.2; color: var(--muted); }
+.recent-x:hover { color: #E07A6A; }
+
+/* Recommended colour combinations */
+.ly-presets, .sc-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px; }
+.ly-preset, .sc-preset { width: 34px; height: 26px; padding: 0 !important; border: 1px solid rgba(241,244,245,0.25) !important; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+.ly-preset.on, .sc-preset.on { outline: 2px solid #019A66; outline-offset: 1px; }
+
+/* Scripture text box: verse numbers shown smaller and in the verse-number colour (formatted copy behind a transparent textarea) */
+.sc .vtb { position: relative; }
+.sc .vtb-mirror, .sc .vtb-input { font: inherit; font-size: 0.9rem; line-height: 1.5; padding: 8px 10px; margin: 0; box-sizing: border-box; width: 100%; min-height: 230px; white-space: pre-wrap; overflow-wrap: break-word; border-radius: 6px; border: 1px solid var(--sc-line); }
+.sc .vtb-mirror { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--sc-text); background: var(--sc-bg); }
+.sc .vtb-input { position: relative; background: transparent; color: transparent; caret-color: var(--sc-text); resize: vertical; }
+.sc .vtb-num { font-size: 0.6em; font-weight: 700; color: var(--num, #f2c14e); vertical-align: 0.45em; }
+
+/* Scripture: large preview of the selected slide, above the cards */
+.sc .sc-big { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 4.5%; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); margin-bottom: 10px; }
+.sc .sc-big.ratio-43 { aspect-ratio: 4 / 3; }
+.sc .sc-big-text { white-space: pre-line; text-align: center; font-weight: 700; line-height: 1.3; font-size: 4.2cqw; }
+.sc .sc-big-vnum { font-size: 0.5em; vertical-align: 0.7em; }
+.sc .sc-big-tag { position: absolute; right: 4.5%; bottom: 4%; font-size: 3cqw; font-weight: 700; }
+
+/* Scripture: font size bar and colour combinations for the selected slide */
+.fmt-size { display: flex; gap: 6px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.fmt-size input[type="range"] { flex: 1; min-width: 120px; accent-color: #019A66; }
+.fmt-size output { font-size: 0.78rem; color: var(--sc-text); min-width: 90px; }
+.fmt-small { font-size: 0.7rem; color: var(--sc-muted); }
+.fmt-large { font-size: 1.1rem; color: var(--sc-muted); }
+.fmt-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+/* Scripture: formatting markers in the text box are shown faintly, so the layout matches the typed text */
+.sc .vtb-tok { opacity: 0.3; }
+.sc .sc-row-line { display: block; }
+
+/* Scripture: the study title and Save share one accent, so they stand out in the top bar */
+.sc .sc-study-title { border: 1px solid #019A66; background: #192A37; color: #F1F4F5; font-weight: 600; box-shadow: 0 0 0 1px rgba(1, 154, 102, 0.35); }
+.sc .sc-actions button.primary { background: #019A66; border-color: #019A66; color: #fff; }
+.sc .vtb-mirror span[style*="background"] { border-radius: 2px; }
+
+/* Scripture text box: ready-made text and highlight colours */
+.fmt-swatches { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.swatch { width: 26px; height: 22px; padding: 0 !important; border: 1px solid rgba(241,244,245,0.25) !important; border-radius: 5px; font-size: 0.75rem; font-weight: 700; background: #111D27; }
+.swatch-bg { color: #111D27 !important; }
+
+/* Scripture text editor: shows the formatting, hides the markers */
+.sc .vtb { position: relative; }
+.sc .vtb-edit { min-height: 230px; padding: 8px 10px; border: 1px solid var(--sc-line); border-radius: 6px; background: var(--sc-bg); color: var(--sc-text); font: inherit; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: break-word; outline: none; }
+.sc .vtb-edit:focus { border-color: #019A66; }
+.sc .vtb-edit .vtb-num { font-size: 0.6em; font-weight: 700; color: var(--num, #f2c14e); vertical-align: 0.45em; }
+.sc .tool.on { background: rgba(1, 154, 102, 0.25); border-color: #019A66; color: #fff; }

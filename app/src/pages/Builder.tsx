@@ -4,7 +4,14 @@ import NavBar from "../components/NavBar";
 import { buildDeck, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
 import { buildOutput } from "./Scripture";
-import type { SlideFmt } from "./Projector";
+import type { SlideFmt, Seg } from "./Projector";
+import { parseRich } from "../lib/richtext";
+
+// Formatted segments for the projector and preview, from the slide text
+const toSegs = (rows: string[]): Seg[][] => rows.map((r) => parseRich(r).map((seg) => ({
+  text: seg.text,
+  f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null,
+})));
 
 // ---------- Data model ----------
 // A presentation is one ordered list of items. A song item keeps its own copy of the lyrics and the
@@ -35,7 +42,7 @@ interface ScriptureItem {
   id: string;
   studyId: string;
   title: string;
-  slides: { rows: string[]; label: string; verse: boolean; fmt?: SlideFmt; bg?: string; fg?: string; font?: string }[];
+  slides: { rows: string[]; label: string; verse: boolean; fmt?: SlideFmt; bg?: string; fg?: string; font?: string; size?: number; numColor?: string }[];
   numColor: string;
   labelColor: string;
   size: number;
@@ -52,6 +59,7 @@ export interface Settings {
   removeRepeats: boolean;
 }
 export interface PresentationData extends Settings {
+  serviceDate?: string;  // the service date, set on the Presentations page
   items: Item[];
 }
 export interface Presentation {
@@ -90,9 +98,11 @@ export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
   const slides: ProjDeck["slides"] = [];
   for (const it of items) {
     if (it.kind === "scripture") {
-      it.slides.forEach((sl) => slides.push({ label: sl.label, rows: sl.rows, verse: sl.verse, fmt: sl.fmt, numColor: it.numColor, size: it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
+      it.slides.forEach((sl) => slides.push({ label: sl.label, rows: sl.rows, segs: toSegs(sl.rows), verse: sl.verse, fmt: sl.fmt, numColor: sl.numColor ?? it.numColor, size: sl.size ?? it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
     } else if (it.kind === "custom") {
-      slides.push({ label: "", rows: it.text.split("\n").filter((l) => l.trim()), size });
+      // Custom slides get the same verse-number marks as scripture
+      const rows = it.text.split("\n").filter((l) => l.trim()).map((l) => l.replace(/(^|[\s.;:!?,])(\d{1,3})(?=\s)/g, "$1\u0001$2"));
+      slides.push({ label: "", rows, segs: toSegs(rows), verse: true, numColor: "#f2c14e", size });
     } else {
       it.slides.forEach((rows, i) => slides.push({ label: it.slideLabels[i] ?? "", rows, size: it.size, bg: it.look?.bg, fg: it.look?.fg, font: it.look?.font }));
     }
@@ -150,7 +160,26 @@ export default function Builder() {
   }, []);
 
   // Recent songs: the library is already newest first, so the top 8 are the latest saved songs
-  const recentSongs = useMemo(() => library.slice(0, 8), [library]);
+  // Removing an entry from Recent only hides it from this list; the saved song or study is not deleted
+  const HIDDEN_SONGS_KEY = "builderHiddenRecentSongs";
+  const HIDDEN_SCRIPTURES_KEY = "builderHiddenRecentScriptures";
+  const [hiddenSongs, setHiddenSongs] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(HIDDEN_SONGS_KEY) || "[]"); } catch { return []; }
+  });
+  const [hiddenScriptures, setHiddenScriptures] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(HIDDEN_SCRIPTURES_KEY) || "[]"); } catch { return []; }
+  });
+  useEffect(() => { try { localStorage.setItem(HIDDEN_SONGS_KEY, JSON.stringify(hiddenSongs)); } catch { /* blocked */ } }, [hiddenSongs]);
+  useEffect(() => { try { localStorage.setItem(HIDDEN_SCRIPTURES_KEY, JSON.stringify(hiddenScriptures)); } catch { /* blocked */ } }, [hiddenScriptures]);
+  // Recent songs are the songs added with Add to Presentation on the Lyrics page, newest first
+  const addedLog = useMemo<string[]>(() => {
+    try { return (JSON.parse(localStorage.getItem("addedSongsLog") || "[]") as { id: string }[]).map((x) => x.id); } catch { return []; }
+  }, []);
+  const recentSongs = useMemo(
+    () => addedLog.map((id) => library.find((x) => x.id === id)).filter((x): x is LibrarySong => !!x && !hiddenSongs.includes(x.id)).slice(0, 8),
+    [addedLog, library, hiddenSongs],
+  );
+  const recentScriptures = useMemo(() => recent.filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures]);
 
   // Add a saved song as a snapshot with its own slides, the same way scripture studies are added
   function addSong(song: LibrarySong) {
@@ -181,6 +210,31 @@ export default function Builder() {
       const next = cur.slice();
       [next[i], next[j]] = [next[j], next[i]];
       return next;
+    });
+  }
+  // Drag and drop: moves one whole item (a song or scripture keeps all its slides together)
+  function moveTo(id: string, toIndex: number) {
+    setItems((cur) => {
+      const from = cur.findIndex((x) => x.id === id);
+      if (from < 0) return cur;
+      const next = cur.slice();
+      const [moved] = next.splice(from, 1);
+      const at = Math.max(0, Math.min(toIndex > from ? toIndex - 1 : toIndex, next.length));
+      next.splice(at, 0, moved);
+      return next;
+    });
+  }
+  const [dragId, setDragId] = useState<string>("");
+  const [dropAt, setDropAt] = useState<number | null>(null);
+
+  // Duplicate an item: an independent copy with a new id (its slides are copied, not shared)
+  function duplicateItem(id: string) {
+    setItems((cur) => {
+      const i = cur.findIndex((x) => x.id === id);
+      if (i < 0) return cur;
+      const copy = { ...JSON.parse(JSON.stringify(cur[i])), id: uid() } as Item;
+      if (copy.kind === "custom") copy.title = `${copy.title} (copy)`;
+      return [...cur.slice(0, i + 1), copy, ...cur.slice(i + 1)];
     });
   }
   function removeItem(id: string) {
@@ -253,7 +307,7 @@ export default function Builder() {
     if (!out.slides.length) { say("That study has no text yet."); return; }
     const item: ScriptureItem = {
       kind: "scripture", id: uid(), studyId: study.id, title: study.title,
-      slides: out.slides.map((x) => ({ rows: [...x.rows], label: x.label, verse: x.verse, fmt: x.fmt, bg: x.bg, fg: x.fg, font: x.font })),
+      slides: out.slides.map((x) => ({ rows: [...x.rows], label: x.label, verse: x.verse, fmt: x.fmt, bg: x.bg, fg: x.fg, font: x.font, size: x.size, numColor: x.numColor })),
       numColor: String(look.numColor),
       labelColor: String(look.labelColor),
       size: out.size,
@@ -376,36 +430,50 @@ export default function Builder() {
               <li key={r.id}>
                 <span className="recent-title">{r.number ? `${r.number}. ` : ""}{r.title || "(untitled)"}</span>
                 <button className="secondary small" onClick={() => addSong(r)}>Add</button>
+                <button className="secondary small recent-x" onClick={() => setHiddenSongs((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "song"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}
           </ul>
+          {hiddenSongs.length > 0 && <button className="link small" onClick={() => setHiddenSongs([])}>Show {hiddenSongs.length} removed song{hiddenSongs.length === 1 ? "" : "s"}</button>}
           <div className="row">
-            <button className="secondary" onClick={() => addCustomAt(null)}>+ Custom slide</button>
+            <button className="secondary" onClick={() => addCustomAt(0)}>+ At start</button>
+            <button className="secondary" onClick={() => addCustomAt(null)}>+ At end</button>
           </div>
 
           <h2 className="recent-h">Recent scriptures</h2>
           {!userId && <p className="empty">Sign in on the Lyrics page to see your saved scriptures.</p>}
-          {userId && !recent.length && <p className="empty">No saved scripture studies yet.</p>}
+          {userId && !recentScriptures.length && <p className="empty">No saved scripture studies yet.</p>}
           <ul className="recent-list">
-            {recent.map((r) => (
+            {recentScriptures.map((r) => (
               <li key={r.id}>
                 <span className="recent-title">{r.title || "(untitled)"}<small> · {new Date(r.updated).toLocaleDateString()}</small></span>
                 <button className="secondary small" onClick={() => addScripture(r)}>Add</button>
+                <button className="secondary small recent-x" onClick={() => setHiddenScriptures((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "study"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}
           </ul>
+          {hiddenScriptures.length > 0 && <button className="link small" onClick={() => setHiddenScriptures([])}>Show {hiddenScriptures.length} removed stud{hiddenScriptures.length === 1 ? "y" : "ies"}</button>}
         </section>
 
         {/* B. Presentation sequence */}
         <section className="panel">
           <h2>Presentation order</h2>
           {!itemsWithFlags.length && <p className="empty">Nothing added yet.</p>}
-          <ol className="sequence">
+          <ol className="sequence" onDragLeave={() => setDropAt(null)}>
             {itemsWithFlags.map((it, i) => (
-              <li key={it.id} className={`seq-item ${it.kind}${selectedItem === it.id ? " selected" : ""}`}>
+              <li
+                key={it.id}
+                draggable
+                onDragStart={(e) => { setDragId(it.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", it.id); }}
+                onDragEnd={() => { setDragId(""); setDropAt(null); }}
+                onDragOver={(e) => { if (!dragId) return; e.preventDefault(); setDropAt(i); }}
+                onDrop={(e) => { e.preventDefault(); if (dragId) moveTo(dragId, i); setDragId(""); setDropAt(null); }}
+                className={`seq-item ${it.kind}${selectedItem === it.id ? " selected" : ""}${dragId === it.id ? " dragging" : ""}${dropAt === i && dragId && dragId !== it.id ? " drop-before" : ""}`}
+              >
                 <div className="seq-head" onClick={() => setSelectedItem(it.id)}>
+                  <span className="seq-grip" aria-hidden="true">⠿</span>
                   <span className="seq-num" aria-label={`Position ${i + 1}`}>{i + 1}</span>
-                  <span className="kind">{it.kind === "song" ? "Song" : it.kind === "scripture" ? "Scripture" : "Custom"}</span>
+                  <span className={`kind-badge ${it.kind}`}>{it.kind === "song" ? "Song" : it.kind === "scripture" ? "Scripture" : "Custom"}</span>
                   <strong>{it.kind === "song" ? `${it.number ? it.number + ". " : ""}${it.title}` : it.title}</strong>
                   {it.kind === "song" && it.libraryChanged && <span className="badge">Library changed</span>}
                 </div>
@@ -413,6 +481,7 @@ export default function Builder() {
                   <button className="secondary small" onClick={() => move(it.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
                   <button className="secondary small" onClick={() => move(it.id, 1)} disabled={i === itemsWithFlags.length - 1} aria-label="Move down">↓</button>
                   <button className="secondary small" onClick={() => addCustomAt(i)} aria-label="Insert custom slide above">+ above</button>
+                  <button className="secondary small" onClick={() => duplicateItem(it.id)}>Duplicate</button>
                   {it.kind === "song" && <button className="secondary small" onClick={() => editSongLook(it.songId)}>Edit formatting</button>}
                   {it.kind === "song" && it.libraryChanged && <button className="secondary small" onClick={() => refreshSong(it.id)}>Refresh</button>}
                   <button className="secondary small" onClick={() => removeItem(it.id)}>Remove</button>
@@ -420,12 +489,24 @@ export default function Builder() {
                 {it.kind === "song" && <div className="seq-sub">{it.slides.length} slide{it.slides.length === 1 ? "" : "s"}</div>}
               </li>
             ))}
+            {dragId && (
+              <li
+                className={`seq-drop-end${dropAt === itemsWithFlags.length ? " active" : ""}`}
+                onDragOver={(e) => { e.preventDefault(); setDropAt(itemsWithFlags.length); }}
+                onDrop={(e) => { e.preventDefault(); moveTo(dragId, itemsWithFlags.length); setDragId(""); setDropAt(null); }}
+              >
+                Drop here to move to the end
+              </li>
+            )}
           </ol>
         </section>
 
         {/* C. Slide preview and editing */}
         <section className="panel preview">
           <h2>Preview</h2>
+          <p className="empty pv-from">
+            {selectedEntry ? `Showing: ${selectedEntry.kind === "song" ? (selectedEntry.number ? selectedEntry.number + ". " : "") + selectedEntry.title : selectedEntry.title}` : "Showing: whole presentation"}
+          </p>
           {shownSlides.length ? (
             <>
               <div className="pv-cards">
@@ -440,13 +521,15 @@ export default function Builder() {
                   >
                     <span className="pv-num">{i + 1}</span>
                     <span className="pv-text">
-                      {(sl.rows ?? []).map((row, ri) => (
+                      {(sl.segs ?? toSegs(sl.rows ?? [])).map((line, ri) => (
                         <span key={ri} className="pv-row">
-                          {row.split(/\u0001(\d{1,3})/).map((part, k) => {
-                            if (!part) return null;
-                            if (k % 2) return <span key={k} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
-                            return <span key={k}>{k ? part.replace(/^ /, "") : part}</span>;
-                          })}
+                          {line.map((seg, k) =>
+                            seg.text.split(/\u0001(\d{1,3})/).map((part, j) => {
+                              if (!part) return null;
+                              if (j % 2) return <span key={`${k}-${j}`} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
+                              return <span key={`${k}-${j}`} style={{ fontWeight: seg.f?.bold ? 700 : undefined, fontStyle: seg.f?.italic ? "italic" : undefined, textDecoration: seg.f?.underline ? "underline" : undefined, color: seg.f?.color, backgroundColor: seg.f?.highlight }}>{j ? part.replace(/^ /, "") : part}</span>;
+                            })
+                          )}
                         </span>
                       ))}
                     </span>

@@ -324,3 +324,15 @@ export function parseBulk(text: string): ParsedSong[] {
     .map((s) => ({ title: s.title, number: s.number, lyrics: s.lines.join("\n").trim() }))
     .filter((s) => s.lyrics);
 }
+
+// Recommended background and text colour combinations (they read clearly from the back of a room)
+export const COLOR_PRESETS: { name: string; bg: string; fg: string; num: string }[] = [
+  { name: "Navy and cream", bg: "#213648", fg: "#F5F2EA", num: "#F2C14E" },
+  { name: "Black and white", bg: "#000000", fg: "#FFFFFF", num: "#FFC857" },
+  { name: "Charcoal and white", bg: "#1E1E1E", fg: "#FFFFFF", num: "#7FD1B9" },
+  { name: "Deep green and cream", bg: "#0F3B2E", fg: "#F4F1DE", num: "#E9B44C" },
+  { name: "Deep blue and gold", bg: "#0B2545", fg: "#FFD166", num: "#7EC8E3" },
+  { name: "Maroon and white", bg: "#5C1A1B", fg: "#F7F3EA", num: "#F6C6A8" },
+  { name: "Cream and dark", bg: "#F4F1DE", fg: "#1D2A36", num: "#B5452D" },
+  { name: "White and navy", bg: "#FFFFFF", fg: "#1B2A41", num: "#C2410C" },
+];

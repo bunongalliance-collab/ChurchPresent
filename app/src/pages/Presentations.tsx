@@ -13,7 +13,10 @@ interface Row {
   data: PresentationData;
 }
 
-type SortBy = "modified" | "name";
+type SortBy = "modified" | "name" | "date";
+
+// The service date is kept inside the presentation data (no database change)
+const serviceDateOf = (r: Row) => (typeof r.data.serviceDate === "string" ? r.data.serviceDate : "");
 
 // Counts shown in the list, worked out from the saved items (no new table or columns)
 function countsOf(data: PresentationData) {
@@ -78,11 +81,18 @@ export default function Presentations() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = rows.filter((r) => !q || r.title.toLowerCase().includes(q));
-    return list.sort((a, b) =>
-      sortBy === "name"
-        ? a.title.localeCompare(b.title, undefined, { numeric: true })
-        : b.updated.localeCompare(a.updated),
-    );
+    return list.sort((a, b) => {
+      if (sortBy === "name") return a.title.localeCompare(b.title, undefined, { numeric: true });
+      if (sortBy === "date") {
+        // Latest service first; presentations without a date go last
+        const da = serviceDateOf(a), db = serviceDateOf(b);
+        if (!da && !db) return b.updated.localeCompare(a.updated);
+        if (!da) return 1;
+        if (!db) return -1;
+        return db.localeCompare(da);
+      }
+      return b.updated.localeCompare(a.updated);
+    });
   }, [rows, query, sortBy]);
 
   // ---------- Actions ----------
@@ -104,17 +114,40 @@ export default function Presentations() {
     downloadDeckPptx(deck, row.title);
   }
 
-  // Duplicate: a new, independent row with a copy of the whole data
-  async function duplicate(row: Row) {
+  // Duplicate: opens a small form for the copy's title and service date
+  const [dupFor, setDupFor] = useState<Row | null>(null);
+  const [dupTitle, setDupTitle] = useState("");
+  const [dupDate, setDupDate] = useState("");
+  function startDuplicate(row: Row) {
+    setDupFor(row);
+    setDupTitle(`${row.title} (copy)`);
+    setDupDate(serviceDateOf(row));
+  }
+
+  // Creates an independent copy of the whole presentation, with its own title and date
+  async function createCopy() {
+    if (!dupFor) return;
     if (!supabase || !userId) { say("Sign in to duplicate presentations.", true); return; }
-    setBusyId(row.id);
-    const copy = JSON.parse(JSON.stringify(row.data)) as PresentationData;
+    if (!dupTitle.trim()) { say("Give the copy a title.", true); return; }
+    setBusyId(dupFor.id);
+    const copy = JSON.parse(JSON.stringify(dupFor.data)) as PresentationData;
+    copy.serviceDate = dupDate || undefined;
     const { error: err } = await supabase
       .from("presentations")
-      .insert({ title: `${row.title} (copy)`, data: copy, owner_id: userId });
+      .insert({ title: dupTitle.trim(), data: copy, owner_id: userId });
     setBusyId("");
     if (err) { say("Could not duplicate: " + err.message, true); return; }
-    say(`Copied "${row.title}".`);
+    say(`Copied "${dupFor.title}" as "${dupTitle.trim()}".`);
+    setDupFor(null);
+    await load();
+  }
+
+  // Sets or clears a presentation's service date
+  async function setServiceDate(row: Row, date: string) {
+    if (!supabase || !userId) { say("Sign in to change dates.", true); return; }
+    const data = { ...row.data, serviceDate: date || undefined };
+    const { error: err } = await supabase.from("presentations").update({ data }).eq("id", row.id);
+    if (err) { say("Could not save the date: " + err.message, true); return; }
     await load();
   }
 
@@ -135,6 +168,7 @@ export default function Presentations() {
       <div className="pl-table" role="table" aria-label="Presentations">
         <div className="pl-head" role="row">
           <span role="columnheader">Title</span>
+          <span role="columnheader">Service date</span>
           <span role="columnheader">Last modified</span>
           <span role="columnheader">Songs</span>
           <span role="columnheader">Scripture</span>
@@ -148,6 +182,9 @@ export default function Presentations() {
           return (
             <div className="pl-row" role="row" key={r.id}>
               <span role="cell" className="pl-title" data-label="Title"><strong>{r.title || "(untitled)"}</strong></span>
+              <span role="cell" data-label="Service date">
+                <input type="date" value={serviceDateOf(r)} onChange={(e) => setServiceDate(r, e.target.value)} aria-label="Service date" disabled={!!busyId} />
+              </span>
               <span role="cell" data-label="Last modified">{dateText(r.updated)}</span>
               <span role="cell" data-label="Songs">{c.songs}</span>
               <span role="cell" data-label="Scripture">{c.scripture}</span>
@@ -157,7 +194,7 @@ export default function Presentations() {
                 <button className="small" onClick={() => openInBuilder(r.id)} disabled={busy}>Open in Builder</button>
                 <button className="secondary small" onClick={() => present(r)} disabled={busy || c.total === 0}>Present</button>
                 <button className="secondary small" onClick={() => download(r)} disabled={busy || c.total === 0}>Download .pptx</button>
-                <button className="secondary small" onClick={() => duplicate(r)} disabled={busy}>Duplicate</button>
+                <button className="secondary small" onClick={() => startDuplicate(r)} disabled={busy}>Duplicate</button>
                 <button className="secondary small danger" onClick={() => remove(r)} disabled={busy}>Delete</button>
               </span>
             </div>
@@ -212,11 +249,36 @@ export default function Presentations() {
                 <label className="pl-sort">Sort by
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)}>
                     <option value="modified">Last modified</option>
+                    <option value="date">Service date</option>
                     <option value="name">Name (A–Z)</option>
                   </select>
                 </label>
               </div>
-              {filtered.length ? <Table list={filtered} /> : <p className="empty">No presentations match "{query}".</p>}
+              {dupFor && (
+                <div className="pl-dup">
+                  <strong>Copy "{dupFor.title}"</strong>
+                  <input value={dupTitle} onChange={(e) => setDupTitle(e.target.value)} aria-label="Copy title" placeholder="New title" />
+                  <input type="date" value={dupDate} onChange={(e) => setDupDate(e.target.value)} aria-label="Copy service date" />
+                  <button className="primary small" onClick={createCopy} disabled={!!busyId}>Create copy</button>
+                  <button className="secondary small" onClick={() => setDupFor(null)}>Cancel</button>
+                </div>
+              )}
+              {filtered.length === 0 && <p className="empty">No presentations match "{query}".</p>}
+              {sortBy === "date" && filtered.length > 0 ? (
+                // Grouped by service month, latest first
+                Array.from(new Set(filtered.map((r) => (serviceDateOf(r) ? serviceDateOf(r).slice(0, 7) : "")))).map((month) => {
+                  const group = filtered.filter((r) => (serviceDateOf(r) ? serviceDateOf(r).slice(0, 7) : "") === month);
+                  const label = month ? new Date(`${month}-01T12:00:00`).toLocaleDateString(undefined, { month: "long", year: "numeric" }) : "No service date";
+                  return (
+                    <div key={month || "none"} className="pl-group">
+                      <h3>{label} <span className="empty">({group.length})</span></h3>
+                      <Table list={group} />
+                    </div>
+                  );
+                })
+              ) : (
+                filtered.length > 0 && <Table list={filtered} />
+              )}
             </section>
           </>
         )}

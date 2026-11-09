@@ -4,7 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import {
-  buildDeck, expandShortcuts, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
+  buildDeck, COLOR_PRESETS, expandShortcuts, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
 } from "../lib/slides";
 
 // A saved song. Signed in: stored in Supabase (lyric_songs). Otherwise: this browser only (localStorage).
@@ -158,7 +158,26 @@ export default function Lyrics() {
   }, []);
     const user = session?.user ?? null;
 
+  // Favourites and recently used songs (this browser)
+  const FAV_KEY = "lyricsFavorites";
+  const RECENT_KEY = "lyricsRecent";
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch { return []; }
+  });
+  const [recent, setRecent] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+  });
+  const [query, setQuery] = useState("");
+  useEffect(() => { try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)); } catch { /* blocked */ } }, [favorites]);
+  useEffect(() => { try { localStorage.setItem(RECENT_KEY, JSON.stringify(recent)); } catch { /* blocked */ } }, [recent]);
+
+  function toggleFavorite() {
+    if (!selectedId) return;
+    setFavorites((cur) => (cur.includes(selectedId) ? cur.filter((x) => x !== selectedId) : [...cur, selectedId]));
+  }
+
   function fillForm(song: SavedSong | null) {
+    if (song) setRecent((cur) => [song.id, ...cur.filter((x) => x !== song.id)].slice(0, 8));
     setSelectedId(song?.id ?? "");
     setSongTitle(song?.title ?? "");
     setSongNumber(song?.number ?? "");
@@ -226,6 +245,14 @@ export default function Lyrics() {
     const saved = await saveCurrent();
     if (!saved) { say("Not added. Paste lyrics and sign in first, so the song can be saved.", true); return; }
     setAddedNow((cur) => [...cur.filter((x) => x.id !== saved.id), { id: saved.id, title: saved.title || "(untitled)", number: saved.number }]);
+    // Remember this addition for the builder's Recent songs list (newest first)
+    try {
+      const log: { id: string; at: number }[] = JSON.parse(localStorage.getItem("addedSongsLog") || "[]");
+      localStorage.setItem("addedSongsLog", JSON.stringify([{ id: saved.id, at: Date.now() }, ...log.filter((x) => x.id !== saved.id)].slice(0, 30)));
+      // Adding a song again brings it back into the builder's Recent songs, even if it was removed there
+      const hidden: string[] = JSON.parse(localStorage.getItem("builderHiddenRecentSongs") || "[]");
+      localStorage.setItem("builderHiddenRecentSongs", JSON.stringify(hidden.filter((x) => x !== saved.id)));
+    } catch { /* storage blocked */ }
     // Visible confirmation: a toast and a short "Added" label on the button
     setToast(`Added "${saved.title || "(untitled)"}" to the presentation`);
     setJustAdded(true);
@@ -324,6 +351,11 @@ export default function Lyrics() {
     try { sessionStorage.setItem("lyricsAddedNow", JSON.stringify(addedNow)); } catch { /* storage blocked */ }
   }, [addedNow]);
 
+  // Search over title, number and lyrics; favourites and recent songs are shown when not searching
+  const q = query.trim().toLowerCase();
+  const searchResults = q ? sorted.filter((s) => `${s.number} ${s.title} ${s.lyrics}`.toLowerCase().includes(q)) : [];
+  const favSongs = sorted.filter((s) => favorites.includes(s.id));
+  const recentSongs = recent.map((id) => songs.find((s) => s.id === id)).filter((s): s is SavedSong => !!s);
   const inPresentation = new Set<string>([...songIdsInPresentation(), ...addedNow.map((x) => x.id)]);
   const selectedInPresentation = !!selectedId && inPresentation.has(selectedId);
 
@@ -366,9 +398,33 @@ export default function Lyrics() {
         <div className="ly-body">
           {/* Left: the song */}
           <section className="ly-col ly-editor" aria-label="Song editor">
+            <div className="ly-search-row">
+              <input className="ly-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
+              <button className={`ly-star${selectedId && favorites.includes(selectedId) ? " on" : ""}`} onClick={toggleFavorite} disabled={!selectedId} aria-label="Favourite this song" aria-pressed={!!selectedId && favorites.includes(selectedId)} title="Favourite">★</button>
+            </div>
             <select className="ly-saved" value={selectedId} onChange={(e) => fillForm(songs.find((s) => s.id === e.target.value) ?? null)} aria-label="Saved songs">
               <option value="">{songs.length ? "Choose a saved song…" : "No saved songs yet"}</option>
-              {sorted.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+              {query.trim() ? (
+                <optgroup label={`Results (${searchResults.length})`}>
+                  {searchResults.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+                </optgroup>
+              ) : (
+                <>
+                  {favSongs.length > 0 && (
+                    <optgroup label="Favourites">
+                      {favSongs.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+                    </optgroup>
+                  )}
+                  {recentSongs.length > 0 && (
+                    <optgroup label="Recently used">
+                      {recentSongs.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+                    </optgroup>
+                  )}
+                  <optgroup label="All songs">
+                    {sorted.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+                  </optgroup>
+                </>
+              )}
             </select>
 
             {selectedInPresentation && <span className="ly-chip">In presentation</span>}
@@ -454,6 +510,12 @@ export default function Lyrics() {
                 </div>
                 <div className="ly-group">
                   <h3>Colors</h3>
+                  <div className="ly-presets" role="group" aria-label="Recommended colours">
+                    {COLOR_PRESETS.map((p) => (
+                      <button key={p.name} type="button" className={`ly-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
+                        style={{ background: p.bg, color: p.fg }} onClick={() => { setColorBg(p.bg); setColorText(p.fg); }}>Aa</button>
+                    ))}
+                  </div>
                   <div className="ly-colors">
                     <label>Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
                     <label>Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
