@@ -55,8 +55,10 @@ export function downloadDeckPptx(deck: ProjDeck, title: string) {
       });
       if (ri < (s.rows ?? []).length - 1) breakRow(runs, ends?.[ri] ?? true);
     });
+    // The passage reference, bottom-right, on every slide of the passage (kept clear of the text)
+    if (s.ref) sl.addText(s.ref, { x: SLIDE_W_IN - MARGIN_IN - 4.5, y: SLIDE_H_IN - MARGIN_IN - 0.4, w: 4.5, h: 0.4, fontFace: deck.font, fontSize: 14, color: hex(s.fg || deck.fg), transparency: 35, align: "right", valign: "bottom", margin: 0 });
     sl.addText(runs as never, {
-      x: MARGIN_IN, y: MARGIN_IN, w: SLIDE_W_IN - 2 * MARGIN_IN, h: USABLE_H,
+      x: MARGIN_IN, y: MARGIN_IN, w: SLIDE_W_IN - 2 * MARGIN_IN, h: s.ref ? USABLE_H - 0.5 : USABLE_H,
       align: s.align ?? "left", valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
     });
   }

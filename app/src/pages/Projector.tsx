@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 export interface Seg { text: string; f?: { bold?: boolean; italic?: boolean; underline?: boolean; color?: string; highlight?: string } | null }
 export interface SlideFmt { bold?: boolean; italic?: boolean; underline?: boolean; color?: string }
 export interface ProjSlide {
+  ref?: string;        // passage reference, shown bottom-right on every slide of the passage
   bg?: string;          // this slide's background (falls back to the deck's)
   fg?: string;          // this slide's text colour
   font?: string;        // this slide's font
@@ -92,7 +93,7 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
   const ends = paragraphEnds(lines.map((l) => l.map((s) => s.text).join("")));
   return (
     <div
-      className={`stage${deck.reserve ? " reserve" : ""}${extraClass}`}
+      className={`stage${deck.reserve || slide.ref ? " reserve" : ""}${extraClass}`}
       style={{ background: slide.bg ?? deck.bg, color: slide.fg ?? deck.fg, fontFamily: `${slide.font ?? deck.font}, Arial, sans-serif` }}
       onClick={onClick}
     >
@@ -108,6 +109,7 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
             : lines.map((segs, i) => <div key={i}>{lineNodes(segs, numColor)}</div>)}
         </div>
       </div>
+      {slide.ref && <div className="ref-tag">{slide.ref}</div>}
       {slide.label && deck.showLabels && (
         <div
           className="tag"

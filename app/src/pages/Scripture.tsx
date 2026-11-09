@@ -117,7 +117,7 @@ async function fetchVerse(bible: string, code: string, ch: number, v: number): P
 // Rows for the projector and the .pptx, using the shared engine for passage and custom text
 // A slide's own format: text formatting, plus its font size (pt) and background colour
 type SlideFormat = SlideFmt & { size?: number; bg?: string; numColor?: string };
-export interface OutSlide { label: string; rows: string[]; verse: boolean; align?: "left" | "center" | "right" | "justify"; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
+export interface OutSlide { label: string; ref?: string; rows: string[]; verse: boolean; align?: "left" | "center" | "right" | "justify"; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
 
 export function buildOutput(slides: StudySlide[], look: Look): { size: number; slides: OutSlide[] } {
   const all = slides.filter((s) => s.text.trim()).map((s) => s.text).join("\n");
@@ -144,6 +144,7 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
       // Mark each verse number at the start of a row, so it can be drawn smaller and in its own colour
       carryFormattingSlides(deck.slides).forEach((rows) => pieces.push({
         label: sl.title,
+        ref: sl.title, // the passage reference, shown bottom-right on every slide of the passage
         rows,
         verse: true, segs: rows.map((r) => parseRich(r)), fmt: sl.fmt, bg: sl.fmt?.bg ?? look.bg, fg: sl.fmt?.color ?? look.fg, font: look.font, size: sl.fmt?.size, numColor: sl.fmt?.numColor ?? look.numColor,
       }));
@@ -658,6 +659,7 @@ export default function Scripture() {
       numColor: look.numColor, labelColor: look.labelColor,
       slides: output.slides.map((s) => ({
         align: look.align,
+        ref: s.ref,
         label: s.label, rows: s.rows, verse: s.verse, fmt: s.fmt, bg: s.bg, fg: s.fg, numColor: s.numColor ?? look.numColor, size: s.size ?? output.size,
         segs: (s.segs ?? s.rows.map((r) => parseRich(r))).map((line) => line.map((seg) => ({
           text: seg.text,
@@ -711,8 +713,10 @@ export default function Scripture() {
         });
         if (ri < all.length - 1) breakRow(runs, jEnds?.[ri] ?? true);
       });
+      // The passage reference, bottom-right, on every slide of the passage (kept clear of the text)
+      if (s.ref) sl.addText(s.ref, { x: w - MARGIN_IN - 4.5, y: h - MARGIN_IN - 0.4, w: 4.5, h: 0.4, fontFace: look.font, fontSize: 14, color: hex(look.fg), transparency: 35, align: "right", valign: "bottom", margin: 0 });
       sl.addText(runs as never, {
-        x: MARGIN_IN, y: MARGIN_IN, w: w - 2 * MARGIN_IN, h: uh,
+        x: MARGIN_IN, y: MARGIN_IN, w: w - 2 * MARGIN_IN, h: s.ref ? uh - 0.5 : uh,
         align: look.align, valign: "middle", margin: 0, lineSpacingMultiple: 1.1, fit: "none",
       });
     }
@@ -914,6 +918,11 @@ export default function Scripture() {
                     <button className={`tool${activeNow().v ? " on" : ""}`} onClick={() => applyVerseMode("v")} aria-pressed={!!activeNow().v} title="Style the selected text like a verse number"><span className="vtb-num" style={{ verticalAlign: "0.3em" }}>1</span> Verse</button>
                     <button className="tool" onClick={clearMarkers} aria-label="Clear formatting of the selected text">Clear</button>
                     <label className="tool-color" title="Verse number colour">Verse no. <input type="color" value={selected.fmt?.numColor || look.numColor} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, numColor: e.target.value } })} /></label>
+                    <span className="fmt-align" role="group" aria-label="Text alignment">
+                      {([["left", "Left", "Align left"], ["center", "Ctr", "Align centre"], ["right", "Right", "Align right"], ["justify", "Just", "Justify"]] as const).map(([v, label, title]) => (
+                        <button key={v} type="button" className={`tool${look.align === v ? " on" : ""}`} aria-pressed={look.align === v} title={title} aria-label={title} onClick={() => setLook({ ...look, align: v })}>{label}</button>
+                      ))}
+                    </span>
                     <button className="tool" onClick={() => update(selected.id, { fmt: undefined, text: stripMarkers(selected.text) })} title="Remove all formatting from this slide">Reset</button>
                   </div>
                   <div className="fmt-swatch-row">
@@ -1014,6 +1023,7 @@ export default function Scripture() {
                         {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum", look.align)}
                       </div>
                       {cur.label && look.showLabels && <div className="sc-big-tag" style={{ color: look.labelColor }}>{cur.label}</div>}
+                      {cur.ref && <div className="sc-big-ref">{cur.ref}</div>}
                     </div>
                   );
                 })()}
@@ -1032,6 +1042,7 @@ export default function Scripture() {
                         {renderRows(sl.segs ?? sl.rows.map((r) => parseRich(r)), sl.numColor ?? look.numColor, "sc-card-vnum", look.align)}
                       </span>
                       {sl.label && <span className="sc-card-tag" style={{ color: look.labelColor }}>{sl.label}</span>}
+                      {sl.ref && <span className="sc-card-ref">{sl.ref}</span>}
                     </button>
                   ))}
                 </div>

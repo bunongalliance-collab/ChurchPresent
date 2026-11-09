@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
-import { buildDeck, FONTS, type Slide } from "../lib/slides";
+import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
 import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
-import { carryFormatting, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
+import { carryFormattingSlides, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
 
 // Formatted segments for the projector and preview, from the slide text
 const toSegs = (rows: string[]): Seg[][] => rows.map((r) => parseRich(r).map((seg) => ({
@@ -42,7 +42,7 @@ interface ScriptureItem {
   id: string;
   studyId: string;
   title: string;
-  slides: { rows: string[]; label: string; verse: boolean; fmt?: SlideFmt; bg?: string; fg?: string; font?: string; size?: number; numColor?: string }[];
+  slides: { rows: string[]; label: string; ref?: string; verse: boolean; fmt?: SlideFmt; bg?: string; fg?: string; font?: string; size?: number; numColor?: string }[];
   numColor: string;
   labelColor: string;
   size: number;
@@ -98,11 +98,16 @@ export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
   const slides: ProjDeck["slides"] = [];
   for (const it of items) {
     if (it.kind === "scripture") {
-      it.slides.forEach((sl) => slides.push({ label: sl.label, rows: sl.rows, segs: toSegs(sl.rows), verse: sl.verse, fmt: sl.fmt, numColor: sl.numColor ?? it.numColor, size: sl.size ?? it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
+      it.slides.forEach((sl) => slides.push({ label: sl.label, ref: sl.ref, rows: sl.rows, segs: toSegs(sl.rows ?? []), verse: sl.verse, fmt: sl.fmt, numColor: sl.numColor ?? it.numColor, size: sl.size ?? it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
     } else if (it.kind === "custom") {
       // Custom slides get the same verse-number marks as scripture
-      const rows = carryFormatting(it.text.split("\n").filter((l) => l.trim())).map((l) => markVerses(l, true));
-      slides.push({ label: "", rows, segs: toSegs(rows), verse: true, numColor: "#f2c14e", size });
+      // Text that is too long for one slide flows onto the next slides (same engine as Scripture and Lyrics)
+      const lines = it.text.split("\n").filter((l) => l.trim()).map((l) => markVerses(l, true));
+      // With no size given, use the automatic size for this text (same as the rest of the deck)
+      const fsize = size > 0 ? size : deckSize([lines], s.font, s.perSlide);
+      for (const rows of carryFormattingSlides(flowLines(lines, s.font, fsize))) {
+        slides.push({ label: "", rows, segs: toSegs(rows), verse: true, numColor: "#f2c14e", size: fsize });
+      }
     } else {
       it.slides.forEach((rows, i) => slides.push({ label: it.slideLabels[i] ?? "", rows, size: it.size, bg: it.look?.bg, fg: it.look?.fg, font: it.look?.font }));
     }
@@ -307,7 +312,7 @@ export default function Builder() {
     if (!out.slides.length) { say("That study has no text yet."); return; }
     const item: ScriptureItem = {
       kind: "scripture", id: uid(), studyId: study.id, title: study.title,
-      slides: out.slides.map((x) => ({ rows: [...x.rows], label: x.label, verse: x.verse, fmt: x.fmt, bg: x.bg, fg: x.fg, font: x.font, size: x.size, numColor: x.numColor })),
+      slides: out.slides.map((x) => ({ rows: [...x.rows], label: x.label, ref: x.ref, verse: x.verse, fmt: x.fmt, bg: x.bg, fg: x.fg, font: x.font, size: x.size, numColor: x.numColor })),
       numColor: String(look.numColor),
       labelColor: String(look.labelColor),
       size: out.size,
@@ -394,6 +399,28 @@ export default function Builder() {
   }
 
   // ---------- UI ----------
+  // The contents of one preview slide (number, text, label), shared by the big slide and the small cards
+  const pvInner = (sl: typeof shownSlides[number], i: number) => (
+    <>
+      <span className="pv-num">{i + 1}</span>
+      {sl.ref && <span className="pv-ref">{sl.ref}</span>}
+      <span className="pv-text" style={sl.size ? { fontSize: `${(sl.size / 960) * 100}cqw` } : undefined}>
+        {(sl.segs ?? toSegs(sl.rows ?? [])).map((line, ri) => (
+          <span key={ri} className="pv-row">
+            {line.map((seg, k) =>
+              seg.text.split(VERSE_SPLIT).map((part, j) => {
+                if (!part) return null;
+                if (j % 2) return <span key={`${k}-${j}`} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
+                return <span key={`${k}-${j}`} style={{ fontWeight: seg.f?.bold ? 700 : undefined, fontStyle: seg.f?.italic ? "italic" : undefined, textDecoration: seg.f?.underline ? "underline" : undefined, color: seg.f?.color, backgroundColor: seg.f?.highlight }}>{j ? part.replace(/^ /, "") : part}</span>;
+              })
+            )}
+          </span>
+        ))}
+      </span>
+      {sl.label && settings.showLabels && <span className="pv-tag">{sl.label}</span>}
+    </>
+  );
+
   return (
     <>
     <NavBar />
@@ -428,8 +455,8 @@ export default function Builder() {
           <ul className="recent-list">
             {recentSongs.map((r) => (
               <li key={r.id}>
-                <span className="recent-title">{r.number ? `${r.number}. ` : ""}{r.title || "(untitled)"}</span>
-                <button className="secondary small" onClick={() => addSong(r)}>Add</button>
+                <span className="recent-title"><strong>{r.number ? `${r.number}. ` : ""}{r.title || "(untitled)"}</strong><small>Song</small></span>
+                <button className="primary small" onClick={() => addSong(r)} aria-label={`Add ${r.title || "song"}`}>Add</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenSongs((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "song"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}
@@ -446,8 +473,8 @@ export default function Builder() {
           <ul className="recent-list">
             {recentScriptures.map((r) => (
               <li key={r.id}>
-                <span className="recent-title">{r.title || "(untitled)"}<small> · {new Date(r.updated).toLocaleDateString()}</small></span>
-                <button className="secondary small" onClick={() => addScripture(r)}>Add</button>
+                <span className="recent-title"><strong>{r.title || "(untitled)"}</strong><small>Scripture · {new Date(r.updated).toLocaleDateString()}</small></span>
+                <button className="primary small" onClick={() => addScripture(r)} aria-label={`Add ${r.title || "study"}`}>Add</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenScriptures((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "study"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}
@@ -509,6 +536,11 @@ export default function Builder() {
           </p>
           {shownSlides.length ? (
             <>
+              {(() => { const cur = shownSlides[Math.min(previewIndex, shownSlides.length - 1)]; return (
+                <div className="pv-big" style={{ background: cur.bg ?? settings.bg, color: cur.fg ?? settings.fg, fontFamily: `${cur.font ?? settings.font}, sans-serif` }}>
+                  {pvInner(cur, Math.min(previewIndex, shownSlides.length - 1))}
+                </div>
+              ); })()}
               <div className="pv-cards">
                 {shownSlides.map((sl, i) => (
                   <button
@@ -519,21 +551,7 @@ export default function Builder() {
                     onClick={() => setPreviewIndex(i)}
                     aria-label={`Slide ${i + 1}`}
                   >
-                    <span className="pv-num">{i + 1}</span>
-                    <span className="pv-text">
-                      {(sl.segs ?? toSegs(sl.rows ?? [])).map((line, ri) => (
-                        <span key={ri} className="pv-row">
-                          {line.map((seg, k) =>
-                            seg.text.split(VERSE_SPLIT).map((part, j) => {
-                              if (!part) return null;
-                              if (j % 2) return <span key={`${k}-${j}`} className="pv-vnum" style={{ color: sl.numColor || "#f2c14e" }}>{part} </span>;
-                              return <span key={`${k}-${j}`} style={{ fontWeight: seg.f?.bold ? 700 : undefined, fontStyle: seg.f?.italic ? "italic" : undefined, textDecoration: seg.f?.underline ? "underline" : undefined, color: seg.f?.color, backgroundColor: seg.f?.highlight }}>{j ? part.replace(/^ /, "") : part}</span>;
-                            })
-                          )}
-                        </span>
-                      ))}
-                    </span>
-                    {sl.label && settings.showLabels && <span className="pv-tag">{sl.label}</span>}
+                    {pvInner(sl, i)}
                   </button>
                 ))}
               </div>

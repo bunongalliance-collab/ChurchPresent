@@ -237,12 +237,12 @@ export default function Presentations() {
 
         {!empty && rows.length > 0 && (
           <>
-            <section className="pl-section">
+            <section className="pl-section pl-recent">
               <h2>Recently modified</h2>
               <Table list={recent} />
             </section>
 
-            <section className="pl-section">
+            <section className="pl-section pl-all">
               <div className="pl-tools">
                 <h2>All presentations</h2>
                 <input type="search" placeholder="Search by title" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search by title" />

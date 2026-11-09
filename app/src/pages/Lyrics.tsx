@@ -380,7 +380,7 @@ export default function Lyrics() {
             <p className="ly-sub">Manage songs and prepare presentation slides.</p>
           </div>
           <div className="ly-top-actions">
-            <button className="secondary" onClick={openProjector} disabled={!slides.length}>Open Projector</button>
+            <button className="primary" onClick={openProjector} disabled={!slides.length}>Present</button>
             <button className="secondary" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
           </div>
         </header>
@@ -475,7 +475,7 @@ export default function Lyrics() {
               </div>
             )}
 
-            <details className="ly-appearance">
+            <details className="ly-appearance" open>
               <summary>Slide Appearance <span className="ly-summary">{appearanceSummary}</span></summary>
               <div className="ly-appearance-grid">
                 <div className="ly-group">

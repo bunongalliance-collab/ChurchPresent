@@ -56,7 +56,7 @@ body:has(.stage), body:has(.projector-blackout), body:has(.projector-message) { 
 .builder-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
 .builder-top .title-in { flex: 1 1 220px; }
 .builder-top select { flex: 0 1 240px; }
-.builder-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(260px, 1fr) minmax(300px, 1.3fr); gap: 12px; align-items: start; }
+.builder-grid { display: grid; grid-template-columns: minmax(300px, 1.4fr) minmax(220px, 0.75fr) minmax(300px, 1.3fr); gap: 12px; align-items: start; }
 .builder-page h2 { font-size: 1rem; margin: 0 0 8px; }
 .builder-page h3 { font-size: 0.9rem; margin: 12px 0 6px; }
 .library { max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px; margin: 8px 0; }
@@ -656,3 +656,79 @@ button:disabled { opacity: 0.4; cursor: default; }
 @media (min-width: 901px) {
   .sc .sc-format-dock { position: sticky; bottom: 0; z-index: 5; margin: 0 -14px -14px; padding: 10px 14px 14px; background: var(--sc-panel); border-top: 1px solid var(--sc-line, rgba(255,255,255,0.12)); border-radius: 0 0 10px 10px; box-shadow: 0 -8px 16px rgba(0,0,0,0.25); }
 }
+
+/* Text alignment buttons inside the formatting toolbar */
+.sc .fmt-align { display: inline-flex; gap: 2px; padding-left: 4px; margin-left: 2px; border-left: 1px solid var(--sc-line); }
+.sc .fmt-align .tool { padding: 3px 6px; font-size: 0.72rem; }
+
+/* Builder preview: the selected slide large, the slides below it as small cards */
+.pv-big { position: relative; aspect-ratio: 16 / 9; container-type: inline-size; border-radius: 8px; overflow: hidden; padding: 2.5%; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.25); margin-bottom: 10px; }
+.pv-big .pv-text { font-size: 6.2cqw; }
+.pv-big .pv-tag { font-size: 3.2cqw; }
+.pv-big .pv-num { font-size: 1.6cqw; }
+
+/* Recent songs and scriptures: title first, the kind underneath, Add as the main button */
+.recent-list li { border: 1px solid var(--line); border-left: 3px solid rgba(1, 154, 102, 0.6); border-radius: 8px; padding: 8px 10px; background: rgba(255,255,255,0.02); }
+.recent-title { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.recent-title strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-title small { font-size: 0.74rem; color: var(--muted); }
+.recent-list li .primary.small { padding: 4px 12px; }
+.recent-list li .recent-x { border: 0; background: transparent; font-size: 1rem; }
+.recent-h { font-size: 0.9rem; letter-spacing: 0.02em; }
+
+/* Phone width: the presentations table scrolls sideways inside its box instead of widening the page */
+@media (max-width: 720px) {
+  .pl-table { overflow-x: auto; max-width: 100%; }
+  .pl-head, .pl-row { min-width: 720px; }
+}
+
+/* Two presentation lists in two colours: recent (amber) and all (blue) */
+.pl-section { border-radius: 10px; padding: 12px 14px; border-left: 4px solid transparent; }
+.pl-section.pl-recent { background: rgba(242, 193, 78, 0.08); border-left-color: #f2c14e; }
+.pl-section.pl-recent h2 { color: #f2c14e; }
+.pl-section.pl-all { background: rgba(126, 200, 227, 0.08); border-left-color: #7EC8E3; }
+.pl-section.pl-all h2 { color: #7EC8E3; }
+
+/* Passage reference, bottom-right on every slide of a passage: small, faded, readable on light and dark */
+.stage .ref-tag { position: absolute; right: 3%; bottom: 3%; font-size: calc(20 / 960 * 100cqw); font-weight: 600; opacity: 0.75; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.7); line-height: 1.2; }
+.sc .sc-big-ref, .sc .sc-card-ref { position: absolute; right: 3%; bottom: 3%; font-weight: 600; opacity: 0.75; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.7); line-height: 1.2; }
+.sc .sc-big-ref { font-size: 2.2cqw; }
+.sc .sc-card-ref { font-size: 2.6cqw; }
+.sc .sc-card:has(.sc-card-ref) .sc-card-text, .sc .sc-big:has(.sc-big-ref) .sc-big-text { padding-bottom: 8%; }
+.pv-ref { position: absolute; right: 6%; bottom: 3%; font-size: 2.8cqw; font-weight: 600; opacity: 0.75; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.7); line-height: 1.2; }
+.pv-card:has(.pv-ref) .pv-text { padding-bottom: 8%; }
+
+/* Slide Appearance: open by default, one tidy card with three sections (Typography, Colours, Display) */
+.ly-appearance { margin-top: 10px; border: 1px solid var(--ly-line); border-radius: 10px; padding: 8px 12px 12px; background: var(--ly-panel); }
+.ly-appearance > summary { color: var(--ly-text); font-weight: 600; font-size: 0.9rem; padding: 2px 0; }
+.ly-appearance > summary .ly-summary { font-weight: 400; color: var(--ly-muted); margin-left: 6px; font-size: 0.8rem; }
+.ly-appearance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; padding-top: 10px; }
+.ly-appearance-grid .ly-group:first-child { grid-column: 1 / -1; padding-bottom: 10px; border-bottom: 1px solid var(--ly-line); }
+.ly-appearance-grid .ly-group:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; align-items: end; }
+.ly-appearance-grid .ly-group:first-child .ly-size-mode, .ly-appearance-grid .ly-group:first-child .ly-slider, .ly-appearance-grid .ly-group:first-child h3, .ly-appearance-grid .ly-group:first-child .ly-label { grid-column: 1 / -1; }
+.ly-group h3 { margin: 0 0 4px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ly-muted); font-weight: 700; }
+.ly-group label { margin: 0; font-size: 0.82rem; color: var(--ly-muted); }
+.ly-group .ly-label { font-size: 0.82rem; color: var(--ly-muted); margin-top: 4px; }
+.ly-appearance-grid .ly-group:nth-child(2) .ly-presets { margin-bottom: 6px; }
+.ly-appearance-grid .ly-group:last-child .check { color: var(--ly-text); font-size: 0.85rem; }
+@media (max-width: 700px) { .ly-appearance-grid { grid-template-columns: 1fr; } .ly-appearance-grid .ly-group:first-child { grid-template-columns: 1fr; } }
+
+/* Slide Appearance, compact: one tight block like the Scripture formatting card */
+.ly-appearance { margin-top: 8px; padding: 6px 10px 8px; border-radius: 8px; }
+.ly-appearance > summary { font-size: 0.82rem; padding: 0; }
+.ly-appearance-grid { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 14px; padding-top: 6px; }
+.ly-appearance-grid .ly-group, .ly-appearance-grid .ly-group:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 0; border: 0; grid-column: auto; }
+.ly-appearance-grid .ly-group:first-child { display: flex; }
+.ly-group h3 { display: none; }
+.ly-group label, .ly-group .ly-label { margin: 0; font-size: 0.78rem; white-space: nowrap; }
+.ly-appearance-grid select { padding: 3px 6px; font-size: 0.8rem; width: auto; }
+.ly-appearance-grid .ly-group:first-child .ly-size-mode, .ly-appearance-grid .ly-group:first-child .ly-slider { grid-column: auto; margin: 0; }
+.ly-appearance-grid .ly-slider { display: flex; align-items: center; gap: 6px; }
+.ly-appearance-grid .ly-slider input { width: 110px; }
+.ly-appearance-grid .ly-presets { margin: 0; gap: 3px; }
+.ly-appearance-grid .ly-preset { padding: 2px 6px; font-size: 0.72rem; }
+.ly-appearance-grid .ly-colors { display: flex; gap: 8px; }
+.ly-appearance-grid .ly-colors label { gap: 4px; }
+.ly-appearance-grid .ly-colors input[type="color"] { width: 28px; height: 20px; }
+.ly-appearance-grid .check { font-size: 0.78rem; margin: 0; gap: 4px; }
+@media (max-width: 700px) { .ly-appearance-grid { display: flex; } }
