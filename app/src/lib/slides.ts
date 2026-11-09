@@ -16,6 +16,11 @@ export const LINE_H = 1.3;
 export const CHAR_W: Record<string, number> = { Arial: 0.53, Verdana: 0.6, Calibri: 0.49, Georgia: 0.56 };
 export const FONTS = Object.keys(CHAR_W);
 
+// Visible length of text: formatting markers (bold, colour, highlight, verse-number marks) take no space
+const MARKER_RE = /\*\*|~~|__|\{#[0-9a-fA-F]{6}\}|\{\/\}|\{h#[0-9a-fA-F]{6}\}|\{\/h\}|\u0001/g;
+export const visLen = (t: string) => t.replace(MARKER_RE, "").length;
+
+
 export interface Slide extends Array<string> {
   label?: string;
 }
@@ -162,7 +167,7 @@ export function deckSize(slides: string[][], font: string, perSlide: number): nu
   let maxChars = 0;
   for (const s of slides) {
     for (const line of s) {
-      for (const w of line.split(/\s+/)) maxChars = Math.max(maxChars, w.length);
+      for (const w of line.split(/\s+/)) maxChars = Math.max(maxChars, visLen(w));
     }
   }
   if (!maxChars) maxChars = 10;
@@ -174,7 +179,7 @@ export function deckSize(slides: string[][], font: string, perSlide: number): nu
 // Lay out one section as slides of up to perSlide rows. A section that fits stays on one slide.
 export function packSection(sec: Slide, font: string, size: number, perSlide: number): Slide[] {
   const maxW = USABLE_W * 72;
-  const widthOf = (t: string) => t.length * CHAR_W[font] * 1.05 * size;
+  const widthOf = (t: string) => visLen(t) * CHAR_W[font] * 1.05 * size;
   const rows: string[] = [];
   let cur = "";
   for (const phrase of sec) {
