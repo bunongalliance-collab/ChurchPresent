@@ -732,3 +732,14 @@ button:disabled { opacity: 0.4; cursor: default; }
 .ly-appearance-grid .ly-colors input[type="color"] { width: 28px; height: 20px; }
 .ly-appearance-grid .check { font-size: 0.78rem; margin: 0; gap: 4px; }
 @media (max-width: 700px) { .ly-appearance-grid { display: flex; } }
+
+/* Lyrics: a short note above the song picker, and a clearly visible song picker */
+.ly-note { margin: 0 0 8px; padding: 8px 12px; font-size: 0.86rem; font-weight: 600; color: #1B2A41; background: #F2C14E; border: 1px solid #D9A62E; border-radius: 8px; box-shadow: 0 2px 8px rgba(242, 193, 78, 0.35); }
+.ly-note-vi { display: block; margin-top: 3px; color: #1B2A41; font-weight: 500; font-size: 0.8rem; }
+.ly-saved { width: 100%; font-size: 0.95rem; padding: 8px 10px; border: 1px solid #019A66 !important; background: var(--ly-panel) !important; color: var(--ly-text) !important; font-weight: 600; margin-bottom: 8px; border-radius: 8px; }
+
+/* Lyrics: approval bar when a saved song has been changed */
+.ly-approve { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px 12px; background: #F2C14E; color: #1B2A41; border-radius: 8px; font-size: 0.84rem; }
+.ly-approve-actions { display: flex; gap: 6px; }
+.ly-approve button.secondary { color: #1B2A41 !important; border: 1px solid #1B2A41 !important; background: rgba(255, 255, 255, 0.5) !important; font-weight: 600; }
+.ly-approve button.primary { background: #1B2A41 !important; border-color: #1B2A41 !important; color: #FFFFFF !important; }

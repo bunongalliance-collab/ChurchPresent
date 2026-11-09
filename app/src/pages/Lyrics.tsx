@@ -234,6 +234,23 @@ export default function Lyrics() {
     return song;
   }
 
+  // A saved song that has been edited (and that you may change): offer to approve the update or not
+  const pendingUpdate = (() => {
+    const saved = songs.find((s) => s.id === selectedId);
+    if (!saved || (supabase && saved.owner !== user?.id)) return null;
+    const changed = saved.lyrics !== lyrics || saved.title !== songTitle.trim() || saved.number !== songNumber.trim();
+    return changed ? saved : null;
+  })();
+  async function onApproveUpdate() {
+    if (await saveCurrent()) say(supabase ? "Update approved and saved." : "Update approved and saved in this browser.");
+  }
+  // Not approved: the editor goes back to the saved version
+  function onDeclineUpdate() {
+    if (!pendingUpdate) return;
+    fillForm(pendingUpdate);
+    say("Update not saved. The song is back to its saved version.");
+  }
+
   async function onSave() {
     if (await saveCurrent()) say(supabase ? "Song saved." : "Song saved in this browser.");
     else if (!lyrics.trim()) say("Paste lyrics before saving.", true);
@@ -398,6 +415,10 @@ export default function Lyrics() {
         <div className="ly-body">
           {/* Left: the song */}
           <section className="ly-col ly-editor" aria-label="Song editor">
+            <p className="ly-note">
+              If the lyric is incorrect, you can make changes and then save the song.
+              <span className="ly-note-vi">Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.</span>
+            </p>
             <div className="ly-search-row">
               <input className="ly-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
               <button className={`ly-star${selectedId && favorites.includes(selectedId) ? " on" : ""}`} onClick={toggleFavorite} disabled={!selectedId} aria-label="Favourite this song" aria-pressed={!!selectedId && favorites.includes(selectedId)} title="Favourite">★</button>
@@ -450,6 +471,16 @@ export default function Lyrics() {
                 <input id="songNumber" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
               </div>
             </div>
+
+            {pendingUpdate && (
+              <div className="ly-approve" role="alert">
+                <span><strong>Update this song?</strong> You changed the lyrics of “{pendingUpdate.title || "this song"}”.</span>
+                <span className="ly-approve-actions">
+                  <button className="primary small" onClick={onApproveUpdate}>Approve update</button>
+                  <button className="secondary small" onClick={onDeclineUpdate}>Don’t update</button>
+                </span>
+              </div>
+            )}
 
             <div className="ly-lyrics-field">
               <label htmlFor="lyrics">Lyrics</label>
