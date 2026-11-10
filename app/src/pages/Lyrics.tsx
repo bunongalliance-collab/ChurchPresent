@@ -516,25 +516,21 @@ export default function Lyrics() {
 
             <div className="ly-title-row">
               <div className="ly-grow">
-                <label htmlFor="songTitle">Song title</label>
-                <input id="songTitle" value={songTitle} placeholder="Amazing Grace" onChange={(e) => setSongTitle(e.target.value)} />
+                                <input id="songTitle" aria-label="Song title" value={songTitle} placeholder="Amazing Grace" onChange={(e) => setSongTitle(e.target.value)} />
               </div>
               <div className="ly-num">
-                <label htmlFor="songNumber">Number</label>
-                <input id="songNumber" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
+                                <input id="songNumber" aria-label="Number" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
               </div>
             </div>
             <div className="ly-meta-row">
               <div>
-                <label htmlFor="songCategory">Category</label>
-                <select id="songCategory" value={songCategory} onChange={(e) => setSongMeta("category", e.target.value)}>
+                                <select id="songCategory" aria-label="Category" value={songCategory} onChange={(e) => setSongMeta("category", e.target.value)}>
                   <option value="">No category</option>
                   {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label htmlFor="songLanguage">Language</label>
-                <select id="songLanguage" value={songLanguage} onChange={(e) => setSongMeta("language", e.target.value)}>
+                                <select id="songLanguage" aria-label="Language" value={songLanguage} onChange={(e) => setSongMeta("language", e.target.value)}>
                   <option value="">No language</option>
                   {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
                 </select>
@@ -552,9 +548,8 @@ export default function Lyrics() {
             )}
 
             <div className="ly-lyrics-field">
-              <label htmlFor="lyrics">Lyrics</label>
-              <textarea
-                id="lyrics"
+                            <textarea
+                id="lyrics" aria-label="Lyrics"
                 ref={lyricsRef}
                 className="ly-lyrics"
                 value={lyrics}
@@ -580,15 +575,12 @@ export default function Lyrics() {
               <div className="ly-appearance-grid">
                 <div className="ly-group">
                   <h3>Typography</h3>
-                  <label htmlFor="font">Font</label>
-                  <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
+                                    <select id="font" aria-label="Font" value={font} onChange={(e) => setFont(e.target.value)}>
                     {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
                   </select>
-                  <label htmlFor="perSlide">Maximum lines per slide</label>
-                  <select id="perSlide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
+                                    <select id="perSlide" aria-label="Maximum lines per slide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
                     {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  <span className="ly-label">Font size</span>
                   <div className="ly-size-mode" role="radiogroup" aria-label="Font size mode">
                     <label><input type="radio" name="sizeMode" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Automatic</label>
                     <label><input type="radio" name="sizeMode" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
