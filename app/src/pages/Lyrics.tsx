@@ -553,9 +553,10 @@ export default function Lyrics() {
                 ref={lyricsRef}
                 className="ly-lyrics"
                 value={lyrics}
-                placeholder={"[Verse 1]\nLine one of the verse\n\n[Chorus]\nChorus line one"}
+                placeholder=""
                 onChange={(e) => onLyricsChange(e.target.value, e.target.selectionStart)}
               />
+              {!lyrics && <span className="ly-empty-hint" aria-hidden="true">Choose a song or paste your lyric here</span>}
             </div>
 
             <p className={statusIsError ? "ly-status error" : "ly-status"} role="status">{status}</p>
