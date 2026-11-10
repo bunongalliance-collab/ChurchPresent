@@ -92,6 +92,7 @@ export default function LyricsV2() {
   const [selectedId, setSelectedId] = useState("");
   const [loaded, setLoaded] = useState(false); // the song list has arrived (or failed)
   const [confirmDel, setConfirmDel] = useState(false); // Delete asks first, in the page
+  const [libOpen, setLibOpen] = useState(false); // phone only: the song list is folded away until chosen
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState("Paste lyrics to start.");
   const [statusIsError, setStatusIsError] = useState(false);
@@ -478,7 +479,7 @@ export default function LyricsV2() {
         type="button"
         className="lv2-song"
         aria-current={s.id === selectedId ? "true" : undefined}
-        onClick={() => { if (s.id !== selectedId) pickSong(s); }}
+        onClick={() => { if (s.id !== selectedId) pickSong(s); setLibOpen(false); }}
       >
         <span className="lv2-song-name">
           {inPresentation.has(s.id) && <span className="lv2-tick" title="In presentation" aria-label="In presentation">✓ </span>}
@@ -516,7 +517,12 @@ export default function LyricsV2() {
 
         <div className="lv2-grid">
           {/* Find a song */}
-          <aside className="lv2-card lv2-lib" aria-label="Song library">
+          <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Song library">
+            {/* Phone: one row showing the current song; the list opens from it */}
+            <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
+              <span className="lv2-lib-current">{selectedId ? `${songNumber ? songNumber + ". " : ""}${songTitle || "(untitled)"}` : "Choose a song"}</span>
+              <span className="lv2-lib-chev" aria-hidden="true">{libOpen ? "▴" : "▾"}</span>
+            </button>
             <div className="lv2-lib-head">
               <input className="lv2-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
               <div className="lv2-filters">

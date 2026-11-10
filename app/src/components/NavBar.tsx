@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { currentTheme, setTheme, type Theme } from "../lib/theme";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
@@ -24,6 +25,12 @@ export default function NavBar() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [msg, setMsg] = useState("");
+  const [theme, setThemeState] = useState<Theme>(() => currentTheme());
+  function toggleTheme() {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    setThemeState(next);
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -60,6 +67,9 @@ export default function NavBar() {
           );
         })}
       </ul>
+      <button type="button" className="theme-toggle secondary small" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+        {theme === "dark" ? "☀ Light" : "☾ Dark"}
+      </button>
       {supabase && (
         <div className="nav-auth">
           {session ? (

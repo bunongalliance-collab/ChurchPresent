@@ -359,11 +359,12 @@ export default function ReadingsV2() {
   }
 
   const isFav = !!selected && favorites.includes(selected.id);
+  const [libOpen, setLibOpen] = useState(false); // phone only: the list is folded until a reading is chosen
   const toggleFav = () => selected && setFavorites((cur) => (cur.includes(selected.id) ? cur.filter((x) => x !== selected.id) : [...cur, selected.id]));
   const rowName = (r: Reading) => `${r.number ? r.number + ". " : ""}${r.title || (r.content.split("\n").find((l) => l.trim()) || "(untitled)").slice(0, 40)}`;
   const row = (r: Reading, group: string) => (
     <li key={`${group}-${r.id}`}>
-      <button type="button" className="lv2-song" aria-current={r.id === selectedId ? "true" : undefined} onClick={() => { if (r.id !== selectedId) fillForm(r); }}>
+      <button type="button" className="lv2-song" aria-current={r.id === selectedId ? "true" : undefined} onClick={() => { if (r.id !== selectedId) fillForm(r); setLibOpen(false); }}>
         <span className="lv2-song-name">{rowName(r)}</span>
         <span className="lv2-song-meta">{r.categoryId ? catName(r.categoryId) : "Other"}</span>
       </button>
@@ -387,7 +388,12 @@ export default function ReadingsV2() {
 
       <div className="lv2-grid">
         {/* Find a reading */}
-        <aside className="lv2-card lv2-lib" aria-label="Reading library">
+        <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Reading library">
+          {/* Phone: one row showing the current reading; the list opens from it */}
+          <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
+            <span className="lv2-lib-current">{selected ? rowName(selected) : "Choose a reading"}</span>
+            <span className="lv2-lib-chev" aria-hidden="true">{libOpen ? "▴" : "▾"}</span>
+          </button>
           <div className="lv2-lib-head">
             <select className="rd-filter" value={filterCat} onChange={(e) => setFilterCat(e.target.value)} aria-label="Filter by category">
               <option value="">All categories</option>

@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>app</title>
+    <script>
+      // Pick the theme before the page paints: a saved choice, else light
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t !== "light" && t !== "dark") t = "light";
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
