@@ -332,7 +332,9 @@ button.small { padding: 2px 6px; font-size: 0.75rem; }
 @media (max-width: 1100px) { .sc-settings { grid-template-columns: repeat(2, minmax(150px, 1fr)); } }
 @media (max-width: 900px) {
   .sc-body { grid-template-columns: 1fr; }
-  .sc-preview { order: -1; }
+  .sc-edit { order: 1; }
+  .sc-slides { order: 2; }
+  .sc-preview { order: 3; }
   .sc-title input { min-width: 0; width: 100%; }
   .passage-pick { grid-template-columns: 1fr 1fr; }
 }
