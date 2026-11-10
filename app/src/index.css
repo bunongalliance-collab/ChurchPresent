@@ -332,8 +332,8 @@ button.small { padding: 2px 6px; font-size: 0.75rem; }
 @media (max-width: 1100px) { .sc-settings { grid-template-columns: repeat(2, minmax(150px, 1fr)); } }
 @media (max-width: 900px) {
   .sc-body { grid-template-columns: 1fr; }
-  .sc-edit { order: 1; }
-  .sc-slides { order: 2; }
+  .sc-slides { order: 1; }
+  .sc-edit { order: 2; }
   .sc-preview { order: 3; }
   .sc-title input { min-width: 0; width: 100%; }
   .passage-pick { grid-template-columns: 1fr 1fr; }
@@ -679,9 +679,21 @@ button:disabled { opacity: 0.4; cursor: default; }
 .recent-h { font-size: 0.9rem; letter-spacing: 0.02em; }
 
 /* Phone width: the presentations table scrolls sideways inside its box instead of widening the page */
+/* Phones: each presentation is a card (title on top, the details in two columns, actions at the bottom) */
 @media (max-width: 720px) {
-  .pl-table { overflow-x: auto; max-width: 100%; }
-  .pl-head, .pl-row { min-width: 720px; }
+  .pl-table { overflow: visible; max-width: 100%; }
+  .pl-head { display: none; }
+  .pl-row { min-width: 0; grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 10px 12px; }
+  .pl-row > span { font-size: 0.85rem; min-width: 0; overflow-wrap: anywhere; }
+  .pl-row > .pl-title { grid-column: 1 / -1; font-size: 1rem; }
+  .pl-row > .pl-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .pl-row > .pl-actions button { width: 100%; padding: 8px 6px; font-size: 0.8rem; white-space: normal; }
+  .pl-section { margin-left: 0; margin-right: 0; width: 100%; box-sizing: border-box; padding: 10px; }
+  .pl-table { gap: 10px; }
+  .pl-row { box-sizing: border-box; padding: 12px; }
+  .pl-row input[type="date"] { width: 100%; min-width: 0; font-size: 0.85rem; }
+  .pl-tools, .pl-top { flex-wrap: wrap; }
+  .pl-sort select { max-width: 100%; }
 }
 
 /* Two presentation lists in two colours: recent (amber) and all (blue) */
@@ -778,3 +790,79 @@ button:disabled { opacity: 0.4; cursor: default; }
 .rd .rd-cat-row .secondary.small { padding: 4px 9px; }
 .rd .ly-group .ly-label { font-size: 0.8rem; color: var(--ly-muted); }
 @media (max-width: 700px) { .rd-picker-row { flex-wrap: wrap; } .rd-picker-row .ly-saved { flex: 1 1 100%; } }
+
+/* Lyrics: category and language, one compact row under the title and number */
+.ly-meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ly-meta-row select { width: 100%; }
+
+/* Lyrics: category and language filters above the song picker */
+.ly-filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+.ly-filter-row select { width: 100%; font-size: 0.82rem; padding: 4px 6px; }
+
+/* Lyrics: song picker, category and language in one row */
+.ly-picker-row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.ly-picker-row .ly-saved { flex: 1 1 auto; min-width: 0; margin: 0; }
+.ly-picker-row .ly-filter-row { display: contents; }
+.ly-picker-row select[aria-label^="Filter"] { flex: 0 0 auto; width: auto; max-width: 130px; font-size: 0.8rem; padding: 4px 6px; margin: 0; }
+@media (max-width: 700px) { .ly-picker-row { flex-wrap: wrap; } .ly-picker-row .ly-saved { flex: 1 1 100%; } }
+
+/* Scripture on phones: a calmer slide list. Moves stay in the ⋯ menu; the rows show less */
+@media (max-width: 900px) {
+  .sc .sc-col { padding: 10px; }
+  .sc .sc-arrows { display: none; }
+  .sc .sc-item { padding: 2px 4px; }
+  .sc .sc-pick { padding: 4px !important; }
+  .sc .sc-pick-text small { display: none; }
+  .sc .sc-pick-text strong { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sc .sc-add { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sc .sc-add button { flex: 1 1 auto; }
+  .sc .sc-savebar { flex-wrap: nowrap; }
+  .sc .sc-savebar .sc-study-title { flex: 1 1 auto; min-width: 0; }
+  .sc .sc-savebar button { flex: 0 0 auto; }
+}
+
+/* Scripture: the add-slide buttons stand out with a yellow glow and a visible "Start here" tag */
+.sc .sc-start { position: relative; margin: 2px 0 10px; padding: 14px 8px 8px; border-radius: 10px; border: 1px solid rgba(242,193,78,0.5); background: transparent; }
+.sc .sc-start-tag { position: absolute; top: -10px; left: 10px; background: #F2C14E; color: #1B2A41; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+.sc .sc-start .sc-add button { border: 1.5px solid #F2C14E !important; color: #F2C14E !important; font-weight: 700; background: rgba(242,193,78,0.08) !important; }
+.sc .sc-start .sc-add button:hover { background: rgba(242,193,78,0.14) !important; }
+
+/* Navbar on phones: brand on its own line, page links in one scrollable row, account row below */
+@media (max-width: 700px) {
+  .navbar { gap: 6px 10px; padding: 8px 10px; }
+  .navbar .brand { flex: 1 1 100%; font-size: 1rem; }
+  .navbar ul { flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .navbar ul::-webkit-scrollbar { display: none; }
+  .navbar li { flex: 0 0 auto; }
+  .navbar a { padding: 6px 9px; font-size: 0.85rem; white-space: nowrap; }
+  .nav-auth { flex: 1 1 100%; margin-left: 0; justify-content: flex-end; font-size: 0.8rem; }
+  .nav-auth > span, .nav-auth > .nav-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+  .nav-auth-panel { width: min(260px, calc(100vw - 20px)); right: 0; }
+}
+
+/* Navbar on phones: a hamburger button opens the page list */
+.navbar .nav-toggle { display: none; }
+@media (max-width: 700px) {
+  .navbar { position: relative; flex-wrap: wrap; }
+  .navbar .brand { flex: 1 1 auto; font-size: 1rem; }
+  .navbar .nav-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--text); font-size: 1.1rem; cursor: pointer; }
+  .navbar ul { display: none; flex: 1 1 100%; flex-direction: column; flex-wrap: nowrap; overflow: visible; gap: 2px; padding: 6px 0 4px; }
+  .navbar.menu-open ul { display: flex; }
+  .navbar li { flex: 0 0 auto; width: 100%; }
+  .navbar a { display: block; padding: 10px 12px; font-size: 0.95rem; white-space: normal; }
+  .navbar.menu-open a.active { background: var(--accent); }
+  .nav-auth { flex: 1 1 100%; margin-left: 0; justify-content: space-between; }
+}
+
+/* Toast pop-ups: bottom of the screen, above the page, readable on phones */
+.toast-stack { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000; display: grid; gap: 8px; width: min(92vw, 460px); pointer-events: none; }
+.toast { background: #1B2A41; color: #F1F4F5; border-left: 4px solid #019A66; border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.35); animation: toast-in 0.2s ease-out; }
+.toast.error { border-left-color: #E07A6A; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Presentations table on desktop: the actions column sizes to its buttons, so Delete stays inside the box */
+@media (min-width: 721px) {
+  .pl-head, .pl-row { grid-template-columns: minmax(110px, 1.3fr) 124px minmax(110px, 1fr) 56px 66px 56px 52px 200px; }
+  .pl-row > .pl-actions { flex-wrap: wrap; justify-content: flex-start; gap: 4px; }
+  .pl-row > .pl-actions button { padding: 3px 7px; font-size: 0.75rem; }
+}

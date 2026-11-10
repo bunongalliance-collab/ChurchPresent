@@ -18,6 +18,7 @@ export default function NavBar() {
   const hash = (window.location.hash || "#").split(":")[0];
   const [session, setSession] = useState<Session | null>(null);
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // phone menu (hamburger)
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [msg, setMsg] = useState("");
@@ -40,9 +41,12 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="navbar" aria-label="Main">
+    <nav className={`navbar${menuOpen ? " menu-open" : ""}`} aria-label="Main">
       <span className="brand">Church Tools</span>
-      <ul>
+      <button className="nav-toggle" type="button" aria-expanded={menuOpen} aria-controls="nav-links" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((v) => !v)}>
+        <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
+      </button>
+      <ul id="nav-links" onClick={() => setMenuOpen(false)}>
         {PAGES.map((p) => {
           const current = p.href === hash || (p.href === "#" && hash === "");
           return (

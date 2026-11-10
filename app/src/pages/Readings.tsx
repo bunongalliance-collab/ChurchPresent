@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
+import { toast } from "../lib/toast";
 import { COLOR_PRESETS, deckSize, flowLines, FONTS } from "../lib/slides";
 import { carryFormattingSlides, carryLines, contrastText, HIGHLIGHT_OPTIONS, parseRich, setColors, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, tokenLenAt } from "../lib/richeditor";
@@ -83,7 +84,7 @@ export default function Readings() {
   const seedingFor = useRef<string | null>(null);
   const user = session?.user ?? null;
 
-  const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); };
+  const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); toast(msg, error); };
 
   useEffect(() => {
     try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ title, number, subtitle, categoryId, content, look })); } catch { /* blocked */ }

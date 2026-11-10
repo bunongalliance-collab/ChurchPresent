@@ -6,6 +6,7 @@ import Scripture from "./pages/Scripture";
 import Presentations from "./pages/Presentations";
 import Notes from "./pages/Notes";
 import Readings from "./pages/Readings";
+import Toasts from "./components/Toasts";
 
 // Pages in one app, chosen by the address hash:
 // "#projector" = projector view, "#builder" = presentation builder, "#scripture" = scripture slides,
@@ -19,6 +20,11 @@ export default function App() {
   }, []);
   // Some pages take extra data after a colon (#builder:<id>), so route on the part before it
   const page = hash.split(":")[0];
+  const body = renderPage(page);
+  return <>{body}<Toasts /></>;
+}
+
+function renderPage(page: string) {
   if (page === "#projector") return <Projector />;
   if (page === "#builder") return <Builder />;
   if (page === "#scripture") return <Scripture />;

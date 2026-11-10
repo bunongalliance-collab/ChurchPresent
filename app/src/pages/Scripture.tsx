@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
+import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
@@ -230,7 +231,7 @@ export default function Scripture() {
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const say = (m: string, e = false) => { setStatus(m); setError(e); };
+  const say = (m: string, e = false) => { setStatus(m); setError(e); toast(m, e); };
 
   const [pickColor, setPickColor] = useState("#ff5050");
   const [pickHighlight, setPickHighlight] = useState("#fff176");
@@ -831,10 +832,13 @@ export default function Scripture() {
               <input className="sc-study-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Study title" placeholder="Study title" />
               <button className="primary" onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
             </div>
-            <div className="sc-add">
-              <button className="secondary small" onClick={() => addSlide("passage")}>+ Passage</button>
-              <button className="secondary small" onClick={() => addSlide("custom")}>+ Custom</button>
-              <button className="secondary small" onClick={() => addSlide("questions")}>+ Questions</button>
+            <div className="sc-start">
+              <span className="sc-start-tag">Start here</span>
+              <div className="sc-add">
+                <button className="secondary small" onClick={() => addSlide("passage")}>+ Passage</button>
+                <button className="secondary small" onClick={() => addSlide("custom")}>+ Custom</button>
+                <button className="secondary small" onClick={() => addSlide("questions")}>+ Questions</button>
+              </div>
             </div>
             <ol className="sc-list">
               {slides.map((s, i) => (

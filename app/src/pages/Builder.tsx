@@ -6,6 +6,7 @@ import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
 import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
 import { carryFormattingSlides, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
+import { toast } from "../lib/toast";
 
 // Formatted segments for the projector and preview, from the slide text
 const toSegs = (rows: string[]): Seg[][] => rows.map((r) => parseRich(r).map((seg) => ({
@@ -156,7 +157,7 @@ export default function Builder() {
   const [status, setStatus] = useState("Pick songs from the library to start a presentation.");
   const [userId, setUserId] = useState<string | null>(null);
 
-  const say = (m: string) => setStatus(m);
+  const say = (m: string) => { setStatus(m); toast(m); };
 
   // Opened from the Presentations list: the address carries the id (#builder:<id>)
   useEffect(() => {

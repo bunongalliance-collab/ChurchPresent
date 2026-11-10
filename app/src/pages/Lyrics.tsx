@@ -3,6 +3,7 @@ import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
+import { toast as showToast } from "../lib/toast";
 import {
   buildDeck, COLOR_PRESETS, expandShortcuts, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
 } from "../lib/slides";
@@ -26,7 +27,13 @@ interface SavedSong {
   number: string;
   lyrics: string;
   owner?: string;
+  category?: string;
+  language?: string;
 }
+
+// Song categories and languages (picked on this page and saved with the song)
+export const SONG_CATEGORIES = ["Worship", "Praise", "Communion", "Opening", "Closing", "Special", "Other"];
+export const SONG_LANGUAGES = ["Bunong", "Vietnamese", "English", "Other"];
 
 const SONGS_KEY = "lyricsSongs";
 const LYRICS_DRAFT = "lyricsDraft";
@@ -73,6 +80,8 @@ export default function Lyrics() {
   }, []);
   const [songTitle, setSongTitle] = useState<string>(draft?.songTitle ?? "");
   const [songNumber, setSongNumber] = useState<string>(draft?.songNumber ?? "");
+  const [songCategory, setSongCategory] = useState<string>(draft?.songCategory ?? "");
+  const [songLanguage, setSongLanguage] = useState<string>(draft?.songLanguage ?? "");
   const [lyrics, setLyrics] = useState<string>(draft?.lyrics ?? "");
   const [font, setFont] = useState<string>(draft?.font ?? "Arial");
   const [perSlide, setPerSlide] = useState<number>(draft?.perSlide ?? 4);
@@ -85,10 +94,10 @@ export default function Lyrics() {
   useEffect(() => {
     try {
       sessionStorage.setItem(LYRICS_DRAFT, JSON.stringify({
-        songTitle, songNumber, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats,
+        songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats,
       }));
     } catch { /* storage blocked */ }
-  }, [songTitle, songNumber, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats]);
+  }, [songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats]);
   // How many preview slides sit side by side (a smaller preview shows more slides at once)
 
   // Saved songs and account
@@ -115,7 +124,7 @@ export default function Lyrics() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [songs]);
 
-  const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); };
+  const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); showToast(msg, error); };
 
   // The slides, rebuilt whenever a setting changes
   const deck = useMemo(
@@ -134,10 +143,10 @@ export default function Lyrics() {
       // Reading is public: everyone sees the shared songs, signed in or not
       const { data, error } = await supabase
         .from("lyric_songs")
-        .select("id, title, song_number, lyrics, owner_id, look")
+        .select("id, title, song_number, lyrics, owner_id, look, category, language")
         .order("updated_at", { ascending: false });
       if (error) { say("Could not load songs: " + error.message, true); setSongs([]); return; }
-      setSongs(data.map((r) => ({ id: r.id, title: r.title, number: r.song_number, lyrics: r.lyrics, owner: r.owner_id, look: r.look ?? {} })));
+      setSongs(data.map((r) => ({ id: r.id, title: r.title, number: r.song_number, lyrics: r.lyrics, owner: r.owner_id, look: r.look ?? {}, category: r.category ?? "", language: r.language ?? "" })));
     } else {
       setSongs(loadLocal());
     }
@@ -181,6 +190,8 @@ export default function Lyrics() {
     setSelectedId(song?.id ?? "");
     setSongTitle(song?.title ?? "");
     setSongNumber(song?.number ?? "");
+    setSongCategory(song?.category ?? "");
+    setSongLanguage(song?.language ?? "");
     setLyrics(song?.lyrics ?? "");
     // A song brings back its own formatting; a new song keeps the current settings
     if (song?.look && Object.keys(song.look).length) {
@@ -204,6 +215,21 @@ export default function Lyrics() {
     };
   }
 
+  // Picking a category or language saves it straight away for a song you own
+  async function setSongMeta(field: "category" | "language", value: string) {
+    if (field === "category") setSongCategory(value); else setSongLanguage(value);
+    const song = songs.find((x) => x.id === selectedId);
+    if (!song || (supabase && song.owner !== user?.id)) return; // not saved yet, or someone else's: saved with the next Save
+    if (supabase && user) {
+      const { error } = await supabase.from("lyric_songs").update({ [field]: value }).eq("id", song.id);
+      if (error) { say("Could not save " + field + ": " + error.message, true); return; }
+    } else {
+      storeLocal(loadLocal().map((x) => (x.id === song.id ? { ...x, [field]: value } : x)));
+    }
+    setSongs((cur) => cur.map((x) => (x.id === song.id ? { ...x, [field]: value } : x)));
+    say(`${field === "category" ? "Category" : "Language"} saved.`);
+  }
+
   async function saveCurrent(): Promise<SavedSong | null> {
     if (!lyrics.trim()) return null;
     if (supabase && !user) { say("Sign in to save songs. Everyone can view them without signing in.", true); return null; }
@@ -211,21 +237,21 @@ export default function Lyrics() {
     // A song someone else saved can't be changed: saving makes your own copy
     if (supabase && existing && existing.owner !== user?.id) existing = null;
     const look = currentLook();
-    const row = { title: songTitle.trim(), song_number: songNumber.trim(), lyrics, look };
+    const row = { title: songTitle.trim(), song_number: songNumber.trim(), lyrics, look, category: songCategory, language: songLanguage };
     if (supabase && user) {
       const q = existing
         ? supabase.from("lyric_songs").update(row).eq("id", existing.id).select("id").single()
         : supabase.from("lyric_songs").insert(row).select("id").single();
       const { data, error } = await q;
       if (error) { say("Could not save: " + error.message, true); return null; }
-      const saved: SavedSong = { id: data.id, title: row.title, number: row.song_number, lyrics, look };
+      const saved: SavedSong = { id: data.id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language };
       await refreshSongs(user);
       setSelectedId(saved.id);
       return saved;
     }
     const list = loadLocal();
     const id = existing?.id ?? String(Date.now());
-    const song: SavedSong = { id, title: row.title, number: row.song_number, lyrics, look };
+    const song: SavedSong = { id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language };
     const idx = list.findIndex((s) => s.id === id);
     if (idx >= 0) list[idx] = song; else list.unshift(song);
     storeLocal(list);
@@ -359,6 +385,13 @@ export default function Lyrics() {
   }
 
   const sorted = sortedSongs(songs);
+  // Category and language filters for the picker ("" = all, "none" = not set)
+  const [filterCat, setFilterCat] = useState("");
+  const [filterLang, setFilterLang] = useState("");
+  const matchesFilter = (s: SavedSong) =>
+    (!filterCat || (filterCat === "none" ? !s.category : s.category === filterCat)) &&
+    (!filterLang || (filterLang === "none" ? !s.language : s.language === filterLang));
+  const shown = sorted.filter(matchesFilter);
 
   // Songs added from this page in this browser tab, so each add can be confirmed and listed
   const [addedNow, setAddedNow] = useState<{ id: string; title: string; number: string }[]>(() => {
@@ -370,17 +403,17 @@ export default function Lyrics() {
 
   // Search over title, number and lyrics; favourites and recent songs are shown when not searching
   const q = query.trim().toLowerCase();
-  const searchResults = q ? sorted.filter((s) => `${s.number} ${s.title} ${s.lyrics}`.toLowerCase().includes(q)) : [];
+  const searchResults = q ? shown.filter((s) => `${s.number} ${s.title} ${s.lyrics}`.toLowerCase().includes(q)) : [];
   // The default list shows each song once: the selected copy, else your own, else the first one
   const songKey = (s: SavedSong) => `${s.number.trim()}|${s.title.trim()}`.toLowerCase();
   const bestOf = new Map<string, SavedSong>();
-  for (const s of sorted) {
+  for (const s of shown) {
     const cur = bestOf.get(songKey(s));
     if (!cur || s.id === selectedId || (cur.id !== selectedId && user && s.owner === user.id && cur.owner !== user.id)) bestOf.set(songKey(s), s);
   }
-  const allDefault = sorted.filter((s) => bestOf.get(songKey(s))?.id === s.id);
-  const favSongs = sorted.filter((s) => favorites.includes(s.id));
-  const recentSongs = recent.map((id) => songs.find((s) => s.id === id)).filter((s): s is SavedSong => !!s);
+  const allDefault = shown.filter((s) => bestOf.get(songKey(s))?.id === s.id);
+  const favSongs = shown.filter((s) => favorites.includes(s.id));
+  const recentSongs = recent.map((id) => songs.find((s) => s.id === id)).filter((s): s is SavedSong => !!s && matchesFilter(s));
   const inPresentation = new Set<string>([...songIdsInPresentation(), ...addedNow.map((x) => x.id)]);
   const selectedInPresentation = !!selectedId && inPresentation.has(selectedId);
 
@@ -431,7 +464,10 @@ export default function Lyrics() {
               <input className="ly-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
               <button className={`ly-star${selectedId && favorites.includes(selectedId) ? " on" : ""}`} onClick={toggleFavorite} disabled={!selectedId} aria-label="Favourite this song" aria-pressed={!!selectedId && favorites.includes(selectedId)} title="Favourite">★</button>
             </div>
-            <select className="ly-saved" value={selectedId} onChange={(e) => fillForm(songs.find((s) => s.id === e.target.value) ?? null)} aria-label="Saved songs">
+
+            {selectedInPresentation && <span className="ly-chip">In presentation</span>}
+            <div className="ly-picker-row">
+              <select className="ly-saved" value={selectedId} onChange={(e) => fillForm(songs.find((s) => s.id === e.target.value) ?? null)} aria-label="Saved songs">
               <option value="">{songs.length ? "Choose a saved song…" : "No saved songs yet"}</option>
               {query.trim() ? (
                 <optgroup label={`Results (${searchResults.length})`}>
@@ -454,9 +490,18 @@ export default function Lyrics() {
                   </optgroup>
                 </>
               )}
-            </select>
-
-            {selectedInPresentation && <span className="ly-chip">In presentation</span>}
+              </select>
+                <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} aria-label="Filter songs by category">
+                  <option value="">All categories</option>
+                  {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  <option value="none">No category</option>
+                </select>
+                <select value={filterLang} onChange={(e) => setFilterLang(e.target.value)} aria-label="Filter songs by language">
+                  <option value="">All languages</option>
+                  {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                  <option value="none">No language</option>
+                </select>
+            </div>
             <div className="ly-actions">
               <button className="secondary" onClick={onSave}>Save Song</button>
               <button className="secondary" onClick={onNext}>Next Song</button>
@@ -477,6 +522,22 @@ export default function Lyrics() {
               <div className="ly-num">
                 <label htmlFor="songNumber">Number</label>
                 <input id="songNumber" value={songNumber} placeholder="90" onChange={(e) => setSongNumber(e.target.value)} />
+              </div>
+            </div>
+            <div className="ly-meta-row">
+              <div>
+                <label htmlFor="songCategory">Category</label>
+                <select id="songCategory" value={songCategory} onChange={(e) => setSongMeta("category", e.target.value)}>
+                  <option value="">No category</option>
+                  {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="songLanguage">Language</label>
+                <select id="songLanguage" value={songLanguage} onChange={(e) => setSongMeta("language", e.target.value)}>
+                  <option value="">No language</option>
+                  {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
               </div>
             </div>
 

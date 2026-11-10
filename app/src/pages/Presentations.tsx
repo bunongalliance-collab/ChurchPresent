@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
+import { toast } from "../lib/toast";
 import { flatten, type Item, type PresentationData, type Settings } from "./Builder";
 import { PROJECTOR_KEY } from "./Projector";
 import { downloadDeckPptx } from "../lib/pptx";
@@ -41,7 +42,7 @@ export default function Presentations() {
   const [error, setError] = useState(false);
   const [busyId, setBusyId] = useState("");
 
-  const say = (m: string, e = false) => { setStatus(m); setError(e); };
+  const say = (m: string, e = false) => { setStatus(m); setError(e); toast(m, e); };
 
   // Reads only the signed-in user's rows (RLS also restricts them to the owner)
   async function load() {
