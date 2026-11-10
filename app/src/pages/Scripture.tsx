@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
@@ -438,6 +438,13 @@ export default function Scripture() {
     setSlides((cur) => [...cur, s]);
     setSelectedId(s.id);
   }
+  // Opening the page with no saved draft adds a passage slide, the same as pressing + Passage
+  const openedPassage = useRef(false);
+  useEffect(() => {
+    if (openedPassage.current || draft) return;
+    openedPassage.current = true;
+    addSlide("passage");
+  }, [draft]);
   function update(id: string, patch: Partial<StudySlide>) {
     setSlides((cur) => cur.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   }

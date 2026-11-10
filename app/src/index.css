@@ -876,3 +876,193 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* Lyrics: the empty lyrics box says what to do, centred, in yellow bold */
 .ly-lyrics-field { position: relative; }
 .ly-empty-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: #F2C14E; font-weight: 700; font-size: 1.05rem; line-height: 1.4; pointer-events: none; }
+
+/* ===== Lyric V2: find | edit | check ===== */
+.lv2 { max-width: 1560px; margin: 0 auto; padding: 14px 18px 28px; font-size: 0.92rem; color: var(--text); }
+.lv2 h1 { font-size: 1.25rem; margin: 0; }
+.lv2 h2 { font-size: 0.95rem; margin: 0; }
+.lv2 h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 6px; font-weight: 700; }
+.lv2 label { margin: 0; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.lv2 input, .lv2 select, .lv2 textarea { border-radius: 8px; }
+.lv2 button { border-radius: 8px; padding: 7px 13px; font-size: 0.86rem; font-weight: 600; white-space: nowrap; }
+.lv2 button.small { padding: 5px 10px; font-size: 0.8rem; }
+.lv2 button.quiet { border-color: transparent; color: var(--muted); }
+.lv2 button:hover:not(:disabled) { border-color: rgba(241, 244, 245, 0.4); }
+.lv2 button.primary:hover:not(:disabled) { filter: brightness(1.12); }
+.lv2 :focus-visible { outline: 2px solid #F2C14E; outline-offset: 2px; }
+.lv2-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.lv2-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.lv2 .return-bar { margin: 0 0 12px; }
+.lv2 .return-bar button { color: #1B2A41; border-color: #1B2A41; background: rgba(255, 255, 255, 0.5); }
+.lv2-grid { display: grid; grid-template-columns: 270px minmax(0, 1fr) minmax(300px, 0.95fr); gap: 14px; align-items: start; }
+.lv2-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+
+/* Find */
+.lv2-lib { position: sticky; top: 12px; max-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+.lv2-lib-head { display: grid; gap: 8px; padding: 12px; border-bottom: 1px solid var(--line); }
+.lv2-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.lv2-filters select { font-size: 0.8rem; padding: 6px 8px; min-width: 0; }
+.lv2 button.lv2-new { width: 100%; }
+.lv2-songs { list-style: none; margin: 0; padding: 4px; overflow-y: auto; flex: 1; min-height: 0; }
+.lv2-group { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; padding: 10px 9px 3px; }
+.lv2-list-note { color: var(--muted); padding: 12px 9px; font-size: 0.85rem; display: grid; gap: 8px; justify-items: start; }
+.lv2 button.lv2-song { display: grid; gap: 1px; width: 100%; text-align: left; border: 0; padding: 7px 9px; font-weight: 400; white-space: normal; }
+.lv2 button.lv2-song:hover { background: rgba(241, 244, 245, 0.05); }
+.lv2 button.lv2-song[aria-current="true"] { background: rgba(1, 154, 102, 0.16); }
+.lv2-song-name { font-weight: 600; font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lv2-song-meta { font-size: 0.74rem; color: var(--muted); }
+.lv2-tick { color: #5FD3A8; }
+
+/* Edit */
+.lv2-editor { display: grid; gap: 10px; padding: 16px 18px; align-content: start; }
+.lv2-note { margin: 0; padding: 7px 12px; font-size: 0.84rem; font-weight: 600; color: #1B2A41; background: #F2C14E; border-radius: 8px; }
+.lv2-note span { display: block; font-weight: 500; font-size: 0.8rem; }
+.lv2-title-row { display: grid; grid-template-columns: minmax(0, 1fr) 84px auto; gap: 8px; }
+.lv2 input.lv2-title { font-size: 1.15rem; font-weight: 700; }
+.lv2 button.lv2-star { padding: 0 11px; font-size: 1.05rem; line-height: 1; color: var(--muted); }
+.lv2 button.lv2-star.on { color: #F2C14E; border-color: rgba(242, 193, 78, 0.55); }
+.lv2-meta-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lv2-meta-row select { flex: 1 1 140px; width: auto; min-width: 0; }
+.lv2-chip { background: rgba(1, 154, 102, 0.15); color: #5FD3A8; border-radius: 999px; padding: 3px 10px; font-size: 0.76rem; white-space: nowrap; }
+.lv2-approve, .lv2-confirm { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.86rem; }
+.lv2-approve { background: #F2C14E; color: #1B2A41; }
+.lv2-approve button.secondary { color: #1B2A41; border-color: #1B2A41; background: rgba(255, 255, 255, 0.5); }
+.lv2-approve button.primary { background: #1B2A41; border-color: #1B2A41; color: #fff; }
+.lv2-confirm { border: 1px solid rgba(224, 122, 106, 0.5); }
+.lv2-approve-actions { display: flex; gap: 6px; }
+.lv2-lyrics-field { position: relative; }
+.lv2 textarea.lv2-lyrics { display: block; width: 100%; min-height: 360px; resize: vertical; padding: 12px 14px; font-size: 1.02rem; line-height: 1.65; }
+.lv2-empty-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: #F2C14E; font-weight: 700; font-size: 1.05rem; pointer-events: none; }
+.lv2-status { color: var(--muted); font-size: 0.82rem; min-height: 1.2em; margin: 0; }
+.lv2-status.error { color: #E07A6A; }
+.lv2-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--line); }
+.lv2-actions-end { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lv2-more { position: relative; }
+.lv2-more summary { list-style: none; cursor: pointer; color: var(--muted); padding: 7px 10px; border-radius: 8px; font-size: 0.86rem; font-weight: 600; }
+.lv2-more summary::-webkit-details-marker { display: none; }
+.lv2-more summary:hover { color: var(--text); }
+.lv2-menu { position: absolute; right: 0; bottom: calc(100% + 4px); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px; min-width: 150px; z-index: 20; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
+.lv2-menu button { width: 100%; }
+.lv2-add.flash { animation: ly-pulse 0.6s ease-out 2; }
+.lv2-added { display: grid; gap: 4px; justify-items: start; padding: 8px 12px; border: 1px solid rgba(1, 154, 102, 0.35); border-radius: 8px; }
+.lv2-added-label { color: var(--muted); font-size: 0.78rem; }
+.lv2-added ul { margin: 0 0 4px; padding-left: 18px; font-size: 0.86rem; }
+.lv2-appearance { border-top: 1px solid var(--line); padding-top: 10px; }
+.lv2-appearance > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+.lv2-summary { font-weight: 400; color: var(--muted); font-size: 0.8rem; margin-left: 6px; }
+.lv2-appearance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 20px; padding-top: 12px; }
+.lv2-group { display: grid; gap: 8px; align-content: start; }
+.lv2-group h3 { margin: 0; }
+.lv2-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lv2-pair label { display: grid; gap: 3px; font-size: 0.78rem; color: var(--muted); }
+.lv2-size-mode { display: flex; gap: 12px; flex-wrap: wrap; }
+.lv2-size-mode label, .lv2 label.lv2-check { display: flex; gap: 6px; align-items: center; color: var(--text); font-size: 0.86rem; }
+.lv2-slider { display: flex; gap: 8px; align-items: center; }
+.lv2-slider input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); padding: 0; border: 0; background: none; }
+.lv2-slider output { min-width: 52px; text-align: right; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.lv2-presets { display: flex; flex-wrap: wrap; gap: 5px; }
+.lv2 button.lv2-preset { width: 36px; height: 28px; padding: 0; border: 1px solid rgba(241, 244, 245, 0.25); border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+.lv2 button.lv2-preset.on { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lv2-colors { display: flex; gap: 14px; flex-wrap: wrap; }
+.lv2-colors label { display: flex; gap: 6px; align-items: center; color: var(--text); font-size: 0.86rem; }
+.lv2-colors input[type="color"] { width: 34px; height: 24px; padding: 0; border: 0; background: none; }
+
+/* Check */
+.lv2-preview { display: grid; gap: 10px; padding: 14px; position: sticky; top: 12px; align-content: start; }
+.lv2-preview-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.lv2-sub { color: var(--muted); font-size: 0.8rem; }
+.lv2-stage { position: relative; aspect-ratio: 16 / 9; width: 100%; container-type: inline-size; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 4.5%; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); }
+.lv2-stage-text { white-space: pre-line; text-align: center; font-weight: 700; line-height: 1.3; }
+.lv2-stage-tag { position: absolute; right: 4.5%; bottom: 4%; font-size: 3cqw; font-weight: 700; }
+.lv2-guide { background: #F2C14E; color: #1B2A41; padding: 5% 7%; }
+.lv2-guide ol { margin: 0; padding-left: 1.1em; width: 100%; font-size: 4.3cqw; font-weight: 700; line-height: 1.3; }
+.lv2-guide li { margin: 0 0 0.35em; }
+.lv2-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.lv2-counter { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.lv2-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; max-height: 42vh; overflow-y: auto; padding: 2px; }
+.lv2 button.lv2-thumb { position: relative; aspect-ratio: 16 / 9; width: 100%; container-type: inline-size; border-radius: 6px; overflow: hidden; padding: 5% 6%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; }
+.lv2 button.lv2-thumb.current { border-color: var(--accent); }
+.lv2-thumb-num { position: absolute; left: 5px; top: 3px; font-size: 10px; opacity: 0.6; }
+.lv2-thumb-text { font-size: 6.2cqw; font-weight: 700; line-height: 1.25; overflow: hidden; }
+.lv2-thumb-tag { position: absolute; right: 5px; bottom: 3px; font-size: 7cqw; font-weight: 700; }
+
+/* Medium screens: the song list sits across the top, the editor and preview share the row below */
+@media (max-width: 1150px) {
+  .lv2-grid { grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr); }
+  .lv2-lib { grid-column: 1 / -1; position: static; max-height: 300px; }
+}
+/* Phone: one column. With slides, the preview stays at the bottom of the screen while you edit */
+@media (max-width: 720px) {
+  .lv2 { padding: 10px 12px 0; }
+  .lv2-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .lv2-lib { max-height: 250px; }
+  .lv2-top-actions { width: 100%; }
+  .lv2-top-actions button { flex: 1; }
+  .lv2-editor { padding: 12px; }
+  .lv2 textarea.lv2-lyrics { min-height: 250px; }
+  .lv2-actions-end { width: 100%; }
+  .lv2-actions-end .lv2-add { flex: 1; }
+  .lv2-preview.empty { position: static; margin-bottom: 12px; }
+  .lv2-preview:not(.empty) { position: sticky; top: auto; bottom: 0; z-index: 15; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 10px; padding: 8px 10px; border-radius: 10px 10px 0 0; box-shadow: 0 -8px 22px rgba(0, 0, 0, 0.45); align-items: center; }
+  .lv2-preview:not(.empty) .lv2-preview-head { display: none; }
+  .lv2-preview:not(.empty) .lv2-nav { flex-wrap: wrap; justify-content: center; }
+  .lv2-preview:not(.empty) .lv2-thumbs { grid-column: 1 / -1; display: flex; overflow-x: auto; overflow-y: hidden; max-height: none; }
+  .lv2-preview:not(.empty) .lv2-thumb { flex: 0 0 76px; }
+}
+
+/* Lyric V2: Slide Appearance in the compact one-strip style of the Lyrics page */
+.lv2-appearance { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px 8px; }
+.lv2-appearance > summary { font-size: 0.82rem; font-weight: 500; }
+.lv2-summary { font-size: 0.76rem; }
+.lv2-appearance-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding-top: 6px; }
+.lv2-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.lv2-group h3 { display: none; }
+.lv2-pair { display: flex; gap: 8px; }
+.lv2-pair label { display: flex; align-items: center; gap: 4px; font-size: 0.76rem; white-space: nowrap; }
+.lv2-appearance-grid select { width: auto; padding: 3px 6px; font-size: 0.78rem; }
+.lv2-size-mode { gap: 8px; }
+.lv2-size-mode label, .lv2 label.lv2-check, .lv2-colors label { font-size: 0.76rem; font-weight: 400; gap: 4px; white-space: nowrap; }
+.lv2-slider input[type="range"] { flex: 0 0 110px; width: 110px; }
+.lv2-slider output { min-width: 40px; font-size: 0.76rem; }
+.lv2-presets { gap: 3px; }
+.lv2 button.lv2-preset { width: 30px; height: 22px; font-size: 0.72rem; }
+.lv2-colors { gap: 8px; }
+.lv2-colors input[type="color"] { width: 28px; height: 20px; }
+.lv2-slider output { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--muted); }
+
+/* Readings V2 and Lyric V2: shared pieces */
+.lv2-field-label { display: block; font-size: 0.76rem; font-weight: 400; color: var(--muted); }
+.lv2-stage-num { position: absolute; left: 5px; top: 4px; font-size: 0.7rem; opacity: 0.6; }
+.lv2-stage { font-size: 1rem; }
+.lv2-stage-text { width: 100%; }
+.lv2-stage-text .pv-row { display: block; }
+.lv2-thumb-text .pv-row { display: block; }
+.lv2 .rd-filter { width: 100%; font-size: 0.8rem; padding: 6px 8px; min-width: 0; }
+.lv2-subtitle { min-width: 0; }
+.lv2-meta-row .lv2-subtitle { flex: 2 1 200px; }
+.lv2-meta-row select[aria-label="Category"] { flex: 1 1 140px; }
+.lv2-number { width: 84px; }
+.lv2-import > summary { list-style: none; }
+.lv2-import > summary::-webkit-details-marker { display: none; }
+.lv2-import-body { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: min(420px, 90vw); display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.lv2-import-body textarea { width: 100%; font: inherit; font-size: 0.84rem; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+.lv2-import-body p { margin: 0; }
+.lv2 .vtb-edit { min-height: 340px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 1.02rem; line-height: 1.65; }
+.lv2-cats { margin-top: 0; }
+.lv2-cat-list { display: grid; gap: 6px; padding-top: 10px; }
+.lv2-cat-row { display: flex; gap: 6px; align-items: center; font-size: 0.82rem; }
+.lv2-cat-row > span:first-child { flex: 1 1 auto; min-width: 0; }
+.lv2-cat-row input { flex: 1 1 auto; min-width: 0; padding: 4px 8px; font-size: 0.82rem; }
+.lv2 button.danger { color: #E07A6A; }
+
+/* Lyric V2 and Readings V2 on phone: Download and Present sit in the slide preview, above Previous/Next */
+.lv2-preview-actions { display: none; }
+@media (max-width: 720px) {
+  .lv2-top-actions-desk { display: none; }
+  .lv2-preview-actions { display: flex; gap: 6px; }
+  .lv2-preview-actions button { flex: 1; padding: 3px 6px; font-size: 0.72rem; }
+  /* Phone: the main slide sits beside Download and Present; Previous/Next are hidden (the thumbnails still work) */
+  .lv2-preview:not(.empty) .lv2-preview-actions { grid-column: 2; flex-direction: column; justify-content: center; }
+  .lv2-preview:not(.empty) .lv2-preview-actions button { width: 100%; }
+  .lv2-preview:not(.empty) .lv2-nav { display: none; }
+}

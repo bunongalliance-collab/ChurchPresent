@@ -6,6 +6,8 @@ import { supabase } from "../lib/supabase";
 // Sign in and sign out live here, so they are the same on every page.
 const PAGES = [
   { href: "#", label: "Lyrics" },
+  { href: "#lyrics-v2", label: "Lyric V2" },
+  { href: "#readings-v2", label: "Readings V2" },
   { href: "#readings", label: "Readings" },
   { href: "#scripture", label: "Scripture" },
   { href: "#builder", label: "Presentation Builder" },
