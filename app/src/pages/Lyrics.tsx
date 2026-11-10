@@ -635,7 +635,17 @@ export default function Lyrics() {
                 <div className="ly-stage-text" style={{ fontSize: `${(deck.size / SLIDE_W_PT) * 100}cqw` }}>{current.join("\n")}</div>
                 {current.label && showLabels && <div className="ly-stage-tag">{current.label}</div>}
               </div>
-            ) : <p className="ly-empty">Paste lyrics to see slides.</p>}
+            ) : (
+              <div className="ly-stage ly-guide" aria-label="How to start">
+                <ol className="ly-guide-steps">
+                  <li>Choose a song from the list, or paste the lyrics.</li>
+                  <li>Check that every verse and chorus is correct.</li>
+                  <li>Make any changes you like, the way you want them.</li>
+                  <li>Save the song.</li>
+                  <li>Click <strong>Add to Presentation</strong> to put your saved song in the slideshow.</li>
+                </ol>
+              </div>
+            )}
 
             {slides.length > 0 && (
               <div className="ly-nav">
