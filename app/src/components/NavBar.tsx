@@ -6,11 +6,12 @@ import { supabase } from "../lib/supabase";
 // Sign in and sign out live here, so they are the same on every page.
 const PAGES = [
   { href: "#", label: "Lyrics" },
+  { href: "#readings", label: "Readings" },
   { href: "#scripture", label: "Scripture" },
   { href: "#builder", label: "Presentation Builder" },
   { href: "#presentations", label: "Presentations" },
-  { href: "#notes", label: "Notes" },
   { href: "#projector", label: "Projector" },
+  { href: "#notes", label: "Notes" },
 ];
 
 export default function NavBar() {

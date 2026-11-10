@@ -743,3 +743,36 @@ button:disabled { opacity: 0.4; cursor: default; }
 .ly-approve-actions { display: flex; gap: 6px; }
 .ly-approve button.secondary { color: #1B2A41 !important; border: 1px solid #1B2A41 !important; background: rgba(255, 255, 255, 0.5) !important; font-weight: 600; }
 .ly-approve button.primary { background: #1B2A41 !important; border-color: #1B2A41 !important; color: #FFFFFF !important; }
+
+/* Readings: number, title, subtitle and category in one compact row (wraps on phones) */
+.rd-meta { display: flex; flex-wrap: nowrap; gap: 6px; margin-bottom: 8px; }
+.rd-meta input, .rd-meta select { padding: 5px 8px; font-size: 0.85rem; min-width: 0; }
+.rd-meta .rd-num { flex: 0 0 56px; width: 56px; }
+.rd-meta .rd-title { flex: 1.4 1 0; }
+.rd-meta .rd-sub { flex: 1.4 1 0; }
+.rd-meta .rd-cat { flex: 1 1 0; }
+@media (max-width: 700px) { .rd-meta { flex-wrap: wrap; } .rd-meta .rd-title, .rd-meta .rd-sub, .rd-meta .rd-cat { flex: 1 1 140px; } }
+
+/* Readings page: one picker row, clear button hierarchy (primary > secondary > tool), even spacing */
+.rd-picker-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.rd-picker-row .ly-saved { flex: 1 1 auto; min-width: 0; margin: 0; }
+.rd-picker-row .rd-filter { flex: 0 0 auto; width: auto; max-width: 150px; margin: 0; }
+.rd-picker-row .ly-star { flex: 0 0 auto; }
+.rd .ly-editor { gap: 10px; }
+.rd .ly-actions { display: flex; gap: 8px; align-items: center; margin: 0 0 4px; }
+.rd .ly-actions .secondary, .rd .ly-top-actions .secondary { background: transparent; border: 1px solid var(--ly-line); color: var(--ly-text); border-radius: 8px; padding: 7px 14px; font-weight: 600; }
+.rd .ly-actions .ly-add, .rd .ly-top-actions .primary { border-radius: 8px; padding: 7px 14px; font-weight: 600; }
+.rd .ly-top-actions { gap: 8px; }
+.rd .ly-approve { margin-bottom: 4px; }
+.rd .ly-lyrics-field { display: grid; gap: 6px; }
+.rd .ly-lyrics-field > label { margin: 0; font-size: 0.8rem; color: var(--ly-muted); }
+.rd .ly-appearance { margin-top: 2px; }
+.rd .ly-more { border: 1px solid var(--ly-line); border-radius: 8px; padding: 6px 10px; }
+.rd .ly-more > summary { font-size: 0.82rem; color: var(--ly-muted); cursor: pointer; }
+.rd .rd-cats, .rd .rd-import { display: grid; gap: 6px; padding-top: 8px; }
+.rd .rd-cat-row { display: flex; gap: 6px; align-items: center; }
+.rd .rd-cat-row span { flex: 1; font-size: 0.85rem; }
+.rd .rd-cat-row input { flex: 1; min-width: 0; }
+.rd .rd-cat-row .secondary.small { padding: 4px 9px; }
+.rd .ly-group .ly-label { font-size: 0.8rem; color: var(--ly-muted); }
+@media (max-width: 700px) { .rd-picker-row { flex-wrap: wrap; } .rd-picker-row .ly-saved { flex: 1 1 100%; } }

@@ -48,7 +48,19 @@ interface ScriptureItem {
   size: number;
 }
 interface RecentStudy { id: string; title: string; updated: string; data: Record<string, unknown> }
-export type Item = SongItem | CustomItem | ScriptureItem;
+// A reading (non-song passage) added from the Readings page
+interface ReadingItem {
+  kind: "reading";
+  id: string;
+  title: string;
+  categoryName: string;
+  font: string;
+  bg: string;
+  fg: string;
+  size: number;
+  slides: { rows: string[]; size: number }[];
+}
+export type Item = SongItem | CustomItem | ScriptureItem | ReadingItem;
 
 export interface Settings {
   font: string;
@@ -97,7 +109,9 @@ function slidesForSong(lyrics: string, title: string, number: string, s: Setting
 export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
   const slides: ProjDeck["slides"] = [];
   for (const it of items) {
-    if (it.kind === "scripture") {
+    if (it.kind === "reading") {
+      it.slides.forEach((sl) => slides.push({ label: "", rows: sl.rows, segs: toSegs(sl.rows), verse: false, size: sl.size || it.size, bg: it.bg, fg: it.fg, font: it.font }));
+    } else if (it.kind === "scripture") {
       it.slides.forEach((sl) => slides.push({ label: sl.label, ref: sl.ref, rows: sl.rows, segs: toSegs(sl.rows ?? []), verse: sl.verse, fmt: sl.fmt, numColor: sl.numColor ?? it.numColor, size: sl.size ?? it.size, bg: sl.bg, fg: sl.fg, font: sl.font }));
     } else if (it.kind === "custom") {
       // Custom slides get the same verse-number marks as scripture
@@ -120,6 +134,16 @@ export default function Builder() {
   const draft = useMemo(() => loadDraft(), []);
   const [settings, setSettings] = useState<Settings>(draft?.settings ?? DEFAULT_SETTINGS);
   const [items, setItems] = useState<Item[]>(draft?.items ?? []);
+  // A reading added from the Readings page waits in sessionStorage until the Builder opens
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("pendingBuilderItem");
+      if (!raw) return;
+      sessionStorage.removeItem("pendingBuilderItem");
+      const item = JSON.parse(raw) as ReadingItem;
+      setItems((cur) => [...cur, item]);
+    } catch { /* storage blocked or bad data */ }
+  }, []);
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [title, setTitle] = useState(draft?.title ?? "Sunday Worship");
   const [savedList, setSavedList] = useState<Presentation[]>([]);
@@ -500,7 +524,7 @@ export default function Builder() {
                 <div className="seq-head" onClick={() => setSelectedItem(it.id)}>
                   <span className="seq-grip" aria-hidden="true">⠿</span>
                   <span className="seq-num" aria-label={`Position ${i + 1}`}>{i + 1}</span>
-                  <span className={`kind-badge ${it.kind}`}>{it.kind === "song" ? "Song" : it.kind === "scripture" ? "Scripture" : "Custom"}</span>
+                  <span className={`kind-badge ${it.kind}`}>{it.kind === "song" ? "Song" : it.kind === "scripture" ? "Scripture" : it.kind === "reading" ? "Reading" : "Custom"}</span>
                   <strong>{it.kind === "song" ? `${it.number ? it.number + ". " : ""}${it.title}` : it.title}</strong>
                   {it.kind === "song" && it.libraryChanged && <span className="badge">Library changed</span>}
                 </div>

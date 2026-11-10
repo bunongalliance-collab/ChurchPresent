@@ -5,6 +5,7 @@ import Builder from "./pages/Builder";
 import Scripture from "./pages/Scripture";
 import Presentations from "./pages/Presentations";
 import Notes from "./pages/Notes";
+import Readings from "./pages/Readings";
 
 // Pages in one app, chosen by the address hash:
 // "#projector" = projector view, "#builder" = presentation builder, "#scripture" = scripture slides,
@@ -23,5 +24,6 @@ export default function App() {
   if (page === "#scripture") return <Scripture />;
   if (page === "#presentations") return <Presentations />;
   if (page === "#notes") return <Notes />;
+  if (page === "#readings") return <Readings />;
   return <Lyrics />;
 }

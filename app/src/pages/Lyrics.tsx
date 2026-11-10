@@ -371,6 +371,14 @@ export default function Lyrics() {
   // Search over title, number and lyrics; favourites and recent songs are shown when not searching
   const q = query.trim().toLowerCase();
   const searchResults = q ? sorted.filter((s) => `${s.number} ${s.title} ${s.lyrics}`.toLowerCase().includes(q)) : [];
+  // The default list shows each song once: the selected copy, else your own, else the first one
+  const songKey = (s: SavedSong) => `${s.number.trim()}|${s.title.trim()}`.toLowerCase();
+  const bestOf = new Map<string, SavedSong>();
+  for (const s of sorted) {
+    const cur = bestOf.get(songKey(s));
+    if (!cur || s.id === selectedId || (cur.id !== selectedId && user && s.owner === user.id && cur.owner !== user.id)) bestOf.set(songKey(s), s);
+  }
+  const allDefault = sorted.filter((s) => bestOf.get(songKey(s))?.id === s.id);
   const favSongs = sorted.filter((s) => favorites.includes(s.id));
   const recentSongs = recent.map((id) => songs.find((s) => s.id === id)).filter((s): s is SavedSong => !!s);
   const inPresentation = new Set<string>([...songIdsInPresentation(), ...addedNow.map((x) => x.id)]);
@@ -442,7 +450,7 @@ export default function Lyrics() {
                     </optgroup>
                   )}
                   <optgroup label="All songs">
-                    {sorted.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
+                    {allDefault.map((s) => <option key={s.id} value={s.id}>{(inPresentation.has(s.id) ? "✓ " : "") + songLabel(s)}</option>)}
                   </optgroup>
                 </>
               )}

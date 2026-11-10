@@ -79,7 +79,7 @@ export const VERSE_RE = /(^|[\s.;:!?,])(\d{1,3})(?=\s)/g;
 const VERSE_RE_HTML = /(^|[\s.;:!?,])(\d{1,3})(?=\s)/g;
 
 // HTML for the editor: each line is a block, each run of formatted text is a span
-export function editorHtml(s: string): string {
+export function editorHtml(s: string, numbers = true): string {
   const esc = (x: string) => x.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return s.split("\n").map((line) => {
     if (!line) return "<div><br></div>";
@@ -114,7 +114,7 @@ export function editorHtml(s: string): string {
       // Verse numbers (a number followed by a space, at the start or after a space or punctuation) are styled
       // {v} text is drawn like a verse number; {n} text never is
       if (r.f.v) return `<span ${attrs} class="vtb-num" style="${style}">${esc(r.text)}</span>`;
-      const body = r.f.n ? esc(r.text) : esc(r.text).replace(VERSE_RE_HTML, (_m, lead: string, num: string) => `${lead}<span class="vtb-num">${num}</span>`);
+      const body = r.f.n || !numbers ? esc(r.text) : esc(r.text).replace(VERSE_RE_HTML, (_m, lead: string, num: string) => `${lead}<span class="vtb-num">${num}</span>`);
       return `<span ${attrs} style="${style}">${body}</span>`;
     }).join("");
     return `<div>${html || "<br>"}</div>`;
