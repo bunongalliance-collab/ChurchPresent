@@ -625,7 +625,7 @@ export default function LyricsV2() {
                   </div>
                 </details>
                 <button className="secondary" onClick={onSave}>Save Song</button>
-                <button className={`primary lv2-add${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
+                <button className={`primary lv2-add lv2-add-desk${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
               </span>
             </div>
             {confirmDel && (
@@ -730,8 +730,9 @@ export default function LyricsV2() {
             {slides.length > 0 && (
               <>
               <div className="lv2-preview-actions">
-                <button className="secondary small" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
                 <button className="primary small" onClick={openProjector} disabled={!slides.length}>Present</button>
+                <button className={`secondary small lv2-add-small${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : "+ Add to Presentation"}</button>
+                <button className="secondary small lv2-dl" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
               </div>
               <div className="lv2-nav">
                 <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))} disabled={shownIdx === 0}>← Previous</button>

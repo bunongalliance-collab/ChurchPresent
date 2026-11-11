@@ -467,7 +467,7 @@ export default function ReadingsV2() {
             </details>
             <span className="lv2-actions-end">
               <button className="secondary" onClick={onSave}>Save Reading</button>
-              <button className={`primary lv2-add${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
+              <button className={`primary lv2-add lv2-add-desk${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
             </span>
           </div>
 
@@ -562,8 +562,9 @@ export default function ReadingsV2() {
                 <div className="lv2-stage-text" style={{ fontSize: `${(size / 960) * 100}cqw` }}><RowText rows={slides[cur].rows} /></div>
               </div>
               <div className="lv2-preview-actions">
-                <button className="secondary small" onClick={download} disabled={!slides.length}>Download PowerPoint</button>
                 <button className="primary small" onClick={present} disabled={!slides.length}>Present</button>
+                <button className={`secondary small lv2-add-small${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
+                <button className="secondary small lv2-dl" onClick={download} disabled={!slides.length}>Download PowerPoint</button>
               </div>
               <div className="lv2-nav">
                 <button className="secondary small" onClick={() => setIndex(Math.max(0, cur - 1))} disabled={cur === 0}>← Previous</button>

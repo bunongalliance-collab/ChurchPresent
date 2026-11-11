@@ -657,60 +657,6 @@ export default function Scripture() {
 
         <p className={error ? "sc-status error" : "sc-status"} role="status">{status}</p>
 
-        <details className="sc-presentation">
-          <summary>Presentation Settings <span className="sc-summary">{settingsSummary}</span></summary>
-          <div className="sc-settings">
-            <div className="sc-group">
-              <h3>Layout</h3>
-              <label htmlFor="sc-align">Text alignment</label>
-              <select id="sc-align" value={look.align} onChange={(e) => setLook({ ...look, align: e.target.value as Look["align"] })}>
-                <option value="left">Left</option>
-                <option value="center">Centre</option>
-                <option value="right">Right</option>
-                <option value="justify">Justify</option>
-              </select>
-              <label htmlFor="sc-aspect">Shape</label>
-              <select id="sc-aspect" value={look.aspect} onChange={(e) => setLook({ ...look, aspect: e.target.value as "16:9" | "4:3" })}>
-                <option value="16:9">16:9 widescreen</option>
-                <option value="4:3">4:3</option>
-              </select>
-              <label htmlFor="sc-per">Lines per slide</label>
-              <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
-                {Array.from({ length: 14 }, (_, k) => k + 2).map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-            <div className="sc-group">
-              <h3>Typography</h3>
-              <label htmlFor="sc-font">Font</label>
-              <select id="sc-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
-                {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-              </select>
-              <label htmlFor="sc-size">Font size (pt)</label>
-              <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
-            </div>
-            <div className="sc-group">
-              <h3>Colors</h3>
-              <div className="sc-presets" role="group" aria-label="Recommended colours">
-                {COLOR_PRESETS.map((p) => (
-                  <button key={p.name} type="button" className={`sc-preset${look.bg === p.bg && look.fg === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
-                    style={{ background: p.bg, color: p.fg }} onClick={() => setLook({ ...look, bg: p.bg, fg: p.fg })}>Aa</button>
-                ))}
-              </div>
-              <div className="sc-colors">
-                <label>Background <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
-                <label>Text <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} /></label>
-                <label>Verse number <input type="color" value={look.numColor} onChange={(e) => setLook({ ...look, numColor: e.target.value })} /></label>
-                <label>Title <input type="color" value={look.labelColor} onChange={(e) => setLook({ ...look, labelColor: e.target.value })} /></label>
-              </div>
-            </div>
-            <div className="sc-group">
-              <h3>Display</h3>
-              <label className="check"><input type="checkbox" checked={look.verseNumbers} onChange={(e) => setLook({ ...look, verseNumbers: e.target.checked })} /> Show verse numbers</label>
-              <label className="check"><input type="checkbox" checked={look.showLabels} onChange={(e) => setLook({ ...look, showLabels: e.target.checked })} /> Show slide labels</label>
-              <label className="check" title="Each verse starts on its own line, so its last line can stay short"><input type="checkbox" checked={look.verseNewLines} onChange={(e) => setLook({ ...look, verseNewLines: e.target.checked })} /> Each verse on its own line</label>
-            </div>
-          </div>
-        </details>
 
         <div className="sc-body">
           {/* Edit the selected slide */}
@@ -835,16 +781,11 @@ export default function Scripture() {
 
           {/* The slide sequence */}
           <section className="sc-col sc-slides" aria-label="Slides">
-            <div className="sc-savebar">
-              <input className="sc-study-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Study title" placeholder="Study title" />
-              <button className="primary" onClick={save} disabled={busy || !user}>{busy ? "Saving…" : "Save"}</button>
-            </div>
             <div className="sc-start">
               <span className="sc-start-tag">Start here</span>
               <div className="sc-add">
                 <button className="secondary small" onClick={() => addSlide("passage")}>+ Passage</button>
                 <button className="secondary small" onClick={() => addSlide("custom")}>+ Custom</button>
-                <button className="secondary small" onClick={() => addSlide("questions")}>+ Questions</button>
               </div>
             </div>
             <ol className="sc-list">
@@ -932,6 +873,61 @@ export default function Scripture() {
                 </div>
               </>
             ) : <p className="sc-empty">Nothing to preview yet.</p>}
+            {/* Presentation settings: the look for this study */}
+            <details className="sc-presentation">
+                <summary>Presentation Settings <span className="sc-summary">{settingsSummary}</span></summary>
+                <div className="sc-settings">
+                  <div className="sc-group">
+                    <h3>Layout</h3>
+                    <label htmlFor="sc-align">Text alignment</label>
+                    <select id="sc-align" value={look.align} onChange={(e) => setLook({ ...look, align: e.target.value as Look["align"] })}>
+                      <option value="left">Left</option>
+                      <option value="center">Centre</option>
+                      <option value="right">Right</option>
+                      <option value="justify">Justify</option>
+                    </select>
+                    <label htmlFor="sc-aspect">Shape</label>
+                    <select id="sc-aspect" value={look.aspect} onChange={(e) => setLook({ ...look, aspect: e.target.value as "16:9" | "4:3" })}>
+                      <option value="16:9">16:9 widescreen</option>
+                      <option value="4:3">4:3</option>
+                    </select>
+                    <label htmlFor="sc-per">Lines per slide</label>
+                    <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
+                      {Array.from({ length: 14 }, (_, k) => k + 2).map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div className="sc-group">
+                    <h3>Typography</h3>
+                    <label htmlFor="sc-font">Font</label>
+                    <select id="sc-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
+                      {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                    <label htmlFor="sc-size">Font size (pt)</label>
+                    <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
+                  </div>
+                  <div className="sc-group">
+                    <h3>Colors</h3>
+                    <div className="sc-presets" role="group" aria-label="Recommended colours">
+                      {COLOR_PRESETS.map((p) => (
+                        <button key={p.name} type="button" className={`sc-preset${look.bg === p.bg && look.fg === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
+                          style={{ background: p.bg, color: p.fg }} onClick={() => setLook({ ...look, bg: p.bg, fg: p.fg })}>Aa</button>
+                      ))}
+                    </div>
+                    <div className="sc-colors">
+                      <label>Background <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
+                      <label>Text <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} /></label>
+                      <label>Verse number <input type="color" value={look.numColor} onChange={(e) => setLook({ ...look, numColor: e.target.value })} /></label>
+                      <label>Title <input type="color" value={look.labelColor} onChange={(e) => setLook({ ...look, labelColor: e.target.value })} /></label>
+                    </div>
+                  </div>
+                  <div className="sc-group">
+                    <h3>Display</h3>
+                    <label className="check"><input type="checkbox" checked={look.verseNumbers} onChange={(e) => setLook({ ...look, verseNumbers: e.target.checked })} /> Show verse numbers</label>
+                    <label className="check"><input type="checkbox" checked={look.showLabels} onChange={(e) => setLook({ ...look, showLabels: e.target.checked })} /> Show slide labels</label>
+                    <label className="check" title="Each verse starts on its own line, so its last line can stay short"><input type="checkbox" checked={look.verseNewLines} onChange={(e) => setLook({ ...look, verseNewLines: e.target.checked })} /> Each verse on its own line</label>
+                  </div>
+                </div>
+              </details>
           </section>
         </div>
       </div>

@@ -70,7 +70,7 @@ body:has(.stage), body:has(.projector-blackout), body:has(.projector-message) { 
 .builder-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
 .builder-top .title-in { flex: 1 1 220px; }
 .builder-top select { flex: 0 1 240px; }
-.builder-grid { display: grid; grid-template-columns: minmax(300px, 1.4fr) minmax(220px, 0.75fr) minmax(300px, 1.3fr); gap: 12px; align-items: start; }
+.builder-grid { display: grid; grid-template-columns: minmax(260px, 0.9fr) minmax(300px, 1.4fr) minmax(300px, 1.3fr); gap: 12px; align-items: start; }
 .builder-page h2 { font-size: 1rem; margin: 0 0 8px; }
 .builder-page h3 { font-size: 0.9rem; margin: 12px 0 6px; }
 .library { max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px; margin: 8px 0; }
@@ -1124,3 +1124,327 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 /* Dark-only extras stay visible in light mode */
 .status { color: var(--muted); }
 .kind-badge.custom { color: var(--hint); }
+
+/* ===== Phone: less vertical space on Lyric V2 and Readings V2 ===== */
+@media (max-width: 720px) {
+  /* Present and + Add to Presentation share one row in the preview; Download sits below them */
+  .lv2-add-desk { display: none !important; }
+  .lv2-preview:not(.empty) { grid-template-columns: 120px minmax(0, 1fr); }
+  .lv2-preview:not(.empty) .lv2-preview-actions { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-content: center; gap: 6px; }
+  .lv2-preview:not(.empty) .lv2-preview-actions button { width: auto; padding: 4px 8px; font-size: 0.74rem; }
+  .lv2-preview:not(.empty) .lv2-preview-actions .lv2-dl { flex: 1 0 100%; }
+  .lv2-preview:not(.empty) .lv2-preview-actions .lv2-add-small { flex: 1 1 auto; white-space: nowrap; }
+  /* Compact editor fields */
+  .lv2 input.lv2-title { font-size: 0.98rem; height: 34px; padding: 5px 9px; }
+  .lv2 input.lv2-number { height: 34px; padding: 5px 8px; font-size: 0.86rem; width: 64px; }
+  .lv2 button.lv2-star { height: 34px; padding: 0 9px; }
+  .lv2-meta-row input, .lv2-meta-row select { height: 32px; padding: 4px 8px; font-size: 0.84rem; }
+  .lv2 button.lv2-lib-toggle { padding: 7px 10px; font-size: 0.9rem; border-width: 1.5px; }
+  .lv2-title-row { gap: 6px; }
+  .lv2-meta-row { gap: 6px; }
+  /* Sign in lives inside the hamburger menu on phone */
+  .navbar .nav-auth { display: none; }
+  .navbar.menu-open .nav-auth { display: flex; flex: 1 1 100%; flex-direction: column; align-items: stretch; margin-left: 0; gap: 6px; padding-bottom: 6px; }
+  .navbar.menu-open .nav-auth-panel { position: static; width: 100%; margin-top: 4px; box-shadow: none; }
+  .navbar.menu-open .nav-who { max-width: 100%; }
+}
+@media (max-width: 720px) {
+  .lv2-preview:not(.empty) { grid-template-columns: 108px minmax(0, 1fr); }
+  .lv2-preview:not(.empty) .lv2-preview-actions .primary { flex: 0 0 auto; }
+  .lv2-preview:not(.empty) .lv2-preview-actions .lv2-add-small { flex: 1 1 0; min-width: 0; padding: 4px 6px; font-size: 0.7rem; }
+  .lv2-preview:not(.empty) .lv2-preview-actions .lv2-dl { flex: 1 0 100%; }
+}
+
+
+/* Presentation order heading with the custom slide buttons on the same row */
+.order-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.order-head h2 { margin: 0; }
+.order-head .row { margin-top: 0; }
+
+/* ===== Presentations table: a clean list with subtle dividers, one main action per row, the rest under More ===== */
+.pl-page { padding-top: 0; }
+.pl-top { padding: 4px 0 14px; }
+.pl-top h1 { font-size: 1.3rem; letter-spacing: -0.01em; }
+.pl-top .sub { color: var(--muted); margin: 3px 0 0; font-size: 0.86rem; }
+.pl-section { background: var(--panel); border: 0; border-radius: 12px; padding: 14px 16px; margin-top: 14px; border-left: 0; }
+.pl-section.pl-recent, .pl-section.pl-all { background: var(--panel); border-left: 0; }
+.pl-section.pl-recent h2, .pl-section.pl-all h2 { color: var(--text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+.pl-tools { margin-bottom: 10px; }
+.pl-tools input[type="search"] { height: 34px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--sunken); padding: 0 10px; }
+.pl-sort select { height: 34px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--sunken); padding: 0 8px; }
+.pl-table { gap: 0; }
+.pl-head, .pl-row {
+  display: grid; grid-template-columns: minmax(200px, 2fr) 148px 118px 64px 84px 64px 64px auto;
+  gap: 12px; align-items: center; padding: 10px 10px; border-radius: 0;
+}
+.pl-head { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; padding-top: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); background: transparent; }
+.pl-row { background: transparent; border: 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+.pl-row:last-child { border-bottom: 0; }
+.pl-row:hover { background: var(--sunken); }
+.pl-row > span { min-width: 0; font-variant-numeric: tabular-nums; color: var(--text); }
+.pl-row > span[data-label="Songs"], .pl-row > span[data-label="Scripture"], .pl-row > span[data-label="Custom"], .pl-row > span[data-label="Slides"] { color: var(--muted); }
+.pl-title strong { font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.pl-row input[type="date"] { height: 30px; min-width: 0; width: 100%; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--sunken); color: var(--text); font-size: 0.82rem; }
+.pl-row input[type="date"]:hover { border-color: var(--ctrl); }
+.pl-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: nowrap; }
+.pl-actions button { height: 30px; padding: 0 10px; font-size: 0.8rem; font-weight: 600; border-radius: 7px; white-space: nowrap; }
+.pl-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pl-actions button.secondary { background: var(--panel); border: 1px solid var(--ctrl); color: var(--text); }
+.pl-actions button:not(:disabled):hover { border-color: var(--text); }
+.pl-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
+.pl-actions button:focus-visible, .pl-more summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pl-more { position: relative; }
+.pl-more summary { list-style: none; cursor: pointer; height: 30px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 7px; border: 1px solid transparent; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+.pl-more summary::-webkit-details-marker { display: none; }
+.pl-more summary:hover { color: var(--text); background: var(--panel); border-color: var(--ctrl); }
+.pl-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 6; display: grid; min-width: 170px; padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14); }
+.pl-menu button { text-align: left; height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text); font-size: 0.85rem; font-weight: 500; }
+.pl-menu button:hover:not(:disabled) { background: var(--sunken); }
+.pl-menu button.danger { color: var(--danger); }
+.pl-menu button:disabled { opacity: 0.45; }
+.pl-group h3 { font-size: 0.78rem; margin: 14px 0 4px; color: var(--muted); font-weight: 700; }
+.pl-dup { border: 1px solid var(--ctrl); border-radius: 10px; background: var(--sunken); padding: 12px; }
+.pl-dup input { height: 34px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--panel); padding: 0 10px; }
+@media (max-width: 1100px) {
+  .pl-head, .pl-row { grid-template-columns: minmax(170px, 1.8fr) 130px 100px 56px 64px 56px 56px auto; gap: 8px; }
+  .pl-actions button { padding: 0 8px; }
+}
+/* Phone: each presentation is a card; the main action and the More menu sit at the bottom */
+@media (max-width: 720px) {
+  .pl-section { padding: 10px; }
+  .pl-head { display: none; }
+  .pl-row { grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 14px 6px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; background: var(--panel); }
+  .pl-row > .pl-title { grid-column: 1 / -1; }
+  .pl-row > .pl-title strong { white-space: normal; font-size: 1rem; }
+  .pl-row > .pl-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); justify-content: flex-start; }
+  .pl-row > .pl-actions > button.primary { flex: 1 1 auto; }
+  .pl-row > .pl-actions > button.secondary { flex: 1 1 auto; }
+  .pl-row > .pl-actions button { height: 36px; font-size: 0.85rem; padding: 0 12px; }
+  .pl-row > .pl-actions button { width: auto; }
+  .pl-row > .pl-actions .pl-more { flex: 0 0 auto; }
+  .pl-row > .pl-actions .pl-more summary { height: 36px; }
+  .pl-row > .pl-actions .pl-menu { right: auto; left: 0; bottom: calc(100% + 6px); top: auto; }
+  .pl-row [data-label]::before { content: attr(data-label) ": "; color: var(--muted); font-size: 0.75rem; }
+  .pl-row [data-label="Title"]::before { content: none; }
+}
+
+/* Scripture page: slides on the left, the slide editor in the middle, preview and look on the right (phone: stacked in that order) */
+@media (min-width: 901px) { .sc-body { grid-template-columns: 22fr 36fr 42fr; } }
+@media (max-width: 900px) { .sc-body { grid-template-columns: minmax(0, 1fr); } }
+.sc-slides { order: 1; }
+.sc-edit { order: 2; }
+.sc-preview { order: 3; }
+
+/* Scripture page, rearranged like the redesign sample: title and actions on one row, Present as the one green action */
+.sc-top { align-items: center; padding: 14px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.sc-title h1 { font-size: 1.25rem; margin: 0; }
+.sc-actions { gap: 8px; }
+.sc-actions > .primary { order: 9; }
+.sc-actions > .secondary { order: 2; }
+.sc-actions > .sc-star { order: 1; }
+.sc-actions > .sc-search { order: 0; }
+.sc-actions > .sc-more { order: 6; }
+.sc-actions > .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.sc-actions > .secondary { background: var(--panel); border: 1px solid var(--ctrl); color: var(--text); }
+/* Presentation settings now sit at the foot of the preview column */
+.sc-presentation { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.sc-presentation > summary { font-weight: 600; font-size: 0.86rem; cursor: pointer; }
+.sc-presentation > summary .sc-summary { font-weight: 400; color: var(--muted); font-size: 0.78rem; }
+.sc-body { gap: 16px; }
+.sc-col { background: var(--panel); border: 0; border-radius: 12px; padding: 14px; }
+
+/* Scripture left column: Passage and Custom share one full-width row */
+.sc-start { margin: 0 0 10px; }
+.sc-start .sc-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sc-start .sc-add button { width: 100%; }
+
+/* Scripture on phone: the passage fields and the slide list get room */
+@media (max-width: 720px) {
+  .sc-body { gap: 12px; }
+  .sc-col { min-width: 0; padding: 12px; }
+  .sc-body .passage-pick, .sc-body .passage { grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr; gap: 6px; }
+  .sc-body .passage-pick select, .sc-body .passage-pick input { min-width: 0; width: 100%; }
+  .sc-start .sc-add button { font-size: 0.85rem; }
+}
+
+/* Presentation Builder: use more of the screen width */
+.builder-page { max-width: 1920px; }
+
+/* ===== Service program: one landscape letter page, four panels (2 x 2), like the Sample Church Service Half-Fold Program ===== */
+.pg { max-width: 1080px; margin: 0 auto; padding: 14px 0 36px; font-family: Calibri, Arial, sans-serif; color: #272727; }
+.pg-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+.pg-top h1 { font-size: 1.25rem; margin: 0; color: var(--text); }
+.pg-top p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
+.pg-actions { display: flex; gap: 8px; }
+.pg-btn { height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--panel); color: var(--text); font: 600 13px system-ui, sans-serif; }
+.pg-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pg-btn.small { height: 28px; font-size: 12px; margin-top: 6px; }
+.pg-pagelabel { font: 600 12px system-ui, sans-serif; color: var(--muted); margin: 14px 2px 6px; }
+.pg-page { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; margin-bottom: 8px; }
+.pg-sheet { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; min-height: 640px; background: #fff; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.pg-panel { padding: 22px 26px; min-width: 0; min-height: 0; overflow: hidden; display: grid; align-content: start; gap: 4px; background: #fff; }
+.pg-panel + .pg-panel { border-left: 1px dashed #e4e4e4; }
+
+.pg-cover { justify-items: center; text-align: center; align-content: center; }
+.pg-in { border: 0; border-bottom: 1px dashed transparent; background: transparent; padding: 1px 2px; font: inherit; color: #272727; width: 100%; min-width: 0; border-radius: 0; box-shadow: none; }
+.pg .pg-sheet .pg-in:hover, .pg .pg-sheet .pg-in:focus { border-bottom-color: #86151b; outline: none; background: #fbf8f7; }
+.pg .pg-sheet textarea.pg-in { resize: none; }
+.pg-eyebrow { margin: 6px 0 0; font-size: 9pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #86151b; }
+.pg-eyebrow .pg-in, .pg-eyebrow.pg-in, .pg-eyebrow input { font: inherit; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #86151b; }
+.pg-h2 { margin: 0; font-family: Cambria, Georgia, serif; font-size: 19pt; font-weight: 700; color: #272727; line-height: 1.15; }
+.pg-h2 .pg-small { font-size: 12pt; font-weight: 400; color: #626262; }
+.pg-h3 { font-family: Cambria, Georgia, serif; font-size: 14pt; font-weight: 700; color: #272727; }
+.pg-body { font-size: 9pt; line-height: 1.45; color: #626262; min-height: 40px; resize: none; }
+.pg-small-body { font-size: 8.5pt; min-height: 30px; }
+.pg-muted { color: #626262; font-size: 9pt; }
+.pg-strong { font-weight: 700; font-size: 9.5pt; color: #272727; }
+.pg-center { text-align: center; }
+.pg-step { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 6px; align-items: start; }
+.pg-num { font-family: Cambria, Georgia, serif; font-size: 13pt; font-weight: 700; color: #86151b; line-height: 1.1; }
+.pg-web { margin-top: 6px; }
+/* Cover */
+.pg-cover-top { display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%; }
+.pg-cover-top .pg-in { width: auto; text-align: center; }
+.pg-date { width: 150px !important; font-size: 9pt; }
+.pg-logo { width: 74px; height: 74px; object-fit: contain; margin: 4px auto 0; }
+.pg-name { margin: 6px 0 0; font-family: Cambria, Georgia, serif; font-size: 30pt; font-weight: 700; line-height: 1.02; color: #86151b; text-align: center; }
+.pg-name .pg-in { font: inherit; color: #86151b; text-align: center; }
+.pg-name .pg-sub-name { font-size: 15pt; color: #272727; }
+.pg-service { font-family: Cambria, Georgia, serif; font-size: 13pt; font-weight: 700; color: #272727; text-align: center; letter-spacing: .04em; }
+.pg-verse { font-family: Cambria, Georgia, serif; font-style: italic; font-size: 10.5pt; color: #272727; text-align: center; min-height: 52px; }
+.pg-place { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 9pt; color: #626262; }
+.pg-place .pg-in { width: auto; text-align: center; }
+/* Order of worship */
+.pg-rows { display: grid; gap: 5px; margin-top: 4px; }
+.pg-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 6px; align-items: start; }
+.pg-time { font-weight: 700; color: #86151b; font-size: 9.5pt; padding-left: 0; }
+.pg-item { display: grid; gap: 0; min-width: 0; }
+.pg-item-line { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+.pg-item-line .pg-in { flex: 1 1 auto; }
+.pg-kind { font: 8pt system-ui, sans-serif; border: 0; background: transparent; color: #8b8b8b; padding: 0; max-width: 84px; }
+.pg-rowtools { display: flex; }
+.pg-x { border: 0; background: transparent; color: #8b8b8b; font-size: 12px; padding: 0 3px; cursor: pointer; }
+.pg-x:disabled { opacity: .3; cursor: default; }
+.pg-x:hover:not(:disabled) { color: #86151b; }
+.pg-note { font-size: 8.5pt; margin-top: 6px; min-height: 26px; }
+/* Worship, scripture, contact */
+.pg-visit { display: grid; gap: 1px; }
+.pg-scripture { margin-top: 8px; display: grid; gap: 1px; border-top: 1px solid #e4e4e4; padding-top: 8px; }
+.pg-contact { margin-top: 8px; display: grid; gap: 1px; border-top: 1px solid #e4e4e4; padding-top: 8px; font-size: 8.5pt; }
+.pg-contact .pg-in { font-size: 8.5pt; }
+.pg-note-line { font: 12.5px system-ui, sans-serif; color: var(--muted); margin: 6px 2px 0; }
+.pg-info .pg-add, .pg-order .pg-add { font-family: system-ui, sans-serif; }
+@media (max-width: 760px) { .pg-sheet { grid-template-columns: 1fr; grid-template-rows: auto; aspect-ratio: auto; } .pg-panel + .pg-panel { border-left: 0; border-top: 1px dashed #e4e4e4; } }
+@media print {
+  @page { size: letter landscape; margin: 0.35in; }
+  body { background: #fff; }
+  .nav, .pg-top, .pg-note-line, .pg-btn, .pg-x, .pg-add, .pg-kind, .pg-note-line, .pg-date { display: none !important; }
+  .pg-cover-top .pg-in[readonly] { display: block !important; font-weight: 700; color: #86151b; letter-spacing: .08em; }
+  .pg { max-width: none; padding: 0; }
+  .pg-pagelabel { display: none; }
+  .pg-page { width: 10.3in; height: 7.8in; min-height: 0; border: 0; border-radius: 0; grid-template-rows: 1fr; break-after: page; page-break-after: always; }
+  .pg-page .pg-panel { padding: 0.18in 0.24in; gap: 3px; }
+  .pg-page .pg-body, .pg-page .pg-small-body { font-size: 8pt; }
+  .pg-page .pg-row { grid-template-columns: 0.55in minmax(0, 1fr); }
+  .pg-page .pg-h2 { font-size: 17pt; }
+  .pg-page .pg-name { font-size: 28pt; }
+  .pg-page:last-of-type { break-after: auto; page-break-after: auto; }
+  .pg-panel { overflow: hidden; }
+  .pg-panel { padding: 0.2in 0.26in; }
+  .pg-panel + .pg-panel { border-left: 1px dashed #d8d8d8; }
+  .pg-in { border: 0 !important; background: transparent !important; }
+  .pg-time { color: #86151b; }
+}
+/* Program fields read as printed text on the paper (these beat the general input styles) */
+.pg .pg-sheet .pg-in { background: transparent !important; border: 0 !important; border-bottom: 1px dashed transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+.pg .pg-sheet select.pg-kind { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.pg-place .pg-in[aria-label="Address"] { width: 200px; }
+
+/* ===== Program: today's gathering (led by, service team), worship together (announcements, prayer list), saved people ===== */
+.pg .pg-gathering-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.pg .pg-led { margin: 6px 0 0; font: 8.5pt system-ui, sans-serif; color: #626262; white-space: nowrap; display: flex; align-items: baseline; gap: 4px; }
+.pg .pg-led-in { width: 150px !important; }
+.pg .pg-team { display: grid; gap: 3px; margin: 2px 0 8px; }
+.pg .pg-team-row { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.pg .pg-team-label { font: 700 8.5pt system-ui, sans-serif; color: #86151b; }
+.pg .pg-row { grid-template-columns: minmax(0, 1fr) auto; }
+.pg .pg-announce, .pg .pg-prayer { display: grid; gap: 1px; margin-top: 6px; }
+.pg .pg-prayer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.pg .pg-prayer-list li { display: block; }
+.pg .pg-prayer-list .pg-in { font-size: 8pt; }
+.pg .pg-prayer { position: relative; }
+.pg .pg-people { max-width: 1080px; margin: 18px auto 0; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+.pg .pg-people h2 { font-size: 1rem; margin: 0; color: var(--text); }
+.pg .pg-people p { margin: 2px 0 8px; color: var(--muted); font-size: 0.85rem; }
+.pg .pg-people-add { display: flex; gap: 8px; max-width: 420px; }
+.pg .pg-field { flex: 1; height: 34px; padding: 0 10px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--sunken); color: var(--text); font: inherit; }
+.pg .pg-people-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.pg .pg-people-list li { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 0.85rem; color: var(--text); }
+.pg .pg-people-list li.pg-muted { border: 0; padding: 0; }
+@media print { .pg-people, .pg-pagelabel, .pg-note-line { display: none !important; } }
+.pg .pg-item-sub { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 0.45fr); gap: 6px; align-items: baseline; }
+.pg .pg-led-row { text-align: right; }
+
+/* ===== Program screen = PDF: same proportions, fonts, sizes and colours as the brochure (sizes in pt of the 792 pt page) ===== */
+.pg .pg-page { container-type: inline-size; aspect-ratio: 792 / 612; width: 100%; min-height: 0; background: #fff; color: #272727; font-family: "DejaVu Serif", Georgia, serif; font-size: calc(8.5 / 792 * 100cqw); }
+.pg .pg-page .pg-panel { padding: calc(22 / 792 * 100cqw); gap: calc(3 / 792 * 100cqw); }
+.pg .pg-page .pg-in { font: inherit; color: #272727; font-size: calc(8.5 / 792 * 100cqw); font-family: inherit; background: transparent !important; border: 0 !important; border-bottom: 1px dashed transparent !important; padding: 0; width: 100%; }
+.pg .pg-page .pg-in:hover, .pg .pg-page .pg-in:focus { border-bottom-color: #86151b !important; background: #fbf8f7 !important; }
+.pg .pg-page .pg-eyebrow, .pg .pg-page p.pg-eyebrow { margin: calc(6 / 792 * 100cqw) 0 0; font-family: "DejaVu Serif", Georgia, serif; font-size: calc(8 / 792 * 100cqw); font-weight: 700; text-transform: uppercase; color: #86151b; letter-spacing: 0; }
+.pg .pg-page .pg-eyebrow .pg-in, .pg .pg-page input.pg-eyebrow { font-size: calc(8 / 792 * 100cqw); font-weight: 700; text-transform: uppercase; color: #86151b; }
+.pg .pg-page .pg-h2, .pg .pg-page h2.pg-h2 { margin: 0; font-family: "DejaVu Serif", Georgia, serif; font-size: calc(18 / 792 * 100cqw); font-weight: 700; color: #272727; line-height: 1.3; }
+.pg .pg-page .pg-h2 .pg-in { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(18 / 792 * 100cqw); font-weight: 700; color: #272727; }
+.pg .pg-page .pg-h2 .pg-small { font-size: calc(18 / 792 * 100cqw); font-weight: 700; }
+.pg .pg-page .pg-body, .pg .pg-page textarea.pg-body { font-size: calc(8.5 / 792 * 100cqw); color: #626262; line-height: 1.3; resize: none; min-height: calc(20 / 792 * 100cqw); }
+.pg .pg-page .pg-small-body { font-size: calc(8.5 / 792 * 100cqw); }
+.pg .pg-page .pg-muted, .pg .pg-page .pg-in.pg-muted { font-size: calc(8.5 / 792 * 100cqw); color: #626262; }
+.pg .pg-page .pg-strong, .pg .pg-page .pg-in.pg-strong { font-size: calc(9 / 792 * 100cqw); font-weight: 700; color: #272727; }
+.pg .pg-page .pg-step { grid-template-columns: calc(30 / 792 * 100cqw) minmax(0, 1fr); gap: calc(6 / 792 * 100cqw); }
+.pg .pg-page .pg-num { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(13 / 792 * 100cqw); font-weight: 700; color: #86151b; line-height: 1.1; }
+.pg .pg-page .pg-web { font-size: calc(8.5 / 792 * 100cqw); font-weight: 700; color: #86151b; }
+.pg .pg-page .pg-cover { text-align: center; }
+.pg .pg-page .pg-cover-top { justify-content: center; }
+.pg .pg-page .pg-cover-top .pg-in { font-size: calc(8 / 792 * 100cqw); font-weight: 700; text-transform: uppercase; color: #86151b; text-align: center; }
+.pg .pg-page .pg-logo { width: calc(66 / 792 * 100cqw); height: auto; }
+.pg .pg-page .pg-name { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(30 / 792 * 100cqw); font-weight: 700; color: #86151b; line-height: 1.05; }
+.pg .pg-page .pg-name .pg-in { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(30 / 792 * 100cqw); font-weight: 700; color: #86151b; text-align: center; }
+.pg .pg-page .pg-name .pg-sub-name { font-size: calc(18 / 792 * 100cqw); color: #272727; }
+.pg .pg-page .pg-service { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(22 / 792 * 100cqw); font-weight: 700; color: #272727; text-align: center; }
+.pg .pg-page .pg-center { text-align: center; }
+.pg .pg-page .pg-verse { font-family: "DejaVu Serif", Georgia, serif; font-style: italic; font-size: calc(11 / 792 * 100cqw); color: #272727; text-align: center; min-height: calc(52 / 792 * 100cqw); }
+.pg .pg-page .pg-place { justify-content: center; font-size: calc(8.5 / 792 * 100cqw); color: #626262; }
+.pg .pg-page .pg-place .pg-in { text-align: center; width: auto; }
+.pg .pg-page .pg-gathering-head { align-items: baseline; }
+.pg .pg-page .pg-led { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(8.5 / 792 * 100cqw); color: #626262; }
+.pg .pg-page .pg-led-in { width: calc(120 / 792 * 100cqw) !important; text-align: right; color: #272727; }
+.pg .pg-page .pg-rows { gap: calc(5 / 792 * 100cqw); }
+.pg .pg-page .pg-row { gap: calc(6 / 792 * 100cqw); grid-template-columns: minmax(0, 1fr) auto; }
+.pg .pg-page .pg-item-sub { grid-template-columns: minmax(0, 1fr) calc(120 / 792 * 100cqw); gap: calc(6 / 792 * 100cqw); }
+.pg .pg-page .pg-led-row { text-align: right; color: #272727; font-size: calc(8.5 / 792 * 100cqw); }
+.pg .pg-page select.pg-kind { font-size: 8px; color: #8b8b8b; background: transparent; border: 0; }
+.pg .pg-page .pg-note { font-family: "DejaVu Serif", Georgia, serif; font-style: italic; font-size: calc(8.5 / 792 * 100cqw); color: #626262; min-height: 0; }
+.pg .pg-page .pg-visit { gap: 0; }
+.pg .pg-page .pg-announce, .pg .pg-page .pg-prayer { gap: 0; margin-top: calc(4 / 792 * 100cqw); }
+.pg .pg-page .pg-prayer-list { gap: calc(1 / 792 * 100cqw); }
+.pg .pg-page .pg-prayer-list .pg-in { font-size: calc(8.5 / 792 * 100cqw); color: #272727; }
+.pg .pg-page .pg-scripture { border-top: 0; padding-top: calc(6 / 792 * 100cqw); gap: 0; }
+.pg .pg-page .pg-h3 { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(12 / 792 * 100cqw); font-weight: 700; color: #272727; }
+.pg .pg-page .pg-scripture textarea.pg-body { font-family: "DejaVu Serif", Georgia, serif; font-style: italic; color: #272727; }
+.pg .pg-page .pg-contact { border-top: 0; padding-top: calc(6 / 792 * 100cqw); gap: 0; font-size: calc(8.5 / 792 * 100cqw); }
+.pg .pg-page .pg-contact .pg-in { font-size: calc(8.5 / 792 * 100cqw); color: #626262; }
+@media (max-width: 760px) { .pg .pg-page { aspect-ratio: auto; } }
+/* Order of worship detail line: indented and italic, as in the brochure */
+.pg .pg-page .pg-item-sub input.pg-muted { font-style: italic; padding-left: 26px; }
+.pg .pg-page .pg-names { padding-left: 26px; }
+.pg .pg-page .pg-passage { font-style: italic; color: #272727; min-height: 36px; margin-top: 2px; resize: vertical; }
+.pg .pg-page .pg-follow { font-family: "DejaVu Serif", Georgia, serif; }
+.pg .pg-page .pg-follow-text { font-family: "DejaVu Serif", Georgia, serif; font-style: italic; color: #272727; }
+.pg .pg-hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.pg .pg-names { display: grid; gap: 3px; margin-top: 2px; }
+.pg .pg-name-row { display: flex; gap: 4px; align-items: center; }
+.pg .pg-name-row .pg-in { flex: 1; font-style: italic; }
+
+.pg .pg-page .pg-name-row .pg-in { padding-left: 0; }
+.pg .pg-page .pg-prayer-list li { padding-left: 0; }
+/* Order of worship item names carry the burgundy accent, on the page and in the PDF */
+.pg .pg-page .pg-item-line .pg-in.pg-strong { color: #86151b; }

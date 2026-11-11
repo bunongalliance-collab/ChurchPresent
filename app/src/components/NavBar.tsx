@@ -6,10 +6,9 @@ import { currentTheme, setTheme, type Theme } from "../lib/theme";
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
 const PAGES = [
-  { href: "#", label: "Lyrics" },
-  { href: "#lyrics-v2", label: "Lyric V2" },
-  { href: "#readings-v2", label: "Readings V2" },
-  { href: "#readings", label: "Readings" },
+  { href: "#", label: "Lyric" },
+  { href: "#readings-v2", label: "Readings" },
+  { href: "#program", label: "Program" },
   { href: "#scripture", label: "Scripture" },
   { href: "#builder", label: "Presentation Builder" },
   { href: "#presentations", label: "Presentations" },

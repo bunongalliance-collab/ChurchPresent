@@ -165,6 +165,10 @@ export default function Presentations() {
 
   // ---------- Pieces ----------
   function Table({ list }: { list: Row[] }) {
+    // Closes the "More" menu after one of its actions is chosen
+    const closeMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+      (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+    };
     return (
       <div className="pl-table" role="table" aria-label="Presentations">
         <div className="pl-head" role="row">
@@ -192,11 +196,16 @@ export default function Presentations() {
               <span role="cell" data-label="Custom">{c.custom}</span>
               <span role="cell" data-label="Slides">{c.total}</span>
               <span role="cell" className="pl-actions">
-                <button className="small" onClick={() => openInBuilder(r.id)} disabled={busy}>Open in Builder</button>
+                <button className="primary small" onClick={() => openInBuilder(r.id)} disabled={busy}>Open in Builder</button>
                 <button className="secondary small" onClick={() => present(r)} disabled={busy || c.total === 0}>Present</button>
-                <button className="secondary small" onClick={() => download(r)} disabled={busy || c.total === 0}>Download .pptx</button>
-                <button className="secondary small" onClick={() => startDuplicate(r)} disabled={busy}>Duplicate</button>
-                <button className="secondary small danger" onClick={() => remove(r)} disabled={busy}>Delete</button>
+                <details className="pl-more">
+                  <summary aria-label={`More actions for ${r.title || "this presentation"}`}>More</summary>
+                  <div className="pl-menu">
+                    <button onClick={(e) => { closeMenu(e); download(r); }} disabled={busy || c.total === 0}>Download .pptx</button>
+                    <button onClick={(e) => { closeMenu(e); startDuplicate(r); }} disabled={busy}>Duplicate</button>
+                    <button className="danger" onClick={(e) => { closeMenu(e); remove(r); }} disabled={busy}>Delete</button>
+                  </div>
+                </details>
               </span>
             </div>
           );

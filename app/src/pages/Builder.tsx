@@ -487,10 +487,6 @@ export default function Builder() {
             ))}
           </ul>
           {hiddenSongs.length > 0 && <button className="link small" onClick={() => setHiddenSongs([])}>Show {hiddenSongs.length} removed song{hiddenSongs.length === 1 ? "" : "s"}</button>}
-          <div className="row">
-            <button className="secondary" onClick={() => addCustomAt(0)}>+ At start</button>
-            <button className="secondary" onClick={() => addCustomAt(null)}>+ At end</button>
-          </div>
 
           <h2 className="recent-h">Recent scriptures</h2>
           {!userId && <p className="empty">Sign in on the Lyrics page to see your saved scriptures.</p>}
@@ -509,7 +505,13 @@ export default function Builder() {
 
         {/* B. Presentation sequence */}
         <section className="panel">
-          <h2>Presentation order</h2>
+          <div className="order-head">
+            <h2>Presentation order</h2>
+            <div className="row">
+              <button className="secondary small" onClick={() => addCustomAt(0)}>+ At start</button>
+              <button className="secondary small" onClick={() => addCustomAt(null)}>+ At end</button>
+            </div>
+          </div>
           {!itemsWithFlags.length && <p className="empty">Nothing added yet.</p>}
           <ol className="sequence" onDragLeave={() => setDropAt(null)}>
             {itemsWithFlags.map((it, i) => (
