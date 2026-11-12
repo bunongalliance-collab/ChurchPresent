@@ -28,3 +28,35 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - The PDF is built in `app/src/lib/programPdf.ts` with pdf-lib. Fonts live in `app/public/fonts`.
 - The thumbnail engine is ported in `app/src/lib/thumbnail.ts`. It is untyped by design.
 - Before editing a file, read it first. Make small, targeted edits.
+
+## Project overview (for new sessions)
+"The church app" means this project: a church presentation tool for Montagnard Bunong Alliance Church.
+
+### Pages and routes (hash routes in `app/src/App.tsx`)
+- `#` (default) and `#lyrics-v2`: Lyric. Songs, slides, projector deck. `pages/LyricsV2.tsx`
+- `#readings-v2`: Readings. `pages/ReadingsV2.tsx`
+- `#program`: Service program editor and PDF. `pages/Program.tsx`, `lib/programPdf.ts`
+- `#scripture`: Scripture slides. `pages/Scripture.tsx`
+- `#builder`: Presentation Builder. `pages/Builder.tsx`
+- `#presentations`: Saved presentations list. `pages/Presentations.tsx`
+- `#projector`: Projector output. `pages/Projector.tsx`
+- `#notes`: Notes. `pages/Notes.tsx`
+- `#thumbnail`: Sermon thumbnail maker. `pages/Thumbnail.tsx`, `lib/thumbnail.ts`
+- Old `pages/Lyrics.tsx` and `pages/Readings.tsx` still exist in code but are not linked in the navbar.
+
+### Database (Supabase)
+- `lyric_songs`, `readings`, `reading_categories`, `scripture_studies`, `presentations`, `saved_people`.
+- Migrations live in `supabase/*.sql`. Each one is run by the user, never by Claude.
+- Public read on songs, readings and saved people. Writes are limited to the signed-in owner.
+
+### Key files
+- `app/src/components/NavBar.tsx`: navbar links and the Light/Dark button.
+- `app/src/index.css`: all styles, including the colour tokens at the top.
+- `app/src/lib/programPdf.ts`: builds the two-page program PDF.
+- `app/src/lib/slides.ts`, `lib/richtext.ts`: slide layout and formatting.
+- `app/public/fonts/`: fonts used by the PDF.
+
+### Open items
+- Saved people table: the SQL file exists, and the user has run it.
+- Program PDF: the Order of Worship layout is being refined. Check the latest PDF before changing it again.
+- The original `churchApp/index.html` thumbnail page has been ported to `#thumbnail`.
