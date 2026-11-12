@@ -189,11 +189,18 @@ export default function Program() {
   const options = (k: Kind): Pick[] => (k === "song" ? lib.songs : k === "reading" ? lib.readings : k === "scripture" ? lib.studies : []);
   const updateRow = (id: string, patch: Partial<Row>) => set("rows", d.rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   const addRow = () => { set("rows", [...d.rows, { id: uid(), item: "", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 }]); setStatus("Item added."); };
+  // Adds a song at the end of one stage's group
+  const addSongIn = (stage: number) => { set("rows", [...d.rows, { id: uid(), item: "", kind: "song", detail: "", led: "", text: "", names: [], stage }]); setStatus("Song added."); };
+  // Print opens the brochure PDF (the same file as Generate PDF) in a new tab, where it can be printed
+  const printBrochure = () => { if (previewRef.current) window.open(previewRef.current, "_blank"); else setStatus("The preview is still being made. Try again in a moment."); };
   const removeRow = (id: string) => set("rows", d.rows.filter((r) => r.id !== id));
   const moveRow = (id: string, dir: -1 | 1) => {
     const i = d.rows.findIndex((r) => r.id === id), j = i + dir;
     if (i < 0 || j < 0 || j >= d.rows.length) return;
-    const next = d.rows.slice(); [next[i], next[j]] = [next[j], next[i]]; set("rows", next);
+    const next = d.rows.slice(); [next[i], next[j]] = [next[j], next[i]];
+    // Moving across a stage line moves the item into that stage
+    next[j] = { ...next[j], stage: next[i].stage };
+    set("rows", next);
   };
   const setStep = (i: number, patch: Partial<Step>) => set("steps", d.steps.map((s, k) => (k === i ? { ...s, ...patch } : s)));
   const setList = (key: "weekLines" | "announcements", i: number, v: string) => set(key, d[key].map((x, k) => (k === i ? v : x)));
@@ -281,7 +288,7 @@ export default function Program() {
         </div>
         <div className="pg-actions">
           <button className="pg-btn" onClick={addRow}>+ Add item</button>
-          <button className="pg-btn" onClick={() => window.print()}>Print</button>
+          <button className="pg-btn" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
           <button className="pg-btn primary" onClick={generatePdf}>Generate PDF</button>
         </div>
       </div>
@@ -357,7 +364,10 @@ export default function Program() {
           </div>
           <h2 className="pg-h2"><input className="pg-in" value={d.orderTitle} onChange={(e) => set("orderTitle", e.target.value)} aria-label="Order of worship heading" /></h2>
           <div className="pg-rows">
-            {d.rows.map((r, i) => (
+            {STAGES.map((st, si) => (
+              <div className="pg-stage-group" key={si}>
+              <div className="pg-stage-head"><span>{st}</span><button className="pg-btn small" onClick={() => addSongIn(si)}>+ Song</button></div>
+            {d.rows.map((r, i) => r.stage !== si ? null : (
               <div className="pg-row" key={r.id}>
                 <div className="pg-item">
                   <div className="pg-item-line">
@@ -399,8 +409,9 @@ export default function Program() {
                 </div>
               </div>
             ))}
+              </div>
+            ))}
           </div>
-          <button className="pg-btn small pg-add" onClick={addRow}>+ Add another song or item</button>
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
           <div className="pg-scripture">
             <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>
