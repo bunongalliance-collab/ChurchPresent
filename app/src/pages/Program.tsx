@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
-import logo from "../assets/church-logo.png";
-import { buildProgramPdf, todayScripture } from "../lib/programPdf";
+import logo from "../assets/church-logo.png?url";
+import { buildProgramPdf, todayScripture, STAGES } from "../lib/programPdf";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Generate PDF makes a PDF of the brochure only.
@@ -10,25 +10,31 @@ import { buildProgramPdf, todayScripture } from "../lib/programPdf";
 // Lyrics and passage text belong to the projected slides, not to this page.
 
 type Kind = "song" | "scripture" | "reading" | "prayer" | "custom" | "people";
-interface Row { id: string; item: string; kind: Kind; detail: string; led: string; text: string; names: string[] }
+interface Row { id: string; item: string; kind: Kind; detail: string; led: string; text: string; names: string[]; stage: number }
+const STAGE_OF: Record<string, number> = {
+  "Prelude": 0, "Welcome & Call to Worship": 0, "Opening Song": 0, "Opening Prayer": 0,
+  "Songs of Praise": 1, "Children Choir": 1, "Youth Choir": 1, "Prayer for the Offering": 1, "Offering & Announcements": 1,
+  "Scripture Reading": 2, "Message": 2, "Response & Prayer": 2,
+  "Closing Song": 3, "Closing Prayer": 3,
+  "Sok Nh'hor": 4,
+};
 interface Pick { id: string; label: string; text?: string }
 interface Step { title: string; text: string }
-interface Visit { heading: string; text: string }
+interface PrayerGroup { title: string; items: string[] }
 export interface Draft {
   eyebrow: string; welcomeTo: string; church: string; welcomeText: string;
   steps: Step[]; weekLines: string[]; webLine: string;
   date: string; coverName1: string; coverName2: string; coverKind: string; tagline: string;
   verse: string; verseRef: string; coverTime: string; coverPlace: string;
   gatheringLabel: string; leader: string; orderTitle: string; rows: Row[]; orderNote: string;
-  worshipTitle: string; visitTitle: string; visits: Visit[];
+  worshipTitle: string; visitTitle: string;
   announcementsTitle: string; announcements: string[];
-  prayerTitle: string; prayers: string[];
+  prayerGroups: PrayerGroup[];
   scriptureRef: string; scriptureText: string; scriptureCite: string;
   contactName: string; contactAddress: string; contactPhone: string; contactEmail: string; contactWeb: string;
 }
 
-const KEY = "serviceProgramDraft4";
-const PEOPLE_KEY = "serviceProgramPeople";
+const KEY = "serviceProgramDraft5";
 const uid = () => Math.random().toString(36).slice(2, 9);
 const DEFAULT: Draft = {
   eyebrow: "A PLACE TO BELONG", welcomeTo: "Welcome to", church: "Montagnard Bunong Alliance Church",
@@ -46,45 +52,62 @@ const DEFAULT: Draft = {
   gatheringLabel: "TODAY’S GATHERING", leader: "",
   orderTitle: "Order of Worship",
   rows: [
-    { id: uid(), item: "Prelude", kind: "custom", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Welcome & Call to Worship", kind: "custom", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Opening Song", kind: "song", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Opening Prayer", kind: "prayer", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Songs of Praise", kind: "song", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Children Choir", kind: "song", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Youth Choir", kind: "song", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Scripture Reading", kind: "scripture", detail: "Psalm 23", led: "", text: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.", names: [] },
-    { id: uid(), item: "Message", kind: "custom", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Response & Prayer", kind: "prayer", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Prayer for the Offering", kind: "prayer", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Offering & Announcements", kind: "custom", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Sok Nh'hor", kind: "people", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Closing Song", kind: "song", detail: "", led: "", text: "", names: [] },
-    { id: uid(), item: "Closing Prayer", kind: "prayer", detail: "", led: "", text: "", names: [] },
+    { id: uid(), item: "Prelude", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Welcome & Call to Worship", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Opening Song", kind: "song", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Opening Prayer", kind: "prayer", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Songs of Praise", kind: "song", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Children Choir", kind: "song", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Youth Choir", kind: "song", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Scripture Reading", kind: "scripture", detail: "Psalm 23", led: "", text: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.", names: [], stage: 0 },
+    { id: uid(), item: "Message", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Response & Prayer", kind: "prayer", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Prayer for the Offering", kind: "prayer", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Offering & Announcements", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Sok Nh'hor", kind: "people", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Closing Song", kind: "song", detail: "", led: "", text: "", names: [], stage: 0 },
+    { id: uid(), item: "Closing Prayer", kind: "prayer", detail: "", led: "", text: "", names: [], stage: 0 },
   ],
   orderNote: "Please feel free to participate as you are comfortable. Children are welcome throughout the service.",
   worshipTitle: "WORSHIP TOGETHER", visitTitle: "For your visit",
-  visits: [
-    { heading: "CHILDREN & FAMILIES", text: "Children are welcome in worship. Nursery care for ages 0–4 is available downstairs; ask an usher for directions." },
-    { heading: "PRAYER & CARE", text: "Would you like someone to pray with you? Our prayer team will be available near the front after the service." },
-    { heading: "GIVING", text: "Your generosity supports our church and neighbors. Offering boxes are by the exits, or give online at gracecommunity.org/give." },
+  announcementsTitle: "Announcements", announcements: [""],
+  prayerGroups: [
+    { title: "Nau Mbơh Sơm Ăp Pơh Tâm Trôm Ngih Brah He, Tâm 7 Ntil:", items: [
+      "Ăn geh ntũk Ăn Ndeh. — Sân đậu xe của nhà thờ.",
+      "Ăn lộch tâm ron Manh Prăk. — Tổng Liên Hội.",
+      "Ăn ma Rnăk Sa Kôranh nơm nti: — U-Che Kathie.",
+      "Ăn ma lẽrngôch phung n'gâng kan. — Ăn gơh nđơi tâm kan khân pằng.",
+      "Ăn ma lẽ rngôch phung choh. — Ăn tâm rglắp, tâm nau ndâk niềng.",
+      "Ăn ma lẽ rgôch phung druh ndăm. — Phung gũ tâm nau uăt rja.",
+      "Ăn ma lẽrngôch Bu klâu- Bu Ur lẽ geh răk.",
+    ] },
+    { title: "Nau Mbơh Sơm Ma Phung Gũ Pa Dih Ngih Brah He", items: [
+      "Mbỡ Juy", "U-che kenven", "U-che Danise", "Mbỡ Hoan", "Mbỡ Nui", "Mbỡ Gui", "Mbỡ kdri", "Mbơ tâm", "Mbỡ Ester", "Rnăk: Mbỡ Ui", "Mbỡ Enna", "Mbỡ sư",
+      "Mbỡ Enjôlina", "Rnăk: Mbỡ Chan", "Mbỡ phân", "Nhac - Tô - Mblong. Đel.", "Me Chim", "Mbỡ Thiêu", "Mbỡ seth", "Mbỡ kiêt", "U- che Samuel", "Rnăk Kdri", "Mbỡ tham", "Rnăk sa Lại",
+    ] },
+    { title: "Nau Mbơh sơm Pa Dih Bri. (Nâm bu bri drôn & VN)", items: [
+      "Nau kan phung nsong mbơh tâm Bri Drôn.",
+      "Tâm Ăp Rplay ngih Brah tâm Viêtnam. Trong tơm: Yêrêmi 33:3.",
+    ] },
   ],
-  announcementsTitle: "Announcements", announcements: ["", "", "", ""],
-  prayerTitle: "Pray this week",
-  prayers: ["For our leaders and those who serve", "For the sick and those who are grieving", "For our children and families", "For our neighbors and our community", "For our missionaries and partners", "For peace in our homes and our nation", "For those who are visiting with us today"],
   scriptureRef: "Psalm 23", scriptureText: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.",
   scriptureCite: "— Psalm 23:1–3",
   contactName: "Montagnard Bunong Alliance Church", contactAddress: "4116 Freedom Dr. · Charlotte, NC 28208", contactPhone: "", contactEmail: "", contactWeb: "",
 };
 
+// Default rows take their stage from the table above
+DEFAULT.rows = DEFAULT.rows.map((r) => ({ ...r, stage: STAGE_OF[r.item] ?? 0 }));
+
 function loadDraft(): Draft {
   let saved: Partial<Draft> = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || "null") ?? {}; } catch { saved = {}; }
   const d: Draft = { ...DEFAULT, ...saved };
-  d.rows = d.rows.map((r) => ({ ...r, text: r.text ?? "", names: r.names ?? [] }));
+  d.rows = d.rows.map((r) => ({ ...r, text: r.text ?? "", names: r.names ?? [], stage: r.stage ?? STAGE_OF[r.item] ?? 0 }));
+  const old = saved as Partial<Draft> & { prayers?: string[]; prayerTitle?: string };
+  if (!saved.prayerGroups && old.prayers) d.prayerGroups = [{ title: old.prayerTitle ?? "", items: old.prayers }];
   if (!d.rows.some((r) => r.item === "Sok Nh'hor")) {
     const at = d.rows.findIndex((r) => r.item === "Offering & Announcements");
-    const row: Row = { id: uid(), item: "Sok Nh'hor", kind: "people", detail: "", led: "", text: "", names: [] };
+    const row: Row = { id: uid(), item: "Sok Nh'hor", kind: "people", detail: "", led: "", text: "", names: [], stage: 0 };
     d.rows = at >= 0 ? [...d.rows.slice(0, at + 1), row, ...d.rows.slice(at + 1)] : [...d.rows, row];
   }
   // Saved drafts from earlier versions: add the choir items after Songs of Praise if they are missing
@@ -92,13 +115,10 @@ function loadDraft(): Draft {
   const missing = ["Children Choir", "Youth Choir"].filter((n) => !names.includes(n));
   if (missing.length) {
     const at = d.rows.findIndex((r) => r.item === "Songs of Praise");
-    const extra = missing.map((n) => ({ id: uid(), item: n, kind: "song" as Kind, detail: "", led: "", text: "", names: [] }));
+    const extra = missing.map((n) => ({ id: uid(), item: n, kind: "song" as Kind, detail: "", led: "", text: "", names: [], stage: 0 }));
     d.rows = at >= 0 ? [...d.rows.slice(0, at + 1), ...extra, ...d.rows.slice(at + 1)] : [...d.rows, ...extra];
   }
   return d;
-}
-function loadPeople(): string[] {
-  try { return JSON.parse(localStorage.getItem(PEOPLE_KEY) || "[]"); } catch { return []; }
 }
 
 // The passage text of a saved study: its passage slides, with formatting markers removed
@@ -142,17 +162,32 @@ const KIND_LABEL: Record<Kind, string> = { song: "Song", scripture: "Scripture",
 
 export default function Program() {
   const [d, setD] = useState<Draft>(() => loadDraft());
-  const [people, setPeople] = useState<string[]>(() => loadPeople());
+  // Saved people are shared: everyone reads the list, and each person removes only the names they added
+  const [people, setPeople] = useState<{ id: string; name: string; owner: string }[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [newPerson, setNewPerson] = useState("");
+  const loadPeopleList = async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.from("saved_people").select("id, name, owner_id").order("name");
+    if (error) { setStatus(`Could not load saved people: ${error.message}`); return; }
+    setPeople((data ?? []).map((x) => ({ id: x.id, name: x.name, owner: x.owner_id })));
+  };
+  useEffect(() => {
+    if (!supabase) return;
+    void loadPeopleList();
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, sess) => setUserId(sess?.user.id ?? null));
+    return () => sub.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const lib = useLibrary();
   const [status, setStatus] = useState("Type directly on the program. Generate PDF makes the brochure.");
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* storage blocked */ } }, [d]);
-  useEffect(() => { try { localStorage.setItem(PEOPLE_KEY, JSON.stringify(people)); } catch { /* storage blocked */ } }, [people]);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
 
   const options = (k: Kind): Pick[] => (k === "song" ? lib.songs : k === "reading" ? lib.readings : k === "scripture" ? lib.studies : []);
   const updateRow = (id: string, patch: Partial<Row>) => set("rows", d.rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  const addRow = () => { set("rows", [...d.rows, { id: uid(), item: "", kind: "custom", detail: "", led: "", text: "", names: [] }]); setStatus("Item added."); };
+  const addRow = () => { set("rows", [...d.rows, { id: uid(), item: "", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 }]); setStatus("Item added."); };
   const removeRow = (id: string) => set("rows", d.rows.filter((r) => r.id !== id));
   const moveRow = (id: string, dir: -1 | 1) => {
     const i = d.rows.findIndex((r) => r.id === id), j = i + dir;
@@ -160,13 +195,34 @@ export default function Program() {
     const next = d.rows.slice(); [next[i], next[j]] = [next[j], next[i]]; set("rows", next);
   };
   const setStep = (i: number, patch: Partial<Step>) => set("steps", d.steps.map((s, k) => (k === i ? { ...s, ...patch } : s)));
-  const setVisit = (i: number, patch: Partial<Visit>) => set("visits", d.visits.map((s, k) => (k === i ? { ...s, ...patch } : s)));
-  const setList = (key: "weekLines" | "announcements" | "prayers", i: number, v: string) => set(key, d[key].map((x, k) => (k === i ? v : x)));
+  const setList = (key: "weekLines" | "announcements", i: number, v: string) => set(key, d[key].map((x, k) => (k === i ? v : x)));
+  // Announcements: no limit
+  const addToList = (key: "announcements") => set(key, [...d[key], ""]);
+  const removeFromList = (key: "announcements", i: number) => set(key, d[key].filter((_, k) => k !== i));
+  // Prayer categories: each has a heading and its own list (up to GROUP_LIMIT items)
+  const setGroups = (groups: PrayerGroup[]) => set("prayerGroups", groups);
+  const addGroup = () => setGroups([...d.prayerGroups, { title: "", items: [] }]);
+  const removeGroup = (gi: number) => setGroups(d.prayerGroups.filter((_, k) => k !== gi));
+  const setGroupTitle = (gi: number, v: string) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, title: v } : g)));
+  const setGroupItem = (gi: number, i: number, v: string) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, items: g.items.map((x, j) => (j === i ? v : x)) } : g)));
+  const addGroupItem = (gi: number) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, items: [...g.items, ""] } : g)));
+  const removeGroupItem = (gi: number, i: number) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, items: g.items.filter((_, j) => j !== i) } : g)));
 
-  function addPerson() {
+  async function addPerson() {
     const n = newPerson.trim();
-    if (!n || people.includes(n)) return;
-    setPeople([...people, n]); setNewPerson("");
+    if (!n || !supabase) return;
+    if (!userId) { setStatus("Sign in to add a name. Everyone can see the list without signing in."); return; }
+    if (people.some((p) => p.name.toLowerCase() === n.toLowerCase())) { setNewPerson(""); return; }
+    const { error } = await supabase.from("saved_people").insert({ owner_id: userId, name: n });
+    if (error) { setStatus(`Could not save the name: ${error.message}`); return; }
+    setNewPerson("");
+    await loadPeopleList();
+  }
+  async function removePerson(id: string) {
+    if (!supabase) return;
+    const { error } = await supabase.from("saved_people").delete().eq("id", id);
+    if (error) { setStatus(`Could not remove the name: ${error.message}`); return; }
+    await loadPeopleList();
   }
 
   const today = todayScripture(d);
@@ -184,7 +240,8 @@ export default function Program() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const name = `${d.coverName1} ${d.coverName2} ${d.date}`.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "service-program";
-      a.href = url; a.download = `${name}.pdf`;
+      const stamp = new Date().toTimeString().slice(0, 5).replace(":", "");
+      a.href = url; a.download = `${name}-${stamp}.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       setStatus("PDF made. Check your downloads folder.");
@@ -194,8 +251,9 @@ export default function Program() {
   }
 
   return (
-    <div className="pg">
+    <>
       <NavBar />
+    <div className="pg">
       <div className="pg-top">
         <div>
           <h1>Service program</h1>
@@ -208,7 +266,7 @@ export default function Program() {
         </div>
       </div>
 
-      <datalist id="pg-people">{people.map((p) => <option key={p} value={p} />)}</datalist>
+      <datalist id="pg-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
 
       {/* Page 1, outside: welcome (left), front cover (right) */}
       <p className="pg-pagelabel">Page 1 · Outside: back panel (left) and front cover (right)</p>
@@ -247,9 +305,14 @@ export default function Program() {
           </h2>
           <input className="pg-in pg-service" value={d.coverKind} onChange={(e) => set("coverKind", e.target.value)} aria-label="Service name" />
           <input className="pg-in pg-muted pg-center" value={d.tagline} onChange={(e) => set("tagline", e.target.value)} aria-label="Tagline" />
-          <p className="pg-in pg-verse pg-follow-text">{today.text ? `“${today.text}”` : d.verse}</p>
-          <p className="pg-eyebrow pg-center">{today.ref || d.verseRef}</p>
-          <div className="pg-place">
+          <div className="pg-scripture pg-cover-verse">
+            <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>
+            <p className="pg-h3 pg-follow">{today.ref || d.verseRef}</p>
+            <p className="pg-body pg-follow-text">{today.text || d.verse}</p>
+            {today.cite && <p className="pg-eyebrow">{today.cite}</p>}
+            {today.reader && <p className="pg-body">Read by {today.reader}</p>}
+          </div>
+          <div className="pg-place pg-place-bottom">
             <input className="pg-in pg-muted" value={d.coverTime} onChange={(e) => set("coverTime", e.target.value)} aria-label="Service time" />
             <span className="pg-muted"> · </span>
             <input className="pg-in pg-muted" value={d.coverPlace} onChange={(e) => set("coverPlace", e.target.value)} aria-label="Address" />
@@ -271,6 +334,9 @@ export default function Program() {
               <div className="pg-row" key={r.id}>
                 <div className="pg-item">
                   <div className="pg-item-line">
+                    <select className="pg-kind" value={r.stage} onChange={(e) => updateRow(r.id, { stage: Number(e.target.value) })} aria-label={`Stage, item ${i + 1}`}>
+                      {STAGES.map((st, k) => <option key={k} value={k}>{st}</option>)}
+                    </select>
                     <input className="pg-in pg-strong" value={r.item} placeholder="Item" onChange={(e) => updateRow(r.id, { item: e.target.value })} aria-label={`Item name, ${i + 1}`} />
                     <select className="pg-kind" value={r.kind} onChange={(e) => updateRow(r.id, { kind: e.target.value as Kind })} aria-label={`Type, item ${i + 1}`}>
                       {(Object.keys(KIND_LABEL) as Kind[]).map((k) => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
@@ -287,7 +353,7 @@ export default function Program() {
                     <input className="pg-in pg-led-row" list="pg-people" value={r.led} placeholder="Name" onChange={(e) => updateRow(r.id, { led: e.target.value })} aria-label={`Led by, item ${i + 1}`} />
                   </div>
                   {(r.kind === "people" || r.kind === "song") && (
-                    <div className="pg-names">
+                    <div className={`pg-names${r.kind === "people" ? " pg-names-inline" : ""}`}>
                       {r.names.map((n, k) => (
                         <div className="pg-name-row" key={k}>
                           <input className="pg-in pg-muted" list={r.kind === "people" ? "pg-people" : undefined} value={n} placeholder={r.kind === "song" ? "Song title" : "Name"} onChange={(e) => updateRow(r.id, { names: r.names.map((x, j) => (j === k ? e.target.value : x)) })} aria-label={`${r.kind === "song" ? "Song" : "Name"} ${k + 1}, ${r.item}`} />
@@ -309,34 +375,47 @@ export default function Program() {
           </div>
           <button className="pg-btn small pg-add" onClick={addRow}>+ Add another song or item</button>
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
-        </section>
-
-        <section className="pg-panel pg-info">
-          <p className="pg-eyebrow"><input className="pg-in" value={d.worshipTitle} onChange={(e) => set("worshipTitle", e.target.value)} aria-label="Worship heading" /></p>
-          <h2 className="pg-h2"><input className="pg-in" value={d.visitTitle} onChange={(e) => set("visitTitle", e.target.value)} aria-label="For your visit heading" /></h2>
-          {d.visits.map((v, i) => (
-            <div className="pg-visit" key={i}>
-              <p className="pg-eyebrow"><input className="pg-in" value={v.heading} onChange={(e) => setVisit(i, { heading: e.target.value })} aria-label={`Visit heading ${i + 1}`} /></p>
-              <textarea className="pg-in pg-body pg-small-body" value={v.text} onChange={(e) => setVisit(i, { text: e.target.value })} aria-label={`Visit text ${i + 1}`} />
-            </div>
-          ))}
-          <div className="pg-announce">
-            <p className="pg-eyebrow"><input className="pg-in" value={d.announcementsTitle} onChange={(e) => set("announcementsTitle", e.target.value)} aria-label="Announcements heading" /></p>
-            {d.announcements.map((a, i) => <input key={i} className="pg-in pg-body" value={a} placeholder={`Announcement ${i + 1}`} onChange={(e) => setList("announcements", i, e.target.value)} aria-label={`Announcement ${i + 1}`} />)}
-          </div>
-          <div className="pg-prayer">
-            <p className="pg-eyebrow"><input className="pg-in" value={d.prayerTitle} onChange={(e) => set("prayerTitle", e.target.value)} aria-label="Prayer list heading" /></p>
-            <ol className="pg-prayer-list">
-              {d.prayers.map((p, i) => <li key={i}><input className="pg-in pg-body" value={p} onChange={(e) => setList("prayers", i, e.target.value)} aria-label={`Prayer point ${i + 1}`} /></li>)}
-            </ol>
-          </div>
           <div className="pg-scripture">
             <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>
             <p className="pg-h3 pg-follow">{today.ref || "No scripture yet"}</p>
             <p className="pg-body pg-follow-text">{today.text}</p>
             <p className="pg-eyebrow">{today.cite}</p>
+            {today.reader && <p className="pg-body">Read by {today.reader}</p>}
             <p className="pg-hint">Taken from the Scripture Reading item in the order of worship.</p>
           </div>
+        </section>
+
+        <section className="pg-panel pg-info">
+          <p className="pg-eyebrow"><input className="pg-in" value={d.worshipTitle} onChange={(e) => set("worshipTitle", e.target.value)} aria-label="Worship heading" /></p>
+          <h2 className="pg-h2"><input className="pg-in" value={d.visitTitle} onChange={(e) => set("visitTitle", e.target.value)} aria-label="For your visit heading" /></h2>
+          <div className="pg-announce">
+            <p className="pg-eyebrow"><input className="pg-in" value={d.announcementsTitle} onChange={(e) => set("announcementsTitle", e.target.value)} aria-label="Announcements heading" /></p>
+            {d.announcements.map((a, i) => (
+              <div className="pg-list-row" key={i}>
+                <input className="pg-in pg-body" value={a} placeholder={`Announcement ${i + 1}`} onChange={(e) => setList("announcements", i, e.target.value)} aria-label={`Announcement ${i + 1}`} />
+                <button className="pg-x" onClick={() => removeFromList("announcements", i)} aria-label={`Remove announcement ${i + 1}`}>×</button>
+              </div>
+            ))}
+            <button className="pg-btn small pg-add" onClick={() => addToList("announcements")}>+ Add announcement</button>
+          </div>
+          {d.prayerGroups.map((g, gi) => (
+            <div className="pg-prayer" key={gi}>
+              <div className="pg-group-head">
+                <p className="pg-eyebrow"><input className="pg-in" value={g.title} placeholder="Category heading" onChange={(e) => setGroupTitle(gi, e.target.value)} aria-label={`Category heading ${gi + 1}`} /></p>
+                <button className="pg-x" onClick={() => removeGroup(gi)} aria-label={`Remove category ${gi + 1}`}>×</button>
+              </div>
+              <ol className="pg-prayer-list">
+                {g.items.map((p, i) => (
+                  <li key={i} className="pg-list-row">
+                    <input className="pg-in pg-body" value={p} onChange={(e) => setGroupItem(gi, i, e.target.value)} aria-label={`Category ${gi + 1}, item ${i + 1}`} />
+                    <button className="pg-x" onClick={() => removeGroupItem(gi, i)} aria-label={`Remove category ${gi + 1}, item ${i + 1}`}>×</button>
+                  </li>
+                ))}
+              </ol>
+              <button className="pg-btn small pg-add" onClick={() => addGroupItem(gi)}>+ Add item</button>
+            </div>
+          ))}
+          <button className="pg-btn small pg-add" onClick={addGroup}>+ Add category</button>
           <div className="pg-contact">
             <p className="pg-eyebrow">STAY IN TOUCH</p>
             <input className="pg-in pg-muted" value={d.contactName} onChange={(e) => set("contactName", e.target.value)} aria-label="Contact name" />
@@ -350,19 +429,20 @@ export default function Program() {
       {/* Saved people: used by the Led by and team pickers on the brochure */}
       <section className="pg-people" aria-label="Saved people">
         <h2>Saved people</h2>
-        <p>Names here appear in the Led by and service team pickers. Add everyone who serves regularly.</p>
+        <p>Saved in the database, so everyone who uses the app sees the same names. You need to be signed in to add or remove a name.</p>
         <div className="pg-people-add">
           <input className="pg-field" value={newPerson} onChange={(e) => setNewPerson(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPerson(); }} placeholder="Add a name" aria-label="Add a person" />
           <button className="pg-btn" onClick={addPerson} disabled={!newPerson.trim()}>Add</button>
         </div>
         <ul className="pg-people-list">
           {people.map((p) => (
-            <li key={p}>{p} <button className="pg-x" onClick={() => setPeople(people.filter((x) => x !== p))} aria-label={`Remove ${p}`}>×</button></li>
+            <li key={p.id}>{p.name}{userId && p.owner === userId && <button className="pg-x" onClick={() => removePerson(p.id)} aria-label={`Remove ${p.name}`}>×</button>}</li>
           ))}
           {!people.length && <li className="pg-muted">No saved people yet.</li>}
         </ul>
       </section>
       <p className="pg-note-line">Projected slides still show the full lyrics or passage text. The brochure prints titles, numbers, references and names only.</p>
     </div>
+    </>
   );
 }

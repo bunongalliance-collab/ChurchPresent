@@ -373,8 +373,9 @@ export default function ReadingsV2() {
   const pickerEmpty = !readings.length ? "No saved readings yet. Type a reading and save it to start the list." : !visible.length ? "No readings in this category." : "";
 
   return (
-    <div className="lv2">
+    <>
       <NavBar />
+    <div className="lv2">
       <header className="lv2-top">
         <div>
           <h1>Readings</h1>
@@ -594,5 +595,6 @@ export default function ReadingsV2() {
         </aside>
       </div>
     </div>
+    </>
   );
 }

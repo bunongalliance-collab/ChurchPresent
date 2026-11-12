@@ -1406,10 +1406,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .pg .pg-page .pg-cover-top { justify-content: center; }
 .pg .pg-page .pg-cover-top .pg-in { font-size: calc(8 / 792 * 100cqw); font-weight: 700; text-transform: uppercase; color: #86151b; text-align: center; }
 .pg .pg-page .pg-logo { width: calc(66 / 792 * 100cqw); height: auto; }
-.pg .pg-page .pg-name { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(30 / 792 * 100cqw); font-weight: 700; color: #86151b; line-height: 1.05; }
-.pg .pg-page .pg-name .pg-in { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(30 / 792 * 100cqw); font-weight: 700; color: #86151b; text-align: center; }
-.pg .pg-page .pg-name .pg-sub-name { font-size: calc(18 / 792 * 100cqw); color: #272727; }
-.pg .pg-page .pg-service { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(22 / 792 * 100cqw); font-weight: 700; color: #272727; text-align: center; }
+.pg .pg-page .pg-name { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(22 / 792 * 100cqw); font-weight: 700; color: #86151b; line-height: 1.1; }
+.pg .pg-page .pg-name .pg-in { font-family: "DejaVu Serif", Georgia, serif; font-size: calc(22 / 792 * 100cqw); font-weight: 700; color: #86151b; text-align: center; }
+.pg .pg-page .pg-name .pg-sub-name { font-size: calc(22 / 792 * 100cqw); color: #86151b; }
+.pg .pg-page .pg-service { font-family: "DejaVu Sans", Arial, sans-serif; font-size: calc(11 / 792 * 100cqw); font-weight: 700; color: #272727; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; }
 .pg .pg-page .pg-center { text-align: center; }
 .pg .pg-page .pg-verse { font-family: "DejaVu Serif", Georgia, serif; font-style: italic; font-size: calc(11 / 792 * 100cqw); color: #272727; text-align: center; min-height: calc(52 / 792 * 100cqw); }
 .pg .pg-page .pg-place { justify-content: center; font-size: calc(8.5 / 792 * 100cqw); color: #626262; }
@@ -1448,3 +1448,79 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .pg .pg-page .pg-prayer-list li { padding-left: 0; }
 /* Order of worship item names carry the burgundy accent, on the page and in the PDF */
 .pg .pg-page .pg-item-line .pg-in.pg-strong { color: #86151b; }
+/* Front cover: time and address sit at the bottom of the panel, as in the brochure */
+.pg .pg-page .pg-cover { position: relative; }
+.pg .pg-page .pg-place-bottom { position: absolute; left: 0; right: 0; bottom: calc(22 / 792 * 100cqw); margin: 0; }
+.pg .pg-list-row { display: flex; align-items: center; gap: 4px; }
+.pg .pg-list-row .pg-in { flex: 1; }
+.pg .pg-limit { font: 600 12px system-ui, sans-serif; color: var(--muted); margin: 6px 0 0; }
+.pg .pg-page .pg-item-sub input.pg-muted, .pg .pg-page .pg-names .pg-in { text-transform: capitalize; }
+/* Sok Nh'hor: the names sit side by side on the page */
+.pg .pg-names-inline { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.pg .pg-names-inline .pg-name-row { flex: 0 0 auto; }
+.pg .pg-names-inline .pg-name-row .pg-in { width: 130px; flex: none; }
+/* On screen the page grows with its content, so nothing is cut off and the page scrolls to every field.
+   The PDF keeps the fixed 11 × 8.5 page (see the print rules). */
+@media screen {
+  .pg .pg-page { aspect-ratio: auto; height: auto; min-height: 0; overflow: visible; }
+  .pg .pg-page .pg-panel { overflow: visible; }
+  .pg .pg-sheet { overflow: visible; }
+}
+/* Today's scripture and the cover verse share one look: tinted box, bold reference, italic text */
+.pg .pg-page .pg-scripture { background: #faf6f3; padding: 12px 14px; text-align: left; }
+.pg .pg-page .pg-scripture .pg-eyebrow, .pg .pg-page .pg-scripture p { margin: 0 0 2px; }
+.pg .pg-page .pg-cover-verse { width: 82%; margin: 14px auto 0; }
+/* The prayer list numbers sit in burgundy rings, as in the brochure */
+.pg .pg-page .pg-prayer-list { counter-reset: pr; }
+.pg .pg-page .pg-prayer-list > li { counter-increment: pr; position: relative; padding-left: 26px; }
+.pg .pg-page .pg-prayer-list > li::before { content: counter(pr); position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; border: 1px solid #86151b; border-radius: 50%; color: #86151b; font: 700 9px/13px "DejaVu Serif", Georgia, serif; text-align: center; }
+
+/* ===== Sermon thumbnail maker ===== */
+.th { max-width: 1120px; margin: 0 auto; padding: 14px 16px 40px; color: var(--text); font-size: 0.92rem; }
+.th h1 { font-size: 1.4rem; margin: 6px 0 2px; }
+.th-sub { color: var(--muted); margin: 0 0 18px; }
+.th-grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 860px) { .th-grid { grid-template-columns: 340px 1fr; } }
+.th-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.th-card h2 { font-size: 0.95rem; margin: 14px 0 8px; }
+.th-card h2:first-child { margin-top: 0; }
+.th-card label { display: block; font-size: 0.8rem; color: var(--muted); margin: 10px 0 4px; }
+.th-card label.th-check { display: flex; gap: 8px; align-items: center; color: var(--text); margin-top: 12px; }
+.th-field { width: 100%; padding: 8px 10px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--sunken); color: var(--text); font: inherit; }
+textarea.th-field { resize: vertical; }
+.th-drop { display: block; border: 2px dashed var(--line); border-radius: 10px; padding: 16px; text-align: center; color: var(--muted); cursor: pointer; }
+.th-drop:hover { border-color: var(--accent); }
+.th-drop strong { display: block; color: var(--text); margin-bottom: 4px; }
+.th-drop small { display: block; font-size: 0.78rem; }
+.th-drop input { display: none; }
+.th-file { font-size: 0.8rem; color: var(--muted); margin-top: 6px; word-break: break-all; }
+.th details { margin-top: 12px; }
+.th summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+.th-colors { display: flex; gap: 14px; flex-wrap: wrap; }
+.th-colors label { display: flex; gap: 6px; align-items: center; margin: 8px 0 0; color: var(--text); }
+.th-colors input[type="color"] { width: 36px; height: 26px; padding: 0; border: 0; background: none; }
+.th-preview { display: grid; gap: 12px; align-content: start; }
+.th-preview h2 { margin: 0; }
+.th-main { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); background: #000; }
+.th-status { font-size: 0.82rem; color: var(--muted); min-height: 1.3em; }
+.th-status.error { color: var(--danger); }
+.th-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.th-btn { height: 38px; border-radius: 8px; border: 0; background: var(--accent); color: #fff; font-weight: 600; }
+.th-btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.th-gallery-label { font-size: 0.8rem; color: var(--muted); }
+.th-gallery { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 620px) { .th-gallery { grid-template-columns: repeat(4, 1fr); } }
+.th-mini { background: none; border: 2px solid var(--line); border-radius: 10px; padding: 6px; color: var(--text); font: inherit; font-size: 0.75rem; text-align: left; cursor: pointer; }
+.th-mini canvas { width: 100%; height: auto; border-radius: 6px; display: block; margin-bottom: 6px; }
+.th-mini.active { border-color: var(--accent); }
+/* Names are capitalised on the page too, as they print */
+.pg .pg-page .pg-led-row, .pg .pg-page .pg-led-in, .pg .pg-page .pg-name-row .pg-in, .pg .pg-page .pg-led { text-transform: capitalize; }
+
+/* One page width for every page: the same centred column, the same side margins, the navbar full width above it */
+.lyrics-page, .builder-page, .scripture-page, .sc, .pl-page, .notes-page, .ly, .rd, .lv2, .pg, .th {
+  max-width: 1280px; margin-left: auto; margin-right: auto; padding-left: 16px; padding-right: 16px; box-sizing: border-box;
+}
+@media print { .pg { max-width: none; padding: 0; } }
+
+/* The current page keeps its green when hovered, in light and dark mode */
+.navbar a.active:hover, .navbar a[aria-current="page"]:hover { background: var(--accent); color: #fff; }

@@ -351,8 +351,9 @@ export default function Readings() {
   }
 
   return (
-    <div className="rd">
+    <>
       <NavBar />
+    <div className="rd">
       <div className="ly">
         <header className="ly-top">
           <div>
@@ -540,5 +541,6 @@ export default function Readings() {
         </div>
       </div>
     </div>
+    </>
   );
 }

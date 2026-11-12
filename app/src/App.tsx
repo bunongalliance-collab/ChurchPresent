@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import LyricsV2 from "./pages/LyricsV2";
 import ReadingsV2 from "./pages/ReadingsV2";
 import Program from "./pages/Program";
+import Thumbnail from "./pages/Thumbnail";
 import Projector from "./pages/Projector";
 import Builder from "./pages/Builder";
 import Scripture from "./pages/Scripture";
@@ -36,5 +37,6 @@ function renderPage(page: string) {
   if (page === "#lyrics-v2") return <LyricsV2 />;
   if (page === "#readings-v2") return <ReadingsV2 />;
   if (page === "#program") return <Program />;
+  if (page === "#thumbnail") return <Thumbnail />;
   return <LyricsV2 />;
 }
