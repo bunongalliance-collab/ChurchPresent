@@ -1280,6 +1280,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .pg-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .pg-btn.small { height: 28px; font-size: 12px; margin-top: 6px; }
 .pg-pagelabel { font: 600 12px system-ui, sans-serif; color: var(--muted); margin: 14px 2px 6px; }
+.pg-preview { margin: 14px 0 6px; }
+.pg-preview-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-bottom: 6px; font: 13px system-ui, sans-serif; }
+.pg-preview-head span { color: var(--muted); font-size: 12px; }
+.pg-preview-frame { display: block; width: 100%; height: min(72vh, 620px); border: 1px solid var(--line); border-radius: 4px; background: #fff; }
 .pg-page { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; margin-bottom: 8px; }
 .pg-sheet { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; min-height: 640px; background: #fff; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .pg-panel { padding: 22px 26px; min-width: 0; min-height: 0; overflow: hidden; display: grid; align-content: start; gap: 4px; background: #fff; }

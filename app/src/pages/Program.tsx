@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
@@ -6,8 +6,8 @@ import { buildProgramPdf, todayScripture, STAGES } from "../lib/programPdf";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Generate PDF makes a PDF of the brochure only.
-// Printed songs show number and title; scripture shows its reference; readings show their title.
-// Lyrics and passage text belong to the projected slides, not to this page.
+// Printed songs show number and title; scripture shows its reference and passage text (as in the sample);
+// readings show their title. Song lyrics belong to the projected slides, not to this page.
 
 type Kind = "song" | "scripture" | "reading" | "prayer" | "custom" | "people";
 interface Row { id: string; item: string; kind: Kind; detail: string; led: string; text: string; names: string[]; stage: number }
@@ -39,13 +39,14 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const DEFAULT: Draft = {
   eyebrow: "A PLACE TO BELONG", welcomeTo: "Welcome to", church: "Montagnard Bunong Alliance Church",
   welcomeText: "We are glad you are here. Whether this is your first Sunday or you have been with us for years, you are part of today’s worshiping community.",
+  // Blank slots: the welcome steps, weekly lines and website are filled in for each church, not left as sample text
   steps: [
-    { title: "Meet someone after worship", text: "Our welcome team would love to say hello in the lobby." },
-    { title: "Find a group", text: "Small groups meet throughout the week for prayer, study, and friendship." },
-    { title: "Stay connected", text: "Visit the welcome desk for this week’s gatherings and ways to serve." },
+    { title: "", text: "" },
+    { title: "", text: "" },
+    { title: "", text: "" },
   ],
-  weekLines: ["Wednesday Prayer · 6:30 PM", "Community Supper · Thursday, 6:00 PM"],
-  webLine: "gracecommunity.org  ·  @gracecommunity",
+  weekLines: [""],
+  webLine: "",
   date: "2026-11-15", coverName1: "MONTAGNARD", coverName2: "BUNONG ALLIANCE CHURCH", coverKind: "SUNDAY SERVICE", tagline: "Worship · Word · Community",
   verse: "“Let us draw near with a true heart in full assurance of faith.”", verseRef: "HEBREWS 10:22",
   coverTime: "10:00 AM", coverPlace: "4116 Freedom Dr. · Charlotte, NC 28208",
@@ -231,6 +232,25 @@ export default function Program() {
     try { return new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }).toUpperCase(); } catch { return d.date; }
   }, [d.date]);
 
+  // Live brochure preview: the same PDF that Generate PDF makes, rebuilt shortly after each change
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewRef = useRef<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const bytes = await buildProgramPdf(d, logo, coverDate);
+        if (cancelled) return;
+        const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
+        if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+        previewRef.current = url;
+        setPreviewUrl(url);
+      } catch { /* the preview is optional; Generate PDF reports any error */ }
+    }, 700);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [d, coverDate]);
+  useEffect(() => () => { if (previewRef.current) URL.revokeObjectURL(previewRef.current); }, []);
+
   // Generate PDF: the brochure only, downloaded as a file. No webpage, buttons or editor controls.
   async function generatePdf() {
     setStatus("Making the PDF…");
@@ -267,6 +287,13 @@ export default function Program() {
       </div>
 
       <datalist id="pg-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
+
+      <section className="pg-preview" aria-label="Brochure preview">
+        <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
+        {previewUrl
+          ? <iframe className="pg-preview-frame" src={previewUrl} title="Brochure preview (PDF)" />
+          : <p className="pg-muted">Making the preview…</p>}
+      </section>
 
       {/* Page 1, outside: welcome (left), front cover (right) */}
       <p className="pg-pagelabel">Page 1 · Outside: back panel (left) and front cover (right)</p>
@@ -441,7 +468,7 @@ export default function Program() {
           {!people.length && <li className="pg-muted">No saved people yet.</li>}
         </ul>
       </section>
-      <p className="pg-note-line">Projected slides still show the full lyrics or passage text. The brochure prints titles, numbers, references and names only.</p>
+      <p className="pg-note-line">Projected slides still show the full lyrics. The brochure prints titles, numbers, references, passage text and names.</p>
     </div>
     </>
   );

@@ -132,15 +132,17 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
   while (churchSize > 11 && fonts.serifBold.widthOfTextAtSize(d.church, churchSize) > INNER) churchSize -= 0.5;
   y = line(p1, d.church, { x: xl, y, width: INNER + 1000, font: fonts.serifBold, size: churchSize }) + 4;
   y = line(p1, d.welcomeText, { x: xl, y, width: INNER, font: fonts.sans, size: T.body, color: GREY }) + 8;
-  y = line(p1, upper("Plan your next step"), { x: xl, y, width: INNER, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY }) + 4;
-  for (const [i, s] of d.steps.entries()) {
+  const steps = d.steps.filter((s) => s.title.trim());
+  if (steps.length) y = line(p1, upper("Plan your next step"), { x: xl, y, width: INNER, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY }) + 4;
+  for (const [i, s] of steps.entries()) {
     p1.drawText(`0${i + 1}`, { x: xl, y: H - y - T.num, size: T.num, font: fonts.serifBold, color: BURGUNDY });
     const tx = xl + 30, tw = INNER - 30;
     y = line(p1, s.title, { x: tx, y, width: tw, font: fonts.sansBold, size: T.strong });
     y = line(p1, s.text, { x: tx, y, width: tw, font: fonts.sans, size: T.body, color: GREY }) + 4;
   }
-  y = line(p1, upper("This week"), { x: xl, y, width: INNER, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY }) + 2;
-  for (const w of d.weekLines.filter((x) => x.trim())) y = line(p1, w, { x: xl, y, width: INNER, font: fonts.sans, size: T.body });
+  const weekLines = d.weekLines.filter((x) => x.trim());
+  if (weekLines.length) y = line(p1, upper("This week"), { x: xl, y, width: INNER, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY }) + 2;
+  for (const w of weekLines) y = line(p1, w, { x: xl, y, width: INNER, font: fonts.sans, size: T.body });
   if (d.webLine.trim()) line(p1, d.webLine, { x: xl, y: y + 4, width: INNER, font: fonts.sansBold, size: T.body, color: BURGUNDY });
 
   // ----- Page 1, right: front cover (centred) -----
