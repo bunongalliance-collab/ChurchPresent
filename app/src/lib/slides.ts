@@ -11,6 +11,15 @@ export const SLIDE_W_PT = 960;
 export const MAX_PT = 84;
 export const MIN_PT = 28;
 export const LINE_H = 1.3;
+export const MIN_LH = 1.1; // tightest line spacing for a singing slide before its verse is split
+// Singing slides use smaller margins, so the text can be bigger
+export const SING_MARGIN_IN = 0.2;
+export const SING_W_PT = (SLIDE_W_IN - 2 * SING_MARGIN_IN) * 72;
+export const SING_H_PT = (SLIDE_H_IN - 2 * SING_MARGIN_IN) * 72;
+// The recommended size for projection (readable from the back of the room). Automatic size never goes above it.
+export const RECOMMENDED_PT = 58;
+// Automatic size for singing slides: the recommended size, or smaller if the longest line would not fit the width
+export const SING_MAX_PT = RECOMMENDED_PT;
 
 // Average character width as a fraction of font size, per font (bold adds about 5%)
 export const CHAR_W: Record<string, number> = { Arial: 0.487, Verdana: 0.58, Calibri: 0.44, Georgia: 0.52 }; // average bold character width, measured (x1.05 safety factor applied in the engine)
@@ -23,6 +32,8 @@ export const visLen = (t: string) => t.replace(MARKER_RE, "").length;
 
 export interface Slide extends Array<string> {
   label?: string;
+  size?: number;  // a font size for this slide only (singing slides use one size for all, so this is unused there)
+  lineH?: number; // line spacing for this slide (singing slides tighten it to fit the height)
 }
 
 export interface Notes {
@@ -52,8 +63,11 @@ export function metaOf(line: string): Meta | null {
 const LABEL_WORDS: Record<string, string> = {
   v: "V", verse: "V", c: "C", chorus: "C", b: "B", bridge: "B",
   "pre-chorus": "PC", prechorus: "PC", intro: "I", outro: "O", tag: "T", ending: "E", refrain: "C",
-  "plõ mpro": "C", "plo mpro": "C",
 };
+// "Plõ mpro" is only a verse marker in these songs: it is not shown on slides (see buildSections)
+// Matches "Plõ mpro", "Plõ mprõ", "Plo mpro" and so on: accents are ignored when comparing
+export const isIgnoredMarker = (line: string) =>
+  line.trim().normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ") === "plo mpro";
 export function labelOf(line: string): string {
   const m = line.match(/^\s*(\[)?\s*([\p{L}-]+(?: [\p{L}-]+)?)\s*(\d*)\s*:?\s*(\])?\s*$/iu);
   if (!m) return "";
@@ -69,7 +83,12 @@ export function labelOf(line: string): string {
 // Break a pasted line into short phrases (about 8 words each, at most).
 const TARGET_WORDS = 8;
 const MIN_WORDS = 6;
-export function splitLine(line: string): string[] {
+// keepWhole: the line is one phrase, kept on one row (used for singing slides that follow the lyric's own lines)
+export function splitLine(line: string, keepWhole = false): string[] {
+  if (keepWhole) {
+    // Break only at a colon or at the end of a sentence (. ! ? with an optional closing quote). Words are never changed.
+    return line.trim().split(/(?<=:)\s+|(?<=[?!.]["”']?)\s+(?=\S)/u).map((p) => p.trim()).filter(Boolean);
+  }
   const phrases: string[][] = [];
   for (const piece of line.replace(/(\p{Ll})(\p{Lu})/gu, "$1\n$2").split("\n")) {
     for (const clause of piece.match(/[^,.;:]+[,.;:]*/g) || []) {
@@ -126,8 +145,10 @@ export function cleanRepeats(text: string, notes: Notes): string {
 }
 
 // Split lyrics into sections: blank lines and labels end a section.
-export function buildSections(text: string, notes: Notes): Slide[] {
-  const cleaned = notes.removeRepeats ? cleanRepeats(text.normalize("NFC"), notes) : text.normalize("NFC");
+export function buildSections(text: string, notes: Notes, keepWhole = false): Slide[] {
+  // Singing slides keep the lyric exactly: no repeat removal, so every chorus is shown
+  const removeReps = notes.removeRepeats && !keepWhole;
+  const cleaned = removeReps ? cleanRepeats(text.normalize("NFC"), notes) : text.normalize("NFC");
   const sections: Slide[] = [];
   const seen = new Set<string>();
   let cur: string[] = [];
@@ -136,7 +157,7 @@ export function buildSections(text: string, notes: Notes): Slide[] {
     if (cur.length) {
       const sec = Object.assign([...cur], { label: curLabel }) as Slide;
       const key = cur.join("|").toLowerCase();
-      if (cur.length >= 2 && seen.has(key) && notes.removeRepeats) notes.repeats++;
+      if (cur.length >= 2 && seen.has(key) && removeReps) notes.repeats++;
       else { seen.add(key); sections.push(sec); }
     }
     cur = [];
@@ -150,13 +171,15 @@ export function buildSections(text: string, notes: Notes): Slide[] {
       if (meta.number) notes.number = meta.number;
       continue;
     }
+    // The marker ends the section above it and is not shown; the lines under it are a plain verse
+    if (isIgnoredMarker(line)) { flush(); curLabel = ""; continue; }
     const lab = labelOf(line);
     if (lab) { flush(); curLabel = lab; continue; }
     if (!line) {
       if (cur.length) { flush(); curLabel = ""; }
       continue;
     }
-    cur.push(...splitLine(line));
+    cur.push(...splitLine(line, keepWhole));
   }
   flush();
   return sections;
@@ -174,6 +197,17 @@ export function deckSize(slides: string[][], font: string, perSlide: number): nu
   const widthPt = (USABLE_W * 72) / (CHAR_W[font] * 1.05 * maxChars);
   const heightPt = (USABLE_H * 72) / (perSlide * LINE_H);
   return Math.max(MIN_PT, Math.min(MAX_PT, Math.floor(Math.min(widthPt, heightPt))));
+}
+
+// One font size for every singing slide: the largest size at which the longest lyric line fits the width.
+// Verses and choruses are never shrunk to fit; their line spacing and height are handled per slide.
+export function singingSize(sections: Slide[], font: string): number {
+  let longest = 0;
+  for (const sec of sections) for (const line of sec) longest = Math.max(longest, visLen(line));
+  if (!longest) return SING_MAX_PT;
+  // The biggest size at which the longest line fits the slide width, inside the tighter singing margins
+  const fit = Math.floor((SING_W_PT * 0.98) / (CHAR_W[font] * longest));
+  return Math.max(MIN_PT, Math.min(SING_MAX_PT, fit));
 }
 
 // How many rows fit on one slide at a font size (at least 1)
@@ -202,9 +236,25 @@ export function flowLines(lines: string[], font: string, size: number, maxRows =
 }
 
 // Lay out one section as slides of up to perSlide rows. A section that fits stays on one slide.
-export function packSection(sec: Slide, font: string, size: number, perSlide: number, paragraphBreaks = false): Slide[] {
+export function packSection(sec: Slide, font: string, size: number, perSlide: number, paragraphBreaks = false, keepWhole = false): Slide[] {
   const maxW = USABLE_W * 72;
   const widthOf = (t: string) => visLen(t) * CHAR_W[font] * 1.05 * size;
+  if (keepWhole) {
+    // Singing slides: every slide uses the same font size (the deck size, set so the longest line fits the width).
+    // A verse or chorus stays on one slide. Its line spacing tightens only as far as MIN_LH; if it is still too
+    // tall, it is split across slides at a phrase boundary, with the same font size.
+    const maxRows = Math.max(1, Math.floor(SING_H_PT / (size * MIN_LH)));
+    const groups = Math.max(1, Math.ceil(sec.length / maxRows));
+    const per = Math.ceil(sec.length / groups);
+    const out: Slide[] = [];
+    for (let i = 0; i < sec.length; i += per) {
+      const rows = sec.slice(i, i + per);
+      const lh = Math.min(LINE_H, SING_H_PT / (rows.length * size));
+      const slide = Object.assign([...rows], { label: sec.label, lineH: Math.round(lh * 100) / 100 }) as Slide;
+      out.push(slide);
+    }
+    return out;
+  }
   const rows: string[] = [];
   let cur = "";
   for (const phrase of sec) {
@@ -273,16 +323,20 @@ export function buildDeck(opts: {
   songNumber: string;
   customSize: number;
   paragraphBreaks?: boolean; // justified text: each verse starts its own row
+  keepLines?: boolean;       // singing slides: each lyric line is one phrase and is never split
 }): Deck {
   const notes: Notes = { repeats: 0, removeRepeats: opts.removeRepeats };
-  const sections = buildSections(opts.lyrics, notes);
+  const sections = buildSections(opts.lyrics, notes, !!opts.keepLines);
   const title = opts.songTitle.trim() || notes.title || "";
   const number = (opts.songNumber.trim() || notes.number || "").replace(/^#/, "");
   const titleLines = [title, number ? `#${number}` : ""].filter(Boolean);
   const titleSlide: Slide[] = titleLines.length && opts.showTitle ? [Object.assign(titleLines, {}) as Slide] : [];
   const all = [...titleSlide, ...sections];
-  const size = opts.customSize > 0 ? opts.customSize : all.length ? deckSize(all, opts.font, opts.perSlide) : MAX_PT;
-  const packed = sections.flatMap((sec) => packSection(sec, opts.font, size, opts.perSlide, !!opts.paragraphBreaks));
+  let size: number;
+  if (opts.customSize > 0) size = opts.customSize;
+  else if (opts.keepLines) size = singingSize(sections, opts.font);
+  else size = all.length ? deckSize(all, opts.font, opts.perSlide) : MAX_PT;
+  const packed = sections.flatMap((sec) => packSection(sec, opts.font, size, opts.perSlide, !!opts.paragraphBreaks, !!opts.keepLines));
   return {
     font: opts.font,
     size,
@@ -371,3 +425,99 @@ export const COLOR_PRESETS: { name: string; bg: string; fg: string; num: string 
   { name: "Cream and dark", bg: "#F4F1DE", fg: "#1D2A36", num: "#B5452D" },
   { name: "White and navy", bg: "#FFFFFF", fg: "#1B2A41", num: "#C2410C" },
 ];
+
+// Scripture slides: one text block that wraps at word boundaries, with 10 px padding (about 8 pt on the
+// 960 pt slide) and a band at the bottom for the reference.
+export const SCRIPTURE_PAD_PT = 8;
+export const SCRIPTURE_REF_BAND_PT = 60;
+export const SCRIPTURE_BOX_W = SLIDE_W_PT - 2 * SCRIPTURE_PAD_PT;
+export const SCRIPTURE_BOX_H = SLIDE_W_PT * (SLIDE_H_IN / SLIDE_W_IN) - 2 * SCRIPTURE_PAD_PT - SCRIPTURE_REF_BAND_PT;
+
+// How many lines the text takes when whole words wrap at the box width (Infinity if a word is too wide)
+export function wrappedLineCount(text: string, font: string, size: number, boxW: number): number {
+  const widthOf = (t: string) => visLen(t) * CHAR_W[font] * 1.02 * size;
+  let lines = 0;
+  let cur = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (widthOf(word) > boxW) return Infinity;
+    const next = cur ? `${cur} ${word}` : word;
+    if (cur && widthOf(next) > boxW) { lines++; cur = word; } else cur = next;
+  }
+  return cur ? lines + 1 : 0;
+}
+
+// The largest font size (up to maxPt) at which the wrapped text fits the block height
+export function fitScripture(text: string, font: string, maxPt: number): number {
+  for (let s = Math.floor(maxPt); s >= MIN_PT; s--) {
+    if (wrappedLineCount(text, font, s, SCRIPTURE_BOX_W) * s * LINE_H <= SCRIPTURE_BOX_H) return s;
+  }
+  return MIN_PT;
+}
+
+// The largest font size (up to maxPt) at which the text wraps to at most maxLines visible lines and fits the
+// block height. 0 when no size works. Used to split a passage so each slide shows the chosen number of lines.
+export function fitForLines(text: string, font: string, maxLines: number, maxPt: number, manualPt = 0): number {
+  const sizes = manualPt > 0 ? [manualPt] : Array.from({ length: Math.floor(maxPt) - MIN_PT + 1 }, (_, k) => Math.floor(maxPt) - k);
+  for (const s of sizes) {
+    const n = wrappedLineCount(text, font, s, SCRIPTURE_BOX_W);
+    if (n <= maxLines && n * s * LINE_H <= SCRIPTURE_BOX_H) return s;
+  }
+  return 0;
+}
+
+// Width of text in pt at a font size (the browser measures it)
+export type Measure = (text: string, size: number) => number;
+export const plainText = (t: string) => t.replace(MARKER_RE, "");
+
+// Automatic size for a passage: the largest size (up to cap) at which every word fits the width.
+// The size is the same for the whole passage; it is never reduced for a single slide.
+export function passageAutoSize(words: string[], font: string, cap: number, measure?: Measure): number {
+  const widthOf = (w: string, s: number) => (measure ? measure(plainText(w), s) : visLen(w) * CHAR_W[font] * 1.02 * s);
+  for (let s = Math.floor(cap); s >= MIN_PT; s--) {
+    if (words.every((w) => widthOf(w, s) <= SCRIPTURE_BOX_W)) return s;
+  }
+  return MIN_PT;
+}
+
+// Lay out words in order at one font size: whole words per line, as many lines per slide as the height allows.
+// Returns the lines of each slide. Words wider than the box are placed alone and listed in tooWide (a warning).
+export function layoutPassage(words: string[], font: string, size: number, boxW: number, boxH: number, measure?: Measure): { slides: string[][]; tooWide: string[] } {
+  // The browser measures the real text when it can; the estimate is the fallback
+  const widthOf = (t: string) => (measure ? measure(plainText(t), size) : visLen(t) * CHAR_W[font] * 1.02 * size);
+  // A little extra room per line for the superscript verse numbers, so the last line never runs off the slide
+  // Keep a 3% margin: the browser draws text a little wider than the measure, so a line that is exactly full would wrap early
+  const limit = boxW * 0.97;
+  const capacity = Math.max(1, Math.floor(boxH / (size * LINE_H * 1.06)));
+  const lines: string[] = [];
+  const tooWide: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if (widthOf(w) > limit) {
+      tooWide.push(w);
+      if (cur) { lines.push(cur); cur = ""; }
+      lines.push(w);
+      continue;
+    }
+    const next = cur ? `${cur} ${w}` : w;
+    if (cur && widthOf(next) > limit) { lines.push(cur); cur = w; } else cur = next;
+  }
+  if (cur) lines.push(cur);
+  const slides: string[][] = [];
+  for (let i = 0; i < lines.length; i += capacity) slides.push(lines.slice(i, i + capacity));
+  return { slides, tooWide };
+}
+
+// Padding inside every slide's text area: 10 px on the 1219 px wide projector, written as a share of the
+// width so the projector and the previews show the same space around the text.
+export const SLIDE_PAD = "0.8%";
+
+// The browser measures text with the same font the slide uses, so line breaks match what is shown
+export function browserMeasure(font: string): Measure | undefined {
+  if (typeof document === "undefined") return undefined;
+  const ctx = document.createElement("canvas").getContext("2d");
+  if (!ctx) return undefined;
+  return (text, size) => {
+    ctx.font = `700 100px "${font}", sans-serif`;
+    return (ctx.measureText(text).width * size) / 100;
+  };
+}

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import LyricsV2 from "./pages/LyricsV2";
 import ReadingsV2 from "./pages/ReadingsV2";
 import Program from "./pages/Program";
+import ProgramV2 from "./pages/ProgramV2";
+import ProgramV3 from "./pages/ProgramV3";
+import ProgramSimple from "./pages/ProgramSimple";
 import Thumbnail from "./pages/Thumbnail";
 import Projector from "./pages/Projector";
 import Builder from "./pages/Builder";
@@ -37,6 +40,9 @@ function renderPage(page: string) {
   if (page === "#lyrics-v2") return <LyricsV2 />;
   if (page === "#readings-v2") return <ReadingsV2 />;
   if (page === "#program") return <Program />;
+  if (page === "#program-v2") return <ProgramV2 />;
+  if (page === "#program-v3") return <ProgramV3 />;
+  if (page === "#program-simple") return <ProgramSimple />;
   if (page === "#thumbnail") return <Thumbnail />;
   return <LyricsV2 />;
 }

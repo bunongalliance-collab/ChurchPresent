@@ -5,9 +5,11 @@ import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
-  buildDeck, COLOR_PRESETS, expandShortcuts, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
+  buildDeck, COLOR_PRESETS, expandShortcuts, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
 } from "../lib/slides";
 import { SONG_CATEGORIES, SONG_LANGUAGES, type SongLook } from "./Lyrics";
+import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from "../lib/offlineCache";
+import { parseRows, songRowSchema } from "../lib/schemas";
 
 // Lyric V2: the Lyrics page in the find | edit | check layout.
 // It reads and writes the same songs, drafts and browser storage as the Lyrics page, so the two stay in step.
@@ -126,6 +128,8 @@ export default function LyricsV2() {
     () => buildDeck({
       lyrics, font, perSlide, removeRepeats, showTitle, songTitle, songNumber,
       customSize: parseInt(customSize, 10) || 0,
+      // Singing slides: each lyric line is one phrase, kept whole. A long line gets a smaller font on its slide.
+      keepLines: true,
     }),
     [lyrics, font, perSlide, removeRepeats, showTitle, songTitle, songNumber, customSize],
   );
@@ -146,10 +150,23 @@ export default function LyricsV2() {
     const cached = lyricsCache.current.get(s.id);
     if (cached !== undefined) return { ...s, lyrics: cached };
     const { data, error } = await supabase.from("lyric_songs").select("lyrics").eq("id", s.id).single();
-    if (error) { say("Could not open the song: " + error.message, true); return null; }
-    lyricsCache.current.set(s.id, data.lyrics ?? "");
-    setSongs((cur) => cur.map((x) => (x.id === s.id ? { ...x, lyrics: data.lyrics ?? "" } : x)));
-    return { ...s, lyrics: data.lyrics ?? "" };
+    if (error) {
+      // Offline: use the lyrics saved on this device, if the song was opened before
+      const saved = await loadCachedLyrics(s.id);
+      if (saved !== undefined) {
+        lyricsCache.current.set(s.id, saved);
+        setSongs((cur) => cur.map((x) => (x.id === s.id ? { ...x, lyrics: saved } : x)));
+        say("Offline: using the copy saved on this device.");
+        return { ...s, lyrics: saved };
+      }
+      say("Could not open the song: " + error.message, true);
+      return null;
+    }
+    const text = data.lyrics ?? "";
+    lyricsCache.current.set(s.id, text);
+    setSongs((cur) => cur.map((x) => (x.id === s.id ? { ...x, lyrics: text } : x)));
+    void cacheLyrics(s.id, text);
+    return { ...s, lyrics: text };
   }
   async function pickSong(s: SavedSong) {
     const full = await ensureLyrics(s);
@@ -163,8 +180,24 @@ export default function LyricsV2() {
         .from("lyric_songs")
         .select("id, title, song_number, owner_id, look, category, language")
         .order("updated_at", { ascending: false });
-      if (error) { say("Could not load songs: " + error.message, true); setSongs([]); setLoaded(true); return; }
-      setSongs(data.map((r) => withCached({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, look: r.look ?? {}, category: r.category ?? "", language: r.language ?? "" })));
+      if (error) {
+        // Offline: show the song list saved on this device
+        const saved = await loadCachedSongs();
+        if (saved.length) {
+          setSongs(saved.map((r) => withCached({ id: r.id, title: r.title, number: r.number, owner: r.owner, look: (r.look ?? {}) as Partial<SongLook>, category: r.category ?? "", language: r.language ?? "" })));
+          say("Offline: showing the songs saved on this device.");
+        } else {
+          say("Could not load songs: " + error.message, true);
+          setSongs([]);
+        }
+        setLoaded(true);
+        return;
+      }
+      const { rows: valid, dropped } = parseRows(songRowSchema, data ?? []);
+      const list = valid.map((r) => ({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, look: r.look as Partial<SongLook>, category: r.category, language: r.language }));
+      setSongs(list.map(withCached));
+      void cacheSongList(list);
+      if (dropped) say(`${dropped} song${dropped === 1 ? "" : "s"} could not be read and ${dropped === 1 ? "was" : "were"} skipped.`, true);
     } else {
       setSongs(loadLocal());
     }
@@ -422,7 +455,8 @@ export default function LyricsV2() {
       bg: colorBg,
       fg: colorText,
       showLabels,
-      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s] })),
+      // size: a slide's own font size (a long chorus line is smaller), so the projector keeps it on the slide
+      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s], size: s.size, lineH: s.lineH, pad: SLIDE_PAD })),
     };
     try { localStorage.setItem(PROJECTOR_KEY, JSON.stringify(payload)); } catch { /* storage blocked */ }
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
@@ -616,7 +650,6 @@ export default function LyricsV2() {
             {warning && <p className="lv2-status">{warning}</p>}
 
             <div className="lv2-actions">
-              <button className="secondary" onClick={onNext}>Next Song</button>
               <span className="lv2-actions-end">
                 <details className="lv2-more">
                   <summary>More</summary>
@@ -624,6 +657,7 @@ export default function LyricsV2() {
                     <button className="secondary danger" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; onDelete(); }} disabled={!selectedId}>Delete song</button>
                   </div>
                 </details>
+                <button className="secondary" onClick={onNext}>Next Song</button>
                 <button className="secondary" onClick={onSave}>Save Song</button>
                 <button className={`primary lv2-add lv2-add-desk${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
               </span>
@@ -650,54 +684,63 @@ export default function LyricsV2() {
 
             <details className="lv2-appearance" open>
               <summary>Slide Appearance <span className="lv2-summary">{appearanceSummary}</span></summary>
-              <div className="lv2-appearance-grid">
-                <div className="lv2-group">
-                  <h3>Typography</h3>
-                  <div className="lv2-pair">
-                    <label>Font
+              <div className="lv2-cats">
+                <div className="lv2-cat">
+                  <h3>Text</h3>
+                  <div className="lv2-cat-body">
+                    <div className="lv2-row">
+                    <label className="lv2-inline">Font
                       <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
                         {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
                     </label>
-                    <label>Lines per slide
+                    <label className="lv2-inline">Lines
                       <select id="perSlide" aria-label="Maximum lines per slide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
                         {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
                       </select>
                     </label>
-                  </div>
-                  <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
-                    <label><input type="radio" name="sizeModeV2" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Automatic size</label>
-                    <label><input type="radio" name="sizeModeV2" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
-                  </div>
-                  <div className="lv2-slider">
-                    <input
-                      id="fontSize" type="range" min={20} max={200} step={1}
-                      disabled={sizeMode === "auto"}
-                      value={customSize ? parseInt(customSize, 10) : 60}
-                      onChange={(e) => setCustomSize(e.target.value)}
-                      aria-label="Font size in points"
-                    />
-                    <output>{customSize ? `${customSize} pt` : "Auto"}</output>
+                    </div>
+                    <div className="lv2-row">
+                    <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
+                      <label><input type="radio" name="sizeModeV2" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Auto</label>
+                      <label><input type="radio" name="sizeModeV2" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
+                    </div>
+                    <div className="lv2-slider">
+                      <input
+                        id="fontSize" type="range" min={20} max={200} step={1}
+                        disabled={sizeMode === "auto"}
+                        value={customSize ? parseInt(customSize, 10) : 60}
+                        onChange={(e) => setCustomSize(e.target.value)}
+                        aria-label="Font size in points"
+                      />
+                      <output>{customSize ? `${customSize} pt` : "Auto"}</output>
+                    </div>
+                    <button type="button" className="lv2-quick" onClick={() => setCustomSize(String(RECOMMENDED_PT))}>
+                      Recommended {RECOMMENDED_PT} pt
+                    </button>
+                    </div>
                   </div>
                 </div>
-                <div className="lv2-group">
+                <div className="lv2-cat">
                   <h3>Colours</h3>
-                  <div className="lv2-presets" role="group" aria-label="Recommended colours">
-                    {COLOR_PRESETS.map((p) => (
-                      <button key={p.name} type="button" className={`lv2-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={colorBg === p.bg && colorText === p.fg}
-                        style={{ background: p.bg, color: p.fg }} onClick={() => { setColorBg(p.bg); setColorText(p.fg); }}>Aa</button>
-                    ))}
-                  </div>
-                  <div className="lv2-colors">
-                    <label>Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
-                    <label>Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
+                  <div className="lv2-cat-body">
+                    <div className="lv2-presets" role="group" aria-label="Recommended colours">
+                      {COLOR_PRESETS.map((p) => (
+                        <button key={p.name} type="button" className={`lv2-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={colorBg === p.bg && colorText === p.fg}
+                          style={{ background: p.bg, color: p.fg }} onClick={() => { setColorBg(p.bg); setColorText(p.fg); }}>Aa</button>
+                      ))}
+                    </div>
+                    <label className="lv2-inline">Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
+                    <label className="lv2-inline">Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
                   </div>
                 </div>
-                <div className="lv2-group">
-                  <h3>Display</h3>
-                  <label className="lv2-check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Add title slide</label>
-                  <label className="lv2-check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Show section labels</label>
-                  <label className="lv2-check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeated text</label>
+                <div className="lv2-cat">
+                  <h3>Show</h3>
+                  <div className="lv2-cat-body">
+                    <label className="lv2-check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Title slide</label>
+                    <label className="lv2-check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Section labels</label>
+                    <label className="lv2-check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeats</label>
+                  </div>
                 </div>
               </div>
             </details>
@@ -712,7 +755,7 @@ export default function LyricsV2() {
 
             {current ? (
               <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }}>
-                <div className="lv2-stage-text" style={{ fontSize: `${(deck.size / SLIDE_W_PT) * 100}cqw` }}>{current.join("\n")}</div>
+                <div className="lv2-stage-text" style={{ fontSize: `${((current.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: current.lineH || 1.3, padding: SLIDE_PAD }}>{current.join("\n")}</div>
                 {current.label && showLabels && <div className="lv2-stage-tag">{current.label}</div>}
               </div>
             ) : (

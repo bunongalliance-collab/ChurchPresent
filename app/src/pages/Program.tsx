@@ -2,7 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
-import { buildProgramPdf, todayScripture, STAGES } from "../lib/programPdf";
+import { buildProgramPdf, todayScripture } from "../lib/programPdf";
+import OrderEditor from "../components/OrderEditor";
+import { rowsToLines, toRows, type Lines } from "../lib/orderLines";
+import type { SetStateAction } from "react";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Generate PDF makes a PDF of the brochure only.
@@ -10,7 +13,7 @@ import { buildProgramPdf, todayScripture, STAGES } from "../lib/programPdf";
 // readings show their title. Song lyrics belong to the projected slides, not to this page.
 
 type Kind = "song" | "scripture" | "reading" | "prayer" | "custom" | "people";
-interface Row { id: string; item: string; kind: Kind; detail: string; led: string; text: string; names: string[]; stage: number }
+export interface Row { id: string; item: string; kind: Kind; detail: string; led: string; text: string; names: string[]; stage: number; ref?: string; lines?: { text: string; level: number }[] }
 const STAGE_OF: Record<string, number> = {
   "Prelude": 0, "Welcome & Call to Worship": 0, "Opening Song": 0, "Opening Prayer": 0,
   "Songs of Praise": 1, "Children Choir": 1, "Youth Choir": 1, "Prayer for the Offering": 1, "Offering & Announcements": 1,
@@ -18,7 +21,6 @@ const STAGE_OF: Record<string, number> = {
   "Closing Song": 3, "Closing Prayer": 3,
   "Sok Nh'hor": 4,
 };
-interface Pick { id: string; label: string; text?: string }
 interface Step { title: string; text: string }
 interface PrayerGroup { title: string; items: string[] }
 export interface Draft {
@@ -32,6 +34,7 @@ export interface Draft {
   prayerGroups: PrayerGroup[];
   scriptureRef: string; scriptureText: string; scriptureCite: string;
   contactName: string; contactAddress: string; contactPhone: string; contactEmail: string; contactWeb: string;
+  lines?: Lines; // the Order of Worship as typed lines (the editor). rows are kept for older saves.
 }
 
 const KEY = "serviceProgramDraft5";
@@ -99,7 +102,7 @@ const DEFAULT: Draft = {
 // Default rows take their stage from the table above
 DEFAULT.rows = DEFAULT.rows.map((r) => ({ ...r, stage: STAGE_OF[r.item] ?? 0 }));
 
-function loadDraft(): Draft {
+export function loadDraft(): Draft {
   let saved: Partial<Draft> = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || "null") ?? {}; } catch { saved = {}; }
   const d: Draft = { ...DEFAULT, ...saved };
@@ -129,37 +132,7 @@ function studyText(data: unknown): string {
 }
 
 // Saved songs, readings and studies to pick from (signed in: database; otherwise this browser)
-function useLibrary() {
-  const [songs, setSongs] = useState<Pick[]>([]);
-  const [readings, setReadings] = useState<Pick[]>([]);
-  const [studies, setStudies] = useState<Pick[]>([]);
-  useEffect(() => {
-    (async () => {
-      if (supabase) {
-        const [s, r, t] = await Promise.all([
-          supabase.from("lyric_songs").select("id, song_number, title").order("updated_at", { ascending: false }),
-          supabase.from("readings").select("id, number, title").order("updated_at", { ascending: false }),
-          supabase.from("scripture_studies").select("id, study_title, reference, data").order("updated_at", { ascending: false }),
-        ]);
-        setSongs((s.data ?? []).map((x) => ({ id: x.id, label: `${x.song_number ? x.song_number + ". " : ""}${x.title || "(untitled)"}` })));
-        setReadings((r.data ?? []).map((x) => ({ id: x.id, label: `${x.number ? x.number + ". " : ""}${x.title || "(untitled)"}` })));
-        setStudies((t.data ?? []).map((x) => ({ id: x.id, label: x.reference || x.study_title || "(untitled)", text: studyText(x.data) })));
-      } else {
-        try {
-          const ls = JSON.parse(localStorage.getItem("lyricsSongs") || "[]");
-          setSongs(ls.map((x: { id: string; number?: string; title?: string }) => ({ id: x.id, label: `${x.number ? x.number + ". " : ""}${x.title || "(untitled)"}` })));
-        } catch { /* storage blocked */ }
-        try {
-          const rs = JSON.parse(localStorage.getItem("readingsLocal") || "[]");
-          setReadings(rs.map((x: { id: string; number?: string; title?: string }) => ({ id: x.id, label: `${x.number ? x.number + ". " : ""}${x.title || "(untitled)"}` })));
-        } catch { /* storage blocked */ }
-      }
-    })();
-  }, []);
-  return { songs, readings, studies };
-}
 
-const KIND_LABEL: Record<Kind, string> = { song: "Song", scripture: "Scripture", reading: "Reading", prayer: "Prayer", custom: "Other", people: "Names" };
 
 export default function Program() {
   const [d, setD] = useState<Draft>(() => loadDraft());
@@ -181,27 +154,36 @@ export default function Program() {
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const lib = useLibrary();
   const [status, setStatus] = useState("Type directly on the program. Generate PDF makes the brochure.");
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* storage blocked */ } }, [d]);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
 
-  const options = (k: Kind): Pick[] => (k === "song" ? lib.songs : k === "reading" ? lib.readings : k === "scripture" ? lib.studies : []);
-  const updateRow = (id: string, patch: Partial<Row>) => set("rows", d.rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  const addRow = () => { set("rows", [...d.rows, { id: uid(), item: "", kind: "custom", detail: "", led: "", text: "", names: [], stage: 0 }]); setStatus("Item added."); };
-  // Adds a song at the end of one stage's group
-  const addSongIn = (stage: number) => { set("rows", [...d.rows, { id: uid(), item: "", kind: "song", detail: "", led: "", text: "", names: [], stage }]); setStatus("Song added."); };
-  // Print opens the brochure PDF (the same file as Generate PDF) in a new tab, where it can be printed
-  const printBrochure = () => { if (previewRef.current) window.open(previewRef.current, "_blank"); else setStatus("The preview is still being made. Try again in a moment."); };
-  const removeRow = (id: string) => set("rows", d.rows.filter((r) => r.id !== id));
-  const moveRow = (id: string, dir: -1 | 1) => {
-    const i = d.rows.findIndex((r) => r.id === id), j = i + dir;
-    if (i < 0 || j < 0 || j >= d.rows.length) return;
-    const next = d.rows.slice(); [next[i], next[j]] = [next[j], next[i]];
-    // Moving across a stage line moves the item into that stage
-    next[j] = { ...next[j], stage: next[i].stage };
-    set("rows", next);
-  };
+  // The Order of Worship lines. Services saved in the older format are converted once, on first edit.
+  const orderLines: Lines = d.lines ?? rowsToLines(d.rows);
+  const setOrderLines = (u: SetStateAction<Lines>) => setD((cur) => {
+    const now = cur.lines ?? rowsToLines(cur.rows);
+    return { ...cur, lines: typeof u === "function" ? (u as (c: Lines) => Lines)(now) : u };
+  });
+  // Scripture text for the PDF comes from the saved studies, as in the Program Builder
+  const [passages, setPassages] = useState<Record<string, string>>({});
+  const [songOptions, setSongOptions] = useState<string[]>([]);
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from("lyric_songs").select("song_number, title").order("updated_at", { ascending: false }).then(({ data }) => {
+      setSongOptions((data ?? []).map((x) => (x.song_number ? `${x.song_number}. ` : "") + (x.title || "")).filter(Boolean));
+    });
+    supabase.from("scripture_studies").select("reference, data").then(({ data }) => {
+      const map: Record<string, string> = {};
+      (data ?? []).forEach((x) => { if (x.reference) map[x.reference] = studyText(x.data); });
+      setPassages(map);
+    });
+  }, []);
+  const pdfDraft: Draft = useMemo(() => (d.lines ? { ...d, rows: toRows(d.lines, passages) } : d), [d, passages]);
+
+    function printBrochure() {
+    if (previewRef.current) window.open(previewRef.current, "_blank");
+    else setStatus("The preview is still being made. Try again in a moment.");
+  }
   const setStep = (i: number, patch: Partial<Step>) => set("steps", d.steps.map((s, k) => (k === i ? { ...s, ...patch } : s)));
   const setList = (key: "weekLines" | "announcements", i: number, v: string) => set(key, d[key].map((x, k) => (k === i ? v : x)));
   // Announcements: no limit
@@ -233,7 +215,7 @@ export default function Program() {
     await loadPeopleList();
   }
 
-  const today = todayScripture(d);
+  const today = todayScripture(pdfDraft);
 
   const coverDate = useMemo(() => {
     try { return new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }).toUpperCase(); } catch { return d.date; }
@@ -246,7 +228,7 @@ export default function Program() {
     let cancelled = false;
     const timer = setTimeout(async () => {
       try {
-        const bytes = await buildProgramPdf(d, logo, coverDate);
+        const bytes = await buildProgramPdf(pdfDraft, logo, coverDate);
         if (cancelled) return;
         const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
         if (previewRef.current) URL.revokeObjectURL(previewRef.current);
@@ -262,7 +244,7 @@ export default function Program() {
   async function generatePdf() {
     setStatus("Making the PDF…");
     try {
-      const bytes = await buildProgramPdf(d, logo, coverDate);
+      const bytes = await buildProgramPdf(pdfDraft, logo, coverDate);
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -287,13 +269,16 @@ export default function Program() {
           <p>{status}</p>
         </div>
         <div className="pg-actions">
-          <button className="pg-btn" onClick={addRow}>+ Add item</button>
           <button className="pg-btn" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
           <button className="pg-btn primary" onClick={generatePdf}>Generate PDF</button>
         </div>
       </div>
 
       <datalist id="pg-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
+      {/* Suggestions for the Order of Worship: saved songs, passages (their text fills Today's Scripture and the cover) and names */}
+      <datalist id="ps-songs">{songOptions.map((n) => <option key={n} value={n} />)}</datalist>
+      <datalist id="ps-passages">{Object.keys(passages).map((n) => <option key={n} value={n} />)}</datalist>
+      <datalist id="ps-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
 
       <section className="pg-preview" aria-label="Brochure preview">
         <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
@@ -363,55 +348,7 @@ export default function Program() {
             <p className="pg-led">Led by <input className="pg-in pg-led-in" list="pg-people" value={d.leader} onChange={(e) => set("leader", e.target.value)} aria-label="Led by" placeholder="Name" /></p>
           </div>
           <h2 className="pg-h2"><input className="pg-in" value={d.orderTitle} onChange={(e) => set("orderTitle", e.target.value)} aria-label="Order of worship heading" /></h2>
-          <div className="pg-rows">
-            {STAGES.map((st, si) => (
-              <div className="pg-stage-group" key={si}>
-              <div className="pg-stage-head"><span>{st}</span><button className="pg-btn small" onClick={() => addSongIn(si)}>+ Song</button></div>
-            {d.rows.map((r, i) => r.stage !== si ? null : (
-              <div className="pg-row" key={r.id}>
-                <div className="pg-item">
-                  <div className="pg-item-line">
-                    <select className="pg-kind" value={r.stage} onChange={(e) => updateRow(r.id, { stage: Number(e.target.value) })} aria-label={`Stage, item ${i + 1}`}>
-                      {STAGES.map((st, k) => <option key={k} value={k}>{st}</option>)}
-                    </select>
-                    <input className="pg-in pg-strong" value={r.item} placeholder="Item" onChange={(e) => updateRow(r.id, { item: e.target.value })} aria-label={`Item name, ${i + 1}`} />
-                    <select className="pg-kind" value={r.kind} onChange={(e) => updateRow(r.id, { kind: e.target.value as Kind })} aria-label={`Type, item ${i + 1}`}>
-                      {(Object.keys(KIND_LABEL) as Kind[]).map((k) => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
-                    </select>
-                    {options(r.kind).length > 0 && (
-                      <select className="pg-kind" value="" onChange={(e) => { const o = options(r.kind).find((x) => x.id === e.target.value); if (!o) return; if (r.kind === "song") updateRow(r.id, { names: [...r.names, o.label] }); else updateRow(r.id, { detail: o.label, text: o.text ?? "" }); }} aria-label={`Choose a saved ${KIND_LABEL[r.kind].toLowerCase()}, item ${i + 1}`}>
-                        <option value="">Choose saved…</option>
-                        {options(r.kind).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                      </select>
-                    )}
-                  </div>
-                  <div className="pg-item-sub">
-                    <input className="pg-in pg-muted" value={r.detail} placeholder="Details" onChange={(e) => updateRow(r.id, { detail: e.target.value })} aria-label={`Details, item ${i + 1}`} />
-                    <input className="pg-in pg-led-row" list="pg-people" value={r.led} placeholder="Name" onChange={(e) => updateRow(r.id, { led: e.target.value })} aria-label={`Led by, item ${i + 1}`} />
-                  </div>
-                  {(r.kind === "people" || r.kind === "song") && (
-                    <div className={`pg-names${r.kind === "people" ? " pg-names-inline" : ""}`}>
-                      {r.names.map((n, k) => (
-                        <div className="pg-name-row" key={k}>
-                          <input className="pg-in pg-muted" list={r.kind === "people" ? "pg-people" : undefined} value={n} placeholder={r.kind === "song" ? "Song title" : "Name"} onChange={(e) => updateRow(r.id, { names: r.names.map((x, j) => (j === k ? e.target.value : x)) })} aria-label={`${r.kind === "song" ? "Song" : "Name"} ${k + 1}, ${r.item}`} />
-                          <button className="pg-x" onClick={() => updateRow(r.id, { names: r.names.filter((_, j) => j !== k) })} aria-label={`Remove name ${k + 1}`}>×</button>
-                        </div>
-                      ))}
-                      <button className="pg-btn small" onClick={() => updateRow(r.id, { names: [...r.names, ""] })}>{r.kind === "song" ? "+ Add another song" : "+ Add a name"}</button>
-                    </div>
-                  )}
-                  {r.kind === "scripture" && <textarea className="pg-in pg-body pg-passage" value={r.text} placeholder="Passage text (shown in Today’s Scripture and on the cover)" onChange={(e) => updateRow(r.id, { text: e.target.value })} aria-label={`Passage text, item ${i + 1}`} />}
-                </div>
-                <div className="pg-rowtools">
-                  <button className="pg-x" onClick={() => moveRow(r.id, -1)} disabled={i === 0} aria-label={`Move item ${i + 1} up`}>↑</button>
-                  <button className="pg-x" onClick={() => moveRow(r.id, 1)} disabled={i === d.rows.length - 1} aria-label={`Move item ${i + 1} down`}>↓</button>
-                  <button className="pg-x" onClick={() => removeRow(r.id)} aria-label={`Remove item ${i + 1}`}>×</button>
-                </div>
-              </div>
-            ))}
-              </div>
-            ))}
-          </div>
+          <OrderEditor lines={orderLines} setLines={setOrderLines} />
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
           <div className="pg-scripture">
             <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>

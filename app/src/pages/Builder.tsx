@@ -144,7 +144,21 @@ export default function Builder() {
       const item = JSON.parse(raw) as ReadingItem;
       setItems((cur) => [...cur, item]);
     } catch { /* storage blocked or bad data */ }
+    // The presentation name typed on the Scripture page
+    try {
+      const name = sessionStorage.getItem("pendingBuilderTitle");
+      if (name) { sessionStorage.removeItem("pendingBuilderTitle"); setTitle(name); }
+    } catch { /* storage blocked */ }
   }, []);
+  // Recent readings: the readings added from the Readings page, newest first
+  const recentReadings = useMemo<ReadingItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem("addedReadingsLog") || "[]") as ReadingItem[]; } catch { return []; }
+  }, []);
+  function addRecentReading(item: ReadingItem) {
+    const copy = { ...item, id: uid() } as ReadingItem;
+    setItems((cur) => [...cur, copy]);
+    setSelectedItem(copy.id);
+  }
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [title, setTitle] = useState(draft?.title ?? "Sunday Worship");
   const [savedList, setSavedList] = useState<Presentation[]>([]);
@@ -479,7 +493,7 @@ export default function Builder() {
           {!recentSongs.length && <p className="empty">No saved songs yet.</p>}
           <ul className="recent-list">
             {recentSongs.map((r) => (
-              <li key={r.id}>
+              <li key={r.id} className="recent-item recent-song">
                 <span className="recent-title"><strong>{r.number ? `${r.number}. ` : ""}{r.title || "(untitled)"}</strong><small>Song</small></span>
                 <button className="primary small" onClick={() => addSong(r)} aria-label={`Add ${r.title || "song"}`}>Add</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenSongs((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "song"} from recent`} title="Remove from this list">×</button>
@@ -488,12 +502,23 @@ export default function Builder() {
           </ul>
           {hiddenSongs.length > 0 && <button className="link small" onClick={() => setHiddenSongs([])}>Show {hiddenSongs.length} removed song{hiddenSongs.length === 1 ? "" : "s"}</button>}
 
+          <h2 className="recent-h">Recent readings</h2>
+          {!recentReadings.length && <p className="empty">Add a reading on the Readings page, then add it here.</p>}
+          <ul className="recent-list">
+            {recentReadings.map((r) => (
+              <li key={r.id} className="recent-item recent-reading">
+                <span className="recent-title"><strong>{r.title || "(untitled)"}</strong><small>Reading{r.categoryName ? ` · ${r.categoryName}` : ""}</small></span>
+                <button className="primary small" onClick={() => addRecentReading(r)} aria-label={`Add ${r.title || "reading"}`}>Add</button>
+              </li>
+            ))}
+          </ul>
+
           <h2 className="recent-h">Recent scriptures</h2>
           {!userId && <p className="empty">Sign in on the Lyrics page to see your saved scriptures.</p>}
           {userId && !recentScriptures.length && <p className="empty">No saved scripture studies yet.</p>}
           <ul className="recent-list">
             {recentScriptures.map((r) => (
-              <li key={r.id}>
+              <li key={r.id} className="recent-item recent-scripture">
                 <span className="recent-title"><strong>{r.title || "(untitled)"}</strong><small>Scripture · {new Date(r.updated).toLocaleDateString()}</small></span>
                 <button className="primary small" onClick={() => addScripture(r)} aria-label={`Add ${r.title || "study"}`}>Add</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenScriptures((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "study"} from recent`} title="Remove from this list">×</button>

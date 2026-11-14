@@ -37,9 +37,10 @@ interface Fonts { serif: PDFFont; serifBold: PDFFont; serifItalic: PDFFont; sans
 // Today's scripture comes from the Scripture Reading item in the order of worship (its reference and text).
 // Without one, the fallback fields on the program are used.
 export function todayScripture(d: Draft): { ref: string; text: string; cite: string; reader: string } {
-  const row = d.rows.find((r) => r.kind === "scripture" && (r.detail.trim() || r.text.trim()));
+  const row = d.rows.find((r) => r.kind === "scripture" && ((r.ref ?? r.detail).trim() || r.text.trim()));
   if (row) {
-    const ref = row.detail.trim() || d.scriptureRef;
+    // ref is the passage itself; detail may also carry the reader ("Psalm 23 – Jordan Lee")
+    const ref = (row.ref ?? row.detail).trim() || d.scriptureRef;
     return { ref, text: row.text.trim() || d.scriptureText, cite: ref ? `— ${ref}` : d.scriptureCite, reader: row.led.trim() };
   }
   return { ref: d.scriptureRef, text: d.scriptureText, cite: d.scriptureCite, reader: "" };
@@ -160,7 +161,8 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
   cy = line(p1, upper(d.coverKind), { x: cx, y: cy, width: cw, font: fonts.sansBold, size: T.cover3, color: CHARCOAL, align: "center" });
   cy = line(p1, d.tagline, { x: cx, y: cy, width: cw, font: fonts.sans, size: T.body, color: GREY, align: "center" }) + 14;
   // The cover verse sits in the same tinted box as Today's Scripture, with the same layout
-  const cText = scripture.text || d.verse;
+  // The cover shows today's passage (from the Scripture Reading line). The sample verse is only a fallback when there is no passage.
+  const cText = scripture.ref ? scripture.text : (scripture.text || d.verse);
   const cRef = scripture.ref || d.verseRef;
   const bp = 12, boxW = cw * 0.82, bx = cx + (cw - boxW) / 2, inW = boxW - 2 * bp;
   const hBox = bp + T.eyebrow * LEAD + T.h3 * LEAD + heightOf(cText, fonts.serifItalic, T.body, inW, T.body * LEAD) + (scripture.cite ? T.eyebrow * LEAD : 0) + (scripture.reader ? T.eyebrow * LEAD : 0) + bp;
@@ -222,7 +224,14 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
         }
         // Details: 8.5 pt italic gray, indented further
         if (r.detail.trim()) y = line(page, titleCase(r.detail), { x: xl2 + DET_IND, y, width: INNER - DET_IND, font: fonts.sansItalic, size: 8 * K, color: DET });
-        const names = r.names.filter((n) => n.trim()).map((n) => titleCase(n.trim()));
+        // Sub-items at any depth (lines): each level indents a little further than the one above it
+        if (r.lines?.length) {
+          for (const l of r.lines) {
+            const ind = DET_IND + (Math.max(1, l.level) - 1) * 0.22 * 72;
+            y = line(page, titleCase(l.text), { x: xl2 + ind, y, width: INNER - ind, font: fonts.sansItalic, size: 8 * K, color: DET });
+          }
+        }
+        const names = r.lines?.length ? [] : r.names.filter((n) => n.trim()).map((n) => titleCase(n.trim()));
         if (r.kind === "people") {
           if (names.length) y = line(page, names.join(" · "), { x: xl2 + DET_IND, y, width: INNER - DET_IND, font: fonts.sansItalic, size: 8 * K, color: DET });
         } else {

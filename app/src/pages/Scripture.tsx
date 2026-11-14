@@ -5,7 +5,7 @@ import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
-import { buildDeck, COLOR_PRESETS, flowLines, FONTS, MARGIN_IN, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
+import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
 import { breakRow } from "../lib/pptx";
 import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
@@ -119,36 +119,35 @@ async function fetchVerse(bible: string, code: string, ch: number, v: number): P
 // Rows for the projector and the .pptx, using the shared engine for passage and custom text
 // A slide's own format: text formatting, plus its font size (pt) and background colour
 type SlideFormat = SlideFmt & { size?: number; bg?: string; numColor?: string };
-export interface OutSlide { label: string; ref?: string; rows: string[]; verse: boolean; align?: "left" | "center" | "right" | "justify"; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
+export interface OutSlide { label: string; ref?: string; rows: string[]; wrap?: boolean; verse: boolean; align?: "left" | "center" | "right" | "justify"; fmt?: SlideFormat; bg?: string; fg?: string; font?: string; size?: number; numColor?: string; segs?: RichSeg[][] }
 
-export function buildOutput(slides: StudySlide[], look: Look): { size: number; slides: OutSlide[] } {
+
+export function buildOutput(slides: StudySlide[], look: Look): { size: number; slides: OutSlide[]; warnings: string[] } {
+  const warnings: string[] = [];
   const all = slides.filter((s) => s.text.trim()).map((s) => s.text).join("\n");
-  const size = look.customSize > 0 ? look.customSize : all ? buildDeck({
+  // Automatic size never goes above the recommended size
+  const size = look.customSize > 0 ? look.customSize : all ? Math.min(RECOMMENDED_PT, buildDeck({
     lyrics: all, font: look.font, perSlide: look.perSlide, removeRepeats: false,
     showTitle: false, songTitle: "", songNumber: "", customSize: 0,
-  }).size : 84;
+  }).size) : RECOMMENDED_PT;
   const pieces: OutSlide[] = [];
   for (const sl of slides) {
     const lines = carryFormatting(sl.text.split("\n").filter((l) => l.trim()));
     if (!lines.length) continue;
-    // A fixed font size fills each slide down to its height (up to 15 lines); automatic size uses the lines-per-slide setting
-    const fillPer = (sl.fmt?.size || look.customSize) > 0 ? 15 : look.perSlide;
     if (sl.kind === "passage") {
-      // Mark a leading verse number so it can take the verse-number colour
-      // Mark each verse number before the engine splits the text, so the marker survives
-      // wherever the number lands (even in the middle of a row where two verses share it)
+      // One font size for the whole passage. Words wrap at word boundaries; the space decides how many lines fit.
       const marked = lines.map((l) => markVerses(l, look.verseNumbers));
-      const deck = buildDeck({
-        lyrics: marked.join("\n"), font: look.font, perSlide: fillPer, removeRepeats: false,
-        showTitle: false, songTitle: "", songNumber: "", customSize: sl.fmt?.size || look.customSize || 0,
-        paragraphBreaks: look.verseNewLines,
-      });
-      // Mark each verse number at the start of a row, so it can be drawn smaller and in its own colour
-      carryFormattingSlides(deck.slides).forEach((rows) => pieces.push({
+      const words = marked.join(" ").split(/\s+/).filter(Boolean);
+      const manual = sl.fmt?.size || look.customSize;
+      const measure = browserMeasure(look.font);
+      const size = manual > 0 ? manual : passageAutoSize(words, look.font, RECOMMENDED_PT, measure);
+      const { slides: laid, tooWide } = layoutPassage(words, look.font, size, SCRIPTURE_BOX_W, SCRIPTURE_BOX_H, measure);
+      tooWide.forEach((w) => warnings.push(`A word is too wide for the slide at ${size} pt: “${w.replace(/[\u0001-\u0003]/g, "")}”. Reduce the font size.`));
+      laid.forEach((rows) => pieces.push({
         label: sl.title,
-        ref: sl.title, // the passage reference, shown bottom-right on every slide of the passage
+        ref: sl.title, // the passage reference, shown in the band at the bottom of every slide of the passage
         rows,
-        verse: true, segs: rows.map((r) => parseRich(r)), fmt: sl.fmt, bg: sl.fmt?.bg ?? look.bg, fg: sl.fmt?.color ?? look.fg, font: look.font, size: sl.fmt?.size, numColor: sl.fmt?.numColor ?? look.numColor,
+        verse: true, segs: rows.map((r) => parseRich(r)), fmt: sl.fmt, bg: sl.fmt?.bg ?? look.bg, fg: sl.fmt?.color ?? look.fg, font: look.font, size, numColor: sl.fmt?.numColor ?? look.numColor,
       }));
     } else {
       const markedLines = lines.map((l) => markVerses(l, look.verseNumbers));
@@ -159,7 +158,7 @@ export function buildOutput(slides: StudySlide[], look: Look): { size: number; s
       }
     }
   }
-  return { size, slides: pieces.map((p) => ({ ...p, label: look.showLabels ? p.label : "", align: look.align })) };
+  return { size, slides: pieces.map((p) => ({ ...p, label: look.showLabels ? p.label : "", align: look.align })), warnings };
 }
 
 // Flex alignment for a column of rows, matching the text alignment
@@ -365,10 +364,14 @@ export default function Scripture() {
     return result.id;
   }
 
-  // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures
+  // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures.
+  // The presentation name, if typed, becomes the Builder's title.
+  const [presName, setPresName] = useState("");
   async function addToPresentation() {
     const id = await save();
-    if (id) window.location.hash = "#builder";
+    if (!id) return;
+    try { if (presName.trim()) sessionStorage.setItem("pendingBuilderTitle", presName.trim()); } catch { /* blocked */ }
+    window.location.hash = "#builder";
   }
 
   // Favourite and recently used studies (this browser). Search covers the title, the reference and the passage labels.
@@ -535,7 +538,7 @@ export default function Scripture() {
       numColor: look.numColor, labelColor: look.labelColor,
       slides: output.slides.map((s) => ({
         align: look.align,
-        ref: s.ref,
+        ref: s.ref, pad: s.ref ? SLIDE_PAD : undefined,
         label: s.label, rows: s.rows, verse: s.verse, fmt: s.fmt, bg: s.bg, fg: s.fg, numColor: s.numColor ?? look.numColor, size: s.size ?? output.size,
         segs: (s.segs ?? s.rows.map((r) => parseRich(r))).map((line) => line.map((seg) => ({
           text: seg.text,
@@ -628,7 +631,6 @@ export default function Scripture() {
                 </>
               )}
             </select>
-            <button className="secondary" onClick={addToPresentation} disabled={busy || !user}>Add to presentation</button>
             <button className="secondary" onClick={newStudy}>New</button>
             <details className="sc-more">
               <summary>More</summary>
@@ -839,7 +841,7 @@ export default function Scripture() {
                   const cur = shown[Math.min(previewIndex, shown.length - 1)];
                   return (
                     <div className={`sc-big${look.aspect === "4:3" ? " ratio-43" : ""}`} style={{ background: cur.bg ?? look.bg, color: cur.fg ?? look.fg, fontFamily: `${cur.font ?? look.font}, sans-serif` }}>
-                      <div className="sc-big-text" style={{ textAlign: look.align, fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
+                      <div className="sc-big-text" style={{ textAlign: look.align, padding: SLIDE_PAD, fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
                         {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum", look.align)}
                       </div>
                       {cur.label && look.showLabels && <div className="sc-big-tag" style={{ color: look.labelColor }}>{cur.label}</div>}
@@ -876,6 +878,7 @@ export default function Scripture() {
             {/* Presentation settings: the look for this study */}
             <details className="sc-presentation">
                 <summary>Presentation Settings <span className="sc-summary">{settingsSummary}</span></summary>
+                {output.warnings.length > 0 && <p className="sc-warn" role="alert">{output.warnings[0]}{output.warnings.length > 1 ? ` (${output.warnings.length - 1} more)` : ""}</p>}
                 <div className="sc-settings">
                   <div className="sc-group">
                     <h3>Layout</h3>
@@ -891,10 +894,6 @@ export default function Scripture() {
                       <option value="16:9">16:9 widescreen</option>
                       <option value="4:3">4:3</option>
                     </select>
-                    <label htmlFor="sc-per">Lines per slide</label>
-                    <select id="sc-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
-                      {Array.from({ length: 14 }, (_, k) => k + 2).map((n) => <option key={n} value={n}>{n}</option>)}
-                    </select>
                   </div>
                   <div className="sc-group">
                     <h3>Typography</h3>
@@ -902,8 +901,12 @@ export default function Scripture() {
                     <select id="sc-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
                       {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
                     </select>
-                    <label htmlFor="sc-size">Font size (pt)</label>
-                    <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
+                    <div className="sc-size-row">
+                      <label htmlFor="sc-size">Font size (pt)</label>
+                      <input id="sc-size" type="number" min={20} max={200} placeholder="Auto" value={look.customSize || ""} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) || 0 })} />
+                      <button type="button" className="tool" onClick={() => setLook({ ...look, customSize: 0 })} disabled={!look.customSize}>Auto</button>
+                      <button type="button" className="tool" onClick={() => setLook({ ...look, customSize: RECOMMENDED_PT })}>Recommended {RECOMMENDED_PT} pt</button>
+                    </div>
                   </div>
                   <div className="sc-group">
                     <h3>Colors</h3>
@@ -930,6 +933,13 @@ export default function Scripture() {
               </details>
           </section>
         </div>
+        <footer className="sc-footer">
+          <label className="sc-footer-name">
+            <span>Presentation name</span>
+            <input value={presName} onChange={(e) => setPresName(e.target.value)} placeholder="Optional, for example Sunday Worship" />
+          </label>
+          <button className="primary" onClick={addToPresentation} disabled={busy || !user}>+ Add to Presentation</button>
+        </footer>
       </div>
     </>
   );

@@ -9,6 +9,7 @@ const PAGES = [
   { href: "#", label: "Lyric" },
   { href: "#readings-v2", label: "Readings" },
   { href: "#program", label: "Program" },
+  { href: "#program-simple", label: "Program Builder" },
   { href: "#thumbnail", label: "Thumbnail" },
   { href: "#scripture", label: "Scripture" },
   { href: "#builder", label: "Presentation Builder" },

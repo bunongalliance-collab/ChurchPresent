@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { cacheReadingCategories, cacheReadings, loadCachedReadingCategories, loadCachedReadings } from "../lib/offlineCache";
+import { parseRows, readingCategoryRowSchema, readingRowSchema } from "../lib/schemas";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
-import { COLOR_PRESETS, deckSize, flowLines, FONTS } from "../lib/slides";
-import { carryFormattingSlides, carryLines, contrastText, HIGHLIGHT_OPTIONS, parseRich, setColors, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
+import { COLOR_PRESETS, FONTS, RECOMMENDED_PT, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
+import { carryLines, contrastText, HIGHLIGHT_OPTIONS, parseRich, setColors, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, tokenLenAt } from "../lib/richeditor";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
-import { parseReadings } from "../lib/readingImport";
 import { downloadDeckPptx } from "../lib/pptx";
 import type { ProjDeck, ProjSlide } from "./Projector";
 
@@ -34,13 +35,18 @@ const store = (key: string, v: unknown) => { try { localStorage.setItem(key, JSO
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 // Paragraphs are separated by blank lines. Each paragraph starts a new slide (never mixed with the next one).
-export function readingSlides(content: string, look: ReadingLook): { rows: string[]; size: number }[] {
+export function readingSlides(content: string, look: ReadingLook): { rows: string[]; size: number; tooWide: string[] }[] {
   const paragraphs = content.split(/\n\s*\n/).map((p) => p.split("\n").map((l) => l.trim()).filter(Boolean)).filter((p) => p.length);
   const all = paragraphs.flat();
   if (!all.length) return [];
-  const size = look.customSize > 0 ? look.customSize : deckSize([all], look.font, look.perSlide);
-  const flat = paragraphs.flatMap((p) => flowLines(p, look.font, size, look.perSlide));
-  return carryFormattingSlides(flat).map((rows) => ({ rows, size }));
+  // One font size for the whole reading, measured in the browser; words wrap and each paragraph fills the slides it needs
+  const measure = browserMeasure(look.font);
+  const size = look.customSize > 0 ? look.customSize : passageAutoSize(all.join(" ").split(/\s+/).filter(Boolean), look.font, RECOMMENDED_PT, measure);
+  return paragraphs.flatMap((p) => {
+    const words = p.join(" ").split(/\s+/).filter(Boolean);
+    const { slides: laid, tooWide } = layoutPassage(words, look.font, size, SCRIPTURE_BOX_W, SCRIPTURE_BOX_H, measure);
+    return laid.map((rows, k) => ({ rows, size, tooWide: k === 0 ? tooWide : [] }));
+  });
 }
 
 // Formatted segments of a row, for the preview and the projector
@@ -98,9 +104,26 @@ export default function ReadingsV2() {
         supabase.from("readings").select("id, number, title, subtitle, category_id, content, look, owner_id").order("updated_at", { ascending: false }),
         u ? supabase.from("reading_categories").select("id, name, sort_order").order("sort_order") : Promise.resolve({ data: [], error: null }),
       ]);
-      if (r.error) { say("Could not load readings: " + r.error.message, true); return; }
-      setReadings((r.data ?? []).map((x) => ({ id: x.id, number: x.number ?? "", title: x.title, subtitle: x.subtitle ?? "", categoryId: x.category_id, content: x.content, look: x.look ?? {}, owner: x.owner_id })));
-      let cats: Category[] = (c.data ?? []).map((x) => ({ id: x.id, name: x.name, sort: x.sort_order }));
+      if (r.error) {
+        // Offline: show the readings saved on this device
+        const savedReadings = await loadCachedReadings();
+        const savedCats = await loadCachedReadingCategories();
+        if (savedReadings.length) {
+          setReadings(savedReadings.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.categoryId, content: x.content, look: (x.look ?? {}) as Reading["look"], owner: x.owner ?? "" })));
+          setCategories(savedCats.map((x) => ({ id: x.id, name: x.name, sort: x.sort })));
+          say("Offline: showing the readings saved on this device.");
+        } else {
+          say("Could not load readings: " + r.error.message, true);
+        }
+        return;
+      }
+      const parsedReadings = parseRows(readingRowSchema, r.data ?? []);
+      const rows = parsedReadings.rows.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.category_id, content: x.content, look: x.look as Reading["look"], owner: x.owner_id }));
+      setReadings(rows);
+      void cacheReadings(rows);
+      if (parsedReadings.dropped) say(`${parsedReadings.dropped} reading${parsedReadings.dropped === 1 ? "" : "s"} could not be read and ${parsedReadings.dropped === 1 ? "was" : "were"} skipped.`, true);
+      const parsedCats = parseRows(readingCategoryRowSchema, c.data ?? []);
+      let cats: Category[] = parsedCats.rows.map((x) => ({ id: x.id, name: x.name, sort: x.sort_order }));
       if (u && !cats.length) {
         // Seed once per user: two loads can run at the same time (session check and auth event)
         if (seedingFor.current === u.id) return;
@@ -110,6 +133,7 @@ export default function ReadingsV2() {
         cats = (seeded ?? []).map((x) => ({ id: x.id, name: x.name, sort: x.sort_order }));
       }
       setCategories(cats);
+      if (u && cats.length) void cacheReadingCategories(cats.map((x) => ({ id: x.id, name: x.name, sort: x.sort })));
     } else {
       setReadings(load(LOCAL_READINGS, []));
       let cats = load<Category[]>(LOCAL_CATEGORIES, []);
@@ -195,29 +219,6 @@ export default function ReadingsV2() {
     await refresh(null);
     setSelectedId(id);
     return item;
-  }
-  // Import: each "Number:" block is saved as its own reading, in the selected category
-  const [importText, setImportText] = useState("");
-  const importPreview = useMemo(() => { const n = parseReadings(importText).length; return n ? `${n} reading${n === 1 ? "" : "s"} found` : ""; }, [importText]);
-  async function importReadings() {
-    const found = parseReadings(importText);
-    if (!found.length) { say("No readings found. Each reading must start with “Number:”.", true); return; }
-    if (supabase && !user) { say("Sign in to save readings.", true); return; }
-    let saved = 0;
-    for (const f of found) {
-      const row = { number: f.number, title: f.title, subtitle: f.subtitle, category_id: categoryId || null, content: f.content, look };
-      if (supabase && user) {
-        const { error } = await supabase.from("readings").insert({ ...row, owner_id: user.id });
-        if (error) { say(`Could not save reading ${f.number}: ${error.message}`, true); break; }
-      } else {
-        const list = load<Reading[]>(LOCAL_READINGS, []);
-        list.unshift({ id: uid(), number: f.number, title: f.title, subtitle: f.subtitle, categoryId: row.category_id, content: f.content, look });
-        store(LOCAL_READINGS, list);
-      }
-      saved++;
-    }
-    await refresh(user);
-    if (saved === found.length) { setImportText(""); say(`${saved} reading${saved === 1 ? "" : "s"} saved.`); }
   }
 
   async function onSave() {
@@ -334,7 +335,7 @@ export default function ReadingsV2() {
   function buildDeck(): ProjDeck {
     return {
       font: look.font, size, bg: look.bg, fg: look.fg, showLabels: false,
-      slides: slides.map((s) => ({ rows: s.rows, segs: segsOf(s.rows).map((line) => line.map((seg) => ({ text: seg.text, f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null }))), size } as ProjSlide)),
+      slides: slides.map((s) => ({ rows: s.rows, pad: SLIDE_PAD, segs: segsOf(s.rows).map((line) => line.map((seg) => ({ text: seg.text, f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null }))), size } as ProjSlide)),
     };
   }
   function present() {
@@ -353,6 +354,11 @@ export default function ReadingsV2() {
     if (!slides.length) { say("Type or paste the reading first.", true); return; }
     const item = { kind: "reading", id: uid(), title: title.trim() || "Reading", categoryName: categoryId ? catName(categoryId) : "Other", font: look.font, bg: look.bg, fg: look.fg, size, slides: slides.map((s) => ({ rows: s.rows, size: s.size })) };
     try { sessionStorage.setItem(PENDING_BUILDER_KEY, JSON.stringify(item)); } catch { /* blocked */ }
+    // Keep the newest 8 additions for the Builder's Recent readings list
+    try {
+      const log = JSON.parse(localStorage.getItem("addedReadingsLog") || "[]") as unknown[];
+      localStorage.setItem("addedReadingsLog", JSON.stringify([item, ...log.filter((x) => (x as { id?: string }).id !== item.id)].slice(0, 8)));
+    } catch { /* storage blocked */ }
     setAddedList((cur) => [{ id: item.id, title: item.title }, ...cur].slice(0, 20));
     setAddedNow((cur) => [...cur, item.id]);
     say(`Added "${item.title}" to the presentation. Open the Presentation Builder to arrange it.`);
@@ -454,23 +460,6 @@ export default function ReadingsV2() {
 
           <p className={statusIsError ? "lv2-status error" : "lv2-status"} role="status">{status}</p>
 
-          <div className="lv2-actions">
-            <details className="lv2-more lv2-import">
-              <summary>Import readings from text</summary>
-              <div className="lv2-import-body">
-                <p className="lv2-sub">Paste readings. Each one starts at a line “Number:”. The title, subtitle and “Verse N:” lines are detected. Several readings in one paste are saved as separate readings.</p>
-                <textarea value={importText} onChange={(e) => setImportText(e.target.value)} rows={6} placeholder={"Number: 01\nTitle: …\nSubtitle: …\nVerse 1: …"} aria-label="Readings to import" />
-                <div className="lv2-actions-end">
-                  <button className="primary small" onClick={importReadings} disabled={!importText.trim()}>Save readings</button>
-                  <span className="lv2-sub">{importPreview}</span>
-                </div>
-              </div>
-            </details>
-            <span className="lv2-actions-end">
-              <button className="secondary" onClick={onSave}>Save Reading</button>
-              <button className={`primary lv2-add lv2-add-desk${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
-            </span>
-          </div>
 
           {addedList.length > 0 && (
             <div className="lv2-added">
@@ -479,8 +468,16 @@ export default function ReadingsV2() {
             </div>
           )}
 
+          <div className="rv2-dock">
+          <div className="lv2-actions rv2-actions-dock">
+            <span className="lv2-actions-end">
+              <button className="secondary" onClick={onSave}>Save Reading</button>
+              <button className={`primary lv2-add lv2-add-desk${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
+            </span>
+          </div>
           <details className="lv2-appearance" open>
-            <summary>Slide Appearance <span className="lv2-summary">{look.font} · {look.perSlide} lines · {look.customSize ? `${look.customSize} pt` : "Automatic size"}</span></summary>
+            <summary>Slide Appearance <span className="lv2-summary">{look.font} · {look.customSize ? `${look.customSize} pt` : "Automatic size"}</span></summary>
+            {slides.some((x) => x.tooWide.length > 0) && <p className="sc-warn" role="alert">A word is too wide for the slide at this size. Reduce the font size.</p>}
             <div className="lv2-appearance-grid">
               <div className="lv2-group">
                 <span className="lv2-field-label">Formatting (select text first)</span>
@@ -505,12 +502,9 @@ export default function ReadingsV2() {
                       {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
                     </select>
                   </label>
-                  <label>Lines per slide
-                    <select id="rv2-per" value={look.perSlide} onChange={(e) => setLook({ ...look, perSlide: parseInt(e.target.value, 10) })}>
-                      {Array.from({ length: 14 }, (_, k) => k + 2).map((n) => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </label>
+
                 </div>
+                <div className="lv2-size-row">
                 <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
                   <label><input type="radio" name="rv2Size" checked={!look.customSize} onChange={() => setLook({ ...look, customSize: 0 })} /> Automatic size</label>
                   <label><input type="radio" name="rv2Size" checked={!!look.customSize} onChange={() => setLook({ ...look, customSize: look.customSize || 60 })} /> Manual</label>
@@ -518,6 +512,8 @@ export default function ReadingsV2() {
                 <div className="lv2-slider">
                   <input type="range" min={20} max={200} step={1} disabled={!look.customSize} value={look.customSize || 60} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) })} aria-label="Font size in points" />
                   <output>{look.customSize ? `${look.customSize} pt` : "Auto"}</output>
+                </div>
+                <button type="button" className="lv2-quick" onClick={() => setLook({ ...look, customSize: RECOMMENDED_PT })}>Recommended {RECOMMENDED_PT} pt</button>
                 </div>
               </div>
               <div className="lv2-group">
@@ -532,6 +528,7 @@ export default function ReadingsV2() {
               </div>
             </div>
           </details>
+          </div>
 
           <details className="lv2-appearance lv2-cats">
             <summary>Manage categories</summary>

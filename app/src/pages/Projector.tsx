@@ -1,3 +1,4 @@
+import { SLIDE_PAD } from "../lib/slides";
 import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,6 +17,9 @@ export interface ProjSlide {
   rows?: string[];
   segs?: Seg[][];
   size?: number;
+  lineH?: number;       // line spacing for this slide
+  pad?: string;         // padding around the text on this slide (singing slides use less)
+  wrap?: boolean;       // one text block that wraps at word boundaries, with a band at the bottom for the reference
   align?: "left" | "center" | "right" | "justify";
   verse?: boolean;
 }
@@ -88,8 +92,10 @@ const CHANNEL = "church-projector";
 // One slide as a stage. The audience uses it full screen; the presenter window shows it small.
 function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?: () => void) {
   const lines: Seg[][] = slide.segs ?? (slide.rows ?? []).map((r) => [{ text: r, f: null }]);
+  // A wrapped block is one paragraph: its rows run together and the browser wraps them at word boundaries
+  const shownLines: Seg[][] = slide.wrap ? [lines.flatMap((l, i) => (i ? [{ text: " ", f: null }, ...l] : l))] : lines;
   const numColor = slide.verse ? (slide.numColor || deck.numColor || "#f2c14e") : null;
-  const textStyle = { "--size": slide.size || deck.size } as React.CSSProperties;
+  const textStyle = { "--size": slide.size || deck.size, ...(slide.lineH ? { "--lh": slide.lineH } : {}), ...(slide.pad ? { "--pad": slide.pad } : {}) } as React.CSSProperties;
   const ends = paragraphEnds(lines.map((l) => l.map((s) => s.text).join("")));
   return (
     <div
@@ -97,16 +103,16 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
       style={{ background: slide.bg ?? deck.bg, color: slide.fg ?? deck.fg, fontFamily: `${slide.font ?? deck.font}, Arial, sans-serif` }}
       onClick={onClick}
     >
-      <div className="text" style={{ ...textStyle, paddingBottom: deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
+      <div className="text" style={{ ...textStyle, paddingBottom: slide.ref ? `calc(${SLIDE_PAD} + 9%)` : deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
         <div style={{ width: "100%", textAlign: slide.align === "justify" ? "justify" : slide.align ?? "center", ...fmtStyle(slide.fmt) }}>
-          {slide.align === "justify"
+          {slide.align === "justify" && !slide.wrap
             // Justified: each paragraph (verse) is one block, so the browser wraps it and fills the full width
             ? groupParagraphs(ends).map((grp, gi) => (
               <div key={gi} style={{ textAlign: "justify" }}>
                 {grp.map((i, k) => <span key={i}>{k > 0 ? " " : null}{lineNodes(lines[i], numColor)}</span>)}
               </div>
             ))
-            : lines.map((segs, i) => <div key={i}>{lineNodes(segs, numColor)}</div>)}
+            : shownLines.map((segs, i) => <div key={i}>{lineNodes(segs, numColor)}</div>)}
         </div>
       </div>
       {slide.ref && <div className="ref-tag">{slide.ref}</div>}
