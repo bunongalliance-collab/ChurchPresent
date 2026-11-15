@@ -46,12 +46,50 @@ class ChurchCache extends Dexie {
   readings!: Table<CachedReading, string>;
   readingCategories!: Table<CachedReadingCategory, string>;
   outbox!: Table<OutboxItem, number>;
+  readerSongs!: Table<ReaderSong, string>;
 
   constructor() {
     super("churchAppCache");
     this.version(1).stores({ songs: "id", lyrics: "id" });
     this.version(2).stores({ songs: "id", lyrics: "id", readings: "id", readingCategories: "id, sort" });
     this.version(3).stores({ songs: "id", lyrics: "id", readings: "id", readingCategories: "id, sort", outbox: "++seq" });
+    this.version(4).stores({ songs: "id", lyrics: "id", readings: "id", readingCategories: "id, sort", outbox: "++seq", readerSongs: "id" });
+  }
+}
+
+// The Nau Mpro reader keeps every song with its lyrics, so the whole hymn book opens offline
+export interface ReaderSong {
+  id: string;
+  number: string;
+  title: string;
+  lyrics: string;
+  category: string;
+  language: string;
+  updated: string;
+}
+
+// Replace the saved hymn book with the latest copy (songs deleted on the server go too)
+export async function cacheReaderSongs(rows: ReaderSong[]): Promise<boolean> {
+  const d = getDb();
+  if (!d) return false;
+  try {
+    await d.transaction("rw", d.readerSongs, async () => {
+      await d.readerSongs.clear();
+      await d.readerSongs.bulkPut(rows);
+    });
+    return true;
+  } catch {
+    return false;   // storage full or blocked: the reader still works while online
+  }
+}
+
+export async function loadReaderSongs(): Promise<ReaderSong[]> {
+  const d = getDb();
+  if (!d) return [];
+  try {
+    return await d.readerSongs.toArray();
+  } catch {
+    return [];
   }
 }
 

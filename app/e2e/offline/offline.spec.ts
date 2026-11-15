@@ -44,3 +44,21 @@ test("every page opens offline after one online visit", async ({ page, context }
   }
   expect(failures).toEqual([]);
 });
+
+
+// The Nau Mpro reader is its own page: it must open offline with the hymn book saved on the device
+test('the Nau Mpro reader opens offline with saved songs', async ({ page, context }) => {
+  test.setTimeout(120000);
+  await page.goto('/nau-mpro/');
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+  await page.reload();
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 30000 });
+  await expect(page.locator('.nm-row').first()).toBeVisible({ timeout: 20000 });
+  await expect(page.locator('.nm-saved')).toContainText('Saved for offline');
+  await context.setOffline(true);
+  await page.goto('/nau-mpro/', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveTitle('Nau Mpro');
+  await expect(page.locator('.nm-row').first()).toBeVisible({ timeout: 15000 });
+  await page.locator('.nm-row').first().click();
+  await expect(page.locator('.nm-title')).toBeVisible();
+});

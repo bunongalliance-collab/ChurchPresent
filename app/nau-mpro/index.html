@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Nau Mpro</title>
+    <meta name="description" content="Hymns of Montagnard Bunong Alliance Church, to read on your phone or computer. Works offline." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/nau-mpro/manifest.webmanifest" />
+    <meta name="theme-color" content="#00714D" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Nau Mpro" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <script>
+      // The reader's own light/dark choice (light unless chosen), set before the page paints
+      (function () {
+        var t = "light";
+        try { if (localStorage.getItem("readerTheme") === "dark") t = "dark"; } catch (e) {}
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/reader/main.tsx"></script>
+  </body>
+</html>

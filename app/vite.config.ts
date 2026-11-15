@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { recordVisit } from './api/_visit-core.js'
+import { fileURLToPath } from 'node:url'
 
 // Local stand-in for api/yv/[...path].js, so the scripture page works in `npm run dev`.
 // Reads YV_APP_KEY from app/.env.local (no VITE_ prefix, so it is never bundled into the page).
@@ -48,6 +49,22 @@ function visitDevProxy(supabaseUrl: string, anonKey: string, serviceKey: string)
   }
 }
 
+// The PWA plugin adds the team app's manifest link to every page. The reader has its own,
+// so remove the extra one there (the reader installs as "Nau Mpro", not as the team app).
+function readerOwnManifest(): Plugin {
+  return {
+    name: 'reader-own-manifest',
+    enforce: 'post',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        if (!ctx.path.startsWith('/nau-mpro/')) return html
+        return html.replace(/\s*<link rel="manifest" href="\/manifest\.webmanifest"\s*\/?>/g, '')
+      },
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
@@ -73,8 +90,11 @@ export default defineConfig(({ mode }) => {
         workbox: {
           // The main bundle is about 2.3 MB; the default 2 MB limit left it out of the offline cache
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          // The Nau Mpro reader's manifest and lyric fonts are saved too, so the reader opens offline
+          globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'nau-mpro/*.webmanifest', 'fonts/NotoSerif-*.ttf'],
           navigateFallback: 'index.html',
+          // The reader is its own page: never answer it with the team app's page
+          navigateFallbackDenylist: [/^\/nau-mpro/],
           runtimeCaching: [
             {
               // Songs, presentations and scripture studies: the last copy is used when offline
@@ -100,6 +120,16 @@ export default defineConfig(({ mode }) => {
         },
         devOptions: { enabled: false },
       }),
+      readerOwnManifest(),
     ],
+    // Two pages: the team app, and the Nau Mpro reader at /nau-mpro/
+    build: {
+      rollupOptions: {
+        input: {
+          main: fileURLToPath(new URL('./index.html', import.meta.url)),
+          reader: fileURLToPath(new URL('./nau-mpro/index.html', import.meta.url)),
+        },
+      },
+    },
   }
 })

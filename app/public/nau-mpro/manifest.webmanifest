@@ -1,0 +1,14 @@
+{
+  "name": "Nau Mpro",
+  "short_name": "Nau Mpro",
+  "description": "Hymns of Montagnard Bunong Alliance Church, to read on your phone or computer. Works offline.",
+  "id": "/nau-mpro/",
+  "start_url": "/nau-mpro/",
+  "scope": "/nau-mpro/",
+  "display": "standalone",
+  "theme_color": "#00714D",
+  "background_color": "#F3F5F7",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
