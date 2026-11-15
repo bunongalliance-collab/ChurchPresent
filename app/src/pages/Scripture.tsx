@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
+import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
@@ -109,7 +110,13 @@ function newSlide(kind: Kind): StudySlide {
 // One verse from the Vercel function (or the Vite dev stand-in). The key stays on the server.
 async function fetchVerse(bible: string, code: string, ch: number, v: number): Promise<string> {
   const path = `v1/bibles/${encodeURIComponent(bible)}/passages/${code}.${ch}.${v}`;
-  const r = await fetch(`/api/yv?path=${encodeURIComponent(path)}`);
+  let r: Response;
+  try {
+    r = await fetch(`/api/yv?path=${encodeURIComponent(path)}`);
+  } catch {
+    // Offline and never fetched before: a verse is only kept after it has been opened online
+    throw new Error("Offline: this verse has not been opened on this device yet. Open it once while online.");
+  }
   if (r.status === 404) throw new Error("Verse not found. Check the book, chapter and verse.");
   if (!r.ok) throw new Error(`Bible service returned ${r.status}.`);
   const j = (await r.json()) as { content?: string };
@@ -352,16 +359,17 @@ export default function Scripture() {
     const reference = slides.find((s) => s.kind === "passage" && s.title)?.title ?? "";
     const row = { study_title: title.trim(), reference, data };
     setBusy(true);
-    const q = currentId
-      ? supabase.from("scripture_studies").update(row).eq("id", currentId).select("id").single()
-      : supabase.from("scripture_studies").insert({ ...row, owner_id: user.id }).select("id").single();
-    const { data: result, error: err } = await q;
+    const id = currentId || newId();
+    const r = currentId
+      ? await saveRow({ table: "scripture_studies", op: "update", id, data: row })
+      : await saveRow({ table: "scripture_studies", op: "insert", id, data: { ...row, owner_id: user.id } });
     setBusy(false);
-    if (err) { say("Could not save: " + err.message, true); return null; }
-    setCurrentId(result.id);
+    if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
+    setCurrentId(id);
+    if (r.status === "queued") { say(QUEUED_NOTE); return id; }
     await loadSaved();
     say(`Saved "${title.trim()}".`);
-    return result.id;
+    return id;
   }
 
   // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures.
@@ -428,11 +436,11 @@ export default function Scripture() {
     if (!currentId) { newStudy(); return; }
     if (!supabase || !user) { say("Sign in to delete saved studies.", true); return; }
     if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const { error: err } = await supabase.from("scripture_studies").delete().eq("id", currentId);
-    if (err) { say("Could not delete: " + err.message, true); return; }
-    await loadSaved();
+    const r = await saveRow({ table: "scripture_studies", op: "delete", id: currentId });
+    if (r.status === "error") { say("Could not delete: " + r.message, true); return; }
+    if (r.status === "sent") await loadSaved();
     newStudy();
-    say("Study deleted.");
+    say(r.status === "queued" ? QUEUED_NOTE : "Study deleted.");
   }
 
   // ---------- Slide list ----------
@@ -728,6 +736,13 @@ export default function Scripture() {
                   <VerseTextBox key={selected.id} id="sc-text" value={selected.text} onChange={(v) => update(selected.id, { text: v })} onSelect={onSelect} />
                 </div>
                 <div className="sc-format-dock">
+                <div className="sc-pres-add">
+                  <label className="sc-footer-name">
+                    <span>Presentation name</span>
+                    <input value={presName} onChange={(e) => setPresName(e.target.value)} placeholder="Optional, for example Sunday Worship" />
+                  </label>
+                  <button className="primary" onClick={addToPresentation} disabled={busy || !user}>+ Add to Presentation</button>
+                </div>
                 <div className="sc-field">
                   <span className="sc-label">Formatting</span>
                   <div className="fmt-toolbar">
@@ -933,13 +948,6 @@ export default function Scripture() {
               </details>
           </section>
         </div>
-        <footer className="sc-footer">
-          <label className="sc-footer-name">
-            <span>Presentation name</span>
-            <input value={presName} onChange={(e) => setPresName(e.target.value)} placeholder="Optional, for example Sunday Worship" />
-          </label>
-          <button className="primary" onClick={addToPresentation} disabled={busy || !user}>+ Add to Presentation</button>
-        </footer>
       </div>
     </>
   );

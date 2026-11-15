@@ -10,6 +10,7 @@ import {
 import { SONG_CATEGORIES, SONG_LANGUAGES, type SongLook } from "./Lyrics";
 import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from "../lib/offlineCache";
 import { parseRows, songRowSchema } from "../lib/schemas";
+import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 
 // Lyric V2: the Lyrics page in the find | edit | check layout.
 // It reads and writes the same songs, drafts and browser storage as the Lyrics page, so the two stay in step.
@@ -274,8 +275,9 @@ export default function LyricsV2() {
     const song = songs.find((x) => x.id === selectedId);
     if (!song || (supabase && song.owner !== user?.id)) return; // not saved yet, or someone else's: saved with the next Save
     if (supabase && user) {
-      const { error } = await supabase.from("lyric_songs").update({ [field]: value }).eq("id", song.id);
-      if (error) { say("Could not save " + field + ": " + error.message, true); return; }
+      const r = await saveRow({ table: "lyric_songs", op: "update", id: song.id, data: { [field]: value } });
+      if (r.status === "error") { say("Could not save " + field + ": " + r.message, true); return; }
+      if (r.status === "queued") { setSongs((cur) => cur.map((x) => (x.id === song.id ? { ...x, [field]: value } : x))); say(QUEUED_NOTE); return; }
     } else {
       storeLocal(loadLocal().map((x) => (x.id === song.id ? { ...x, [field]: value } : x)));
     }
@@ -292,12 +294,14 @@ export default function LyricsV2() {
     const look = currentLook();
     const row = { title: songTitle.trim(), song_number: songNumber.trim(), lyrics, look, category: songCategory, language: songLanguage };
     if (supabase && user) {
-      const q = existing
-        ? supabase.from("lyric_songs").update(row).eq("id", existing.id).select("id").single()
-        : supabase.from("lyric_songs").insert(row).select("id").single();
-      const { data, error } = await q;
-      if (error) { say("Could not save: " + error.message, true); return null; }
-      const saved: SavedSong = { id: data.id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language, owner: user.id };
+      // New songs get their id here, so a save made offline can be sent later with the same id
+      const id = existing ? existing.id : newId();
+      const r = existing
+        ? await saveRow({ table: "lyric_songs", op: "update", id, data: row })
+        : await saveRow({ table: "lyric_songs", op: "insert", id, data: { ...row, owner_id: user.id } });
+      if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
+      if (r.status === "queued") say(QUEUED_NOTE);
+      const saved: SavedSong = { id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language, owner: user.id };
       // Update just this song in the list (no reload of the whole list)
       lyricsCache.current.set(saved.id, lyrics);
       setSongs((cur) => (cur.some((x) => x.id === saved.id) ? cur.map((x) => (x.id === saved.id ? saved : x)) : [saved, ...cur]));
@@ -371,8 +375,9 @@ export default function LyricsV2() {
     if (supabase && user) {
       const mine = songs.find((s) => s.id === selectedId);
       if (mine && mine.owner !== user.id) { say("You can only delete songs you saved.", true); return; }
-      const { error } = await supabase.from("lyric_songs").delete().eq("id", selectedId);
-      if (error) { say("Could not delete: " + error.message, true); return; }
+      const r = await saveRow({ table: "lyric_songs", op: "delete", id: selectedId });
+      if (r.status === "error") { say("Could not delete: " + r.message, true); return; }
+      if (r.status === "queued") say(QUEUED_NOTE);
     } else {
       storeLocal(loadLocal().filter((s) => s.id !== selectedId));
     }

@@ -21,31 +21,39 @@ export default function ProgramSimple() {
     return emptyLines();
   });
 
-  const [songs, setSongs] = useState<string[]>([]);
-  const [people, setPeople] = useState<string[]>([]);
+  // Dropdown options carry a date, so the lists can show the newest first
+  const [songs, setSongs] = useState<{ value: string; date: string }[]>([]);
+  const [people, setPeople] = useState<{ value: string; date: string }[]>([]);
   const [passages, setPassages] = useState<Record<string, string>>({});
+  const [passageOpts, setPassageOpts] = useState<{ value: string; label: string; date: string }[]>([]);
   const [status, setStatus] = useState("Saved in this browser.");
 
   useEffect(() => {
     if (!supabase) {
       try {
         const ls = JSON.parse(localStorage.getItem("lyricsSongs") || "[]") as { number?: string; title?: string }[];
-        setSongs(ls.map((x) => (x.number ? `${x.number}. ` : "") + (x.title || "")).filter(Boolean));
+        setSongs(ls.map((x) => ({ value: (x.number ? `${x.number}. ` : "") + (x.title || ""), date: "" })).filter((o) => o.value));
       } catch { /* storage blocked */ }
       return;
     }
     (async () => {
       const [s, t, p] = await Promise.all([
-        supabase.from("lyric_songs").select("song_number, title").order("updated_at", { ascending: false }),
-        supabase.from("scripture_studies").select("study_title, reference, data").order("updated_at", { ascending: false }),
-        supabase.from("saved_people").select("name").order("name"),
+        supabase.from("lyric_songs").select("song_number, title, updated_at").order("updated_at", { ascending: false }),
+        supabase.from("scripture_studies").select("study_title, reference, data, updated_at").order("updated_at", { ascending: false }),
+        supabase.from("saved_people").select("name, created_at").order("name"),
       ]);
       if (s.error) setStatus(`Could not load songs: ${s.error.message}`);
-      setSongs((s.data ?? []).map((x) => (x.song_number ? `${x.song_number}. ` : "") + (x.title || "")).filter(Boolean));
+      setSongs((s.data ?? []).map((x) => ({ value: (x.song_number ? `${x.song_number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
       const map: Record<string, string> = {};
-      (t.data ?? []).forEach((x) => { if (x.reference) map[x.reference] = studyPassage(x.data); });
+      const opts: { value: string; label: string; date: string }[] = [];
+      (t.data ?? []).forEach((x) => {
+        if (!x.reference) return;
+        map[x.reference] = studyPassage(x.data);
+        opts.push({ value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "" });
+      });
       setPassages(map);
-      setPeople((p.data ?? []).map((x) => x.name));
+      setPassageOpts(opts);
+      setPeople((p.data ?? []).map((x) => ({ value: x.name, date: x.created_at ?? "" })));
     })();
   }, []);
 
@@ -115,12 +123,14 @@ export default function ProgramSimple() {
           </div>
         </div>
 
-        <datalist id="ps-songs">{songs.map((n) => <option key={n} value={n} />)}</datalist>
-        <datalist id="ps-passages">{Object.keys(passages).map((n) => <option key={n} value={n} />)}</datalist>
-        <datalist id="ps-people">{people.map((n) => <option key={n} value={n} />)}</datalist>
-
         <div className="ps-layout">
-          <OrderEditor lines={lines} setLines={setLines} />
+          <OrderEditor
+            lines={lines}
+            setLines={setLines}
+            songOptions={songs}
+            passageOptions={passageOpts}
+            personOptions={people}
+          />
 
           <aside className="ps-side" aria-label="Program preview">
             <div className="ps-side-head">Program preview</div>

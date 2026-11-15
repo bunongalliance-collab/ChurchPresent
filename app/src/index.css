@@ -1753,6 +1753,12 @@ textarea.th-field { resize: vertical; }
 .sc-warn { margin: 6px 0; color: var(--danger); font-size: 12px; }
 /* Scripture: Add to Presentation at the bottom, with an optional presentation name */
 .sc-footer { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-end; gap: 10px 14px; padding: 12px 0 4px; }
+/* Scripture: the presentation name and Add button sit above the formatting section */
+.sc-pres-add { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 8px; padding: 0 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--sc-line, rgb(var(--text-rgb) / 0.12)); }
+.sc-pres-add .sc-footer-name { flex: 1; min-width: 0; margin-right: 0; }
+.sc-pres-add .sc-footer-name input { width: 100%; box-sizing: border-box; margin: 0; }
+.sc-pres-add .sc-footer-name { gap: 4px; margin: 0; }
+.sc-pres-add button { white-space: nowrap; flex-shrink: 0; height: 34px; box-sizing: border-box; padding-top: 0; padding-bottom: 0; }
 .sc-footer-name { display: grid; gap: 4px; font-size: 12px; color: var(--muted); margin-right: auto; min-width: 220px; }
 .sc-footer-name input { height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); font: inherit; }
 
@@ -1794,3 +1800,10 @@ textarea.th-field { resize: vertical; }
 .recent-item.recent-song > button.primary { background: var(--recent-song); border-color: var(--recent-song); color: var(--panel); }
 .recent-item.recent-reading > button.primary { background: var(--recent-reading); border-color: var(--recent-reading); color: var(--panel); }
 .recent-item.recent-scripture > button.primary { background: var(--recent-scripture); border-color: var(--recent-scripture); color: var(--panel); }
+
+/* Order of Worship: dropdown for songs, passages and names; shows the full list until you type */
+.ps-suggest-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
+.ps-suggest-wrap .ps-edit { width: 100%; }
+.ps-suggest-list { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 240px; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
+.ps-suggest-list button { display: block; width: 100%; text-align: left; padding: 6px 8px; background: none; border: 0; border-radius: 6px; color: var(--text); font: inherit; cursor: pointer; }
+.ps-suggest-list button:hover, .ps-suggest-list button:focus-visible { background: var(--line); outline: none; }

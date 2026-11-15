@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import NavBar from "../components/NavBar";
 import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
@@ -376,12 +377,13 @@ export default function Builder() {
     if (!title.trim()) { say("Give the presentation a title."); return; }
     if (supabase) {
       if (!userId) { say("Sign in on the Lyrics page to save presentations."); return; }
-      const q = currentId
-        ? supabase.from("presentations").update({ title, data }).eq("id", currentId).select("id").single()
-        : supabase.from("presentations").insert({ title, data, owner_id: userId }).select("id").single();
-      const { data: row, error } = await q;
-      if (error) { say("Could not save: " + error.message); return; }
-      setCurrentId(row.id);
+      const id = currentId || newId();
+      const r = currentId
+        ? await saveRow({ table: "presentations", op: "update", id, data: { title, data } })
+        : await saveRow({ table: "presentations", op: "insert", id, data: { title, data, owner_id: userId } });
+      if (r.status === "error") { say("Could not save: " + r.message); return; }
+      setCurrentId(id);
+      if (r.status === "queued") { say(QUEUED_NOTE); return; }
       await loadPresentations();
     } else {
       const list = savedList.filter((p) => p.id !== currentId);
@@ -419,9 +421,10 @@ export default function Builder() {
     if (!currentId) { newPresentation(); return; }
     if (!window.confirm("Delete this presentation?")) return;
     if (supabase) {
-      const { error } = await supabase.from("presentations").delete().eq("id", currentId);
-      if (error) { say("Could not delete: " + error.message); return; }
-      await loadPresentations();
+      const r = await saveRow({ table: "presentations", op: "delete", id: currentId });
+      if (r.status === "error") { say("Could not delete: " + r.message); return; }
+      if (r.status === "sent") await loadPresentations();
+      else say(QUEUED_NOTE);
     } else {
       const next = savedList.filter((p) => p.id !== currentId);
       try { localStorage.setItem(LOCAL_KEY, JSON.stringify(next)); } catch { /* storage blocked */ }

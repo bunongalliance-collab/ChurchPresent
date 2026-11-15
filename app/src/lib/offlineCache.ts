@@ -45,12 +45,25 @@ class ChurchCache extends Dexie {
   lyrics!: Table<CachedLyrics, string>;
   readings!: Table<CachedReading, string>;
   readingCategories!: Table<CachedReadingCategory, string>;
+  outbox!: Table<OutboxItem, number>;
 
   constructor() {
     super("churchAppCache");
     this.version(1).stores({ songs: "id", lyrics: "id" });
     this.version(2).stores({ songs: "id", lyrics: "id", readings: "id", readingCategories: "id, sort" });
+    this.version(3).stores({ songs: "id", lyrics: "id", readings: "id", readingCategories: "id, sort", outbox: "++seq" });
   }
+}
+
+// A save waiting to reach Supabase. Written in order (seq) and sent when the device is online.
+export interface OutboxItem {
+  seq?: number;
+  table: string;
+  op: "insert" | "update" | "delete";
+  id: string;
+  data?: Record<string, unknown>;
+  queuedAt: number;
+  error?: string;   // set when the server refused it; kept so nothing is lost silently
 }
 
 // Created lazily, so a browser without IndexedDB only fails inside the try/catch below
@@ -62,6 +75,10 @@ function getDb(): ChurchCache | null {
   } catch {
     return null;
   }
+}
+
+export function getOutbox(): Table<OutboxItem, number> | null {
+  return getDb()?.outbox ?? null;
 }
 
 // Replace the saved song list with the latest one from the server (removes songs deleted there)

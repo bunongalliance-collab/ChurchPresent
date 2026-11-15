@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { cacheReadingCategories, cacheReadings, loadCachedReadingCategories, loadCachedReadings } from "../lib/offlineCache";
 import { parseRows, readingCategoryRowSchema, readingRowSchema } from "../lib/schemas";
+import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { COLOR_PRESETS, FONTS, RECOMMENDED_PT, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
@@ -200,13 +201,19 @@ export default function ReadingsV2() {
     const existing = selected && owned ? selected : null;
     const row = { title: title.trim(), number: number.trim(), subtitle: subtitle.trim(), category_id: categoryId || null, content, look };
     if (supabase && user) {
-      const q2 = existing
-        ? supabase.from("readings").update(row).eq("id", existing.id).select("id").single()
-        : supabase.from("readings").insert({ ...row, owner_id: user.id }).select("id").single();
-      const { data, error } = await q2;
-      if (error) { say("Could not save: " + error.message, true); return null; }
-      const saved: Reading = { id: data.id, number: row.number, title: row.title, subtitle: row.subtitle, categoryId: row.category_id, content, look, owner: user.id };
-      await refresh(user);
+      const id = existing ? existing.id : newId();
+      const r = existing
+        ? await saveRow({ table: "readings", op: "update", id, data: row })
+        : await saveRow({ table: "readings", op: "insert", id, data: { ...row, owner_id: user.id } });
+      if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
+      const saved: Reading = { id, number: row.number, title: row.title, subtitle: row.subtitle, categoryId: row.category_id, content, look, owner: user.id };
+      if (r.status === "queued") {
+        // No connection: show the reading now; it uploads when the device is back online
+        setReadings((cur) => (cur.some((x) => x.id === saved.id) ? cur.map((x) => (x.id === saved.id ? saved : x)) : [saved, ...cur]));
+        say(QUEUED_NOTE);
+      } else {
+        await refresh(user);
+      }
       setSelectedId(saved.id);
       return saved;
     }
@@ -242,9 +249,11 @@ export default function ReadingsV2() {
     const name = newCat.trim();
     if (!name) return;
     if (supabase && user) {
-      const { data, error } = await supabase.from("reading_categories").insert({ owner_id: user.id, name, sort_order: categories.length }).select("id, name, sort_order").single();
-      if (error) { say("Could not add category: " + error.message, true); return; }
-      setCategories((cur) => [...cur, { id: data.id, name: data.name, sort: data.sort_order }]);
+      const id = newId();
+      const r = await saveRow({ table: "reading_categories", op: "insert", id, data: { owner_id: user.id, name, sort_order: categories.length } });
+      if (r.status === "error") { say("Could not add category: " + r.message, true); return; }
+      setCategories((cur) => [...cur, { id, name, sort: categories.length }]);
+      if (r.status === "queued") say(QUEUED_NOTE);
     } else {
       writeCategories([...categories, { id: uid(), name, sort: categories.length }]);
     }
@@ -254,8 +263,9 @@ export default function ReadingsV2() {
     const name = window.prompt("Rename category", c.name)?.trim();
     if (!name || name === c.name) return;
     if (supabase && user) {
-      const { error } = await supabase.from("reading_categories").update({ name }).eq("id", c.id);
-      if (error) { say("Could not rename: " + error.message, true); return; }
+      const r = await saveRow({ table: "reading_categories", op: "update", id: c.id, data: { name } });
+      if (r.status === "error") { say("Could not rename: " + r.message, true); return; }
+      if (r.status === "queued") say(QUEUED_NOTE);
     }
     writeCategories(categories.map((x) => (x.id === c.id ? { ...x, name } : x)));
   }
@@ -266,17 +276,20 @@ export default function ReadingsV2() {
     const next = categories.slice();
     [next[i], next[j]] = [next[j], next[i]];
     const withSort = next.map((x, k) => ({ ...x, sort: k }));
-    const db = supabase;
-    if (db && user) {
-      await Promise.all([withSort[i], withSort[j]].map((x) => db.from("reading_categories").update({ sort_order: x.sort }).eq("id", x.id)));
+    if (supabase && user) {
+      const results = await Promise.all([withSort[i], withSort[j]].map((x) => saveRow({ table: "reading_categories", op: "update", id: x.id, data: { sort_order: x.sort } })));
+      const failed = results.find((r) => r.status === "error");
+      if (failed && failed.status === "error") { say("Could not move: " + failed.message, true); return; }
+      if (results.some((r) => r.status === "queued")) say(QUEUED_NOTE);
     }
     writeCategories(withSort);
   }
   async function deleteCategory(c: Category) {
     if (!window.confirm(`Delete the category "${c.name}"? Its readings move to Other.`)) return;
     if (supabase && user) {
-      const { error } = await supabase.from("reading_categories").delete().eq("id", c.id);
-      if (error) { say("Could not delete: " + error.message, true); return; }
+      const r = await saveRow({ table: "reading_categories", op: "delete", id: c.id });
+      if (r.status === "error") { say("Could not delete: " + r.message, true); return; }
+      if (r.status === "queued") say(QUEUED_NOTE);
     } else {
       store(LOCAL_READINGS, load<Reading[]>(LOCAL_READINGS, []).map((r) => (r.categoryId === c.id ? { ...r, categoryId: null } : r)));
     }

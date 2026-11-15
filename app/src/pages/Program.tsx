@@ -137,14 +137,14 @@ function studyText(data: unknown): string {
 export default function Program() {
   const [d, setD] = useState<Draft>(() => loadDraft());
   // Saved people are shared: everyone reads the list, and each person removes only the names they added
-  const [people, setPeople] = useState<{ id: string; name: string; owner: string }[]>([]);
+  const [people, setPeople] = useState<{ id: string; name: string; owner: string; created: string }[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [newPerson, setNewPerson] = useState("");
   const loadPeopleList = async () => {
     if (!supabase) return;
-    const { data, error } = await supabase.from("saved_people").select("id, name, owner_id").order("name");
+    const { data, error } = await supabase.from("saved_people").select("id, name, owner_id, created_at").order("name");
     if (error) { setStatus(`Could not load saved people: ${error.message}`); return; }
-    setPeople((data ?? []).map((x) => ({ id: x.id, name: x.name, owner: x.owner_id })));
+    setPeople((data ?? []).map((x) => ({ id: x.id, name: x.name, owner: x.owner_id, created: x.created_at ?? "" })));
   };
   useEffect(() => {
     if (!supabase) return;
@@ -166,16 +166,24 @@ export default function Program() {
   });
   // Scripture text for the PDF comes from the saved studies, as in the Program Builder
   const [passages, setPassages] = useState<Record<string, string>>({});
-  const [songOptions, setSongOptions] = useState<string[]>([]);
+  const [songOptions, setSongOptions] = useState<{ value: string; date: string }[]>([]);
+  // Passage suggestions: the study's title and its verse, e.g. "Trust in God — Psalm 23:1-6"; the verse is what gets saved
+  const [passageOptions, setPassageOptions] = useState<{ value: string; label: string; date: string }[]>([]);
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("lyric_songs").select("song_number, title").order("updated_at", { ascending: false }).then(({ data }) => {
-      setSongOptions((data ?? []).map((x) => (x.song_number ? `${x.song_number}. ` : "") + (x.title || "")).filter(Boolean));
+    supabase.from("lyric_songs").select("song_number, title, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
+      setSongOptions((data ?? []).map((x) => ({ value: (x.song_number ? `${x.song_number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
     });
-    supabase.from("scripture_studies").select("reference, data").then(({ data }) => {
+    supabase.from("scripture_studies").select("study_title, reference, data, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
       const map: Record<string, string> = {};
-      (data ?? []).forEach((x) => { if (x.reference) map[x.reference] = studyText(x.data); });
+      const opts: { value: string; label: string; date: string }[] = [];
+      (data ?? []).forEach((x) => {
+        if (!x.reference) return;
+        map[x.reference] = studyText(x.data);
+        opts.push({ value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "" });
+      });
       setPassages(map);
+      setPassageOptions(opts);
     });
   }, []);
   const pdfDraft: Draft = useMemo(() => (d.lines ? { ...d, rows: toRows(d.lines, passages) } : d), [d, passages]);
@@ -276,9 +284,6 @@ export default function Program() {
 
       <datalist id="pg-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
       {/* Suggestions for the Order of Worship: saved songs, passages (their text fills Today's Scripture and the cover) and names */}
-      <datalist id="ps-songs">{songOptions.map((n) => <option key={n} value={n} />)}</datalist>
-      <datalist id="ps-passages">{Object.keys(passages).map((n) => <option key={n} value={n} />)}</datalist>
-      <datalist id="ps-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
 
       <section className="pg-preview" aria-label="Brochure preview">
         <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
@@ -348,7 +353,13 @@ export default function Program() {
             <p className="pg-led">Led by <input className="pg-in pg-led-in" list="pg-people" value={d.leader} onChange={(e) => set("leader", e.target.value)} aria-label="Led by" placeholder="Name" /></p>
           </div>
           <h2 className="pg-h2"><input className="pg-in" value={d.orderTitle} onChange={(e) => set("orderTitle", e.target.value)} aria-label="Order of worship heading" /></h2>
-          <OrderEditor lines={orderLines} setLines={setOrderLines} />
+          <OrderEditor
+            lines={orderLines}
+            setLines={setOrderLines}
+            songOptions={songOptions}
+            passageOptions={passageOptions}
+            personOptions={people.map((p) => ({ value: p.name, date: p.created }))}
+          />
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
           <div className="pg-scripture">
             <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>

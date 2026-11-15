@@ -43,6 +43,58 @@ function Grip({ id, data, title, stageName, index }: { id: string; data: DragDat
   );
 }
 
+export type Option = { value: string; label?: string; date?: string };   // date: ISO time, used to sort newest first
+
+// A text box with a dropdown. Empty or unchanged text shows the whole list; typing narrows it.
+// (The browser's own suggestion list only narrows to what is typed, so it can't show everything.)
+function SuggestInput({ value, onChange, onBlur, onKeyDown, options, placeholder, ariaLabel }: {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur: () => void;
+  onKeyDown: (e: ReactKeyboardEvent<HTMLInputElement>) => void;
+  options: Option[];
+  placeholder: string;
+  ariaLabel: string;
+}) {
+  const [typed, setTyped] = useState(false);   // the user has typed since the box was opened
+  const [open, setOpen] = useState(true);
+  const q = typed ? value.trim().toLowerCase() : "";
+  // Newest first, by date; items without a date go last
+  const sorted = [...options].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+  const shown = q ? sorted.filter((o) => `${o.label ?? ""} ${o.value}`.toLowerCase().includes(q)) : sorted;
+  return (
+    <span className="ps-suggest-wrap">
+      <input
+        className="ps-edit"
+        autoFocus
+        value={value}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        onChange={(e) => { setTyped(true); setOpen(true); onChange(e.target.value); }}
+        onFocus={() => setOpen(true)}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+      />
+      {open && shown.length > 0 && (
+        <ul className="ps-suggest-list" role="listbox" aria-label={`${ariaLabel} options`}>
+          {shown.map((o) => (
+            <li key={o.value + (o.label ?? "")}>
+              {/* mousedown keeps the box focused, so the click reaches the option before the box closes */}
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { onChange(o.value); setOpen(false); setTyped(false); }}
+              >
+                {o.label ?? o.value}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </span>
+  );
+}
+
 function LineRow({ id, data, className, children }: { id: string; data: DragData; className: string; children: ReactNode }) {
   const { setNodeRef } = useDroppable({ id, data });
   return <div ref={setNodeRef} className={className}>{children}</div>;
@@ -53,9 +105,12 @@ function StageCard({ id, s, children, ...rest }: { id: string; s: number; childr
   return <section ref={setNodeRef} className="ps-card" {...rest}>{children}</section>;
 }
 
-export default function OrderEditor({ lines, setLines }: {
+export default function OrderEditor({ lines, setLines, songOptions = [], passageOptions = [], personOptions = [] }: {
   lines: Lines;
   setLines: React.Dispatch<React.SetStateAction<Lines>>;
+  songOptions?: Option[];
+  passageOptions?: Option[];
+  personOptions?: Option[];
 }) {
   const [menuStage, setMenuStage] = useState<number | null>(null);   // the Add item picker
   const [openMenu, setOpenMenu] = useState<string | null>(null);     // the ⋯ menu of one line (line id)
@@ -215,19 +270,27 @@ export default function OrderEditor({ lines, setLines }: {
                         className={`ps-line l${ln.level}${markClass}`}
                       >
                         <Grip id={`grip-${ln.id}`} data={{ s, i }} title="Drag to move with its sub-items" stageName={stageName} index={i} />
-                        {isEditing ? (
-                          <input
-                            className="ps-edit"
-                            autoFocus
-                            value={ln.text}
-                            list={ln.level === 1 ? (kind === "song" ? "ps-songs" : kind === "scripture" ? "ps-passages" : undefined) : ln.level === 2 ? "ps-people" : undefined}
-                            placeholder={ln.level === 0 ? "Item" : ln.level === 1 ? (kind === "song" ? "Song name and number" : kind === "scripture" ? "Passage" : "What it is") : "Who is responsible"}
-                            aria-label={`${stageName} line ${i + 1}`}
-                            onChange={(e) => setStage(s, list.map((x, k) => (k === i ? { ...x, text: e.target.value } : x)))}
-                            onBlur={() => setEditing((cur) => (cur === ln.id ? null : cur))}
-                            onKeyDown={(e) => onEditKey(s, i, e)}
-                          />
-                        ) : (
+                        {isEditing ? (() => {
+                          const options: Option[] | null = ln.level === 1 ? (kind === "song" ? songOptions : kind === "scripture" ? passageOptions : null) : ln.level === 2 ? personOptions : null;
+                          const placeholder = ln.level === 0 ? "Item" : ln.level === 1 ? (kind === "song" ? "Song name and number" : kind === "scripture" ? "Passage" : "What it is") : "Who is responsible";
+                          const ariaLabel = `${stageName} line ${i + 1}`;
+                          const onChange = (v: string) => setStage(s, list.map((x, k) => (k === i ? { ...x, text: v } : x)));
+                          const onBlur = () => setEditing((cur) => (cur === ln.id ? null : cur));
+                          const onKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => onEditKey(s, i, e);
+                          if (options) return <SuggestInput value={ln.text} onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} options={options} placeholder={placeholder} ariaLabel={ariaLabel} />;
+                          return (
+                            <input
+                              className="ps-edit"
+                              autoFocus
+                              value={ln.text}
+                              placeholder={placeholder}
+                              aria-label={ariaLabel}
+                              onChange={(e) => onChange(e.target.value)}
+                              onBlur={onBlur}
+                              onKeyDown={onKeyDown}
+                            />
+                          );
+                        })() : (
                           <button
                             className={`ps-text${ln.text ? "" : " empty"}`}
                             onClick={() => { setEditing(ln.id); setOpenMenu(null); }}

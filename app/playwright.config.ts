@@ -4,6 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Runs against the Vite dev server (started automatically). Run with: npm run e2e
 export default defineConfig({
   testDir: "e2e",
+  testIgnore: "offline/**",
   use: { baseURL: "http://localhost:5173" },
   webServer: {
     command: "npm run dev -- --port 5173 --strictPort",

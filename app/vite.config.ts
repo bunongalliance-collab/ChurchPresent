@@ -49,6 +49,8 @@ export default defineConfig(({ mode }) => {
           icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
         },
         workbox: {
+          // The main bundle is about 2.3 MB; the default 2 MB limit left it out of the offline cache
+          maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
           navigateFallback: 'index.html',
           runtimeCaching: [
