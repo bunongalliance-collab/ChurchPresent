@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { recordVisit } from './api/_visit-core.js'
 
 // Local stand-in for api/yv/[...path].js, so the scripture page works in `npm run dev`.
 // Reads YV_APP_KEY from app/.env.local (no VITE_ prefix, so it is never bundled into the page).
@@ -28,12 +29,33 @@ function yvDevProxy(key: string): Plugin {
   }
 }
 
+// Local stand-in for api/visit.js, so visit logging works in `npm run dev`.
+// There are no Vercel location headers locally, so city and country stay empty and the IP is the local one.
+function visitDevProxy(supabaseUrl: string, anonKey: string, serviceKey: string): Plugin {
+  return {
+    name: 'visit-dev-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/visit', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end(JSON.stringify({ error: 'method not allowed' })); return }
+        const headers = { ...req.headers, 'x-forwarded-for': String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '') }
+        const { status, body } = await recordVisit({ headers, supabaseUrl, anonKey, serviceKey })
+        res.statusCode = status
+        if (body === null) { res.end(); return }
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify(body))
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     plugins: [
       react(),
       yvDevProxy(env.YV_APP_KEY ?? ''),
+      // SUPABASE_SERVICE_ROLE_KEY: server only (no VITE_ prefix), read from app/.env.local; never bundled into the page
+      visitDevProxy(env.VITE_SUPABASE_URL ?? '', env.VITE_SUPABASE_ANON_KEY ?? '', env.SUPABASE_SERVICE_ROLE_KEY ?? ''),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'icons.svg'],

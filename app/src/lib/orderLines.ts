@@ -8,7 +8,7 @@ export type Lines = Record<number, Line[]>;
 
 export const ITEMS = [
   "Prelude", "Welcome & Call to Worship", "Opening Song", "Opening Prayer", "Songs of Praise", "Children Choir",
-  "Youth Choir", "Prayer for the Offering", "Offering", "Announcements", "Sok Nh'hor", "Scripture Reading",
+  "Youth Choir", "Prayer for the Offering", "Offering", "Announcements", "Sok Nh'hor", "Scripture Reading", "Reading",
   "Message", "Response & Prayer", "Closing Song", "Closing Prayer",
 ];
 export const emptyLines = (): Lines => Object.fromEntries(STAGES.map((_, s) => [s, [] as Line[]]));
@@ -33,8 +33,9 @@ export function blockOf(list: Line[], i: number): [number, number] {
 }
 
 // What kind of sub-item an item takes: songs, passages, or free text
-export function subKind(item: string): "song" | "scripture" | "text" {
-  if (/scripture|reading/i.test(item)) return "scripture";
+export function subKind(item: string): "song" | "scripture" | "reading" | "text" {
+  if (/scripture/i.test(item)) return "scripture";
+  if (/^reading$/i.test(item.trim())) return "reading";
   if (/song|praise|choir/i.test(item)) return "song";
   return "text";
 }

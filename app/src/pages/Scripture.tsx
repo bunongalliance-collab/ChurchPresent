@@ -231,6 +231,9 @@ export default function Scripture() {
   const [showBibles, setShowBibles] = useState(false);
   const [newBibleId, setNewBibleId] = useState("");
   const [newBibleName, setNewBibleName] = useState("");
+  // Book codes each version actually has, fetched from YouVersion (null = not loaded or failed: show all books)
+  // Each book's code and its name in that version's language (null = not loaded or failed: show all books in English)
+  const [bookCodes, setBookCodes] = useState<Record<string, { code: string; title: string }[] | null>>({});
 
   // Feedback
   const [status, setStatus] = useState("Add a slide to start. Use Fetch to load a passage.");
@@ -306,6 +309,33 @@ export default function Scripture() {
   }
   const user = session?.user ?? null;
   const selected = slides.find((s) => s.id === selectedId) ?? null;
+
+  // The books this Bible version has (from YouVersion), so the Book list only offers real choices
+  const bibleForBooks = selected ? (selected.bible || bibles[0]?.id) : undefined;
+  useEffect(() => {
+    if (!bibleForBooks || bibleForBooks in bookCodes) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const path = `v1/bibles/${encodeURIComponent(bibleForBooks)}/books`;
+        const r = await fetch(`/api/yv?path=${encodeURIComponent(path)}`);
+        if (!r.ok) throw new Error(String(r.status));
+        const j = (await r.json()) as { data?: { id?: string; title?: string }[] };
+        const books = (j.data ?? [])
+          .filter((b): b is { id: string; title?: string } => typeof b.id === "string" && b.id.length > 0)
+          .map((b) => ({ code: b.id, title: (b.title ?? "").trim() }));
+        if (!cancelled) setBookCodes((cur) => ({ ...cur, [bibleForBooks]: books.length ? books : null }));
+      } catch {
+        if (!cancelled) setBookCodes((cur) => ({ ...cur, [bibleForBooks]: null }));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [bibleForBooks, bookCodes]);
+  const availableBooks = bibleForBooks ? bookCodes[bibleForBooks] ?? null : null;
+  // Books in the version's own language when YouVersion gives the name; English otherwise
+  const bookOptions: [string, string][] = availableBooks
+    ? availableBooks.map((b) => [b.title || bookName(b.code), b.code] as [string, string])
+    : BOOKS;
   const output = useMemo(() => buildOutput(slides, look), [slides, look]);
   // The preview follows the slide picked in the middle column; with nothing picked it shows the whole study
   const shown = useMemo(
@@ -373,12 +403,11 @@ export default function Scripture() {
   }
 
   // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures.
-  // The presentation name, if typed, becomes the Builder's title.
-  const [presName, setPresName] = useState("");
+  // The presentation takes the study's name.
   async function addToPresentation() {
     const id = await save();
     if (!id) return;
-    try { if (presName.trim()) sessionStorage.setItem("pendingBuilderTitle", presName.trim()); } catch { /* blocked */ }
+    try { if (title.trim()) sessionStorage.setItem("pendingBuilderTitle", title.trim()); } catch { /* blocked */ }
     window.location.hash = "#builder";
   }
 
@@ -511,7 +540,9 @@ export default function Scripture() {
         const verse = await fetchVerse(bible, ref.code, ref.ch, v);
         lines.push(look.verseNumbers ? `${v} ${verse}` : verse);
       }
-      const label = `${bookName(ref.code)} ${ref.ch}:${ref.v1}${ref.v2 !== ref.v1 ? `-${ref.v2}` : ""}`;
+      // The label uses the book's name in this version's language (English if YouVersion's list is not loaded)
+      const bookLabel = bookCodes[bible]?.find((b) => b.code === ref.code)?.title || bookName(ref.code);
+      const label = `${bookLabel} ${ref.ch}:${ref.v1}${ref.v2 !== ref.v1 ? `-${ref.v2}` : ""}`;
       update(selected.id, {
         text: lines.join("\n"), fetchedText: lines.join("\n"), title: label, bible, book: ref.code,
         chapter: String(ref.ch), verseFrom: String(ref.v1), verseTo: String(ref.v2),
@@ -709,17 +740,16 @@ export default function Scripture() {
                   <div className="passage-pick">
                     <select value={selected.book ?? ""} onChange={(e) => update(selected.id, { book: e.target.value })} aria-label="Book">
                       <option value="">Book…</option>
-                      {BOOKS.map(([name, code]) => <option key={code} value={code}>{name}</option>)}
+                      {bookOptions.map(([name, code]) => <option key={code} value={code}>{name}</option>)}
+                      {availableBooks === null && bibleForBooks && bookCodes[bibleForBooks] === null && (
+                        <option disabled value="">Book list unavailable for this version</option>
+                      )}
                     </select>
                     <input type="number" min={1} value={selected.chapter ?? ""} placeholder="Chapter" aria-label="Chapter" onChange={(e) => update(selected.id, { chapter: e.target.value })} />
                     <input type="number" min={1} value={selected.verseFrom ?? ""} placeholder="From" aria-label="First verse" onChange={(e) => update(selected.id, { verseFrom: e.target.value })} />
                     <input type="number" min={1} value={selected.verseTo ?? ""} placeholder="To" aria-label="Last verse" onChange={(e) => update(selected.id, { verseTo: e.target.value })} />
                   </div>
                   <button className="fetch" onClick={fetchPassage} disabled={busy}>{busy ? "Fetching…" : "Fetch passage"}</button>
-                </div>
-                <div className="sc-field">
-                  <label className="sc-label" htmlFor="sc-label">Slide label</label>
-                  <input id="sc-label" value={selected.title} onChange={(e) => update(selected.id, { title: e.target.value })} />
                 </div>
               </>
             )}
@@ -738,8 +768,8 @@ export default function Scripture() {
                 <div className="sc-format-dock">
                 <div className="sc-pres-add">
                   <label className="sc-footer-name">
-                    <span>Presentation name</span>
-                    <input value={presName} onChange={(e) => setPresName(e.target.value)} placeholder="Optional, for example Sunday Worship" />
+                    <span>Study name</span>
+                    <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Study name" />
                   </label>
                   <button className="primary" onClick={addToPresentation} disabled={busy || !user}>+ Add to Presentation</button>
                 </div>

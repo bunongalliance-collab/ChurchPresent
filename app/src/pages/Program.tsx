@@ -17,7 +17,7 @@ export interface Row { id: string; item: string; kind: Kind; detail: string; led
 const STAGE_OF: Record<string, number> = {
   "Prelude": 0, "Welcome & Call to Worship": 0, "Opening Song": 0, "Opening Prayer": 0,
   "Songs of Praise": 1, "Children Choir": 1, "Youth Choir": 1, "Prayer for the Offering": 1, "Offering & Announcements": 1,
-  "Scripture Reading": 2, "Message": 2, "Response & Prayer": 2,
+  "Scripture Reading": 2, "Reading": 2, "Message": 2, "Response & Prayer": 2,
   "Closing Song": 3, "Closing Prayer": 3,
   "Sok Nh'hor": 4,
 };
@@ -169,8 +169,13 @@ export default function Program() {
   const [songOptions, setSongOptions] = useState<{ value: string; date: string }[]>([]);
   // Passage suggestions: the study's title and its verse, e.g. "Trust in God — Psalm 23:1-6"; the verse is what gets saved
   const [passageOptions, setPassageOptions] = useState<{ value: string; label: string; date: string }[]>([]);
+  // Reading suggestions: the saved readings from the Readings page, newest first
+  const [readingOptions, setReadingOptions] = useState<{ value: string; date: string }[]>([]);
   useEffect(() => {
     if (!supabase) return;
+    supabase.from("readings").select("number, title, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
+      setReadingOptions((data ?? []).map((x) => ({ value: (x.number ? `${x.number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
+    });
     supabase.from("lyric_songs").select("song_number, title, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
       setSongOptions((data ?? []).map((x) => ({ value: (x.song_number ? `${x.song_number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
     });
@@ -358,6 +363,7 @@ export default function Program() {
             setLines={setOrderLines}
             songOptions={songOptions}
             passageOptions={passageOptions}
+            readingOptions={readingOptions}
             personOptions={people.map((p) => ({ value: p.name, date: p.created }))}
           />
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />

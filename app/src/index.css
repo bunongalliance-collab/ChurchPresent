@@ -195,6 +195,7 @@ button.small { padding: 4px 8px; font-size: 0.85rem; }
 
 /* Builder: recent scriptures */
 .recent-h { margin-top: 14px; }
+.builder-page .recent-h { margin-top: 28px; }
 .recent-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .recent-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 .recent-title small { color: var(--muted); }
@@ -1692,6 +1693,9 @@ textarea.th-field { resize: vertical; }
 .ps-edit { flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 8px; }
 .ps-more { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
 .ps-more:hover, .ps-more:focus-visible { color: var(--accent); }
+/* Order of Worship: quick remove button on each line */
+.ps-x { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+.ps-x:hover, .ps-x:focus-visible { color: var(--danger); background: rgb(var(--danger-rgb) / 0.1); }
 .ps-line .ps-menu { position: absolute; right: 4px; top: 100%; z-index: 5; display: grid; min-width: 180px; max-width: none; margin: 0; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.14); }
 .ps-line .ps-menu button { text-align: left; border: 0; background: none; color: var(--text); padding: 7px 10px; border-radius: 4px; cursor: pointer; font: inherit; font-size: 13px; }
 .ps-line .ps-menu button:hover, .ps-line .ps-menu button:focus-visible { background: var(--sunken); color: var(--accent); }
@@ -1807,3 +1811,15 @@ textarea.th-field { resize: vertical; }
 .ps-suggest-list { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 240px; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
 .ps-suggest-list button { display: block; width: 100%; text-align: left; padding: 6px 8px; background: none; border: 0; border-radius: 6px; color: var(--text); font: inherit; cursor: pointer; }
 .ps-suggest-list button:hover, .ps-suggest-list button:focus-visible { background: var(--line); outline: none; }
+
+/* Notes: where the app is opened from (admin only) */
+.visits { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+.visits-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.visits-head h2 { font-size: 1.05rem; margin: 0; }
+.visits .sub { color: var(--muted); margin: 4px 0 12px; font-size: 0.9rem; }
+.visits-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.visits-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.visits-table th, .visits-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.visits-table th { color: var(--muted); font-weight: 600; background: var(--panel); }
+.visits-table tr:last-child td { border-bottom: 0; }
+.visits-table .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }

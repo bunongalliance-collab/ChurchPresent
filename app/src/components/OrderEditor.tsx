@@ -105,11 +105,12 @@ function StageCard({ id, s, children, ...rest }: { id: string; s: number; childr
   return <section ref={setNodeRef} className="ps-card" {...rest}>{children}</section>;
 }
 
-export default function OrderEditor({ lines, setLines, songOptions = [], passageOptions = [], personOptions = [] }: {
+export default function OrderEditor({ lines, setLines, songOptions = [], passageOptions = [], readingOptions = [], personOptions = [] }: {
   lines: Lines;
   setLines: React.Dispatch<React.SetStateAction<Lines>>;
   songOptions?: Option[];
   passageOptions?: Option[];
+  readingOptions?: Option[];
   personOptions?: Option[];
 }) {
   const [menuStage, setMenuStage] = useState<number | null>(null);   // the Add item picker
@@ -271,8 +272,8 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                       >
                         <Grip id={`grip-${ln.id}`} data={{ s, i }} title="Drag to move with its sub-items" stageName={stageName} index={i} />
                         {isEditing ? (() => {
-                          const options: Option[] | null = ln.level === 1 ? (kind === "song" ? songOptions : kind === "scripture" ? passageOptions : null) : ln.level === 2 ? personOptions : null;
-                          const placeholder = ln.level === 0 ? "Item" : ln.level === 1 ? (kind === "song" ? "Song name and number" : kind === "scripture" ? "Passage" : "What it is") : "Who is responsible";
+                          const options: Option[] | null = ln.level === 1 ? (kind === "song" ? songOptions : kind === "scripture" ? passageOptions : kind === "reading" ? readingOptions : null) : ln.level === 2 ? personOptions : null;
+                          const placeholder = ln.level === 0 ? "Item" : ln.level === 1 ? (kind === "song" ? "Song name and number" : kind === "scripture" ? "Passage" : kind === "reading" ? "Reading" : "What it is") : "Who is responsible";
                           const ariaLabel = `${stageName} line ${i + 1}`;
                           const onChange = (v: string) => setStage(s, list.map((x, k) => (k === i ? { ...x, text: v } : x)));
                           const onBlur = () => setEditing((cur) => (cur === ln.id ? null : cur));
@@ -301,6 +302,8 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                           </button>
                         )}
 
+                        {/* Quick remove: an item goes with its sub-items, a sub-item with its people */}
+                        <button className="ps-x" aria-label={`Remove ${ln.text || "empty line"}`} title={ln.level === 0 ? "Remove item and its sub-items" : ln.level === 1 ? "Remove sub-item and its people" : "Remove"} onClick={() => removeLine(s, i)}>×</button>
                         <button className="ps-more" aria-label="More" aria-expanded={menuOpen} onClick={() => setOpenMenu(menuOpen ? null : ln.id)}>⋯</button>
                         {menuOpen && (
                           <div className="ps-menu" role="menu">
