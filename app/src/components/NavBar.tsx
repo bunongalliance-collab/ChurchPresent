@@ -5,8 +5,10 @@ import { currentTheme, setTheme, type Theme } from "../lib/theme";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
-const PAGES = [
+// newTab: a separate page (the congregation's reader), opened in a new tab so the team app stays open
+const PAGES: { href: string; label: string; newTab?: boolean }[] = [
   { href: "#", label: "Hymm/Nau Mpro" },
+  { href: "/nau-mpro/", label: "Nau Mpro App ↗", newTab: true },
   { href: "#readings-v2", label: "Readings" },
   { href: "#program", label: "Program" },
   { href: "#program-simple", label: "Program Builder" },
@@ -61,9 +63,15 @@ export default function NavBar() {
           const current = p.href === hash || (p.href === "#" && hash === "");
           return (
             <li key={p.href}>
-              <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
-                {p.label}
-              </a>
+              {p.newTab ? (
+                <a href={p.href} target="_blank" rel="noopener" aria-label={`${p.label.replace(" ↗", "")} (opens in a new tab)`}>
+                  {p.label}
+                </a>
+              ) : (
+                <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
+                  {p.label}
+                </a>
+              )}
             </li>
           );
         })}
