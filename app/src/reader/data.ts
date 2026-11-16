@@ -29,12 +29,23 @@ export async function loadSongs(): Promise<LoadResult> {
     }
   }
   try {
-    const { data, error } = await supabase.from("lyric_songs").select("id, title, song_number, lyrics, category, language, updated_at");
+    // Score images and music facts come from hymn-score-images.sql; until it is run, load without them
+    const FULL = "id, title, song_number, lyrics, category, language, updated_at, score_path, score_images, music";
+    const BASIC = "id, title, song_number, lyrics, category, language, updated_at, score_path";
+    let res = await supabase.from("lyric_songs").select(FULL);
+    if (res.error && /score_images|music/.test(res.error.message)) res = await supabase.from("lyric_songs").select(BASIC) as typeof res;
+    const { data, error } = res;
     if (error) throw new Error(error.message);
-    const songs: ReaderSong[] = (data ?? []).map((r) => ({
-      id: String(r.id), number: r.song_number ?? "", title: r.title ?? "", lyrics: r.lyrics ?? "",
-      category: r.category ?? "", language: r.language ?? "", updated: r.updated_at ?? "",
-    }));
+    const songs: ReaderSong[] = (data ?? []).map((r) => {
+      const m = (r.music ?? {}) as { key?: string; meter?: string; chords?: string[] };
+      return {
+        id: String(r.id), number: r.song_number ?? "", title: r.title ?? "", lyrics: r.lyrics ?? "",
+        category: r.category ?? "", language: r.language ?? "", updated: r.updated_at ?? "",
+        scorePath: r.score_path ?? "",
+        scoreImages: Array.isArray(r.score_images) ? r.score_images : [],
+        music: { key: m.key ?? "", meter: m.meter ?? "", chords: Array.isArray(m.chords) ? m.chords : [] },
+      };
+    });
     const now = new Date().toISOString();
     if (await cacheReaderSongs(songs)) { try { localStorage.setItem(SAVED_AT_KEY, now); } catch { /* ignore */ } }
     return { songs, source: "online", savedAt: now };
@@ -42,6 +53,12 @@ export async function loadSongs(): Promise<LoadResult> {
     const saved = await loadSavedSongs();
     return { ...saved, error: e instanceof Error ? e.message : String(e) };
   }
+}
+
+// Public link to a file in the hymn-scores bucket (score PDF or scan image); "" when there is none
+export function scoreUrl(path: string): string {
+  if (!supabase || !path) return "";
+  return supabase.storage.from("hymn-scores").getPublicUrl(path).data.publicUrl;
 }
 
 // Song number order (1, 2, 10…), then songs without a number by title

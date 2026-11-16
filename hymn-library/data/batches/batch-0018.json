@@ -1,0 +1,997 @@
+{
+  "batch": "batch-0018",
+  "pages": [
+    324,
+    335
+  ],
+  "songs": [
+    {
+      "id": "hymn-0302",
+      "title": "KÔRANH BRAH Ơ KÔRANH BRAH",
+      "number": "302",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Gâp geh ngih tâm Ƀon Brah Ndu, nchrat ang lơn nâm bu nar. Gâp geh ngih tâm Ƀon Brah Ndu nchrat ang lơn nâm bu nar Gâp geh ngih tâm Ƀon Brah Ndu nchrat ang lơn nâm bu nar. Ntŭk ngai lơn tâm trôk. (lơn tâm trôk)"
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp. Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp ntŭk ngai lơn tâm trôk ri."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Gâp dơn jêh Yê-su tâm rklaih gâp, ăn may dơn Păng đŏng. Gâp dơn jêh Yê-su tâm rklaih gâp, ăn may dơn Păng đŏng. Gâp dơn jêh Yê-su tâm rklaih gâp, ăn may dơn Păng đŏng. Dôl aƀaơ Păng kuăl may. (Păng kuăl may)"
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp. Kôranh Brah, ơ Kôranh Brah ăn May kah gĭt ma gâp ntŭk ngai lơn tâm trôk ri."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "A♭ major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 324,
+            "image": "page-324.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          },
+          {
+            "pdf_page": 325,
+            "image": "page-325.png",
+            "region": "upper section, song 303 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              640
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0302.pdf",
+        "page_images": [
+          "hymn-0302-page-324.png",
+          "hymn-0302-page-325.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Lower parts echo 'Ha-lê-lu-ya', 'kah gĭt gâp'; not added to the lyrics."
+      ]
+    },
+    {
+      "id": "hymn-0303",
+      "title": "YÊ-HÔ-VA JÊNG RMĂK UEH GÂP",
+      "number": "303",
+      "reference": "TC 742",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Yê-hô-va jêng rmăk ueh gâp, njŭn gâp rlu ntŭk nse. Rgŏ dak ntŭk đăp mpăn ƀư ăn ktang huêng gâp. Ăn rlu êp dak đăp mpăn."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Păng ntop nau rêh mhe huêng gâp, njŭn gâp hăn trong sŏng srăng, yor Amoh khlay Păng gâp mâu pưt ndơ ôh. Knŏng Păng mât mơh huêng gâp."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Geh gui nau khĭt gŭ êp gâp, gâp mâu uh ah mâu lah klach. Păng gŭ ndrel bonh leng nuih n'hâm gâp. Yor Păng mât mơh đăp mpăn."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Nau yỗ ueh bơh Mbỡ klơ dơm, gâp lăp tâm ntŭk rlu. Tâm Amoh Yê-hô-va gâp răm maak đăp mpăn. Tâm ngih Mbỡ gâp Kôranh Brah."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 325,
+            "image": "page-325.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              640,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0303.pdf",
+        "page_images": [
+          "hymn-0303-page-325.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed (Psalm 23)."
+      ]
+    },
+    {
+      "id": "hymn-0304",
+      "title": "NCHRANG ANG TÂM NTŬK HE GŬ",
+      "number": "304",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Nchrang ang tâm ntŭk he gŭ, nchrang ang tâm ntŭk he gŭ. He nchrang ƀư ang tâm ntŭk nau ngo, hăn mbơh A-moh Yê-su he."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "G major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 326,
+            "image": "page-326.png",
+            "region": "upper section, song 305 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              600
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0304.pdf",
+        "page_images": [
+          "hymn-0304-page-326.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Single stanza."
+      ]
+    },
+    {
+      "id": "hymn-0305",
+      "title": "BRAH YÊ-SU NJŬN LEO GÂP",
+      "number": "305",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Brah Yê-su njŭn leo gâp. Du nhuat chuat du tỡ huêng gâp bêng ma nau răm. Gŭ tâm nau rŏng Păng. Moh gâp rvê ir ôi taơ? Păng ntĭm trong ma gâp. Brah Yê-su njŭn leo gâp. du nhuat chuat du tỡ."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "E♭ major",
+        "meter": "6/8",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 326,
+            "image": "page-326.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              600,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0305.pdf",
+        "page_images": [
+          "hymn-0305-page-326.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Single stanza."
+      ]
+    },
+    {
+      "id": "hymn-0306",
+      "title": "RLAU LƠN ĐŎNG",
+      "number": "306",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Yor ma May jêng Nơm ueh ngăn ngên. Gâp ŭch tâm rnê rlau lơn đŏng. ăn Brah Huêng Ueh May nti ăn gâp. Blau rŏng ma May rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Rlau lơn rlau lơn đŏng gâp rŏng ma May Kôranh Brah Ndu rlau lơn đŏng, rlau lơn đŏng. Rlau lơn đŏng gâp rŏng ma May Kôranh Brah rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Nau ueh uĭn May gŭ nchueng jŭm gâp. Gâp mbah yơk ma nau May yỗ. May mât mơh gâp ma nau n'hêl nễ. Gâp rŏng ma May rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Rlau lơn rlau lơn đŏng gâp rŏng ma May Kôranh Brah Ndu rlau lơn đŏng, rlau lơn đŏng. Rlau lơn đŏng gâp rŏng ma May Kôranh Brah rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Dôl geh sial vănh blông dak mƀŭt rbuh. May kơl gâp rgăn jêh đăp mpăn. May Nơm njŭn gâp kŏ tât đăp mpăn. Gâp rŏng ma May rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Rlau lơn rlau lơn đŏng gâp rŏng ma May Kôranh Brah Ndu rlau lơn đŏng, rlau lơn đŏng. Rlau lơn đŏng gâp rŏng ma May Kôranh Brah rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Tât lĕ rnôk gâp gŭ ta neh ntu. Kŏ gâp tât ta Ƀon Ueh May. Aơ nau gâp vơl gay ma May dơn. Ăn gâp rŏng May rlau lơn đŏng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Rlau lơn rlau lơn đŏng gâp rŏng ma May Kôranh Brah Ndu rlau lơn đŏng, rlau lơn đŏng. Rlau lơn đŏng gâp rŏng ma May Kôranh Brah rlau lơn đŏng."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "G major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 327,
+            "image": "page-327.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0306.pdf",
+        "page_images": [
+          "hymn-0306-page-327.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Lower parts echo 'Rlau lơn đŏng, rlau lơn đŏng'; not added to the lyrics."
+      ]
+    },
+    {
+      "id": "hymn-0307",
+      "title": "PAH KAN HOM DÂK HĂN HOM",
+      "number": "307",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Dâk hăn hom, pah kan hom. He hŏ jêng ndơ Kôranh Brah, ăn he tĭng ndỗ trong Păng gay njŭn he tâm nau rêh. Yê-su hăn ndrel ma he. Lơi klach ôh ran ƀa-ƀơ. Păng mât he jêh ri ntĭng tur Păng ƀư ktang he ƀa-ƀơ."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Ăn he njrăng Gŭ mbơh sơm. Ƀât lât Kôranh Brah mra văch ngăn yơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Gay ăn nuih n'hâm phung rngot, rvê ngai đah Brah Ndu Păng gay saơ tay nau kâp gân. He sâm mplăch ăn măt chieh. Khân păng uănh si tâm rkăng. Ăn he ntrôl khân păng dơn Amoh Yê-su Nơm ăn kon me."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Ăn he njrăng Gŭ mbơh sơm. Ƀât lât Kôranh Brah mra văch ngăn yơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Păng kuăl lĕ rngôch phung he, mâu dơi ăn ƀlao, Mâu đŏng rhơn yor ba dum tâm mir. Gay ƀư kan ma Kôranh Brah. Lơi mĭn ma he nơm ôh. Hăn ăn tât ntŭk tâm nal Kôranh he ŭch ma he pô nây."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Ăn he njrăng Gŭ mbơh sơm. Ƀât lât Kôranh Brah mra văch ngăn yơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Mâu hôm gĭt hŏt rgănh ôh, yor ma Nơm Tâm Chuai he, ăn he yơr bok pla klơ. Gŭ răp jăp ăn tât lôch. Ăn he gĭt nau blau srôih. Nau rlu, Kôranh Brah hŏ gŭ kâp he jêh bêng ma nau ang."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Dâk hăn hom, pah kan hom. Ăn he njrăng Gŭ mbơh sơm. Ƀât lât Kôranh Brah mra văch ngăn yơh."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 328,
+            "image": "page-328.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          },
+          {
+            "pdf_page": 329,
+            "image": "page-329.png",
+            "region": "upper section, song 308 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              700
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0307.pdf",
+        "page_images": [
+          "hymn-0307-page-328.png",
+          "hymn-0307-page-329.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Refrain starts after a double bar without a Plō mprō label; treated as the chorus. Lower parts echo 'Dâk hăn hom, Pah kan hom. Ăn he njrăng Gŭ mbơh sơm'; not added."
+      ]
+    },
+    {
+      "id": "hymn-0308",
+      "title": "HÂK MAAK HĂN HOM",
+      "number": "308",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Ha-lê-lu-ya, Ha-lê-lu-ya, răm rhơn he nsong mbơh. Ha-lê-lu-ya, Ha-lê-lu-ya, nuih n'hâm đăp mpăn mro."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "A♭ major",
+        "meter": "6/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 329,
+            "image": "page-329.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              700,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0308.pdf",
+        "page_images": [
+          "hymn-0308-page-329.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Single stanza."
+      ]
+    },
+    {
+      "id": "hymn-0309",
+      "title": "GÂP JÊNG KON HAĐĂCH TOYH LƠN",
+      "number": "309",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Mbỡ gâp klơ jêng ndrŏng, geh âk ngih âk mir, Păng djôt nau rŏng lĕ rngôch neh ntu tâm ti Păng. Lŭ rsang chăng êr nchrat ang n'hanh chrêk ma lơp. Hip Păng bêng ma ndơ mâu dơi kơp nau Păng ndrŏng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Gâp jêng jêh Kon Hađăch Kon Hađăch toyh lơn. Tâm Yê-su Nơm tâm rklaih gâp, jêng Kon Brah Ndu Nơm."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Yê-su Kon Brah Ndu, Nơm Tâm Rklaih neh ntu, sak nsong ta neh ntu aơ geh âk nau rêh ni. Ƀiă lah a-ƀơ aơ Păng jêng Hađăch ta klơ. Păng mra ăn ma gâp du mlâm ngih ueh ngăn ngên."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Gâp jêng jêh Kon Hađăch Kon Hađăch toyh lơn. Tâm Yê-su Nơm tâm rklaih gâp, jêng Kon Brah Ndu Nơm."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Gĭt lah gŭ ngih bok, Mâu lah ngih jễ lễ, moh hôm gâp rvê? gâp mra geh âk ngih prăk maih. Abaơ gâp jêng bu năch gŭ ƀlât ta neh ntu Ƀiă lah mât ton Păng gâp jêng Kon Hađăch toyh lơn."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Gâp jêng jêh Kon Hađăch Kon Hađăch toyh lơn. Tâm Yê-su Nơm tâm rklaih gâp, jêng Kon Brah Ndu Nơm."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "E♭ major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 330,
+            "image": "page-330.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0309.pdf",
+        "page_images": [
+          "hymn-0309-page-330.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed (tune 'A Child of the King'). Verse 1 prints 'jêng̈' with stray dots; verse 2 'a-ƀơ'; verse 3 'Abaơ'; kept as printed."
+      ]
+    },
+    {
+      "id": "hymn-0310",
+      "title": "AƠ JÊNG NAU KHLAY NGĂN",
+      "number": "310",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "May mâu dơi dun ôh nau pô-aơ. Brah Ndu jêng Mbỡ gâp Nơm. Kôranh Brah nau dơi nđâp nau khlay ngăn gay tâm mpơl ta klơ trôk."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Aơ jêng nau khlay ngăn. Păng dơm phung mănh ta klơ trôk. Aơ jêng nau khlay ngăn, Păng n'gân rplay neh tâm đôr hŏng, ƀiă lah Păng rklaih huêng gâp. Păng rao lĕ tih gâp, aơ jêng nau khlay ngăn bơh nau rŏng, nau yỗ."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Bơh nau chrêk ma lơp Păng sol ang. Na-nễ he mâu dil uănh. Nau dơi nđâp nau khlay ngăn Kôranh Brah ăn gâp nau rêh n'ho ro."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Aơ jêng nau khlay ngăn. Păng dơm phung mănh ta klơ trôk. Aơ jêng nau khlay ngăn, Păng n'gân rplay neh tâm đôr hŏng, ƀiă lah Păng rklaih huêng gâp. Păng rao lĕ tih gâp, aơ jêng nau khlay ngăn bơh nau rŏng, nau yỗ."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Nau Brah Ndu Ngơi mbơh nau Păng dơi. Nđâp nau njêh tâm lĕ rnôk. Jêh ri phung sĭm jễ nđâp kao ueh ăt mbơh lĕ nau khlay nây."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Aơ jêng nau khlay ngăn. Păng dơm phung mănh ta klơ trôk. Aơ jêng nau khlay ngăn, Păng n'gân rplay neh tâm đôr hŏng, ƀiă lah Păng rklaih huêng gâp. Păng rao lĕ tih gâp, aơ jêng nau khlay ngăn bơh nau rŏng, nau yỗ."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "G major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 331,
+            "image": "page-331.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0310.pdf",
+        "page_images": [
+          "hymn-0310-page-331.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Refrain starts after a double bar without a Plō mprō label; treated as the chorus."
+      ]
+    },
+    {
+      "id": "hymn-0311",
+      "title": "JÊNG KON HAĐĂCH TOYH TÂM TRÔK",
+      "number": "311",
+      "reference": "TC 848",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Jêng Kon Hađăch toyh tâm trôk, Păng geh nau rŏng mâu lôch. Mbỡ gâp geh nau rŏng rmeh ler mâu rgâl. Mbah ntŭk gâp mra leo hăn. Trong phŭt sial nau rêh ni. Ti Brah Ndu mra njŭn leo gâp đăp mpăn."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Gâp rŏng Yê-su ƀa-ƀơ. Gâp jêng Kon Hađăch ta klơ. Tâm ti Brah Ndu gâp mâu hôm gŭ êng. Aƀơ aơ, gâp dôl gŭ kâp. Nar nây tăng Yê-su kuăl. Hăn Ƀon Ueh gŭ ntŭk sưng Hađăch chrêk rmah."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Jêng Kon Hađăch toyh tâm trôk, nau ton ơm bơh kăl e. Phung he ndrel ngrŭp rêh maak tâm ngih Mbỡ. Nar maak nây mra tât ngăn. Jêng nar tăng Yê-su kuăl. Hăn Ƀon Ueh gŭ rêh ndrel Păng ƀa-ƀơ."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Gâp rŏng Yê-su ƀa-ƀơ. Gâp jêng Kon Hađăch ta klơ. Tâm ti Brah Ndu gâp mâu hôm gŭ êng. Aƀơ aơ, gâp dôl gŭ kâp. Nar nây tăng Yê-su kuăl. Hăn Ƀon Ueh gŭ ntŭk sưng Hađăch chrêk rmah."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "G major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 332,
+            "image": "page-332.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0311.pdf",
+        "page_images": [
+          "hymn-0311-page-332.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed. Refrain prints 'Aƀơ aơ'; kept as printed."
+      ]
+    },
+    {
+      "id": "hymn-0312",
+      "title": "MBU NƠM GŬ MPEH YÊ-SU",
+      "number": "312",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Mbu nơm gŭ mpeh Yê-su? Mbu yơk mbah ma Hađăch klơ? Mbu nhhơr nau rêh tâm rklaih bunuyh gŭ tâm nau khĭt. Mbu dơi lơi neh ntu aơ ran tâm lơh phung rlăng. Mbu nơm ton tât ta ntŭk Brah Ndu prơh đă hăn."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Ma nau rŏng Păng kuăl he. Ma nau yỗ Păng ăn. Dâk hom phung tahan Brah Hađăch klơ rêh maak ma Păng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Mbu lơi lĕ nau lư n'găr. Ŭch tĭng ndỗ Kôranh Brah ton, ran hăn tĭng phung ta han Hađăch Chrêk Rmah kŏ khĭt. Yor nau tih lĕ rngôch he Hađăch Yê-su khĭt jêh. Mbu nơm ton nhhơr nau rêh, lah tăng Kôranh Brah kuăl."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Ma nau rŏng Păng kuăl he. Ma nau yỗ Păng ăn. Dâk hom phung tahan Brah Hađăch klơ rêh maak ma Păng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Nau tâm lơh hôm e jŏ. Phung rlăng ƀa-ƀơ ŭch dơi. Ƀiă lah phung ta han Hađăch klơ ran ŭch tâm lơh. Mâu klach khĭt tâm rnglăp rdâng bok pla du ai rjăp. Yor nau na-nễ ton nhhơr nau rêh ăn ma Păng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Ma nau rŏng Păng kuăl he. Ma nau yỗ Păng ăn. Dâk hom phung tahan Brah Hađăch klơ rêh maak ma Păng."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "A♭ major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 333,
+            "image": "page-333.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0312.pdf",
+        "page_images": [
+          "hymn-0312-page-333.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Refrain printed on the verse-2 row without a Plō mprō label; treated as the chorus."
+      ]
+    },
+    {
+      "id": "hymn-0313",
+      "title": "NTŬK TÂM LƠH",
+      "number": "313",
+      "reference": "TC 377",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Aƀaơ gâp jêng ta han Krist, dơi ŭch lăp tât lôch nau rêh. Nđâp lah tâm lơh jŏ nar mâu lah âk nau jêr kđôi lĕ. Dŏng ao loih rêt se bŭt, rŭn rduh tâm lơh ma đao Brah. Lah may joi mra saơ gâp tâm ntŭk rđâng tâm lơh."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nteh jâng grĭp grĭp phung ta han he chuat hăn, mprơh phung rlăng rai jêh, nau mprơ ma bâr huy, Nteh jâng grĭp grĭp phung ta han he chuat ndăng. Ntuh bâr mprơ dơi ntŭk tâm lơh.",
+              "Ƀŭn ma gâp dơi lăp phung ta han kloh ueh Yê-hô-va phung ta han kơl gâp dơi dăng. Ƀŭn ma gâp dơi lăp ndrel phung ta-han tâm lơh. Gay joi gâp may hăn hom tâm ntŭk rđŭng tâm lơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Nau rŏng Kôranh Brah Yê-su, hao jêh tât ta bôl dŭt trôk. Lĕ nuih n'hâm hăn nsong mbơh ma lĕ rngôch bunuyh ntơm rai lôch. Nđâp phung rlăng ktang kđôi lĕ, nkêh hăr rlăng, rŭn rduh bah năp. Lah may joi mra saơ gâp tâm ntŭk rđâng tâm lơh."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nteh jâng grĭp grĭp phung ta han he chuat hăn, mprơh phung rlăng rai jêh, nau mprơ ma bâr huy, Nteh jâng grĭp grĭp phung ta han he chuat ndăng. Ntuh bâr mprơ dơi ntŭk tâm lơh.",
+              "Ƀŭn ma gâp dơi lăp phung ta han kloh ueh Yê-hô-va phung ta han kơl gâp dơi dăng. Ƀŭn ma gâp dơi lăp ndrel phung ta-han tâm lơh. Gay joi gâp may hăn hom tâm ntŭk rđŭng tâm lơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Aơ gâp ôp ma oh nâu, ŭch jêng ta-han si tâm rkăng. nguay n'hanh phung tahan Brah Krist răp jăp ndrel Yê-su Hađăch he. Lor ma nar Kôranh Brah văch, tĭng ndỗ gâp lăp hom nar aơ. Lah may joi mra saơ gâp tâm ntŭk rđâng tâm lơh."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nteh jâng grĭp grĭp phung ta han he chuat hăn, mprơh phung rlăng rai jêh, nau mprơ ma bâr huy, Nteh jâng grĭp grĭp phung ta han he chuat ndăng. Ntuh bâr mprơ dơi ntŭk tâm lơh.",
+              "Ƀŭn ma gâp dơi lăp phung ta han kloh ueh Yê-hô-va phung ta han kơl gâp dơi dăng. Ƀŭn ma gâp dơi lăp ndrel phung ta-han tâm lơh. Gay joi gâp may hăn hom tâm ntŭk rđŭng tâm lơh."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 334,
+            "image": "page-334.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          },
+          {
+            "pdf_page": 335,
+            "image": "page-335.png",
+            "region": "full page",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0313.pdf",
+        "page_images": [
+          "hymn-0313-page-334.png",
+          "hymn-0313-page-335.png"
+        ]
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed. Lower parts echo 'Chuat grĭp grĭp', 'Ha-lê-lu-ya'; not added to the lyrics. Last line prints 'rđŭng' (verses print 'rđâng'); kept as printed."
+      ]
+    }
+  ]
+}

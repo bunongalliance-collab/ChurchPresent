@@ -1,0 +1,477 @@
+{
+  "batch": "batch-0031",
+  "pages": [
+    453,
+    459
+  ],
+  "songs": [
+    {
+      "id": "hymn-0437",
+      "title": "DU HUÊ BRAH KRIST",
+      "number": "437",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Du huê Brah Krist, ntŭk gâp nâp rnơm. Păng jêng nau ang, ƀư ktang đô he. Păng jêng lŭ nâp, ntŭk neh klĕr ktang, nđâp phŭt nar phang ăt nâp mâu rlâm. Nau rŏng dŭt prêh, nau đăp mpăn jru. Mâu hôm gâp klach, ăt gâp gŭ nâp. Yê-su bonh leng tâm lĕ ntil tât. Knŏng tâm nau rŏng Brah Krist gâp dơi."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Du huê Brah Krist, Nơm sŏk nglay săk. Brah Ndu Nơm ngăn, jan săk oh bê. Păng rŏng gâp hâu, ăn nau sŏng srăng. Păng văch sâm rklaih phung tâm mưch rmot. Yê-su dơn khĭt ta si tâm rkăng, ntrok an ma he nau Brah Ndu rmal. Lĕ nau tih he Păng tâm tang an. Brah Krist sâm khĭt, gâp dơi gŭ rêh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Bu hŏ tâp jêh săk Păng tâm môch. Nau ang ma neh ntu lĕ nkŭm jêh. Nau rtah mra tât tâm nau chrêk rmah. Păng dâk rêh jêh, luh tă bơh môch, Păng yor dơi jêh đah mpôch nau khĭt, nau tih mâu hôm dơi kuăn gâp ôh. Aƀaơ ri gâp jêng rêh knŏng ma Păng. Brah Krist rvăt gâp ma mham Păng Nơm."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Mâu hôm tih mhĭk, mâu hôm klach krit, nau dơi Brah Krist ăn jêh ma gâp. Du bông gâp rêh tât nar tăch n'hâm, Yê-su ntĭng gâp ăp nar ăp năm. Brah mhĭk ndơm kđôi, bunuyh ƀai kđôi lĕ, mâu hôm geh nơm mphâk gâp bơh Păng. tâm nar Păng plỡ kuăl gâp hăn sĭt. Tâm nau dơi Brah Krist gâp mra dơi."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "E♭ major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 453,
+            "image": "page-453.png",
+            "region": "full page"
+          },
+          {
+            "pdf_page": 454,
+            "image": "page-454.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0437.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits printed; Bunong translation of 'In Christ Alone' (Keith Getty & Stuart Townend). Lyrics added after the church confirmed permission."
+      ]
+    },
+    {
+      "id": "hymn-0438",
+      "title": "YÊ-SU KRIST JÊNG MĬT JIĂNG GÂP",
+      "number": "438",
+      "reference": "TC 81",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Yê-su jêng mĭt jiăng gâp, Păng chiă uănh lĕ nau rêh gâp, Păng jêng ueh reh lơn ma âk rbăn rmưn phung êng. Gâp uănh Yê-su jêng kao ueh lơn, Ƀâu kah lĕ r-ngôch. Krist tâm rgâl nuih n'hâm tih gâp, an jêng kloh ueh. Geh nau rngot, Yê-su bonh leng; rŭng răng, Păng ăn đăp mpăn. Păng lah \"Jao lĕ ndơ jâk may, ăn Gâp anh.\" Yê-su jêng kao ueh lơn, Păng jêng mănh toyh sol tât ôi. Păng jêng ueh reh lơn ma âk rbăn rmưn phung êng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Yê-su anh nau tih gâp, rao kloh gâp ma mham khlay Păng. Si tâm rkăng jêng mpêr king n'gang gâp bơh brah mhĭk. Yor Krist gâp dun lĕ rngôch âk nau ndơm bơh rnglay săk kơnh. Păng ăn nau brah chiă uănh nuih n'hâm gâp đăp mpăn. Nđâp tơ-lah bu gơm mưch gâp, lah Sa-tan ndơm hâu ngăn, knŏng ti Yê-su Krist dơi king gâp đăp mpăn. Yê-su jêng kao ueh lơn, Păng jêng mănh toyh sol tât ôi. Păng jêng ueh reh lơn ma âk rbăn rmưn phung êng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Gâp rêh yor ma nau chroh tông bâr păng ma lĕ nuih n'hâm. Brah Yê-su păng mâu cha-lơi gâp gŭ êng ôh. Unh Brah Păng king n'gang gâp đăp mpăn ngăn mâu rung răng ôh. Yor Păng ăn Ma-na huêng gâp hơm ra-ơm ngăn. Gâp mra saơ muh măt Brah Yê-su tât tâm ƀon ueh Păng. Tâm ƀon ueh bêng ma nau răm maak hâu ngăn. Yê-su jêng kao ueh lơn, Păng jêng mănh toyh sol tât ôi. Păng jêng ueh reh lơn ma âk rbăn rmưn phung êng."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 455,
+            "image": "page-455.png",
+            "region": "full page"
+          },
+          {
+            "pdf_page": 456,
+            "image": "page-456.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0438.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed ('The Lily of the Valley'). The closing lines (Yê-su jêng kao ueh lơn…) are printed once and sung by each verse."
+      ]
+    },
+    {
+      "id": "hymn-0439",
+      "title": "DÔL NEH NTU JI RÂM RMOK NGÂM",
+      "number": "439",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Dôl neh ntu ji râm r-mok ngâm, mâu hôm dơi saơ, klơ bâr mbung nau gơm. Klơ trôk prêh Yê-su mra tăng saơ. Păng văch djôt rklaih yỗ âk nơm. Ăn ma bunuyh nau rŏng ueh n'ho ro, nau đăp mpăn, bâr mprơ mro ăp yăn. Lôch nau rêh păng vơt âk bu-nuyh hao ƀon ueh, rbăn năm rêh n'hanh păng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Mprơ maak hom, Hađăch Yê-su văch jêh. Maak ƀư ha-đăch nuih n'hâm mbu dơn păng. Ăn đăp mpăn ma he mro mâu rlu. He klaih jêh đah nau rêh ni. Ăn ma bunuyh nau rŏng ueh n'ho ro, nau đăp mpăn, bâr mprơ mro ăp yăn. Lôch nau rêh păng vơt âk bu-nuyh hao ƀon ueh, rbăn năm rêh n'hanh păng."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 457,
+            "image": "page-457.png",
+            "region": "upper section, song 440 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              920
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0439.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Melody-only. The last section (Ăn ma bunuyh…) is printed once and sung by both verses."
+      ]
+    },
+    {
+      "id": "hymn-0440",
+      "title": "PHUNG KON SE MHE UEH",
+      "number": "440",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Phung kon se mhe ueh prăp dơn Yê-su ăn. Phung kon se mhe ueh gŭ jŭm păng răm maak. Phung kon se mhe ueh mprơ jêh ri tông bâr. Dăn Kôranh Brah Nơm ăn nau rŏng ueh mbêng ler."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Phung kon se mhe ueh, kaƀah nau blau nau ktang. Ăn he srôih nti samƀŭt gay pah kan Kôranh Brah. Uănh nau Brah Ndu Ngơi, Lơi chuêl ôh mbơh sơm. Ăn he gơih nđơr hom, phung kon se mhe ueh."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "C major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 457,
+            "image": "page-457.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              920,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0440.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Melody-only."
+      ]
+    },
+    {
+      "id": "hymn-0441",
+      "title": "GÂP RŎNG NAU NKOCH BRI",
+      "number": "441",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Gâp rŏng nau nkoch bri khlay hâu ngăn, Nau Brah Ndu Ngơi nchih jêh. Brah Yê-su nơm rŏng yỗ nđach ma gâp, dơn nau khĭt ntrok an ma gâp."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Dak rdu, du mlâm bĭ êp dak krong, oh bê Mô-ih hôm bêch. Tât du huê bu druh kon hađăch Ê-jip, ăn bu chông Mô-ih djôt sĭt."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Đa-niel jêh ri pe mĭt jiăng păng, bu klŭp tâm nklang ŭnh hit. Răp jăp mâu klach khĭt lĕ ntil nau tât, đăp mpăn chuat hăn dôl ŭnh hit."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Yô-na mâu tông bâr nau Kôranh Brah, hăn nder du krap t'reh si. Kôranh Brah đă ka kuăng rnguăn Y-Yô-na tât pe nar ka jrih klơ kơh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 5,
+            "lines": [
+              "Y-Pôl đăp mpăn bêch tâm ndrung n'gar, mprơ nteh ndrel Y-Si-laih. Tâm ndrung n'gar geh nau râm sâr krit kir, kôranh ndrung saơ chroh ma Yê-su."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "C major",
+        "meter": "6/8",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 458,
+            "image": "page-458.png",
+            "region": "upper section, song 442 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              780
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0441.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Melody-only."
+      ]
+    },
+    {
+      "id": "hymn-0442",
+      "title": "MAAK YĂN VAI MHE",
+      "number": "442",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Maak yăn vai mhe. Mprơ tâm rnê Kôranh Brah, yor Păng ăn gâp du năm rlau đăp mpăn. Nar jêh neh ntu bêng ma nau ueh uĭn. Kôranh Brah kơl gâp, rêh maak tâm r-nê. Maak yăn vai mhe. Mprơ yơk rnê Kôranh Brah, yor ăp năm khay bêng ma nau ƀâu kah. Maak yăn vai mhe, aơ nau Păng kơl gâp. Ŭch Kôranh Brah ăt tât njŭn leo gâp. Ŭch Kôranh Brah ăt tât njŭn leo gâp."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "C major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 458,
+            "image": "page-458.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              780,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0442.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Melody-only, single stanza (New Year song)."
+      ]
+    },
+    {
+      "id": "hymn-0443",
+      "title": "NAU TÂM RNÊ",
+      "number": "443",
+      "reference": "TC 678",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Ntoh bâr răm maak, tâm rnê Yê-su lôch njăr rêh. Ăn âk nau ueh, nau yỗ rlau lơn dak rlai. Kah gĭt ƀa-ƀơ ăp nar yor Kôranh Brah njŭn leo, têk ndrêng phung biăp tâm nau rŏng Păng ƀa-ƀơ."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nau tâm r-nê gâp nhhơr ma May tâm pot bâr mprơ Ha-lê-lu-ya! Nuih n'hâm tâm r-nê Ha-lê-lu-ya! ma nuih n'hâm nau yok, Nau tâm... Rnê vah vang klơ trôk, njăr rêh nhhơr ƀâu kah Ha-lê-lu-ya! Yơk mbah Kôranh Brah lôch njăr rêh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Du năm rlau jêh, yor Mbỡ chiă uănh nau răp jăp. Nsĭt lah ma gâp nau ueh, ƀư bah nau ji. Kôranh Brah êp gâp, nuih n'hâm đăp mpăn, mâu rngot ôh, nâp rjăp ma Mbỡ, nar măng geh Păng njŭn leo."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nau tâm r-nê gâp nhhơr ma May tâm pot bâr mprơ Ha-lê-lu-ya! Nuih n'hâm tâm r-nê Ha-lê-lu-ya! ma nuih n'hâm nau yok, Nau tâm... Rnê vah vang klơ trôk, njăr rêh nhhơr ƀâu kah Ha-lê-lu-ya! Yơk mbah Kôranh Brah lôch njăr rêh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Kôranh Brah rŏng ơi, mâm gâp dơi tĭng nau tâm rnê. Tâm nau yỗ May ăn jêh ma gâp nar aơ. Nsrôih tĭng ndỗ May, ăp nar mbơh Amoh Brah Yê-su, njŭn sĭt neh ntu, plỡ ma nau rŏng Kôranh Brah."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Nau tâm r-nê gâp nhhơr ma May tâm pot bâr mprơ Ha-lê-lu-ya! Nuih n'hâm tâm r-nê Ha-lê-lu-ya! ma nuih n'hâm nau yok, Nau tâm... Rnê vah vang klơ trôk, njăr rêh nhhơr ƀâu kah Ha-lê-lu-ya! Yơk mbah Kôranh Brah lôch njăr rêh."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 459,
+            "image": "page-459.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0443.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed. Refrain marked 'Sĭt mprơ', with repeat; lower parts sing 'Ha… lê… lu… ya!'. Refrain prints 'nau yok' (likely 'yơk'); kept as printed."
+      ]
+    }
+  ]
+}

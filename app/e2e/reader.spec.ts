@@ -11,7 +11,7 @@ test("the reader lists songs and opens one", async ({ page }) => {
   await expect(rows.first()).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".nm-saved")).toContainText("song");
   await rows.first().click();
-  await expect(page.locator(".nm-title")).toBeVisible();
+  await expect(page.locator(".nm-htitle")).toBeVisible();
   await expect(page).toHaveURL(/#song-/);
   // Phones: the lyrics replace the list, and Back returns to the list
   if ((page.viewportSize()?.width ?? 1000) <= 760) {

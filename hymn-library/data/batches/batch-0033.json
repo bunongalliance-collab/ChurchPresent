@@ -1,0 +1,478 @@
+{
+  "batch": "batch-0033",
+  "pages": [
+    468,
+    475
+  ],
+  "songs": [
+    {
+      "id": "hymn-0453",
+      "title": "RGÂL AN NUIH N'HÂM GÂP",
+      "number": "453",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Rgâl an nuih n'hâm gâp, ƀư ăn păng di mro. Rgâl gâp, ơ Brah Ndu năng gâp jêng kơt May. Rgâl an nuih n'hâm gâp, ƀư ăn păng di mro. Rgâl gâp, ơ Brah Ndu năng gâp jêng kơt May. May jêng Nơm mon glah, gâp jêng nâm ŭk. Mon gâp jêh ri nser gâp, nĕ yơh nau gâp dăn. Rgâl an nuih n'hâm gâp, ƀư ăn păng di mro. Rgâl gâp, ơ Brah Ndu năng gâp jêng kơt May."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "C major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 468,
+            "image": "page-468.png",
+            "region": "full page"
+          },
+          {
+            "pdf_page": 469,
+            "image": "page-469.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0453.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits printed; Bunong translation of 'Change My Heart, O God' (Eddie Espinosa). Lyrics added after the church confirmed permission."
+      ]
+    },
+    {
+      "id": "hymn-0454",
+      "title": "KƠT BU UR GŬ TA NTU DAK",
+      "number": "454",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Kơt bu ur gŭ ta ntu dak, gâp ŭch tĭng joi ma ndơ mâu dơi bah nau ji hir. Jêh ri gâp tăng bâr Nơm Tâm Rklaih lah: \"Nhêt dak bơh gâp, mâu hôm ji hir đŏng ôh.\""
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Mbêng an kachok gâp, gâp yor ma Kôranh Brah. Văch ăn hom rêh huêng dak gâp ji hir. Kpŭng Mbỡ bơh trôk, nsăm gâp tât mâu hôm ji ngot. Mbêng an kachok aơ, mbêng ler lĕ nuih, lĕ huêng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Rmưn rkeh kon bunuyh neh ntu aơ hôm ŭch âk ir ntil ndơ ŭch neh ntu mâu dơi dĭl ôh. Mâu hôm dơi tâm di tâm lĕ drăp khlay. Knŏng gâp hôm joi tâm Yê-su Krist, Kôranh Brah."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Mbêng an kachok gâp, gâp yor ma Kôranh Brah. Văch ăn hom rêh huêng dak gâp ji hir. Kpŭng Mbỡ bơh trôk, nsăm gâp tât mâu hôm ji ngot. Mbêng an kachok aơ, mbêng ler lĕ nuih, lĕ huêng."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Lah oh nâu geh lĕ ntil ndơ bơh neh ntu ăn, ăt hôm ji ngot, mâu geh bah ôh. Gâp geh nau ueh maak Kôranh Brah rklaih gâp. Njŭr săk may, chon kô-mâk mbơh sơm ma Păng."
+            ]
+          },
+          {
+            "type": "chorus",
+            "label": "Plō mprō",
+            "lines": [
+              "Mbêng an kachok gâp, gâp yor ma Kôranh Brah. Văch ăn hom rêh huêng dak gâp ji hir. Kpŭng Mbỡ bơh trôk, nsăm gâp tât mâu hôm ji ngot. Mbêng an kachok aơ, mbêng ler lĕ nuih, lĕ huêng."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "B♭ major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 470,
+            "image": "page-470.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0454.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Refrain printed on the verse-2 row without a Plō mprō label; treated as the chorus. Possibly a translation of 'Fill My Cup, Lord' (Richard Blanchard, 1959) — rights status to be checked."
+      ]
+    },
+    {
+      "id": "hymn-0455",
+      "title": "MBỠ ƠI, IĂT HOM BÂR GÂP",
+      "number": "455",
+      "reference": "TVCHH 111",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Mbỡ ơi, iăt hom bâr gâp, dôl kâp kuăl mbơh sơm maak. Tĭng nau rêh gâp geh âk nau jêr jŏt, gâp rêh ni. Mbỡ ơi, iăt hom bâr gâp. Geh nau klach, gâp nhĭm êng, jêh ri măt gâp mbêng ma dak măt dôl mbơh sơm. Kơl gâp, Kôranh Brah, gâp hăn êp May lơn. Rgâl nuih n'hâm gâp, ăn lŏ jêng mhe. Lĕ nuih n'hâm gâp lah ueh tâm r-nê. Dăn Brah Ndu Mbỡ Hađăch chiă uănh chrêk ma lơp. Mprơ hom răm maak, mprơ hom răm maak, ma lĕ nuih n'hâm tâm rnê Kôranh Brah. Mprơ hom răm maak, mprơ hom răm maak. Mprơ tâm rnê ma Păng ƀa-ƀơ."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "E♭ major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 471,
+            "image": "page-471.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0455.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed. Melody-only, single stanza."
+      ]
+    },
+    {
+      "id": "hymn-0456",
+      "title": "ĂN HE JOI LOR LƠN",
+      "number": "456",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Ăn he joi lor lơn bon bri Hađăch Brah Ndu jêh ri nau sŏng Păng. Lĕ rngôch ndơ nĕ, Păng mra ntop an ma may. Ha-lê-lu, ha-lê-lu-ya."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Bunuyh gŭ rêh mâu di ôh knŏng ma kpŭng ndơ sa, ƀiă-lah ma nau Brah Ndu Ngơi. Luh ăn jêh tă bơh bâr mbung Brah Ndu Nơm. Ha-lê-lu, ha-lê-lu-ya."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Dăn hom dĭng geh, bu mra ăn ndơ may. Joi ngăn hom, Păng mra saơ. Goh hom mpông pêr bu sâm pơk an ma may. Ha-lê-lu, ha-lê-lu-ya."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "D major",
+        "meter": "2/2",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 472,
+            "image": "page-472.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0456.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits printed; Bunong translation of 'Seek Ye First' (Karen Lafferty). Lyrics added after the church confirmed permission."
+      ]
+    },
+    {
+      "id": "hymn-0457",
+      "title": "PAH NUIH KON, MBỠ ƠI",
+      "number": "457",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Pah nuih kon, Mbỡ ơi, tâm mông aơ. Pah nuih kon, ăn kon mĭn ma Mbỡ. Pah nuih kon, Mbỡ ơi, tâm mông aơ. Pah nuih kon, ăn kon êp đah Mbỡ. Mpư kon dơi hao dơi klaih bơh ntŭk roh rai. Mpư kon dơi hao mâu tĭng ma nau rngot rvê. Ri kon ŭch mprơ tâm rnê ma Amoh Kôranh Brah. Dăn Brah Huêng Ueh tât pah nuih kon Mbỡ ơi."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "C major",
+        "meter": "2/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 473,
+            "image": "page-473.png",
+            "region": "upper section, song 458 below",
+            "crop_px": [
+              0,
+              0,
+              1142,
+              880
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0457.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed. Possibly a translation of 'Spirit of the Living God' (Daniel Iverson, 1926) — rights status to be checked."
+      ]
+    },
+    {
+      "id": "hymn-0458",
+      "title": "GÂP ŬCH KAN DU NTIL",
+      "number": "458",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Gâp ŭch kan du ntil, chuêl lĕ ndơ pa-kơi. Gâp ŭch kan du ntil, gay rduh sŏk ndơ pa-năp. Gâp ŭch kan du ntil, ŭch chuat ntŭk tâm năl. Gâp ŭch kan du ntil, gay sŏk ndơ nkhôm Mbỡ ton."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "F major",
+        "meter": "4/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 473,
+            "image": "page-473.png",
+            "region": "lower section",
+            "crop_px": [
+              0,
+              880,
+              1142,
+              1615
+            ]
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0458.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed (Philippians 3:13-14). Melody-only."
+      ]
+    },
+    {
+      "id": "hymn-0459",
+      "title": "ĂN GÂP NHUAT TĬNG TRONG MAY",
+      "number": "459",
+      "reference": null,
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Ăn gâp nhuat tĭng trong May, nti gâp trong May. Ăn gâp nau ueh bơh May, nti gâp trong May. Kơl sâm nti gâp trong May. Gâp nsing ma May, Kôranh Brah. Sol hom nau ang bơh trôk. Nti gâp trong May."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Tơ lah nuih n'hâm rngot rvê, nti gâp trong May. Lah nau maak lĕ roh jêh, nti gâp trong May. Lah hăn êng ta neh ntu, mâp âk rêh ni ji kuet, dơi mâu lah mâu lĕ kan, nti gâp trong May."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Lah nau mĭn gâp hôm đing, nti gâp trong May. Lah phŭt sial chuănh nau rêh, nti gâp trong May. Lah nau ngo kleng, nau mhĭk găn lĕ rngôch nau jêr kanap, njŭn hom gâp tâm trong May, nti gâp trong May."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 4,
+            "lines": [
+              "Nđah nar n'găr ta neh ntu, nti gâp trong May. Tơ lah mâp nau klach krit, nti gâp trong May. Tât nar lôch dŭt neh ntu, tât nar ƀư lôch lĕ kan, nar gâp tâm mâp ma Mbỡ, nti gâp trong May."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "E♭ major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 474,
+            "image": "page-474.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0459.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No reference, credits or chords printed ('Teach Me Thy Way, O Lord')."
+      ]
+    },
+    {
+      "id": "hymn-0460",
+      "title": "MĂNG NÂM NAR YÊSU NJŬN LEO GÂP",
+      "number": "460",
+      "reference": "TC 272",
+      "alternate_titles": [],
+      "language": "Bunong",
+      "category": null,
+      "lyrics": {
+        "sequence": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              "Măng nâm nar Yê-su njŭn leo gâp. Mâu geh nau khlay lơn ma nây. Păng chiă uănh gâp ma nau mơih rmên, mâm ƀư mâu nsing mro ma Păng? Êp kêng Păng gâp geh nau bonh leng, nau đăp mpăn, nau răm maak ngăn. Yor gâp saơ, ŏng âk nau jêr jŏt, Yê-su njŭn gâp tâm trong ueh. Yor gâp saơ, ŏng âk nau jêr jŏt, Yê-su njŭn gâp tâm trong ueh."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 2,
+            "lines": [
+              "Măng nâm nar Yê-su njŭn leo gâp. Nđâp trong hăn kue kuăt ngo klĕng, ăt Păng ăn nau dơi, nau nsrôih ngăn, ăt Păng ăn ka-pŭng nau rêh. Lah gâp rgănh, lah jâng ŭnh mbâr prah, lah ji ngot ji hir hâu ngăn. ăt geh dak rsang hoch bonh leng gâp, tă ti ueh Kôranh Brah nơm ăn. Ăt geh dak rsang hoch bonh leng gâp, tă ti ueh Kôranh Brah nơm ăn."
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 3,
+            "lines": [
+              "Măng nâm nar Yê-su njŭn leo gâp. Păng jêng Kôranh gâp mơih mên Ôi ta klak Păng ăn gâp rlu n'hanh, ta ƀon ueh klơ ndrel ma Păng. Rnôk ri huêng gâp mâu hôm rvê ôh. Gâp mpăr ran ntŭk hŏ nkra jêh. Gâp mra mprơ ta ri nau mprơ aơ: Yê-su hŏ njŭn leo gâp mro. Gâp mra mprơ ta ri nau mprơ aơ: Yê-su hŏ njŭn leo gâp mro."
+            ]
+          }
+        ]
+      },
+      "music": {
+        "key": "G major",
+        "meter": "3/4",
+        "tempo": null,
+        "tune_name": null,
+        "chords": []
+      },
+      "source": {
+        "pdf": "nau mpro.pdf",
+        "image_folder": "nau mpro pages",
+        "sections": [
+          {
+            "pdf_page": 475,
+            "image": "page-475.png",
+            "region": "full page"
+          }
+        ]
+      },
+      "files": {
+        "score_pdf": "hymn-0460.pdf",
+        "page_images": []
+      },
+      "review_status": "needs review",
+      "review_notes": [
+        "No credits or chords printed ('All the Way My Savior Leads Me', Fanny Crosby / Robert Lowry). Verse 3 prints 'mơih mên' (elsewhere 'mơih rmên'); kept as printed. The last line of each verse is sung twice as printed."
+      ]
+    }
+  ]
+}

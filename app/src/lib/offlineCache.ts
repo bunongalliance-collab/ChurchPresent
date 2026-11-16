@@ -66,6 +66,11 @@ export interface ReaderSong {
   category: string;
   language: string;
   updated: string;
+  scorePath?: string;
+  // Scan images of the printed score, in reading order (file names in the hymn-scores bucket)
+  scoreImages?: string[];
+  // Printed key, time signature and chord symbols
+  music?: { key: string; meter: string; chords: string[] };
 }
 
 // Replace the saved hymn book with the latest copy (songs deleted on the server go too)

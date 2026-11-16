@@ -1,72 +1,171 @@
-/* Nau Mpro reader. Colours come from the tokens in ../index.css (light and dark). */
+/* Nau Mpro reader. Calm, book-like: warm white page, dark text, restrained green.
+   Colours are the reader's own tokens (light and dark below); fonts fall back to the bundled Noto Serif offline. */
 @font-face { font-family: "Noto Serif"; src: url("/fonts/NotoSerif-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Noto Serif"; src: url("/fonts/NotoSerif-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
 @font-face { font-family: "Noto Serif"; src: url("/fonts/NotoSerif-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }
 
-html, body, #root { height: 100%; }
-body { margin: 0; }
-.nm { --lyric: "Noto Serif", Georgia, "Times New Roman", serif; height: 100%; display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); background: var(--bg); color: var(--text); }
-.nm button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-.nm button:disabled { cursor: default; opacity: 0.35; }
-.nm button:focus-visible, .nm input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-
-/* ----- Song list ----- */
-.nm-side { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; padding-top: env(safe-area-inset-top, 0px); padding-left: env(safe-area-inset-left, 0px); }
-.nm-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 6px; }
-.nm-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; }
-.nm-logo { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.8rem; letter-spacing: 0.02em; }
-.nm-search-row { padding: 6px 14px 4px; }
-.nm-search { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--sunken); color: var(--text); font: inherit; font-size: 1rem; }
-.nm-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px 2px; scrollbar-width: none; }
-.nm-chips::-webkit-scrollbar { display: none; }
-.nm-chip { flex: none; border: 1px solid var(--line) !important; border-radius: 999px; padding: 5px 12px !important; font-size: 0.85rem; color: var(--muted) !important; }
-.nm-chip.small { font-size: 0.78rem; padding: 3px 10px !important; }
-.nm-chip.on { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
-.nm-saved { margin: 0; padding: 8px 16px 6px; font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
-.nm-saved::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-.nm-saved.warn::before { background: var(--hint); }
-.nm-list { list-style: none; margin: 0; padding: 2px 8px calc(16px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; flex: 1; min-height: 0; }
-.nm-row { width: 100%; display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px; text-align: left; padding: 10px 8px !important; border-radius: 10px; }
-.nm-row:hover { background: var(--sunken) !important; }
-.nm-row.sel { background: var(--accent-soft) !important; }
-.nm-num { text-align: right; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; padding-right: 2px; }
-.nm-rt { min-width: 0; }
-.nm-rt strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nm-rt small { color: var(--muted); font-size: 0.78rem; }
-.nm-empty, .nm-pick { color: var(--muted); padding: 16px; margin: 0; }
-.nm-pick { padding: 40px 48px; }
-
-/* ----- Lyrics ----- */
-.nm-main { display: flex; flex-direction: column; min-height: 0; min-width: 0; padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.nm-bar { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
-.nm-bar-title { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nm-tool { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 0.95rem; flex: none; }
-.nm-tool:hover:not(:disabled) { background: var(--sunken) !important; }
-.nm-tool[aria-pressed="true"] { background: var(--accent-soft) !important; color: var(--on-soft) !important; }
-.nm-back { display: none !important; font-size: 1.6rem; font-weight: 400; }
-.nm-head .nm-tool { display: none; }
-.nm-reader { flex: 1; min-height: 0; overflow-y: auto; padding: 28px 48px 48px; }
-.nm-song { max-width: 40em; font-family: var(--lyric); line-height: 1.6; }
-.nm-title { font-family: var(--lyric); font-weight: 600; font-size: 1.3em; line-height: 1.25; margin: 0 0 4px; text-wrap: balance; }
-.nm-meta { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 0.8rem; color: var(--muted); margin: 0 0 1.2em; }
-.nm-sec { margin: 0 0 1.1em; }
-.nm-sec-label { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--on-soft); font-weight: 700; margin: 0 0 0.25em; }
-.nm-sec.chorus { background: var(--accent-soft); border-radius: 12px; padding: 0.55em 0.8em; margin-left: -0.8em; margin-right: -0.8em; }
-.nm-sec.chorus .nm-line { font-style: italic; }
-.nm-line { margin: 0; }
-.nm-nav { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); background: var(--panel); padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
-.nm-nav button { min-width: 0; max-width: 48%; padding: 8px 6px !important; color: var(--muted) !important; font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nm-nav button:last-child { text-align: right; }
-
-/* ----- Phone: list and lyrics are separate screens ----- */
-@media (max-width: 760px) {
-  .nm { grid-template-columns: minmax(0, 1fr); }
-  .nm-side { border-right: 0; }
-  .nm-main { display: none; padding-left: env(safe-area-inset-left, 0px); }
-  .nm.reading .nm-side { display: none; }
-  .nm.reading .nm-main { display: flex; }
-  .nm-back { display: grid !important; }
-  .nm-head .nm-tool { display: grid; }
-  .nm-reader { padding: 20px 20px 40px; }
-  .nm-pick { padding: 24px 20px; }
+.nm {
+  --nm-paper: #fbf9f4;      /* warm white page */
+  --nm-panel: #f5f2ea;      /* bars and the song list */
+  --nm-sheet: #ffffff;      /* behind the scans */
+  --nm-ink: #23221d;
+  --nm-muted: #6b695e;
+  --nm-rule: #e3dfd3;
+  --nm-green: #3d6b4c;
+  --nm-green-soft: #e6eee7;
+  --nm-on-green: #fbf9f4;
+  --nm-shadow: rgb(35 34 29 / 0.14);
+  --nm-serif: "Alegreya", "Noto Serif", Georgia, "Times New Roman", serif;
+  --nm-sans: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --nm-tap: 36px;
 }
+[data-theme="dark"] .nm {
+  --nm-paper: #1b1c19; --nm-panel: #222420; --nm-sheet: #f3f0e8; --nm-ink: #e8e5da; --nm-muted: #a4a193;
+  --nm-rule: #353731; --nm-green: #8fbf9c; --nm-green-soft: #263329; --nm-on-green: #1b1c19; --nm-shadow: rgb(0 0 0 / 0.4);
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; overflow: hidden; }
+.nm, .nm * { box-sizing: border-box; }
+.nm {
+  height: 100%; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr);
+  background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-sans); font-size: 16px;
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.nm button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.nm button:disabled { cursor: default; opacity: 0.35; }
+.nm :focus-visible { outline: 2px solid var(--nm-green); outline-offset: 2px; }
+
+/* ----- Top bar: name and search ----- */
+.nm-bar { display: flex; align-items: center; gap: 10px; padding: calc(6px + env(safe-area-inset-top, 0px)) 14px 6px; background: var(--nm-panel); border-bottom: 1px solid var(--nm-rule); min-width: 0; }
+.nm-brand { font-family: var(--nm-serif); font-weight: 700; font-size: 1.25rem; white-space: nowrap; }
+.nm-brand span { color: var(--nm-green); }
+.nm-search { flex: 1; min-width: 0; max-width: 360px; margin-left: auto; height: var(--nm-tap); padding: 0 10px; border-radius: 6px; border: 1px solid var(--nm-rule); background: var(--nm-paper); color: var(--nm-ink); font: inherit; font-size: 16px; }
+.nm-search::placeholder { color: var(--nm-muted); }
+.nm-icon { width: var(--nm-tap); height: var(--nm-tap); border-radius: 6px; flex: none; font-size: 1rem; }
+.nm-icon:hover, .nm-icon[aria-pressed="true"] { background: var(--nm-green-soft) !important; }
+.nm-songs-btn { display: none; flex: none; height: var(--nm-tap); padding: 0 12px !important; border: 1px solid var(--nm-rule) !important; border-radius: 6px; font-size: 0.92rem; }
+.nm-back { display: none; flex: none; width: var(--nm-tap); height: var(--nm-tap); border-radius: 6px; font-size: 1.6rem; line-height: 1; }
+
+/* ----- Song heading ----- */
+.nm-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--nm-rule); min-width: 0; }
+.nm-hnum { flex: none; font-weight: 700; font-size: 0.85rem; color: var(--nm-green); border: 1px solid var(--nm-green); border-radius: 4px; padding: 1px 7px; font-variant-numeric: tabular-nums; }
+.nm-htitle { margin: 0; min-width: 0; font-family: var(--nm-serif); font-weight: 700; font-size: 1.3rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nm-steps { display: flex; gap: 4px; margin-left: auto; flex: none; }
+.nm-step { width: var(--nm-tap); height: var(--nm-tap); border: 1px solid var(--nm-rule) !important; border-radius: 6px; font-size: 1.15rem; line-height: 1; color: var(--nm-muted) !important; }
+.nm-play { flex: none; display: inline-flex; align-items: center; gap: 6px; height: var(--nm-tap); padding: 0 13px !important; border-radius: 6px; background: var(--nm-green) !important; color: var(--nm-on-green) !important; font-weight: 500; }
+.nm-play svg { width: 11px; height: 11px; fill: currentColor; }
+.nm-play[aria-pressed="true"] { background: var(--nm-ink) !important; color: var(--nm-paper) !important; }
+
+/* ----- Tabs (portrait tablets and phones) ----- */
+.nm-tabs { display: none; gap: 4px; padding: 6px 14px; border-bottom: 1px solid var(--nm-rule); }
+.nm-tabs button { padding: 4px 16px !important; border: 1px solid var(--nm-rule) !important; border-radius: 999px; font-size: 0.92rem; color: var(--nm-muted) !important; }
+.nm-tabs button[aria-selected="true"] { background: var(--nm-green-soft) !important; border-color: var(--nm-green) !important; color: var(--nm-ink) !important; font-weight: 500; }
+
+/* ----- Panes: list | lyrics | score, each scrolling on its own ----- */
+.nm-panes { min-height: 0; display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1.35fr); }
+.nm-side, .nm-lyrics, .nm-score { min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.nm:not(.reading) .nm-panes { grid-template-columns: 300px minmax(0, 1fr); }
+.nm:not(.reading) .nm-score { display: none; }
+
+.nm-side { background: var(--nm-panel); border-right: 1px solid var(--nm-rule); display: flex; flex-direction: column; }
+.nm-chips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 12px 0; scrollbar-width: none; flex: none; }
+.nm-chips::-webkit-scrollbar { display: none; }
+.nm-chip { flex: none; border: 1px solid var(--nm-rule) !important; border-radius: 999px; padding: 3px 11px !important; font-size: 0.82rem; color: var(--nm-muted) !important; }
+.nm-chip.on { background: var(--nm-green) !important; border-color: var(--nm-green) !important; color: var(--nm-on-green) !important; }
+.nm-saved { margin: 0; padding: 8px 14px 4px; font-size: 0.78rem; color: var(--nm-muted); display: flex; align-items: center; gap: 7px; flex: none; }
+.nm-saved::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--nm-green); }
+.nm-saved.warn::before { background: #b5832a; }
+.nm-list { list-style: none; margin: 0; padding: 2px 0 calc(16px + env(safe-area-inset-bottom, 0px)); }
+.nm-row { width: 100%; display: grid; grid-template-columns: 2.6em minmax(0, 1fr); gap: 6px; align-items: baseline; text-align: left; padding: 7px 14px 7px 11px !important; border-left: 3px solid transparent !important; }
+.nm-row:hover { background: var(--nm-green-soft) !important; }
+.nm-row.sel { background: var(--nm-green-soft) !important; border-left-color: var(--nm-green) !important; }
+.nm-num { text-align: right; font-weight: 700; font-size: 0.88rem; color: var(--nm-green); font-variant-numeric: tabular-nums; }
+.nm-rt { min-width: 0; font-family: var(--nm-serif); font-size: 0.98rem; line-height: 1.25; }
+.nm-empty, .nm-pick { color: var(--nm-muted); padding: 16px; margin: 0; }
+.nm-pick { padding: 40px 32px; font-family: var(--nm-serif); font-size: 1.1rem; }
+.nm-empty a { color: var(--nm-green); }
+
+.nm-lyrics { border-right: 1px solid var(--nm-rule); padding: 16px 22px calc(40px + env(safe-area-inset-bottom, 0px)); }
+.nm-song { max-width: 36em; }
+.nm-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-family: var(--nm-sans); font-size: 0.82rem; color: var(--nm-muted); margin-bottom: 8px; }
+.nm-facts b { color: var(--nm-ink); font-weight: 500; }
+.nm-size { margin-left: auto; display: flex; gap: 2px; }
+.nm-size button { min-width: var(--nm-tap); height: 30px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; color: var(--nm-muted) !important; }
+.nm-size button:hover:not(:disabled) { background: var(--nm-green-soft) !important; }
+.nm-chords { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 14px; }
+.nm-chords span { font-family: var(--nm-sans); font-weight: 700; font-size: 0.8rem; color: var(--nm-green); border: 1px solid var(--nm-rule); border-radius: 4px; padding: 0 6px; }
+.nm-sec { margin: 0 0 1em; }
+.nm-sec-label { font-family: var(--nm-sans); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--nm-muted); font-weight: 700; margin: 0 0 0.2em; }
+.nm-sec.chorus { padding-left: 0.8em; border-left: 2px solid var(--nm-green-soft); }
+.nm-sec.chorus .nm-sec-label { color: var(--nm-green); }
+.nm-line { margin: 0; font-family: var(--nm-serif); line-height: 1.45; }
+
+.nm-score { padding: 12px 12px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.nm-score-inner { margin: 0 auto; display: grid; gap: 10px; }
+.nm-score figure { margin: 0; }
+.nm-score img { display: block; width: 100%; height: auto; background: var(--nm-sheet); border: 1px solid var(--nm-rule); }
+.nm-score figcaption { font-size: 0.75rem; color: var(--nm-muted); margin-top: 3px; }
+
+/* ----- Play mode: the score takes the screen ----- */
+.nm.playing .nm-panes { grid-template-columns: minmax(0, 1fr); }
+.nm.playing .nm-side, .nm.playing .nm-lyrics, .nm.playing .nm-tabs { display: none; }
+.nm.playing .nm-score { display: block; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); overflow-x: auto; }
+.nm-controls {
+  position: fixed; z-index: 5; display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 8px;
+  right: max(14px, env(safe-area-inset-right, 0px)); bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  background: var(--nm-paper); border: 1px solid var(--nm-rule); box-shadow: 0 4px 18px var(--nm-shadow);
+}
+.nm-controls button { min-width: 38px; height: 36px; border-radius: 6px; padding: 0 8px !important; font-size: 0.95rem; }
+.nm-controls button:hover:not(:disabled) { background: var(--nm-green-soft) !important; }
+.nm-zoom { min-width: 3.4em; text-align: center; font-size: 0.82rem; color: var(--nm-muted); font-variant-numeric: tabular-nums; }
+.nm-sep { width: 1px; align-self: stretch; margin: 6px 2px; background: var(--nm-rule); }
+.nm-scrim { position: fixed; inset: 0; z-index: 8; background: rgb(0 0 0 / 0.28); }
+
+/* ----- Tablets and smaller: the song list becomes a drawer while a song is open ----- */
+@media (max-width: 1199px) {
+  .nm.reading .nm-songs-btn { display: inline-block; }
+  .nm.reading .nm-panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+  .nm:not(.reading) .nm-panes { grid-template-columns: minmax(0, 1fr); }
+  .nm:not(.reading) .nm-lyrics { display: none; }
+  .nm.reading .nm-side {
+    position: fixed; z-index: 9; top: 0; bottom: 0; left: 0; width: min(320px, 86vw);
+    padding-top: env(safe-area-inset-top, 0px); padding-left: env(safe-area-inset-left, 0px);
+    box-shadow: 4px 0 22px var(--nm-shadow); transform: translateX(-104%); visibility: hidden;
+    transition: transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+  .nm.reading.drawer .nm-side { transform: none; visibility: visible; transition: transform 0.2s ease; }
+}
+/* Portrait tablets and phones: one pane at a time, Lyrics and Score tabs */
+@media (max-width: 1199px) and (orientation: portrait), (max-width: 760px) {
+  .nm.reading .nm-tabs { display: flex; }
+  .nm.reading .nm-panes { grid-template-columns: minmax(0, 1fr); }
+  .nm.reading[data-tab="lyrics"] .nm-score, .nm.reading[data-tab="score"] .nm-lyrics { display: none; }
+  .nm-lyrics { border-right: 0; padding: 14px 18px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .nm-score { padding: 8px 8px calc(24px + env(safe-area-inset-bottom, 0px)); }
+}
+/* Phones: Back returns to the list; the heading keeps the title visible */
+@media (max-width: 760px) {
+  .nm.reading .nm-songs-btn, .nm.reading .nm-brand { display: none; }
+  .nm.reading .nm-back { display: inline-block; }
+  .nm-htitle { font-size: 1.1rem; }
+  .nm-play span { display: none; }
+  .nm-play { padding: 0 11px !important; }
+  .nm-pick { padding: 24px 18px; }
+}
+/* Fingers: 44px targets on touch screens */
+@media (pointer: coarse) {
+  .nm { --nm-tap: 44px; }
+  .nm-row { padding-block: 11px !important; }
+  .nm-tabs button { padding: 8px 20px !important; }
+  .nm-controls button { min-width: 48px; height: 46px; font-size: 1.05rem; }
+  .nm-size button { height: 40px; }
+}
+/* Play mode hides the tabs at every size, and on narrow screens the controls span the width */
+.nm.reading.playing .nm-tabs { display: none; }
+@media (max-width: 560px) {
+  .nm-controls { left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); justify-content: space-between; }
+  .nm-controls button { min-width: 0 !important; flex: 1; padding: 0 4px !important; }
+  .nm-zoom { min-width: 2.8em; }
+}
+@media (prefers-reduced-motion: reduce) { .nm .nm-side { transition: none !important; } }

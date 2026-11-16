@@ -107,6 +107,26 @@ export default defineConfig(({ mode }) => {
               },
             },
             {
+              // Nau Mpro score scans: a score opened once is kept, so it shows offline afterwards
+              urlPattern: ({ url }) => url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/storage/v1/object/public/hymn-scores/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'hymn-scores',
+                expiration: { maxEntries: 700, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // The reader's Alegreya fonts (Google Fonts): kept after the first visit
+              urlPattern: ({ url }) => url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com',
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'reader-fonts',
+                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
               // Bible verses barely change, so a verse fetched once works offline afterwards
               urlPattern: ({ url }) => url.pathname.startsWith('/api/yv/'),
               handler: 'CacheFirst',
