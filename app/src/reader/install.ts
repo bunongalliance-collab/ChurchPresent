@@ -22,6 +22,21 @@ export function isIOS(): boolean {
   return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 }
 
+// Facebook, Messenger and Instagram open links in their own browser, which cannot install apps
+export function inAppBrowser(): "facebook" | "instagram" | null {
+  const ua = navigator.userAgent;
+  if (/Instagram/i.test(ua)) return "instagram";
+  if (/FBAN|FBAV|FB_IAB|FBIOS|FB4A|MessengerForiOS|Messenger|\[FB/i.test(ua)) return "facebook";
+  return null;
+}
+export const isAndroid = () => /Android/i.test(navigator.userAgent);
+
+// Android: an intent link opens this page in Chrome (or the phone's browser if Chrome is missing)
+export function chromeIntentUrl(href = window.location.href): string {
+  const u = new URL(href);
+  return `intent://${u.host}${u.pathname}${u.search}${u.hash}#Intent;scheme=${u.protocol.replace(":", "")};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(href)};end`;
+}
+
 function deviceId(): string {
   let id = get(ID_KEY);
   if (!id) {

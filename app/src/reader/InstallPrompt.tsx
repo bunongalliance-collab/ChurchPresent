@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { isIOS, isStandalone, markInstalled, snooze, snoozed, wasInstalled } from "./install";
+import { inAppBrowser, isIOS, isStandalone, markInstalled, snooze, snoozed, wasInstalled } from "./install";
 
 // The install offer, centred on the page when the reader opens in a browser.
 // Not shown in the installed app, after the app was installed in this browser, or for 14 days after "Not now".
@@ -16,7 +16,8 @@ export default function InstallPrompt() {
   const firstBtn = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isStandalone() || wasInstalled() || snoozed()) return;
+    // Inside Facebook, Messenger or Instagram the "Open in your browser" box shows instead
+    if (isStandalone() || wasInstalled() || snoozed() || inAppBrowser()) return;
     let timer = 0;
     const onPrompt = (e: Event) => {
       e.preventDefault();   // keep the browser's own mini bar away; our box asks instead

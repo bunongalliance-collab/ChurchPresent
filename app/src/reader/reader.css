@@ -188,3 +188,4 @@ body { margin: 0; overflow: hidden; }
 .nm-install-go { height: 44px; border-radius: 8px; background: var(--nm-green) !important; color: var(--nm-on-green) !important; font-weight: 700; font-size: 1rem; }
 .nm-install-later { height: 40px; border-radius: 8px; color: var(--nm-muted) !important; font-size: 0.95rem; }
 .nm-install-later:hover { background: var(--nm-green-soft) !important; }
+.nm-install-link { display: grid; place-items: center; text-decoration: none; }
