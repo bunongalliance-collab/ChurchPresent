@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// The install offer is tested in reader-install.spec.ts; keep it out of the way here
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => { try { localStorage.setItem("nmInstallSnooze", String(Date.now() + 864e5)); } catch { /* ignore */ } });
+});
+
 // The Nau Mpro reader: its own page, songs from the library, lyrics on tap.
 test("the reader lists songs and opens one", async ({ page }) => {
   const errors: string[] = [];

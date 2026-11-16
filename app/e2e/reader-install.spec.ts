@@ -89,3 +89,40 @@ test.describe("opened from the home screen", () => {
     expect(posts).toHaveLength(1);
   });
 });
+
+test.describe("Android Chrome before it allows installing", () => {
+  test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36", viewport: { width: 412, height: 915 }, hasTouch: true });
+
+  test("shows the menu steps, then switches to the Install button when Chrome allows it", async ({ page }) => {
+    await page.goto("/nau-mpro/");
+    await expect(dialog(page)).toBeVisible({ timeout: 6000 });
+    await expect(dialog(page)).toContainText("Install app");
+    await expect(dialog(page).getByRole("button", { name: "I added it" })).toBeVisible();
+    await offerInstall(page, "accepted");
+    await expect(dialog(page).getByRole("button", { name: "Install app" })).toBeVisible();
+    await dialog(page).getByRole("button", { name: "Install app" }).click();
+    expect(await page.evaluate(() => (window as unknown as { prompted?: boolean }).prompted)).toBe(true);
+  });
+});
+
+test("the Install button in the top bar opens the offer again after Not now", async ({ page }) => {
+  await page.goto("/nau-mpro/");
+  await offerInstall(page, "dismissed");
+  await page.getByRole("button", { name: "Not now" }).click();
+  await expect(dialog(page)).toBeHidden();
+  await page.getByRole("button", { name: "Install the Nau Mpro app" }).click();
+  await expect(dialog(page).getByRole("button", { name: "Install app" })).toBeVisible();
+});
+
+test.describe("installed app", () => {
+  test("has no Install button in the top bar", async ({ page }) => {
+    await page.route("**/api/install", (route) => route.fulfill({ status: 204 }));
+    await page.addInitScript(() => {
+      const real = window.matchMedia.bind(window);
+      window.matchMedia = (q: string) => (q.includes("display-mode: standalone") ? { ...real(q), matches: true } as MediaQueryList : real(q));
+    });
+    await page.goto("/nau-mpro/");
+    await expect(page.locator(".nm-row").first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("button", { name: "Install the Nau Mpro app" })).toHaveCount(0);
+  });
+});

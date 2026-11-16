@@ -189,3 +189,8 @@ body { margin: 0; overflow: hidden; }
 .nm-install-later { height: 40px; border-radius: 8px; color: var(--nm-muted) !important; font-size: 0.95rem; }
 .nm-install-later:hover { background: var(--nm-green-soft) !important; }
 .nm-install-link { display: grid; place-items: center; text-decoration: none; }
+/* Install button in the top bar (browser only, not in the installed app) */
+.nm-install-btn { flex: none; display: inline-flex; align-items: center; gap: 5px; height: var(--nm-tap); padding: 0 10px !important; border: 1px solid var(--nm-green) !important; border-radius: 6px; color: var(--nm-green) !important; font-weight: 500; font-size: 0.92rem; }
+.nm-install-btn svg { width: 15px; height: 15px; }
+.nm-install-btn:hover { background: var(--nm-green-soft) !important; }
+@media (max-width: 420px) { .nm-install-btn span { display: none; } .nm-install-btn { width: var(--nm-tap); justify-content: center; padding: 0 !important; } }

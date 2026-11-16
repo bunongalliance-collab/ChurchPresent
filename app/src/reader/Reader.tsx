@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import type { ReaderSong } from "../lib/offlineCache";
 import { bySongNumber, loadSavedSongs, loadSongs, scoreUrl, type LoadResult } from "./data";
 import { fold, toSections } from "./lyrics";
-import InstallPrompt from "./InstallPrompt";
+import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
+import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
 
 // Nau Mpro: the read-only hymn book for the congregation. No sign-in, works offline.
@@ -185,6 +186,12 @@ export default function Reader() {
         <input className="nm-search" type="search" value={q} placeholder="Number, title or words" aria-label="Search songs"
           onChange={(e) => { setQ(e.target.value); if (song && drawerLayout()) setDrawer(true); }}
           onKeyDown={(e) => { if (e.key === "Enter" && shown[0]) open(shown[0]); }} />
+        {!isStandalone() && !inAppBrowser() && (
+          <button className="nm-install-btn" onClick={() => window.dispatchEvent(new Event(OPEN_INSTALL_EVENT))} title="Install the Nau Mpro app" aria-label="Install the Nau Mpro app">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span>Install</span>
+          </button>
+        )}
         <button className="nm-icon" onClick={() => setDark((d) => !d)} aria-pressed={dark} aria-label="Dark mode" title="Dark mode">◐</button>
       </header>
 

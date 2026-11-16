@@ -1,5 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
+// The install offer is tested in reader-install.spec.ts; keep it out of the way here
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => { try { localStorage.setItem("nmInstallSnooze", String(Date.now() + 864e5)); } catch { /* ignore */ } });
+});
+
 // Every way to move around the Nau Mpro reader, and every button, at desktop, tablet and phone sizes.
 // Uses the real library: hymn 10 has a two-page score, hymn 1 is the first song.
 
