@@ -169,3 +169,22 @@ body { margin: 0; overflow: hidden; }
   .nm-zoom { min-width: 2.8em; }
 }
 @media (prefers-reduced-motion: reduce) { .nm .nm-side { transition: none !important; } }
+
+/* ----- Install offer: centred, quiet, closes with Not now ----- */
+.nm-install-wrap { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.nm-install-scrim { position: absolute; inset: 0; background: rgb(0 0 0 / 0.32); }
+.nm-install {
+  position: relative; width: min(360px, 100%); padding: 22px 22px 18px; border-radius: 10px; text-align: center;
+  background: var(--nm-paper); color: var(--nm-ink); border: 1px solid var(--nm-rule); box-shadow: 0 12px 40px var(--nm-shadow);
+  font-family: var(--nm-sans);
+}
+.nm-install-icon { width: 64px; height: 64px; border-radius: 14px; display: block; margin: 0 auto 10px; }
+.nm-install h2 { margin: 0 0 6px; font-family: var(--nm-serif); font-weight: 700; font-size: 1.35rem; }
+.nm-install p { margin: 0 0 12px; color: var(--nm-muted); font-size: 0.98rem; line-height: 1.4; }
+.nm-install-steps { text-align: left; margin: 0 auto 14px; padding-left: 1.4em; max-width: 17em; line-height: 1.55; }
+.nm-install-steps b { font-weight: 700; }
+.nm-share-icon { width: 13px; height: 16px; vertical-align: -2px; color: var(--nm-green); }
+.nm-install-actions { display: grid; gap: 6px; }
+.nm-install-go { height: 44px; border-radius: 8px; background: var(--nm-green) !important; color: var(--nm-on-green) !important; font-weight: 700; font-size: 1rem; }
+.nm-install-later { height: 40px; border-radius: 8px; color: var(--nm-muted) !important; font-size: 0.95rem; }
+.nm-install-later:hover { background: var(--nm-green-soft) !important; }

@@ -62,6 +62,75 @@ function VisitsSection() {
   );
 }
 
+// Nau Mpro app installs (no sign-in): one per device, recorded by reader/install.ts and api/install.js.
+// Only admin accounts can read them.
+interface Install { id: string; created_at: string; device: string; how: string; city: string; region: string; country: string }
+
+function InstallsSection() {
+  const [rows, setRows] = useState<Install[]>([]);
+  const [total, setTotal] = useState(0);
+  const [recent, setRecent] = useState(0);
+  const [state, setState] = useState<"loading" | "signed-out" | "error" | "ready" | "no-supabase">(supabase ? "loading" : "no-supabase");
+  const [error, setError] = useState("");
+
+  async function load() {
+    if (!supabase) return;
+    setState("loading");
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) { setState("signed-out"); return; }
+    const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const [all, last30, list] = await Promise.all([
+      supabase.from("app_installs").select("id", { count: "exact", head: true }),
+      supabase.from("app_installs").select("id", { count: "exact", head: true }).gte("created_at", since),
+      supabase.from("app_installs").select("id, created_at, device, how, city, region, country").order("created_at", { ascending: false }).limit(50),
+    ]);
+    const err = all.error || last30.error || list.error;
+    if (err) { setError(err.message); setState("error"); return; }
+    setTotal(all.count ?? 0);
+    setRecent(last30.count ?? 0);
+    setRows((list.data ?? []) as Install[]);
+    setState("ready");
+  }
+  useEffect(() => { void load(); }, []);
+
+  const place = (v: Install) => [v.city, v.region, v.country].filter(Boolean).join(", ") || "—";
+  return (
+    <section className="visits" aria-labelledby="installs-h">
+      <div className="visits-head">
+        <h2 id="installs-h">Nau Mpro app installs</h2>
+        {supabase && <button className="secondary small" onClick={() => void load()} disabled={state === "loading"}>Refresh</button>}
+      </div>
+      <p className="sub">Each device counts once, without sign-in: when the browser reports the install (Chrome, Edge, Samsung Internet), or the first time the app opens from the home screen (iPhone and iPad). Only the admin account can see this.</p>
+      {state === "no-supabase" && <p className="empty">Needs the Supabase settings.</p>}
+      {state === "loading" && <p className="empty">Loading…</p>}
+      {state === "signed-out" && <p className="empty">Sign in to see the install count.</p>}
+      {state === "error" && <p className="empty">Could not load installs: {error}. Run supabase/app-installs.sql in the Supabase SQL editor if you have not yet.</p>}
+      {state === "ready" && (
+        <>
+          <p className="installs-count"><strong>{total}</strong> {total === 1 ? "install" : "installs"} in all · <strong>{recent}</strong> in the last 30 days</p>
+          {rows.length > 0 && (
+            <div className="visits-scroll">
+              <table className="visits-table">
+                <thead><tr><th>When</th><th>Device</th><th>How</th><th>Location</th></tr></thead>
+                <tbody>
+                  {rows.map((v) => (
+                    <tr key={v.id}>
+                      <td>{new Date(v.created_at).toLocaleString()}</td>
+                      <td>{v.device || "—"}</td>
+                      <td>{v.how || "—"}</td>
+                      <td>{place(v)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 // User notes, kept in this browser so they work offline
 interface Note { id: string; title: string; body: string; updated: string }
 const NOTES_KEY = "userNotes";
@@ -169,6 +238,7 @@ export default function Notes() {
             </section>
           ) : <p className="empty">Choose a note, or press New note.</p>}
         </div>
+        <InstallsSection />
         <VisitsSection />
       </div>
     </>

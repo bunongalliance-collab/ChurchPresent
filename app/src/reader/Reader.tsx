@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import type { ReaderSong } from "../lib/offlineCache";
 import { bySongNumber, loadSavedSongs, loadSongs, scoreUrl, type LoadResult } from "./data";
 import { fold, toSections } from "./lyrics";
+import InstallPrompt from "./InstallPrompt";
 
 // Nau Mpro: the read-only hymn book for the congregation. No sign-in, works offline.
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
@@ -295,6 +296,7 @@ export default function Reader() {
         </div>
       )}
       {drawer && <div className="nm-scrim" onClick={() => setDrawer(false)} />}
+      <InstallPrompt />
     </div>
   );
 }

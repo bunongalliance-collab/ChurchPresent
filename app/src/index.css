@@ -1822,6 +1822,8 @@ textarea.th-field { resize: vertical; }
 .visits-table th, .visits-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .visits-table th { color: var(--muted); font-weight: 600; background: var(--panel); }
 .visits-table tr:last-child td { border-bottom: 0; }
+.installs-count { margin: 0 0 12px; font-size: 0.95rem; }
+.installs-count strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
 .visits-table .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
 /* Navbar on laptops and tablets: when the links don't fit on one line, they wrap to a second line

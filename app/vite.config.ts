@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { recordVisit } from './api/_visit-core.js'
+import { recordInstall } from './api/_install-core.js'
 import { fileURLToPath } from 'node:url'
 
 // Local stand-in for api/yv/[...path].js, so the scripture page works in `npm run dev`.
@@ -49,6 +50,27 @@ function visitDevProxy(supabaseUrl: string, anonKey: string, serviceKey: string)
   }
 }
 
+// Local stand-in for api/install.js (Nau Mpro install count), so it works in `npm run dev`.
+function installDevProxy(supabaseUrl: string, serviceKey: string): Plugin {
+  return {
+    name: 'install-dev-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/install', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end(JSON.stringify({ error: 'method not allowed' })); return }
+        let raw = ''
+        for await (const chunk of req) raw += chunk
+        let body = null
+        try { body = JSON.parse(raw) } catch { /* not JSON: recordInstall answers 400 */ }
+        const { status, body: out } = await recordInstall({ headers: req.headers, body, supabaseUrl, serviceKey })
+        res.statusCode = status
+        if (out === null) { res.end(); return }
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify(out))
+      })
+    },
+  }
+}
+
 // The PWA plugin adds the team app's manifest link to every page. The reader has its own,
 // so remove the extra one there (the reader installs as "Nau Mpro", not as the team app).
 function readerOwnManifest(): Plugin {
@@ -73,6 +95,7 @@ export default defineConfig(({ mode }) => {
       yvDevProxy(env.YV_APP_KEY ?? ''),
       // SUPABASE_SERVICE_ROLE_KEY: server only (no VITE_ prefix), read from app/.env.local; never bundled into the page
       visitDevProxy(env.VITE_SUPABASE_URL ?? '', env.VITE_SUPABASE_ANON_KEY ?? '', env.SUPABASE_SERVICE_ROLE_KEY ?? ''),
+      installDevProxy(env.VITE_SUPABASE_URL ?? '', env.SUPABASE_SERVICE_ROLE_KEY ?? ''),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'icons.svg'],
