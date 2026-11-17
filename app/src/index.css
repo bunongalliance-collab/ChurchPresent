@@ -1878,3 +1878,8 @@ textarea.th-field { resize: vertical; }
 .lv2-show-n { min-width: 17px; height: 17px; font-size: 0.68rem; }
 .lv2-show-empty { flex: 1 1 200px; margin: 0; font-size: 0.82rem; color: var(--muted); }
 .lv2-show > button { margin-left: auto; padding: 2px 9px; font-size: 12px; min-height: 0; }
+/* Your slideshow text at 9pt (12px) */
+.lv2-show h2, .lv2-show-items li, .lv2-show-empty, .lv2-show-count { font-size: 12px; }
+.lv2-show > button { font-size: 12px; padding: 1px 8px; }
+.lv2-show-n { min-width: 15px; height: 15px; font-size: 10px; }
+.lv2-show { padding: 3px 10px; }
