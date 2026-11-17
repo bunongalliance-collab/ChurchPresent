@@ -695,12 +695,12 @@ export default function LyricsV2() {
               </div>
             )}
 
-            <details className="lv2-appearance" open>
+            <details className="lv2-appearance cmp" open>
               <summary>Slide Appearance <span className="lv2-summary">{appearanceSummary}</span></summary>
               <div className="lv2-cats">
-                <div className="lv2-cat">
-                  <h3>Text</h3>
-                  <div className="lv2-cat-body">
+                <div className="lv2-cat rv2-line">
+                  <h3 className="lv2-field-label">Text</h3>
+                  <div className="lv2-cat-body rv2-row">
                     <div className="lv2-row">
                     <label className="lv2-inline">Font
                       <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
@@ -734,9 +734,9 @@ export default function LyricsV2() {
                     </div>
                   </div>
                 </div>
-                <div className="lv2-cat">
-                  <h3>Colours</h3>
-                  <div className="lv2-cat-body">
+                <div className="lv2-cat rv2-line">
+                  <h3 className="lv2-field-label">Colours</h3>
+                  <div className="lv2-cat-body rv2-row">
                     <div className="lv2-presets" role="group" aria-label="Recommended colours">
                       {COLOR_PRESETS.map((p) => (
                         <button key={p.name} type="button" className={`lv2-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={colorBg === p.bg && colorText === p.fg}
@@ -747,9 +747,9 @@ export default function LyricsV2() {
                     <label className="lv2-inline">Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
                   </div>
                 </div>
-                <div className="lv2-cat">
-                  <h3>Show</h3>
-                  <div className="lv2-cat-body">
+                <div className="lv2-cat rv2-line">
+                  <h3 className="lv2-field-label">Show</h3>
+                  <div className="lv2-cat-body rv2-row">
                     <label className="lv2-check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Title slide</label>
                     <label className="lv2-check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Section labels</label>
                     <label className="lv2-check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeats</label>

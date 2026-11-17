@@ -496,8 +496,9 @@ export default function ReadingsV2() {
             <summary>Slide Appearance <span className="lv2-summary">{look.font} · {look.customSize ? `${look.customSize} pt` : "Automatic size"}</span></summary>
             {slides.some((x) => x.tooWide.length > 0) && <p className="sc-warn" role="alert">A word is too wide for the slide at this size. Reduce the font size.</p>}
             <div className="lv2-appearance-grid">
-              <div className="lv2-group">
-                <span className="lv2-field-label">Formatting (select text first)</span>
+              <div className="lv2-group rv2-line">
+                <span className="lv2-field-label" title="Select text in the box first, then pick a style">Format</span>
+                <div className="rv2-row">
                 <div className="fmt-toolbar" role="toolbar" aria-label="Formatting">
                   <button className={`tool${active().b ? " on" : ""}`} onClick={() => applyMarker("**")} aria-pressed={!!active().b} aria-label="Bold selected text" title="Bold selected text"><b>B</b></button>
                   <button className={`tool${active().i ? " on" : ""}`} onClick={() => applyMarker("~~")} aria-pressed={!!active().i} aria-label="Italic selected text" title="Italic selected text"><i>I</i></button>
@@ -507,40 +508,43 @@ export default function ReadingsV2() {
                 <div className="fmt-swatches" aria-label="Ready-made text colours">
                   {TEXT_COLOR_OPTIONS.map((c) => <button key={c} type="button" className="swatch" title={`Text ${c}`} aria-label={`Text colour ${c}`} style={{ color: c }} onClick={() => applyColor(c, "text")}>A</button>)}
                 </div>
+                </div>
+              </div>
+              <div className="lv2-group rv2-line">
+                <span className="lv2-field-label">Highlight</span>
+                <div className="rv2-row">
                 <div className="fmt-swatches" aria-label="Ready-made highlight colours">
                   {HIGHLIGHT_OPTIONS.map((c) => <button key={c} type="button" className="swatch swatch-bg" title={`Highlight ${c}`} aria-label={`Highlight colour ${c}`} style={{ background: c }} onClick={() => applyColor(c, "highlight")}>A</button>)}
                 </div>
-              </div>
-              <div className="lv2-group">
-                <span className="lv2-field-label">Typography</span>
-                <div className="lv2-pair">
-                  <label>Font
-                    <select id="rv2-font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
-                      {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-                    </select>
-                  </label>
-
-                </div>
-                <div className="lv2-size-row">
-                <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
-                  <label><input type="radio" name="rv2Size" checked={!look.customSize} onChange={() => setLook({ ...look, customSize: 0 })} /> Automatic size</label>
-                  <label><input type="radio" name="rv2Size" checked={!!look.customSize} onChange={() => setLook({ ...look, customSize: look.customSize || 60 })} /> Manual</label>
-                </div>
-                <div className="lv2-slider">
-                  <input type="range" min={20} max={200} step={1} disabled={!look.customSize} value={look.customSize || 60} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) })} aria-label="Font size in points" />
-                  <output>{look.customSize ? `${look.customSize} pt` : "Auto"}</output>
-                </div>
-                <button type="button" className="lv2-quick" onClick={() => setLook({ ...look, customSize: RECOMMENDED_PT })}>Recommended {RECOMMENDED_PT} pt</button>
                 </div>
               </div>
-              <div className="lv2-group">
+              <div className="lv2-group rv2-line">
+                <span className="lv2-field-label">Type</span>
+                <div className="rv2-row">
+                  <select id="rv2-font" aria-label="Font" value={look.font} onChange={(e) => setLook({ ...look, font: e.target.value })}>
+                    {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+                  </select>
+                  <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
+                    <label><input type="radio" name="rv2Size" checked={!look.customSize} onChange={() => setLook({ ...look, customSize: 0 })} /> Auto</label>
+                    <label><input type="radio" name="rv2Size" checked={!!look.customSize} onChange={() => setLook({ ...look, customSize: look.customSize || 60 })} /> Manual</label>
+                  </div>
+                  <div className="lv2-slider">
+                    <input type="range" min={20} max={200} step={1} disabled={!look.customSize} value={look.customSize || 60} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) })} aria-label="Font size in points" />
+                    {look.customSize ? <output>{look.customSize} pt</output> : null}
+                  </div>
+                  <button type="button" className="lv2-quick" onClick={() => setLook({ ...look, customSize: RECOMMENDED_PT })}>Recommended {RECOMMENDED_PT} pt</button>
+                </div>
+              </div>
+              <div className="lv2-group rv2-line">
                 <span className="lv2-field-label">Colours</span>
+                <div className="rv2-row">
                 <div className="lv2-presets" role="group" aria-label="Recommended colours">
                   {COLOR_PRESETS.map((p) => <button key={p.name} type="button" className={`lv2-preset${look.bg === p.bg && look.fg === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={look.bg === p.bg && look.fg === p.fg} style={{ background: p.bg, color: p.fg }} onClick={() => setLook({ ...look, bg: p.bg, fg: p.fg })}>Aa</button>)}
                 </div>
                 <div className="lv2-colors">
-                  <label>Background <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
+                  <label>Bg <input type="color" value={look.bg} onChange={(e) => setLook({ ...look, bg: e.target.value })} /></label>
                   <label>Text <input type="color" value={look.fg} onChange={(e) => setLook({ ...look, fg: e.target.value })} /></label>
+                </div>
                 </div>
               </div>
             </div>

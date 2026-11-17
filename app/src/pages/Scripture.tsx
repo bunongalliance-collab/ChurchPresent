@@ -715,8 +715,8 @@ export default function Scripture() {
             {!selected && <p className="sc-empty">Pick a slide on the right to edit it, or add a new one.</p>}
             {selected?.kind === "passage" && (
               <>
-                <div className="sc-field">
-                  <span className="sc-label">Bible version</span>
+                <details className="sc-version">
+                  <summary>Bible version <span className="sc-version-now">{bibles.find((b) => b.id === (selected.bible || bibles[0]?.id))?.name ?? ""}</span></summary>
                   <div className="sc-radios" role="radiogroup" aria-label="Bible version">
                     {bibles.map((b) => (
                       <label key={b.id} className="sc-radio">
@@ -726,7 +726,6 @@ export default function Scripture() {
                     ))}
                   </div>
                   <button className="link small" onClick={() => setShowBibles((v) => !v)}>{showBibles ? "Close versions" : "Manage versions"}</button>
-                </div>
                 {showBibles && (
                   <div className="sc-box">
                     <ul className="bible-list">
@@ -744,6 +743,7 @@ export default function Scripture() {
                     <button className="secondary small" onClick={addBible}>Add version</button>
                   </div>
                 )}
+                </details>
 
                 <div className="sc-field">
                   <span className="sc-label">Passage</span>
@@ -775,9 +775,9 @@ export default function Scripture() {
                   <label className="sc-label" htmlFor="sc-text">Text (one verse or line per row)</label>
                   <VerseTextBox key={selected.id} id="sc-text" value={selected.text} onChange={(v) => update(selected.id, { text: v })} onSelect={onSelect} />
                 </div>
-                <div className="sc-format-dock">
+                <div className="sc-format-dock cmp">
                 <div className="sc-field">
-                  <span className="sc-label">Formatting</span>
+                  <div className="rv2-line"><span className="lv2-field-label">Format</span><div className="rv2-row">
                   <div className="fmt-toolbar">
                     <button className={`tool${activeNow().b? " on" : ""}`} onClick={() => applyMarker("**")} aria-pressed={!!activeNow().b} aria-label="Bold selected text" title="Bold selected text"><b>B</b></button>
                     <button className={`tool${activeNow().i? " on" : ""}`} onClick={() => applyMarker("~~")} aria-pressed={!!activeNow().i} aria-label="Italic selected text" title="Italic selected text"><i>I</i></button>
@@ -797,6 +797,8 @@ export default function Scripture() {
                     </span>
                     <button className="tool" onClick={() => update(selected.id, { fmt: undefined, text: stripMarkers(selected.text) })} title="Remove all formatting from this slide">Reset</button>
                   </div>
+                  </div></div>
+                  <div className="rv2-line"><span className="lv2-field-label">Colours</span><div className="rv2-row">
                   <div className="fmt-swatch-row">
                   <div className="fmt-swatches" aria-label="Ready-made text colours">
                     {TEXT_COLOR_OPTIONS.map((c) => (
@@ -809,20 +811,24 @@ export default function Scripture() {
                     ))}
                   </div>
                   </div>
+                  </div></div>
+                  <div className="rv2-line"><span className="lv2-field-label">Size</span><div className="rv2-row">
                   <div className="fmt-size">
-                    <span className="sc-label">Font size</span>
                     <span className="fmt-small">A</span>
                     <input type="range" min={20} max={200} step={1} value={selected.fmt?.size ?? output.size} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, size: parseInt(e.target.value, 10) } })} aria-label="Font size for this slide" />
                     <span className="fmt-large">A</span>
                     <output>{selected.fmt?.size ? `${selected.fmt.size} pt` : `Auto (${output.size} pt)`}</output>
                     <button className="tool" onClick={() => update(selected.id, { fmt: { ...selected.fmt, size: undefined } })} disabled={!selected.fmt?.size}>Auto</button>
                   </div>
+                  </div></div>
+                  <div className="rv2-line"><span className="lv2-field-label">Presets</span><div className="rv2-row">
                   <div className="fmt-presets" role="group" aria-label="Recommended colours for this slide">
                     {COLOR_PRESETS.map((p) => (
                       <button key={p.name} type="button" className={`sc-preset${selected.fmt?.bg === p.bg && selected.fmt?.color === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
                         style={{ background: p.bg, color: p.fg, boxShadow: `inset 0 -5px 0 ${p.num}` }} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bg: p.bg, color: p.fg, numColor: p.num } })}>Aa</button>
                     ))}
                   </div>
+                  </div></div>
                 </div>
                 </div>
               </>
