@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
@@ -501,6 +502,10 @@ export default function LyricsV2() {
   const recentSongs = recent.map((id) => songs.find((s) => s.id === id)).filter((s): s is SavedSong => !!s && matchesFilter(s));
   const inPresentation = new Set<string>([...songIdsInPresentation(), ...addedNow.map((x) => x.id)]);
   const selectedInPresentation = !!selectedId && inPresentation.has(selectedId);
+  const slideshowExtra = addedNow.map((x) => {
+    const found = songs.find((y) => y.id === x.id);
+    return { id: x.id, label: `${found?.number || x.number ? (found?.number || x.number) + ". " : ""}${found?.title || x.title || "(untitled)"}` };
+  });
 
   const [justAdded, setJustAdded] = useState(false);
 
@@ -537,12 +542,14 @@ export default function LyricsV2() {
       <NavBar />
       <div className="lv2">
         <header className="lv2-top">
-          <h1>Lyrics</h1>
+          <h1>Create Slide Show</h1>
           <div className="lv2-top-actions lv2-top-actions-desk">
             <button className="secondary" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
             <button className="primary" onClick={openProjector} disabled={!slides.length}>Present</button>
           </div>
         </header>
+
+        <SlideshowStrip extra={slideshowExtra} />
 
         {returnToBuilder && (
           <div className="return-bar">
@@ -557,6 +564,7 @@ export default function LyricsV2() {
         <div className="lv2-grid">
           {/* Find a song */}
           <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Song library">
+            <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose a song</h2></div>
             {/* Phone: one row showing the current song; the list opens from it */}
             <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
               <span className="lv2-lib-current">{selectedId ? `${songNumber ? songNumber + ". " : ""}${songTitle || "(untitled)"}` : "Choose a song"}</span>
@@ -607,6 +615,7 @@ export default function LyricsV2() {
 
           {/* Edit the song */}
           <section className="lv2-card lv2-editor" aria-label="Song editor">
+            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
             <p className="lv2-note">
               If the lyric is incorrect, you can make changes and then save the song.
               <span lang="vi">Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.</span>
@@ -664,7 +673,6 @@ export default function LyricsV2() {
                 </details>
                 <button className="secondary" onClick={onNext}>Next Song</button>
                 <button className="secondary" onClick={onSave}>Save Song</button>
-                <button className={`primary lv2-add lv2-add-desk${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
               </span>
             </div>
             {confirmDel && (
@@ -754,7 +762,7 @@ export default function LyricsV2() {
           {/* Check the slides */}
           <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
             <div className="lv2-preview-head">
-              <h2>Slide Preview</h2>
+              <div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div>
               <span className="lv2-sub">Generated from the current lyrics</span>
             </div>
 
@@ -779,7 +787,6 @@ export default function LyricsV2() {
               <>
               <div className="lv2-preview-actions">
                 <button className="primary small" onClick={openProjector} disabled={!slides.length}>Present</button>
-                <button className={`secondary small lv2-add-small${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : "+ Add to Presentation"}</button>
                 <button className="secondary small lv2-dl" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
               </div>
               <div className="lv2-nav">
@@ -801,6 +808,8 @@ export default function LyricsV2() {
                 ))}
               </div>
             )}
+
+            <button className={`primary lv2-add lv2-add-bottom${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
           </aside>
         </div>
       </div>

@@ -11,8 +11,8 @@
   --nm-ink: #23221d;
   --nm-muted: #6b695e;
   --nm-rule: #e3dfd3;
-  --nm-green: #3d6b4c;
-  --nm-green-soft: #e6eee7;
+  --nm-green: #B24E1E;   /* the reader's accent (Papaya, a touch deeper for reading); name kept from the old green */
+  --nm-green-soft: #F8E7DD;
   --nm-on-green: #fbf9f4;
   --nm-shadow: rgb(35 34 29 / 0.14);
   --nm-serif: "Alegreya", "Noto Serif", Georgia, "Times New Roman", serif;
@@ -21,7 +21,7 @@
 }
 [data-theme="dark"] .nm {
   --nm-paper: #1b1c19; --nm-panel: #222420; --nm-sheet: #f3f0e8; --nm-ink: #e8e5da; --nm-muted: #a4a193;
-  --nm-rule: #353731; --nm-green: #8fbf9c; --nm-green-soft: #263329; --nm-on-green: #1b1c19; --nm-shadow: rgb(0 0 0 / 0.4);
+  --nm-rule: #353731; --nm-green: #F0885A; --nm-green-soft: #35261E; --nm-on-green: #1b1c19; --nm-shadow: rgb(0 0 0 / 0.4);
 }
 
 html, body, #root { height: 100%; }

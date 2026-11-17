@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { cacheReadingCategories, cacheReadings, loadCachedReadingCategories, loadCachedReadings } from "../lib/offlineCache";
 import { parseRows, readingCategoryRowSchema, readingRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { COLOR_PRESETS, FONTS, RECOMMENDED_PT, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
@@ -406,9 +407,12 @@ export default function ReadingsV2() {
         </div>
       </header>
 
+      <SlideshowStrip extra={addedList.slice().reverse().map((a) => ({ id: a.id, label: a.title }))} />
+
       <div className="lv2-grid">
         {/* Find a reading */}
         <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Reading library">
+          <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose a reading</h2></div>
           {/* Phone: one row showing the current reading; the list opens from it */}
           <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
             <span className="lv2-lib-current">{selected ? rowName(selected) : "Choose a reading"}</span>
@@ -443,6 +447,7 @@ export default function ReadingsV2() {
 
         {/* Edit the reading */}
         <section className="lv2-card lv2-editor" aria-label="Reading editor">
+          <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
           <div className="lv2-title-row">
             <input className="lv2-title" aria-label="Reading title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Reading title" />
             <input className="lv2-number" aria-label="Number" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="No." />
@@ -485,7 +490,6 @@ export default function ReadingsV2() {
           <div className="lv2-actions rv2-actions-dock">
             <span className="lv2-actions-end">
               <button className="secondary" onClick={onSave}>Save Reading</button>
-              <button className={`primary lv2-add lv2-add-desk${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
             </span>
           </div>
           <details className="lv2-appearance" open>
@@ -565,7 +569,7 @@ export default function ReadingsV2() {
 
         {/* Check the slides */}
         <aside className={`lv2-card lv2-preview${slides.length ? "" : " empty"}`} aria-label="Slide preview">
-          <div className="lv2-preview-head"><h2>Slide Preview</h2><span className="lv2-sub">Generated from the current text</span></div>
+          <div className="lv2-preview-head"><div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div><span className="lv2-sub">Generated from the current text</span></div>
           {slides.length ? (
             <>
               <div className="lv2-stage" style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }}>
@@ -574,7 +578,6 @@ export default function ReadingsV2() {
               </div>
               <div className="lv2-preview-actions">
                 <button className="primary small" onClick={present} disabled={!slides.length}>Present</button>
-                <button className={`secondary small lv2-add-small${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
                 <button className="secondary small lv2-dl" onClick={download} disabled={!slides.length}>Download PowerPoint</button>
               </div>
               <div className="lv2-nav">
@@ -602,6 +605,8 @@ export default function ReadingsV2() {
               </ol>
             </div>
           )}
+
+          <button className={`primary lv2-add lv2-add-bottom${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
         </aside>
       </div>
     </div>

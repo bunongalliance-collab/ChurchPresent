@@ -5,6 +5,7 @@ import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
@@ -404,11 +405,17 @@ export default function Scripture() {
 
   // Save the study, then open the Presentation Builder, where it is at the top of Recent scriptures.
   // The presentation takes the study's name.
+  // Stays on this page: the study is saved, listed in Recent scriptures in the Builder, and shown in Your slideshow
+  const [addedStudies, setAddedStudies] = useState<{ id: string; label: string }[]>([]);
+  const [justAdded, setJustAdded] = useState(false);
   async function addToPresentation() {
     const id = await save();
     if (!id) return;
     try { if (title.trim()) sessionStorage.setItem("pendingBuilderTitle", title.trim()); } catch { /* blocked */ }
-    window.location.hash = "#builder";
+    setAddedStudies((cur) => [...cur.filter((x) => x.id !== id), { id, label: title.trim() || "Scripture study" }]);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 2000);
+    say(`Added "${title.trim() || "Scripture study"}" to the presentation. Open the Presentation Builder to arrange it.`);
   }
 
   // Favourite and recently used studies (this browser). Search covers the title, the reference and the passage labels.
@@ -699,9 +706,12 @@ export default function Scripture() {
         <p className={error ? "sc-status error" : "sc-status"} role="status">{status}</p>
 
 
+        <SlideshowStrip extra={addedStudies} />
+
         <div className="sc-body">
           {/* Edit the selected slide */}
           <section className="sc-col sc-edit" aria-label="Edit slide">
+            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
             {!selected && <p className="sc-empty">Pick a slide on the right to edit it, or add a new one.</p>}
             {selected?.kind === "passage" && (
               <>
@@ -766,13 +776,6 @@ export default function Scripture() {
                   <VerseTextBox key={selected.id} id="sc-text" value={selected.text} onChange={(v) => update(selected.id, { text: v })} onSelect={onSelect} />
                 </div>
                 <div className="sc-format-dock">
-                <div className="sc-pres-add">
-                  <label className="sc-footer-name">
-                    <span>Study name</span>
-                    <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Study name" />
-                  </label>
-                  <button className="primary" onClick={addToPresentation} disabled={busy || !user}>+ Add to Presentation</button>
-                </div>
                 <div className="sc-field">
                   <span className="sc-label">Formatting</span>
                   <div className="fmt-toolbar">
@@ -828,6 +831,7 @@ export default function Scripture() {
 
           {/* The slide sequence */}
           <section className="sc-col sc-slides" aria-label="Slides">
+            <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose the slides</h2></div>
             <div className="sc-start">
               <span className="sc-start-tag">Start here</span>
               <div className="sc-add">
@@ -880,6 +884,7 @@ export default function Scripture() {
 
           {/* The finished slides, several cards at once. Click a card to select that slide. */}
           <section className="sc-col sc-preview" aria-label="Preview">
+            <div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div>
             {shown.length ? (
               <>
                 {(() => {
@@ -920,6 +925,15 @@ export default function Scripture() {
                 </div>
               </>
             ) : <p className="sc-empty">Nothing to preview yet.</p>}
+
+          
+            <div className="sc-pres-add">
+              <label className="sc-footer-name">
+                <span>Study name</span>
+                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Study name" />
+              </label>
+              <button className="primary" onClick={addToPresentation} disabled={busy || !user}>{justAdded ? "✓ Added" : "+ Add to Presentation"}</button>
+            </div>
             {/* Presentation settings: the look for this study */}
             <details className="sc-presentation">
                 <summary>Presentation Settings <span className="sc-summary">{settingsSummary}</span></summary>
