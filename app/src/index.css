@@ -2,8 +2,8 @@
 :root, :root[data-theme="light"] {
   --bg: #F3F5F7; --panel: #FFFFFF; --sunken: #EDF1F4; --text: #17212B; --muted: #4D5A68;
   --line: #D5DCE3; --ctrl: #7B8794; --text-rgb: 23 33 43;
-  --accent: #C9541F; --accent-rgb: 201 84 31; --on-accent: #FFFFFF; --accent-soft: #FCE6DA; --on-soft: #A5421A;
-  --info: #245F86; --danger: #B42318; --danger-rgb: 180 35 24; --hint: #7A4E00; --focus: #C9541F;
+  --accent: #1F5F4A; --accent-rgb: 31 95 74; --on-accent: #FFFFFF; --accent-soft: #DEEFE7; --on-soft: #174A3A;
+  --info: #245F86; --danger: #B42318; --danger-rgb: 180 35 24; --hint: #7A4E00; --focus: #1F5F4A;
   --gold: #F2C14E;
   /* Source colours: blue, violet and orange are clearly different from each other and from the green accent,
      and still tell apart for most colour-blind viewers */
@@ -12,7 +12,7 @@
 :root[data-theme="dark"] {
   --bg: #111D27; --panel: #192A37; --sunken: #111D27; --text: #F1F4F5; --muted: #A6B5C0;
   --line: rgba(241, 244, 245, 0.10); --ctrl: rgba(241, 244, 245, 0.30); --text-rgb: 241 244 245;
-  --accent: #F58A58; --accent-rgb: 245 138 88; --on-accent: #1B1209; --accent-soft: rgba(245, 138, 88, 0.16); --on-soft: #FABB9A;
+  --accent: #4FA88A; --accent-rgb: 79 168 138; --on-accent: #0B1A15; --accent-soft: rgba(79, 168, 138, 0.16); --on-soft: #98D9C2;
   --info: #8FB3D1; --danger: #E07A6A; --danger-rgb: 224 122 106; --hint: #F2C14E; --focus: #F2C14E;
   --gold: #F2C14E;
   --recent-song: #7DB4EA; --recent-reading: #C3A6F0; --recent-scripture: #F5A640; color-scheme: dark;
