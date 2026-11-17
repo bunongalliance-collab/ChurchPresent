@@ -6,7 +6,7 @@ import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
-  buildDeck, COLOR_PRESETS, expandShortcuts, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, USABLE_H, USABLE_W, sizeWarning, takeMetaLines, type Slide,
+  browserMeasure, buildDeck, COLOR_PRESETS, expandShortcuts, fitLyricSize, FONTS, LYRIC_LABEL_PT, LYRIC_LH, LYRIC_PAD, LYRIC_PAD_CSS, LYRIC_PT, NATURAL_LH, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, takeMetaLines, type Slide,
 } from "../lib/slides";
 import { SONG_CATEGORIES, SONG_LANGUAGES, type SongLook } from "./Lyrics";
 import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from "../lib/offlineCache";
@@ -61,6 +61,25 @@ function songIdsInPresentation(): Set<string> {
   } catch {
     return new Set();
   }
+}
+
+// Ten quick slide themes (background, text) shown under the lyrics box
+const QUICK_THEMES: { name: string; bg: string; fg: string }[] = [
+  { name: "Dark green and white", bg: "#0E1F19", fg: "#FFFFFF" },
+  { name: "White and black", bg: "#FFFFFF", fg: "#111111" },
+  { name: "Black and yellow", bg: "#000000", fg: "#FFD54A" },
+  { name: "Green and cream", bg: "#16352B", fg: "#F3E7C9" },
+  { name: "Navy and white", bg: "#1F3A5F", fg: "#FFFFFF" },
+  { name: "Cream and brown", bg: "#F3E7C9", fg: "#3A2B12" },
+  { name: "Wine and pink", bg: "#4A1F2E", fg: "#F6E3E8" },
+  { name: "Charcoal and light", bg: "#2B2B2B", fg: "#EDEDED" },
+  { name: "Pale green and green", bg: "#E8F1EC", fg: "#1F5F4A" },
+  { name: "Soft yellow and brown", bg: "#FFF4D6", fg: "#5A3B00" },
+];
+
+function greeting(): string {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
 
 export default function LyricsV2() {
@@ -126,17 +145,21 @@ export default function LyricsV2() {
   const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); showToast(msg, error); };
 
   // The slides, rebuilt whenever a setting changes
+  const measure = useMemo(() => browserMeasure(font), [font]);
   const deck = useMemo(
     () => buildDeck({
       lyrics, font, perSlide, removeRepeats, showTitle, songTitle, songNumber,
       customSize: parseInt(customSize, 10) || 0,
-      // Singing slides: each lyric line is one phrase, kept whole. A long line gets a smaller font on its slide.
+      // Lyric slides: a fixed size (70 pt unless you choose one), left-aligned and padded. The lines of a verse flow
+      // together and wrap across the width; text that passes the bottom continues on a new slide.
       keepLines: true,
+      fill: true,
+      measure,
     }),
-    [lyrics, font, perSlide, removeRepeats, showTitle, songTitle, songNumber, customSize],
+    [lyrics, font, perSlide, removeRepeats, showTitle, songTitle, songNumber, customSize, measure],
   );
   const slides = deck.slides;
-  const warning = sizeWarning(slides, font, deck.size);
+  const warning = deck.tooWide ? "Warning: a word is wider than the slide at this size. Try a smaller size." : "";
 
   // ---------- Saved songs ----------
   // The list loads without the lyrics text (it can be large). A song's lyrics are fetched when it is opened,
@@ -436,18 +459,20 @@ export default function LyricsV2() {
       const sl = pptx.addSlide();
       sl.background = { color: bg };
       if (lines.label && showLabels) {
+        // The label sits small inside the bottom padding, so it never touches the lyrics
         sl.addText(lines.label, {
-          x: SLIDE_W_IN - MARGIN_IN - 3, y: SLIDE_H_IN - MARGIN_IN - 0.5, w: 3, h: 0.5,
-          fontFace: font, fontSize: 28, bold: true, color: fg,
+          x: SLIDE_W_IN * (1 - LYRIC_PAD) - 1.5, y: SLIDE_H_IN * (1 - LYRIC_PAD) + 0.02, w: 1.5, h: SLIDE_H_IN * LYRIC_PAD - 0.04,
+          fontFace: font, fontSize: LYRIC_LABEL_PT, bold: true, color: fg,
           transparency: lines.label.startsWith("V") ? 35 : 0,
-          align: "right", valign: "bottom", margin: 0,
+          align: "right", valign: "middle", margin: 0,
         });
       }
+      // Lyric slides: left-aligned in the padded area (4% of the width and of the height); centred vertically when short
       sl.addText(lines.join("\n"), {
-        x: MARGIN_IN, y: MARGIN_IN, w: USABLE_W, h: USABLE_H,
-        fontFace: font, fontSize: deck.size, bold: true, color: fg,
-        align: "center", valign: "middle", margin: 0,
-        lineSpacingMultiple: 1.1, fit: "none",
+        x: SLIDE_W_IN * LYRIC_PAD, y: SLIDE_H_IN * LYRIC_PAD, w: SLIDE_W_IN * (1 - 2 * LYRIC_PAD), h: SLIDE_H_IN * (1 - 2 * LYRIC_PAD),
+        fontFace: font, fontSize: lines.size || deck.size, bold: true, color: fg,
+        align: "left", valign: lines.vcenter ? "middle" : "top", margin: 0,
+        lineSpacingMultiple: Math.round(((lines.lineH || LYRIC_LH) / (NATURAL_LH[font] || 1.15)) * 100) / 100, fit: "none",
       });
     }
     const safe = (deck.title || "lyrics").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "lyrics";
@@ -462,7 +487,7 @@ export default function LyricsV2() {
       fg: colorText,
       showLabels,
       // size: a slide's own font size (a long chorus line is smaller), so the projector keeps it on the slide
-      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s], size: s.size, lineH: s.lineH, pad: SLIDE_PAD })),
+      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s], size: s.size, lineH: s.lineH, pad: s.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(s.left ? { align: "left", top: !s.vcenter, lyric: true } : {}) })),
     };
     try { localStorage.setItem(PROJECTOR_KEY, JSON.stringify(payload)); } catch { /* storage blocked */ }
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
@@ -536,20 +561,26 @@ export default function LyricsV2() {
   const listIsEmpty = q ? !searchResults.length : !allDefault.length;
   const filtering = !!(q || filterCat || filterLang);
   const isFavourite = !!selectedId && favorites.includes(selectedId);
+  // Font size next to the theme colours: the same size setting as the slider in Slide Appearance
+  // In Auto the lyric size is 70 pt, so the first nudge starts from there
+  const sizeNow = customSize ? parseInt(customSize, 10) : LYRIC_PT;
+  const setSizeClamped = (n: number) => setCustomSize(String(Math.min(200, Math.max(20, Math.round(n)))));
 
   return (
     <>
       <NavBar />
-      <div className="lv2">
+      <div className="lv2 lf">
         <header className="lv2-top">
-          <h1>Create Slide Show</h1>
+          <div className="lf-greet">
+            <span className="lf-hello">{greeting()}</span>
+            <h1>Create Slide Show</h1>
+            <p>Pick a song, check the words, and add it to your slideshow.</p>
+          </div>
           <div className="lv2-top-actions lv2-top-actions-desk">
             <button className="secondary" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
             <button className="primary" onClick={openProjector} disabled={!slides.length}>Present</button>
           </div>
         </header>
-
-        <SlideshowStrip extra={slideshowExtra} />
 
         {returnToBuilder && (
           <div className="return-bar">
@@ -562,256 +593,289 @@ export default function LyricsV2() {
         )}
 
         <div className="lv2-grid">
-          {/* Find a song */}
-          <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Song library">
+          {/* Step 1: find a song */}
+          <div className="lf-stop lf-s1">
             <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose a song</h2></div>
-            {/* Phone: one row showing the current song; the list opens from it */}
-            <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
-              <span className="lv2-lib-current">{selectedId ? `${songNumber ? songNumber + ". " : ""}${songTitle || "(untitled)"}` : "Choose a song"}</span>
-              <span className="lv2-lib-chev" aria-hidden="true">{libOpen ? "▴" : "▾"}</span>
-            </button>
-            <div className="lv2-lib-head">
-              <input className="lv2-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
-              <div className="lv2-filters">
-                <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} aria-label="Filter songs by category">
-                  <option value="">All categories</option>
+            <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Song library">
+              {/* Phone: one row showing the current song; the list opens from it */}
+              <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
+                <span className="lv2-lib-current">{selectedId ? `${songNumber ? songNumber + ". " : ""}${songTitle || "(untitled)"}` : "Choose a song"}</span>
+                <span className="lv2-lib-chev" aria-hidden="true">{libOpen ? "▴" : "▾"}</span>
+              </button>
+              <div className="lv2-lib-head">
+                <div className="lf-search-row">
+                  <input className="lv2-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
+                  <button type="button" className="secondary small lv2-new" onClick={() => fillForm(null)}>+ New song</button>
+                </div>
+                <div className="lv2-filters">
+                  <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} aria-label="Filter songs by category">
+                    <option value="">All categories</option>
+                    {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    <option value="none">No category</option>
+                  </select>
+                  <select value={filterLang} onChange={(e) => setFilterLang(e.target.value)} aria-label="Filter songs by language">
+                    <option value="">All languages</option>
+                    {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                    <option value="none">No language</option>
+                  </select>
+                </div>
+              </div>
+              <ul className="lv2-songs">
+                {!loaded && <li className="lv2-list-note">Loading songs…</li>}
+                {loaded && !songs.length && <li className="lv2-list-note">No saved songs yet. Paste lyrics and save to start the list.</li>}
+                {loaded && songs.length > 0 && listIsEmpty && (
+                  <li className="lv2-list-note">
+                    No songs match.
+                    {filtering && <button type="button" className="quiet small" onClick={() => { setQuery(""); setFilterCat(""); setFilterLang(""); }}>Clear search and filters</button>}
+                  </li>
+                )}
+                {q ? (
+                  <>
+                    {searchResults.length > 0 && <li className="lv2-group">Results ({searchResults.length})</li>}
+                    {searchResults.map((s) => songRow(s, "res"))}
+                  </>
+                ) : (
+                  <>
+                    {favSongs.length > 0 && <li className="lv2-group">Favourites</li>}
+                    {favSongs.map((s) => songRow(s, "fav"))}
+                    {recentSongs.length > 0 && <li className="lv2-group">Recently used</li>}
+                    {recentSongs.map((s) => songRow(s, "rec"))}
+                    {allDefault.length > 0 && <li className="lv2-group">All songs</li>}
+                    {allDefault.map((s) => songRow(s, "all"))}
+                  </>
+                )}
+              </ul>
+            </aside>
+          </div>
+
+          {/* Step 2: edit the song */}
+          <div className="lf-stop lf-s2">
+            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2></div>
+            <p className="lf-sub">Edit, then save</p>
+            <section className="lv2-card lv2-editor" aria-label="Song editor">
+              <p className="lv2-note">
+                If the lyric is incorrect, you can make changes and then save the song.
+                <span lang="vi">Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.</span>
+              </p>
+
+              <div className="lv2-title-row">
+                <input id="songTitle" className="lv2-title" aria-label="Song title" value={songTitle} placeholder="Song title" onChange={(e) => setSongTitle(e.target.value)} />
+                <input id="songNumber" className="lv2-number" aria-label="Number" value={songNumber} placeholder="No." onChange={(e) => setSongNumber(e.target.value)} />
+                <button type="button" className={`lv2-star${isFavourite ? " on" : ""}`} onClick={toggleFavorite} disabled={!selectedId} aria-label="Favourite this song" aria-pressed={isFavourite} title={selectedId ? "Favourite" : "Save or choose a song to favourite it"}>★</button>
+              </div>
+              <div className="lv2-meta-row">
+                <select id="songCategory" aria-label="Category" value={songCategory} onChange={(e) => setSongMeta("category", e.target.value)}>
+                  <option value="">No category</option>
                   {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  <option value="none">No category</option>
                 </select>
-                <select value={filterLang} onChange={(e) => setFilterLang(e.target.value)} aria-label="Filter songs by language">
-                  <option value="">All languages</option>
+                <select id="songLanguage" aria-label="Language" value={songLanguage} onChange={(e) => setSongMeta("language", e.target.value)}>
+                  <option value="">No language</option>
                   {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-                  <option value="none">No language</option>
                 </select>
-              </div>
-              <button type="button" className="secondary lv2-new" onClick={() => fillForm(null)}>+ New song</button>
-            </div>
-            <ul className="lv2-songs">
-              {!loaded && <li className="lv2-list-note">Loading songs…</li>}
-              {loaded && !songs.length && <li className="lv2-list-note">No saved songs yet. Paste lyrics and save to start the list.</li>}
-              {loaded && songs.length > 0 && listIsEmpty && (
-                <li className="lv2-list-note">
-                  No songs match.
-                  {filtering && <button type="button" className="quiet small" onClick={() => { setQuery(""); setFilterCat(""); setFilterLang(""); }}>Clear search and filters</button>}
-                </li>
-              )}
-              {q ? (
-                <>
-                  {searchResults.length > 0 && <li className="lv2-group">Results ({searchResults.length})</li>}
-                  {searchResults.map((s) => songRow(s, "res"))}
-                </>
-              ) : (
-                <>
-                  {favSongs.length > 0 && <li className="lv2-group">Favourites</li>}
-                  {favSongs.map((s) => songRow(s, "fav"))}
-                  {recentSongs.length > 0 && <li className="lv2-group">Recently used</li>}
-                  {recentSongs.map((s) => songRow(s, "rec"))}
-                  {allDefault.length > 0 && <li className="lv2-group">All songs</li>}
-                  {allDefault.map((s) => songRow(s, "all"))}
-                </>
-              )}
-            </ul>
-          </aside>
+                {selectedInPresentation && <span className="lv2-chip">In presentation</span>}
 
-          {/* Edit the song */}
-          <section className="lv2-card lv2-editor" aria-label="Song editor">
-            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
-            <p className="lv2-note">
-              If the lyric is incorrect, you can make changes and then save the song.
-              <span lang="vi">Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.</span>
-            </p>
-
-            <div className="lv2-title-row">
-              <input id="songTitle" className="lv2-title" aria-label="Song title" value={songTitle} placeholder="Song title" onChange={(e) => setSongTitle(e.target.value)} />
-              <input id="songNumber" className="lv2-number" aria-label="Number" value={songNumber} placeholder="No." onChange={(e) => setSongNumber(e.target.value)} />
-              <button type="button" className={`lv2-star${isFavourite ? " on" : ""}`} onClick={toggleFavorite} disabled={!selectedId} aria-label="Favourite this song" aria-pressed={isFavourite} title={selectedId ? "Favourite" : "Save or choose a song to favourite it"}>★</button>
-            </div>
-            <div className="lv2-meta-row">
-              <select id="songCategory" aria-label="Category" value={songCategory} onChange={(e) => setSongMeta("category", e.target.value)}>
-                <option value="">No category</option>
-                {SONG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <select id="songLanguage" aria-label="Language" value={songLanguage} onChange={(e) => setSongMeta("language", e.target.value)}>
-                <option value="">No language</option>
-                {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-              </select>
-              {selectedInPresentation && <span className="lv2-chip">In presentation</span>}
-            </div>
-
-            {pendingUpdate && (
-              <div className="lv2-approve" role="alert">
-                <span><strong>Update this song?</strong> You changed the lyrics of “{pendingUpdate.title || "this song"}”.</span>
-                <span className="lv2-approve-actions">
-                  <button className="primary small" onClick={onApproveUpdate}>Approve update</button>
-                  <button className="secondary small" onClick={onDeclineUpdate}>Don’t update</button>
-                </span>
-              </div>
-            )}
-
-            <div className="lv2-lyrics-field">
-              <textarea
-                id="lyrics" aria-label="Lyrics"
-                ref={lyricsRef}
-                className="lv2-lyrics"
-                value={lyrics}
-                placeholder=""
-                onChange={(e) => onLyricsChange(e.target.value, e.target.selectionStart)}
-              />
-              {!lyrics && <span className="lv2-empty-hint" aria-hidden="true">Choose a song or paste your lyric here</span>}
-            </div>
-
-            <p className={statusIsError ? "lv2-status error" : "lv2-status"} role="status">{status}</p>
-            {warning && <p className="lv2-status">{warning}</p>}
-
-            <div className="lv2-actions">
-              <span className="lv2-actions-end">
-                <details className="lv2-more">
-                  <summary>More</summary>
-                  <div className="lv2-menu">
-                    <button className="secondary danger" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; onDelete(); }} disabled={!selectedId}>Delete song</button>
+                {/* Slide Appearance: a button here; the controls open over the lyrics box */}
+                <details className="lv2-appearance cmp lf-ap">
+                  <summary className="lf-ap-btn">Slide Appearance <span className="lv2-summary">{appearanceSummary}</span> <span aria-hidden="true">▾</span></summary>
+                  <div className="lv2-cats lf-ap-panel">
+                    <div className="lv2-cat rv2-line">
+                      <h3 className="lv2-field-label">Text</h3>
+                      <div className="lv2-cat-body rv2-row">
+                        <div className="lv2-row">
+                        <label className="lv2-inline">Font
+                          <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
+                            {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+                          </select>
+                        </label>
+                        <label className="lv2-inline">Lines
+                          <select id="perSlide" aria-label="Maximum lines per slide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
+                            {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
+                          </select>
+                        </label>
+                        </div>
+                        <div className="lv2-row">
+                        <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
+                          <label><input type="radio" name="sizeModeV2" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Auto</label>
+                          <label><input type="radio" name="sizeModeV2" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
+                        </div>
+                        <div className="lv2-slider">
+                          <input
+                            id="fontSize" type="range" min={20} max={200} step={1}
+                            disabled={sizeMode === "auto"}
+                            value={customSize ? parseInt(customSize, 10) : 60}
+                            onChange={(e) => setCustomSize(e.target.value)}
+                            aria-label="Font size in points"
+                          />
+                          <output>{customSize ? `${customSize} pt` : "Auto"}</output>
+                        </div>
+                        <button type="button" className="lv2-quick" onClick={() => setCustomSize(String(RECOMMENDED_PT))}>
+                          Recommended {RECOMMENDED_PT} pt
+                        </button>
+                        <button type="button" className="lv2-quick" title="Use the biggest size at which every verse of this song fits on one slide"
+                          onClick={() => { const n = fitLyricSize({ lyrics, removeRepeats, font, measure }); setCustomSize(n >= LYRIC_PT ? "" : String(n)); }}>
+                          Fit verses on one slide
+                        </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lv2-cat rv2-line">
+                      <h3 className="lv2-field-label">Colours</h3>
+                      <div className="lv2-cat-body rv2-row">
+                        <div className="lv2-presets" role="group" aria-label="Recommended colours">
+                          {COLOR_PRESETS.map((p) => (
+                            <button key={p.name} type="button" className={`lv2-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={colorBg === p.bg && colorText === p.fg}
+                              style={{ background: p.bg, color: p.fg }} onClick={() => { setColorBg(p.bg); setColorText(p.fg); }}>Aa</button>
+                          ))}
+                        </div>
+                        <label className="lv2-inline">Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
+                        <label className="lv2-inline">Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
+                      </div>
+                    </div>
+                    <div className="lv2-cat rv2-line">
+                      <h3 className="lv2-field-label">Show</h3>
+                      <div className="lv2-cat-body rv2-row">
+                        <label className="lv2-check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Title slide</label>
+                        <label className="lv2-check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Section labels</label>
+                        <label className="lv2-check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeats</label>
+                      </div>
+                    </div>
                   </div>
                 </details>
-                <button className="secondary" onClick={onNext}>Next Song</button>
-                <button className="secondary" onClick={onSave}>Save Song</button>
-              </span>
-            </div>
-            {confirmDel && (
-              <div className="lv2-confirm" role="alertdialog" aria-label="Delete song">
-                <span>Delete “{songTitle || "this song"}”? This cannot be undone.</span>
-                <span className="lv2-approve-actions">
-                  <button className="secondary danger small" onClick={onDelete}>Delete</button>
-                  <button className="secondary small" onClick={() => setConfirmDel(false)}>Cancel</button>
+              </div>
+
+              {pendingUpdate && (
+                <div className="lv2-approve" role="alert">
+                  <span><strong>Update this song?</strong> You changed the lyrics of “{pendingUpdate.title || "this song"}”.</span>
+                  <span className="lv2-approve-actions">
+                    <button className="primary small" onClick={onApproveUpdate}>Approve update</button>
+                    <button className="secondary small" onClick={onDeclineUpdate}>Don’t update</button>
+                  </span>
+                </div>
+              )}
+
+              <div className="lv2-lyrics-field">
+                <textarea
+                  id="lyrics" aria-label="Lyrics"
+                  ref={lyricsRef}
+                  className="lv2-lyrics"
+                  value={lyrics}
+                  placeholder=""
+                  onChange={(e) => onLyricsChange(e.target.value, e.target.selectionStart)}
+                />
+                {!lyrics && <span className="lv2-empty-hint" aria-hidden="true">Choose a song or paste your lyric here</span>}
+              </div>
+
+              {/* Quick theme colours, then the font size, right under the lyrics */}
+              <div className="lf-quick" role="group" aria-label="Quick theme colours and font size">
+                <span className="lf-ql">Theme</span>
+                {QUICK_THEMES.map((t) => {
+                  const on = colorBg.toLowerCase() === t.bg.toLowerCase() && colorText.toLowerCase() === t.fg.toLowerCase();
+                  return (
+                    <button key={t.name} type="button" className={`lf-q${on ? " on" : ""}`} title={t.name} aria-label={t.name} aria-pressed={on}
+                      style={{ background: t.bg, color: t.fg }} onClick={() => { setColorBg(t.bg); setColorText(t.fg); }}>A</button>
+                  );
+                })}
+                <span className="lf-qsize">
+                  <span className="lf-ql">Size</span>
+                  <button type="button" className="lf-qb" aria-label="Smaller text" onClick={() => setSizeClamped(sizeNow - 2)}>A−</button>
+                  <input type="range" min={20} max={200} step={1} value={Math.min(200, Math.max(20, sizeNow))} onChange={(e) => setSizeClamped(parseInt(e.target.value, 10))} aria-label="Font size in points" />
+                  <button type="button" className="lf-qb" aria-label="Larger text" onClick={() => setSizeClamped(sizeNow + 2)}>A+</button>
+                  <output className="lf-qo">{sizeNow} pt</output>
                 </span>
               </div>
-            )}
 
-            {addedNow.length > 0 && (
-              <div className="lv2-added">
-                <span className="lv2-added-label">Added this session ({addedNow.length})</span>
-                <ul>
-                  {addedNow.map((a) => <li key={a.id}>{a.number ? `${a.number}. ` : ""}{a.title}</li>)}
-                </ul>
-                <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
+              <p className={statusIsError ? "lv2-status error" : "lv2-status"} role="status">{status}</p>
+              {warning && <p className="lv2-status">{warning}</p>}
+
+              <div className="lv2-actions">
+                <span className="lv2-actions-end">
+                  <details className="lv2-more">
+                    <summary>More</summary>
+                    <div className="lv2-menu">
+                      <button className="secondary danger" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; onDelete(); }} disabled={!selectedId}>Delete song</button>
+                    </div>
+                  </details>
+                  <button className="secondary" onClick={onNext}>Next Song</button>
+                  <button className="secondary" onClick={onSave}>Save Song</button>
+                </span>
               </div>
-            )}
+              {confirmDel && (
+                <div className="lv2-confirm" role="alertdialog" aria-label="Delete song">
+                  <span>Delete “{songTitle || "this song"}”? This cannot be undone.</span>
+                  <span className="lv2-approve-actions">
+                    <button className="secondary danger small" onClick={onDelete}>Delete</button>
+                    <button className="secondary small" onClick={() => setConfirmDel(false)}>Cancel</button>
+                  </span>
+                </div>
+              )}
 
-            <details className="lv2-appearance cmp" open>
-              <summary>Slide Appearance <span className="lv2-summary">{appearanceSummary}</span></summary>
-              <div className="lv2-cats">
-                <div className="lv2-cat rv2-line">
-                  <h3 className="lv2-field-label">Text</h3>
-                  <div className="lv2-cat-body rv2-row">
-                    <div className="lv2-row">
-                    <label className="lv2-inline">Font
-                      <select id="font" value={font} onChange={(e) => setFont(e.target.value)}>
-                        {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-                      </select>
-                    </label>
-                    <label className="lv2-inline">Lines
-                      <select id="perSlide" aria-label="Maximum lines per slide" value={perSlide} onChange={(e) => setPerSlide(parseInt(e.target.value, 10))}>
-                        {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}</option>)}
-                      </select>
-                    </label>
-                    </div>
-                    <div className="lv2-row">
-                    <div className="lv2-size-mode" role="radiogroup" aria-label="Font size mode">
-                      <label><input type="radio" name="sizeModeV2" checked={sizeMode === "auto"} onChange={() => setCustomSize("")} /> Auto</label>
-                      <label><input type="radio" name="sizeModeV2" checked={sizeMode === "manual"} onChange={() => setCustomSize(customSize || "60")} /> Manual</label>
-                    </div>
-                    <div className="lv2-slider">
-                      <input
-                        id="fontSize" type="range" min={20} max={200} step={1}
-                        disabled={sizeMode === "auto"}
-                        value={customSize ? parseInt(customSize, 10) : 60}
-                        onChange={(e) => setCustomSize(e.target.value)}
-                        aria-label="Font size in points"
-                      />
-                      <output>{customSize ? `${customSize} pt` : "Auto"}</output>
-                    </div>
-                    <button type="button" className="lv2-quick" onClick={() => setCustomSize(String(RECOMMENDED_PT))}>
-                      Recommended {RECOMMENDED_PT} pt
+              {addedNow.length > 0 && (
+                <div className="lv2-added">
+                  <span className="lv2-added-label">Added this session ({addedNow.length})</span>
+                  <ul>
+                    {addedNow.map((a) => <li key={a.id}>{a.number ? `${a.number}. ` : ""}{a.title}</li>)}
+                  </ul>
+                  <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
+                </div>
+              )}
+            </section>
+          </div>
+
+          {/* Step 3: check the slides */}
+          <div className="lf-stop lf-s3">
+            <div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div>
+            <p className="lf-sub">Generated from the current lyrics</p>
+            <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
+              {current ? (
+                <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(current.left ? { padding: 0, alignItems: current.vcenter ? "center" : "flex-start", justifyContent: "flex-start" } : {}) }}>
+                  <div className="lv2-stage-text" style={{ fontSize: `${((current.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: current.lineH || 1.3, padding: current.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(current.left ? { textAlign: "left" as const } : {}) }}>{current.join("\n")}</div>
+                  {current.label && showLabels && <div className="lv2-stage-tag" style={current.left ? { right: "4%", bottom: "0.3cqw", fontSize: `${(LYRIC_LABEL_PT / SLIDE_W_PT) * 100}cqw`, lineHeight: 1 } : undefined}>{current.label}</div>}
+                </div>
+              ) : (
+                <div className="lv2-stage lv2-guide" aria-label="How to start">
+                  <ol>
+                    <li>Choose a song from the list, or paste the lyrics.</li>
+                    <li>Check that every verse and chorus is correct.</li>
+                    <li>Make any changes you like, the way you want them.</li>
+                    <li>Save the song.</li>
+                    <li>Click <strong>Add to Presentation</strong> to put your saved song in the slideshow.</li>
+                  </ol>
+                </div>
+              )}
+
+              {slides.length > 0 && (
+                <>
+                <div className="lv2-preview-actions">
+                  <button className="primary small" onClick={openProjector} disabled={!slides.length}>Present</button>
+                  <button className="secondary small lv2-dl" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
+                </div>
+                <div className="lv2-nav">
+                  <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))} disabled={shownIdx === 0}>← Previous</button>
+                  <span className="lv2-counter">Slide {shownIdx + 1} of {slides.length}</span>
+                  <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.min(slides.length - 1, i + 1))} disabled={shownIdx >= slides.length - 1}>Next →</button>
+                </div>
+                </>
+              )}
+
+              {slides.length > 0 && (
+                <div className="lv2-thumbs" role="list">
+                  {slides.map((sl, i) => (
+                    <button key={i} role="listitem" className={`lv2-thumb${i === shownIdx ? " current" : ""}`} onClick={() => setPreviewIdx(i)} style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(sl.left ? { padding: 0, alignItems: sl.vcenter ? "center" : "flex-start", justifyContent: "flex-start", textAlign: "left" as const } : {}) }} aria-label={`Slide ${i + 1}`} aria-current={i === shownIdx ? "true" : undefined}>
+                      <span className="lv2-thumb-num">{i + 1}</span>
+                      <span className="lv2-thumb-text" style={{ fontSize: `${((sl.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: sl.lineH || 1.3, ...(sl.left ? { padding: LYRIC_PAD_CSS, width: "100%", whiteSpace: "pre-line" as const } : {}) }}>{sl.left ? sl.join("\n") : sl.join(" ")}</span>
+                      {sl.label && showLabels && <span className="lv2-thumb-tag">{sl.label}</span>}
                     </button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                <div className="lv2-cat rv2-line">
-                  <h3 className="lv2-field-label">Colours</h3>
-                  <div className="lv2-cat-body rv2-row">
-                    <div className="lv2-presets" role="group" aria-label="Recommended colours">
-                      {COLOR_PRESETS.map((p) => (
-                        <button key={p.name} type="button" className={`lv2-preset${colorBg === p.bg && colorText === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={colorBg === p.bg && colorText === p.fg}
-                          style={{ background: p.bg, color: p.fg }} onClick={() => { setColorBg(p.bg); setColorText(p.fg); }}>Aa</button>
-                      ))}
-                    </div>
-                    <label className="lv2-inline">Background <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} /></label>
-                    <label className="lv2-inline">Text <input type="color" value={colorText} onChange={(e) => setColorText(e.target.value)} /></label>
-                  </div>
-                </div>
-                <div className="lv2-cat rv2-line">
-                  <h3 className="lv2-field-label">Show</h3>
-                  <div className="lv2-cat-body rv2-row">
-                    <label className="lv2-check"><input type="checkbox" checked={showTitle} onChange={(e) => setShowTitle(e.target.checked)} /> Title slide</label>
-                    <label className="lv2-check"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> Section labels</label>
-                    <label className="lv2-check"><input type="checkbox" checked={removeRepeats} onChange={(e) => setRemoveRepeats(e.target.checked)} /> Remove repeats</label>
-                  </div>
-                </div>
-              </div>
-            </details>
-          </section>
+              )}
 
-          {/* Check the slides */}
-          <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
-            <div className="lv2-preview-head">
-              <div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div>
-              <span className="lv2-sub">Generated from the current lyrics</span>
-            </div>
-
-            {current ? (
-              <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }}>
-                <div className="lv2-stage-text" style={{ fontSize: `${((current.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: current.lineH || 1.3, padding: SLIDE_PAD }}>{current.join("\n")}</div>
-                {current.label && showLabels && <div className="lv2-stage-tag">{current.label}</div>}
-              </div>
-            ) : (
-              <div className="lv2-stage lv2-guide" aria-label="How to start">
-                <ol>
-                  <li>Choose a song from the list, or paste the lyrics.</li>
-                  <li>Check that every verse and chorus is correct.</li>
-                  <li>Make any changes you like, the way you want them.</li>
-                  <li>Save the song.</li>
-                  <li>Click <strong>Add to Presentation</strong> to put your saved song in the slideshow.</li>
-                </ol>
-              </div>
-            )}
-
-            {slides.length > 0 && (
-              <>
-              <div className="lv2-preview-actions">
-                <button className="primary small" onClick={openProjector} disabled={!slides.length}>Present</button>
-                <button className="secondary small lv2-dl" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
-              </div>
-              <div className="lv2-nav">
-                <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))} disabled={shownIdx === 0}>← Previous</button>
-                <span className="lv2-counter">Slide {shownIdx + 1} of {slides.length}</span>
-                <button className="secondary small" onClick={() => setPreviewIdx((i) => Math.min(slides.length - 1, i + 1))} disabled={shownIdx >= slides.length - 1}>Next →</button>
-              </div>
-              </>
-            )}
-
-            {slides.length > 0 && (
-              <div className="lv2-thumbs" role="list">
-                {slides.map((sl, i) => (
-                  <button key={i} role="listitem" className={`lv2-thumb${i === shownIdx ? " current" : ""}`} onClick={() => setPreviewIdx(i)} style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif` }} aria-label={`Slide ${i + 1}`} aria-current={i === shownIdx ? "true" : undefined}>
-                    <span className="lv2-thumb-num">{i + 1}</span>
-                    <span className="lv2-thumb-text">{sl.join(" ")}</span>
-                    {sl.label && showLabels && <span className="lv2-thumb-tag">{sl.label}</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <button className={`primary lv2-add lv2-add-bottom${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
-          </aside>
+              <button className={`primary lv2-add lv2-add-bottom${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
+            </aside>
+          </div>
         </div>
+
+        {/* Your slideshow: a small pill floating at the bottom of the screen */}
+        <SlideshowStrip extra={slideshowExtra} />
       </div>
     </>
   );

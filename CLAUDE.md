@@ -18,6 +18,20 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - The brochure PDF is set in serif throughout, with burgundy only for headings and small accents. The PDF and the on-screen program use the same type scale.
 - Capitalise names in the program (each word starts with a capital).
 
+## Lyric slide rules (Lyric page: preview, thumbnails, projector and PowerPoint all follow them)
+- 16:9 slide, scaled proportionally on every device. Safe-area padding is 4% on each side (4% of the width left and right, 4% of the height top and bottom).
+- Font is a fixed 70 pt (a manual size, if chosen, is also fixed). Left-aligned. Never shrink the font to fit.
+- The lines of a verse flow together as one paragraph. Words wrap naturally across the full width. Never add a line break when the next word fits. Breaks stay only between verses and sections, which each get their own slides.
+- After wrapping, if the text uses less than half the safe area's height, centre it vertically. A longer block starts at the top of the safe area.
+- If the text would pass the bottom of the safe area, continue on a new slide at the same size and padding. Break at the end of a lyric line when one is available, otherwise at a word boundary. Never split a word, clip text or leave text out.
+- The last slide of a verse never holds a single row (at least two).
+- Line spacing is 1.15 (fits every Vietnamese mark in Arial and Times New Roman). Verdana is 1.22, Georgia and Calibri 1.3, because their tallest accent plus deepest descender is taller.
+- The section label (V1, C) is 16 pt and sits inside the bottom padding, never over the lyrics.
+- "Fit verses on one slide" (in Slide Appearance) picks the biggest size, down to 36 pt, at which every verse of the song fits on one slide. It sets a manual size.
+- Keep every word, accent and diacritic. Keep the existing colours and theme.
+- Tests: `app/src/lib/slides.test.ts` (run `npx vitest run`) covers word and accent preservation, fixed size, flowing paragraphs, centring, tail rule, wide words and the fit size.
+- Code: `lyricSlides` in `app/src/lib/slides.ts` (used by `buildDeck` with `fill`), the preview and thumbnails in `pages/LyricsV2.tsx`, the projector in `pages/Projector.tsx` (`align` and `top` on a slide), and the PowerPoint export in `downloadPptx`.
+
 ## Verification before saying a change is done
 - Check UI changes in the browser at desktop and phone width. Check the active, hover and selected states.
 - For the program PDF, generate it and read the file back. Check that content fits on the two pages.

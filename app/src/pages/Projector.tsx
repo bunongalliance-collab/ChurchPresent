@@ -1,4 +1,4 @@
-import { SLIDE_PAD } from "../lib/slides";
+import { LYRIC_LABEL_PT, SLIDE_PAD } from "../lib/slides";
 import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,6 +22,8 @@ export interface ProjSlide {
   wrap?: boolean;       // one text block that wraps at word boundaries, with a band at the bottom for the reference
   align?: "left" | "center" | "right" | "justify";
   verse?: boolean;
+  top?: boolean;        // text starts at the top of the slide instead of the middle
+  lyric?: boolean;      // a lyric slide: the label sits small inside the bottom padding
 }
 export interface ProjDeck {
   font: string;
@@ -103,7 +105,7 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
       style={{ background: slide.bg ?? deck.bg, color: slide.fg ?? deck.fg, fontFamily: `${slide.font ?? deck.font}, Arial, sans-serif` }}
       onClick={onClick}
     >
-      <div className="text" style={{ ...textStyle, paddingBottom: slide.ref ? `calc(${SLIDE_PAD} + 9%)` : deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
+      <div className="text" style={{ ...textStyle, ...(slide.top ? { alignItems: "flex-start" } : {}), paddingBottom: slide.ref ? `calc(${SLIDE_PAD} + 9%)` : deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
         <div style={{ width: "100%", textAlign: slide.align === "justify" ? "justify" : slide.align ?? "center", ...fmtStyle(slide.fmt) }}>
           {slide.align === "justify" && !slide.wrap
             // Justified: each paragraph (verse) is one block, so the browser wraps it and fills the full width
@@ -122,8 +124,9 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
           style={{
             opacity: deck.tagOpacity ?? (slide.label.startsWith("V") ? 0.65 : 1),
             color: deck.labelColor || undefined,
-            fontSize: deck.tagPt ? `calc(${deck.tagPt} / 960 * 100cqw)` : undefined,
+            fontSize: deck.tagPt ? `calc(${deck.tagPt} / 960 * 100cqw)` : slide.lyric ? `calc(${LYRIC_LABEL_PT} / 960 * 100cqw)` : undefined,
             textTransform: deck.tagPt ? "uppercase" : undefined,
+            ...(slide.lyric ? { right: "4%", bottom: "0.3cqw", lineHeight: 1 } : {}),
           }}
         >
           {slide.label}

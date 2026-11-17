@@ -22,7 +22,7 @@ export const RECOMMENDED_PT = 58;
 export const SING_MAX_PT = RECOMMENDED_PT;
 
 // Average character width as a fraction of font size, per font (bold adds about 5%)
-export const CHAR_W: Record<string, number> = { Arial: 0.487, Verdana: 0.58, Calibri: 0.44, Georgia: 0.52 }; // average bold character width, measured (x1.05 safety factor applied in the engine)
+export const CHAR_W: Record<string, number> = { Arial: 0.487, Verdana: 0.58, Calibri: 0.44, Georgia: 0.52, "Times New Roman": 0.45 }; // average bold character width, measured (x1.05 safety factor applied in the engine)
 export const FONTS = Object.keys(CHAR_W);
 
 // Visible length of text: formatting markers (bold, colour, highlight, verse-number marks) take no space
@@ -34,6 +34,9 @@ export interface Slide extends Array<string> {
   label?: string;
   size?: number;  // a font size for this slide only (singing slides use one size for all, so this is unused there)
   lineH?: number; // line spacing for this slide (singing slides tighten it to fit the height)
+  left?: boolean; // a lyric slide: left-aligned inside the padded area
+  vcenter?: boolean; // a lyric slide whose text uses less than half the padded height: centred vertically
+  rows?: number;     // a lyric slide: how many wrapped rows of text it holds
 }
 
 export interface Notes {
@@ -302,6 +305,83 @@ export function packSection(sec: Slide, font: string, size: number, perSlide: nu
   return slides.map((sl) => Object.assign(sl, { label: sec.label }) as Slide);
 }
 
+// Lyric slides: a fixed font size (70 pt), left-aligned inside a padded area (4% of the slide width and height on
+// every side). The lyric lines of a verse flow together as one paragraph: words wrap naturally across the full width and
+// a line break is never added when the next word fits. Breaks are kept only between verses and sections (each has its
+// own slides). A block that uses less than half the padded height is centred vertically; a longer one starts at the
+// top. When the text would pass the bottom of the padded area it continues on a new slide, at the same size and
+// padding, preferably at the end of a lyric line, otherwise at a word boundary. Words are never split or dropped.
+export const LYRIC_PT = 70;
+export const LYRIC_LH = 1.15; // tight enough to fill the slide; fits every Vietnamese mark in Arial and Times New Roman
+// Fonts whose tallest accent plus deepest descender is taller than 1.15 em get more room (measured with the real fonts)
+export const LYRIC_LH_BY_FONT: Record<string, number> = { Verdana: 1.22, Georgia: 1.3, Calibri: 1.3 };
+export const lyricLineHeight = (font: string) => LYRIC_LH_BY_FONT[font] ?? LYRIC_LH;
+export const LYRIC_LABEL_PT = 16;                    // section label (V1, C): small, inside the bottom padding
+export const LYRIC_PAD = 0.04;                       // share of the slide width and of the slide height
+export const LYRIC_PAD_CSS = "2.25% 4%";             // 4% of the height is 2.25% of the width, which CSS padding uses
+export const SLIDE_H_PT = SLIDE_W_PT * (SLIDE_H_IN / SLIDE_W_IN);
+// Natural line height of each font in PowerPoint, so one line spacing looks the same everywhere
+export const NATURAL_LH: Record<string, number> = { Arial: 1.149, Verdana: 1.215, Calibri: 1.22, Georgia: 1.136, "Times New Roman": 1.149 };
+
+// paras: each paragraph is a list of lyric lines that flow together (a verse), or one line on its own (a title)
+export function lyricSlides(paras: string[][], font: string, size: number, measure?: Measure): { slides: Slide[]; tooWide: boolean } {
+  const W = SLIDE_W_PT * (1 - 2 * LYRIC_PAD);
+  const H = SLIDE_H_PT * (1 - 2 * LYRIC_PAD);
+  const limit = W * 0.99; // the browser draws text a little wider than the measure
+  const widthOf = (t: string) => (measure ? measure(plainText(t), size) : visLen(t) * CHAR_W[font] * 1.05 * size);
+  let tooWide = false;
+  interface Row { text: string; para: number; endsPhrase: boolean }
+  const rows: Row[] = [];
+  paras.forEach((phrases, pi) => {
+    let cur = "";
+    let lastEnds = false; // the last word on the current row ends a lyric line
+    phrases.forEach((phrase) => {
+      const ws = phrase.split(/\s+/).filter(Boolean);
+      ws.forEach((w, wi) => {
+        if (widthOf(w) > limit) tooWide = true;
+        const next = cur ? `${cur} ${w}` : w;
+        if (cur && widthOf(next) > limit) { rows.push({ text: cur, para: pi, endsPhrase: lastEnds }); cur = w; } else cur = next;
+        lastEnds = wi === ws.length - 1;
+      });
+    });
+    if (cur) rows.push({ text: cur, para: pi, endsPhrase: true });
+  });
+  const lh = lyricLineHeight(font);
+  const cap = Math.max(1, Math.floor(H / (size * lh)));
+  const out: Slide[] = [];
+  let i = 0;
+  const MIN_TAIL = 2; // the last slide of a verse never holds a single row
+  while (i < rows.length) {
+    const left = rows.length - i;
+    let k = Math.min(cap, left);
+    if (left > cap && left - k < MIN_TAIL) k = Math.max(1, left - MIN_TAIL);
+    if (i + k < rows.length) {
+      // More text follows: end this slide at the end of a lyric line when one is in its second half
+      for (let j = k; j >= Math.ceil(cap / 2); j--) if (rows[i + j - 1].endsPhrase && left - j >= MIN_TAIL) { k = j; break; }
+    }
+    const slice = rows.slice(i, i + k);
+    i += k;
+    const byPara: string[][] = [];
+    let lastPara = -1;
+    for (const r of slice) {
+      if (r.para !== lastPara) { byPara.push([]); lastPara = r.para; }
+      byPara[byPara.length - 1].push(r.text);
+    }
+    const content = byPara.map((a) => a.join(" "));
+    out.push(Object.assign(content, { size, lineH: lh, left: true, vcenter: slice.length * size * lh < H / 2, rows: slice.length }) as Slide);
+  }
+  return { slides: out, tooWide };
+}
+
+// The largest size (down to 36 pt) at which every verse of the song fits on one slide. 70 pt when they already do.
+export function fitLyricSize(opts: { lyrics: string; removeRepeats: boolean; font: string; measure?: Measure }): number {
+  const sections = buildSections(opts.lyrics, { repeats: 0, removeRepeats: opts.removeRepeats }, true);
+  for (let size = LYRIC_PT; size >= 36; size--) {
+    if (sections.every((sec) => lyricSlides([[...sec]], opts.font, size, opts.measure).slides.length <= 1)) return size;
+  }
+  return 36;
+}
+
 export interface Deck {
   font: string;
   size: number;
@@ -310,6 +390,7 @@ export interface Deck {
   title: string;
   number: string;
   notes: Notes;
+  tooWide?: boolean; // a word is wider than the slide at this size
 }
 
 // Build the whole deck from the form values. Custom size overrides the automatic one when > 0.
@@ -324,6 +405,8 @@ export function buildDeck(opts: {
   customSize: number;
   paragraphBreaks?: boolean; // justified text: each verse starts its own row
   keepLines?: boolean;       // singing slides: each lyric line is one phrase and is never split
+  fill?: boolean;            // lyric slides: fixed size (70 pt unless a size is chosen), left-aligned, padded, flowing onto new slides
+  measure?: Measure;         // measures real text width (the browser); an estimate is used without it
 }): Deck {
   const notes: Notes = { repeats: 0, removeRepeats: opts.removeRepeats };
   const sections = buildSections(opts.lyrics, notes, !!opts.keepLines);
@@ -331,17 +414,33 @@ export function buildDeck(opts: {
   const number = (opts.songNumber.trim() || notes.number || "").replace(/^#/, "");
   const titleLines = [title, number ? `#${number}` : ""].filter(Boolean);
   const titleSlide: Slide[] = titleLines.length && opts.showTitle ? [Object.assign(titleLines, {}) as Slide] : [];
+  if (opts.fill && opts.keepLines) {
+    const size = opts.customSize > 0 ? opts.customSize : LYRIC_PT;
+    let tooWide = false;
+    const run = (ps: string[][], label?: string) => {
+      const r = lyricSlides(ps, opts.font, size, opts.measure);
+      if (r.tooWide) tooWide = true;
+      return label ? r.slides.map((sl) => Object.assign(sl, { label }) as Slide) : r.slides;
+    };
+    const titleFill: Slide[] = titleSlide.length ? run(titleLines.map((t) => [t])) : [];
+    const filled = sections.flatMap((sec) => run([[...sec]], sec.label));
+    return { font: opts.font, size, slides: [...titleFill, ...filled], titleSlide: titleFill, title, number, notes, tooWide };
+  }
   const all = [...titleSlide, ...sections];
   let size: number;
   if (opts.customSize > 0) size = opts.customSize;
   else if (opts.keepLines) size = singingSize(sections, opts.font);
   else size = all.length ? deckSize(all, opts.font, opts.perSlide) : MAX_PT;
   const packed = sections.flatMap((sec) => packSection(sec, opts.font, size, opts.perSlide, !!opts.paragraphBreaks, !!opts.keepLines));
+  // With a manual size, a long title wraps and flows onto extra slides instead of running past the edge
+  const titleOut: Slide[] = opts.customSize > 0 && !opts.keepLines && titleSlide.length
+    ? flowLines(titleLines, opts.font, size).map((rows) => Object.assign(rows, {}) as Slide)
+    : titleSlide;
   return {
     font: opts.font,
     size,
-    slides: [...titleSlide, ...packed],
-    titleSlide,
+    slides: [...titleOut, ...packed],
+    titleSlide: titleOut,
     title,
     number,
     notes,
@@ -509,7 +608,7 @@ export function layoutPassage(words: string[], font: string, size: number, boxW:
 
 // Padding inside every slide's text area: 10 px on the 1219 px wide projector, written as a share of the
 // width so the projector and the previews show the same space around the text.
-export const SLIDE_PAD = "0.8%";
+export const SLIDE_PAD = "0.82%"; // exactly 10 px on the 1219 px wide projector
 
 // The browser measures text with the same font the slide uses, so line breaks match what is shown
 export function browserMeasure(font: string): Measure | undefined {

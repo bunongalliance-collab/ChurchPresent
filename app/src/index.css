@@ -2028,3 +2028,157 @@ html .rv2-dock input:not([type="checkbox"]):not([type="radio"]):not([type="range
 .sc .sc-start-tag { background: var(--accent-soft); color: var(--on-soft); font-weight: 500; }
 .sc .sc-start .sc-add button { border: 1px solid var(--accent) !important; color: var(--accent) !important; font-weight: 400; background: transparent !important; }
 .sc .sc-start .sc-add button:hover { background: var(--accent-soft) !important; }
+
+/* Navbar: its own tinted background */
+.navbar { background: var(--sunken); }
+
+/* ===== Lyric page: the welcoming, flowing design (matches the approved sample). Everything is scoped to .lf ===== */
+:root, :root[data-theme="light"] { --glow1: #E4EFDF; --glow2: #F3EEDD; --card-shadow: 0 6px 22px rgb(var(--text-rgb) / 0.06); }
+:root[data-theme="dark"] { --glow1: #1D2B24; --glow2: #26261C; }
+html:has(.lf) { background: radial-gradient(90% 55% at 10% 0%, var(--glow1), transparent 60%), radial-gradient(70% 45% at 100% 0%, var(--glow2), transparent 60%), var(--bg); background-repeat: no-repeat; }
+html:has(.lf) body { background: transparent; }
+
+/* Navbar on this page: a soft pill (desktop only; the phone keeps its menu) */
+@media (min-width: 701px) {
+  body:has(.lf) .navbar { position: static; height: auto; background: transparent; box-shadow: none; padding: 14px 28px 0; flex-wrap: nowrap; justify-content: center; }
+  body:has(.lf) .navbar ul { flex: 0 1 auto; flex-wrap: nowrap; min-width: 0; margin: 0 auto; background: var(--panel); border-radius: 999px; padding: 5px; gap: 2px; box-shadow: 0 6px 24px rgb(var(--text-rgb) / 0.08); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  body:has(.lf) .navbar ul::-webkit-scrollbar { display: none; }
+  body:has(.lf) .navbar a { border-radius: 999px; padding: 6px 11px; font-size: 12.5px; white-space: nowrap; }
+  body:has(.lf) .navbar .nav-auth { margin-left: 0; }
+}
+
+/* Page frame and hero */
+html .lf { padding: 8px 28px 110px; }
+html .lf .lv2-top { align-items: flex-end; gap: 14px 32px; padding: 18px 4px 0; margin-bottom: 18px; }
+.lf-hello { display: block; color: var(--muted); font-size: 0.88rem; letter-spacing: 0.04em; }
+html .lf .lv2-top h1 { font: 500 2.05rem/1.15 var(--font-song); margin: 2px 0 4px; }
+.lf-greet p { margin: 0; color: var(--muted); }
+html .lf .return-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--accent-soft); color: var(--on-soft); border: 0; border-radius: 999px; padding: 6px 8px 6px 18px; margin: 0 0 16px; }
+html .lf .return-bar button { background: var(--accent); color: var(--on-accent); border: 0; }
+
+/* Buttons: round pills */
+html .lf button { border: 0; border-radius: 999px; padding: 7px 16px; font-size: 0.92rem; font-weight: 400; }
+html .lf button.small { padding: 4px 12px; font-size: 0.86rem; }
+html .lf button.primary { background: var(--accent); color: var(--on-accent); }
+html .lf button.secondary { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+html .lf button.secondary:hover:not(:disabled) { background: var(--accent-soft); }
+html .lf button.danger { color: var(--danger); box-shadow: inset 0 0 0 1px var(--danger); }
+html .lf button.quiet { background: transparent; color: var(--muted); box-shadow: none; }
+html .lf button:hover:not(:disabled) { border: 0; }
+
+/* The three steps, side by side, joined by a soft path */
+html .lf .lv2-grid { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: 26px; align-items: stretch; }
+html .lf .lf-stop { min-width: 0; display: grid; gap: 10px; align-content: start; }
+html .lf .lv2-step-head { display: flex; align-items: center; gap: 12px; }
+html .lf .lv2-step-n { width: 34px; height: 34px; font-size: 0.95rem; font-weight: 400; }
+html .lf .lv2-step-head h2 { font: 500 1.25rem/1.2 var(--font-song); white-space: nowrap; margin: 0; }
+html .lf .lv2-step-head::after { content: ""; flex: 1; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), transparent); opacity: 0.35; }
+html .lf .lf-s3 .lv2-step-head::after { display: none; }
+.lf-sub { margin: -6px 0 0 46px; color: var(--muted); font-size: 0.86rem; }
+html .lf .lv2-card { background: var(--panel); border: 0; border-radius: 20px; box-shadow: var(--card-shadow); }
+
+/* Step 1 */
+html .lf .lv2-lib { padding: 14px; gap: 10px; top: 12px; max-height: calc(100vh - 90px); }
+html .lf .lv2-lib-head { padding: 0; border: 0; gap: 8px; }
+.lf-search-row { display: flex; gap: 8px; align-items: center; }
+html .lf input.lv2-search { flex: 1; min-width: 0; border-radius: 999px; padding: 7px 16px; }
+html .lf button.lv2-new { width: auto; flex: none; }
+html .lf .lv2-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+html .lf .lv2-filters select, html .lf .lv2-meta-row select { width: auto; flex: 0 0 auto; border-radius: 999px; padding: 6px 14px; height: auto; }
+html .lf .lv2-songs { padding: 0; display: grid; gap: 2px; align-content: start; }
+html .lf .lv2-group { font-size: 0.68rem; letter-spacing: 0.07em; padding: 8px 14px 2px; }
+html .lf button.lv2-song { background: transparent; color: var(--text); border-radius: 16px; padding: 6px 14px; gap: 0; }
+html .lf button.lv2-song:hover { background: rgb(var(--text-rgb) / 0.05); }
+html .lf button.lv2-song[aria-current="true"] { background: var(--accent-soft); color: var(--on-soft); }
+html .lf .lv2-song-name { font: 400 0.98rem/1.25 var(--font-song); }
+html .lf .lv2-song-meta { font-size: 0.7rem; }
+
+/* Step 2 */
+html .lf .lv2-editor { padding: 14px; gap: 10px; }
+html .lf .lv2-note { background: none; padding: 0; font-size: 0.84rem; font-weight: 300; color: var(--muted); }
+html .lf .lv2-note span { font-weight: 300; font-size: 0.84rem; opacity: 0.85; }
+html .lf .lv2-title-row { grid-template-columns: minmax(0, 1fr) 74px auto; gap: 8px; align-items: center; }
+html .lf input.lv2-title { border-radius: 999px; padding: 7px 16px; font-size: 1.1rem; }
+html .lf input.lv2-number { border-radius: 999px; padding: 7px 8px; text-align: center; width: 74px; }
+html .lf button.lv2-star { width: 34px; height: 34px; padding: 0; border-radius: 50%; background: var(--sunken); color: var(--accent); }
+html .lf button.lv2-star.on { box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
+html .lf .lv2-meta-row { position: relative; gap: 8px; }
+html .lf .lv2-chip { background: var(--accent-soft); color: var(--on-soft); border-radius: 999px; padding: 2px 11px; font-size: 0.82rem; }
+html .lf .lv2-approve { background: var(--accent-soft); color: var(--on-soft); border-radius: 16px; padding: 10px 14px; }
+html .lf .lv2-approve button.primary { background: var(--accent); color: var(--on-accent); border: 0; }
+html .lf .lv2-approve button.secondary { background: transparent; color: var(--accent); border: 0; }
+html .lf .lv2-confirm { border: 0; box-shadow: inset 0 0 0 1px var(--danger); border-radius: 16px; padding: 10px 14px; }
+html .lf textarea.lv2-lyrics { border-radius: 16px; padding: 12px 16px; min-height: 360px; font: 400 1.02rem/1.6 var(--font-song); }
+html .lf .lv2-empty-hint { color: var(--muted); font-weight: 400; }
+html .lf .lv2-actions { border-top: 0; padding-top: 0; justify-content: flex-end; }
+html .lf .lv2-more summary { border-radius: 999px; }
+html .lf .lv2-menu { border: 0; border-radius: 14px; box-shadow: 0 10px 30px rgb(var(--text-rgb) / 0.18); }
+html .lf .lv2-added { background: var(--sunken); border: 0; border-radius: 16px; padding: 10px 14px; }
+
+/* Quick theme colours and font size, right under the lyrics */
+.lf-quick { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.lf-ql { font: 400 9px var(--font-ui); color: var(--muted); margin-right: 4px; }
+html .lf button.lf-q { width: 16px; height: 16px; min-height: 0; padding: 0; border-radius: 50%; font: 500 9px var(--font-ui); display: inline-grid; place-items: center; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14); }
+html .lf button.lf-q.on { box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--accent); }
+.lf-qsize { display: inline-flex; align-items: center; gap: 6px; margin-left: 14px; padding-left: 14px; border-left: 1px solid rgb(var(--text-rgb) / 0.15); }
+html .lf button.lf-qb { font: 400 9px var(--font-ui); width: 20px; height: 16px; min-height: 0; padding: 0; border-radius: 999px; background: var(--sunken); color: var(--text); }
+.lf-qsize input[type="range"] { width: 70px; accent-color: var(--accent); padding: 0; border: 0; background: none; }
+.lf-qo { font: 400 9px var(--font-ui); color: var(--muted); min-width: 34px; }
+
+/* Slide Appearance: a button beside "In presentation"; the controls open over the lyrics. All 8px */
+html .lf .lv2-meta-row .lf-ap { position: static; background: transparent; border: 0; box-shadow: none; padding: 0; margin: 0; font-size: 8px; }
+html .lf .lf-ap > summary.lf-ap-btn { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 14px; min-height: 34px; box-sizing: border-box; box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font: 400 0.92rem/1.4 var(--font-ui); white-space: nowrap; }
+.lf-ap > summary::-webkit-details-marker { display: none; }
+html .lf .lf-ap[open] > summary.lf-ap-btn { background: var(--accent-soft); }
+html .lf .lf-ap .lv2-summary { color: var(--muted); font: 300 0.8em var(--font-ui); margin: 0; }
+html .lf .lf-ap .lf-ap-panel { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 6; background: var(--panel); border-radius: 14px; box-shadow: 0 14px 40px rgb(var(--text-rgb) / 0.22); padding: 10px 12px; display: grid; gap: 8px; margin: 0; }
+html .lf .lf-ap-panel, html .lf .lf-ap-panel * { font-size: 8px; line-height: 1.4; letter-spacing: 0; text-transform: none; font-family: var(--font-ui); }
+html .lf .lf-ap-panel .rv2-line { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 8px; align-items: center; background: var(--sunken); border-radius: 10px; padding: 6px 10px; }
+html .lf .lf-ap-panel .lv2-field-label { color: var(--muted); font-weight: 500; }
+html .lf .lf-ap-panel select { height: auto; padding: 2px 9px; background: var(--panel); border-radius: 999px; }
+html .lf .lf-ap-panel .lv2-quick { padding: 2px 9px; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--accent); }
+html .lf .lf-ap-panel .lv2-preset { width: 22px; height: 18px; border-radius: 5px; }
+html .lf .lf-ap-panel input[type="color"] { width: 22px; height: 13px; border-radius: 4px; }
+html .lf .lf-ap-panel input[type="radio"], html .lf .lf-ap-panel input[type="checkbox"] { width: 11px; height: 11px; }
+html .lf .lf-ap-panel .lv2-slider input[type="range"] { width: 70px; }
+
+/* Step 3 */
+html .lf .lv2-preview { padding: 14px; gap: 10px; }
+html .lf .lv2-stage { border-radius: 16px; box-shadow: none; }
+html .lf .lv2-guide { background: var(--accent-soft); color: var(--on-soft); }
+html .lf button.lv2-thumb { border-radius: 10px; }
+html .lf button.lv2-thumb.current { border-color: transparent; box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px var(--accent-soft); }
+html .lf .lv2-add-bottom { padding: 10px 18px; font-size: 1rem; }
+@media (min-width: 721px) { html .lf .lv2-preview-actions { display: flex; gap: 8px; flex-wrap: wrap; } html .lf .lv2-preview-actions button { flex: none; font-size: 0.86rem; padding: 4px 12px; } }
+
+/* Your slideshow: a small pill floating at the bottom */
+html .lf .lv2-show { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 30; width: max-content; max-width: calc(100% - 24px); margin: 0; flex-wrap: nowrap; gap: 10px; background: var(--panel); border-radius: 999px; padding: 6px 6px 6px 18px; box-shadow: 0 10px 30px rgb(var(--text-rgb) / 0.18); }
+html .lf .lv2-show h2 { font-size: 0.92rem; font-weight: 400; white-space: nowrap; margin: 0; }
+html .lf .lv2-show-items { flex: 0 1 auto; max-width: min(50vw, 560px); scrollbar-width: none; }
+html .lf .lv2-show-items li { background: var(--accent-soft); color: var(--on-soft); border-radius: 999px; padding: 2px 10px; font: 400 0.82rem var(--font-ui); gap: 6px; white-space: nowrap; }
+html .lf .lv2-show-n { background: none; color: inherit; opacity: 0.7; min-width: 0; height: auto; font: 400 0.82rem var(--font-ui); }
+html .lf .lv2-show-empty { font-size: 0.82rem; flex: 0 1 auto; }
+html .lf .lv2-show > button { margin-left: 0; background: var(--accent); color: var(--on-accent); box-shadow: none; padding: 4px 12px; font-size: 0.86rem; }
+
+/* Medium screens: steps 1 and 2 side by side, step 3 across the bottom */
+@media (min-width: 721px) and (max-width: 1250px) {
+  html .lf .lv2-grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr); }
+  html .lf .lf-s3 { grid-column: 1 / -1; }
+  html .lf .lf-s2 .lv2-step-head::after { display: none; }
+  html .lf .lv2-preview, html .lf .lv2-lib { position: static; }
+  html .lf .lv2-lib { max-height: 380px; }
+}
+
+/* Phone: one column, the same order. The slideshow pill sits in the page and the preview keeps its bottom bar */
+@media (max-width: 720px) {
+  html .lf { padding: 8px 12px 24px; }
+  html .lf .lv2-top h1 { font-size: 1.55rem; }
+  html .lf .lv2-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  html .lf .lf-stop { display: contents; }
+  html .lf .lv2-step-head::after { display: none; }
+  html .lf .lf-sub { margin-left: 0; }
+  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head, html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lf-sub { display: none; }
+  html .lf .lv2-show { position: static; transform: none; width: auto; max-width: none; border-radius: 16px; padding: 8px 12px; flex-wrap: wrap; margin-top: 14px; }
+  html .lf .lf-ap .lf-ap-panel .rv2-line { grid-template-columns: 1fr; gap: 3px; }
+  .lf-qsize { margin-left: 0; padding-left: 0; border-left: 0; }
+}
