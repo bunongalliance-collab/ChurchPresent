@@ -1868,3 +1868,13 @@ textarea.th-field { resize: vertical; }
 .sc-col .lv2-step-head h2 { display: block; }
 .sc-preview .sc-pres-add { margin-top: 6px; padding: 10px 0 0; border-bottom: 0; border-top: 1px solid var(--line); }
 .sc-preview .sc-pres-add + .sc-presentation { margin-top: 0; }
+
+/* Your slideshow: one slim row (title, items, button) to save space; wraps on narrow screens */
+.lv2-show { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; padding: 5px 10px; margin-bottom: 8px; }
+.lv2-show h2 { margin: 0; font-size: 0.9rem; white-space: nowrap; }
+.lv2-show-count { color: var(--muted); font-weight: 400; }
+.lv2-show-items { flex: 1 1 200px; min-width: 0; gap: 5px; padding: 0; }
+.lv2-show-items li { padding: 1px 9px 1px 2px; font-size: 0.86rem; gap: 5px; line-height: 1.35; }
+.lv2-show-n { min-width: 17px; height: 17px; font-size: 0.68rem; }
+.lv2-show-empty { flex: 1 1 200px; margin: 0; font-size: 0.82rem; color: var(--muted); }
+.lv2-show > button { margin-left: auto; padding: 2px 9px; font-size: 12px; min-height: 0; }

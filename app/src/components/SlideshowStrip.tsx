@@ -17,11 +17,7 @@ export default function SlideshowStrip({ extra = [] }: { extra?: StripItem[] }) 
   for (const x of extra) if (!all.some((a) => a.id === x.id)) all.push(x);
   return (
     <section className="lv2-card lv2-show" aria-label="Your slideshow">
-      <div className="lv2-show-head">
-        <h2>Your slideshow</h2>
-        <span className="lv2-sub">{all.length ? `${all.length} item${all.length === 1 ? "" : "s"}` : ""}</span>
-        <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
-      </div>
+      <h2>Your slideshow{all.length ? <span className="lv2-show-count"> · {all.length}</span> : null}</h2>
       {all.length ? (
         <ol className="lv2-show-items">
           {all.map((x, i) => (
@@ -29,8 +25,9 @@ export default function SlideshowStrip({ extra = [] }: { extra?: StripItem[] }) 
           ))}
         </ol>
       ) : (
-        <p className="lv2-sub">Nothing added yet. Items you add appear here, in order.</p>
+        <p className="lv2-show-empty">Nothing added yet. Items you add appear here, in order.</p>
       )}
+      <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
     </section>
   );
 }
