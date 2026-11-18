@@ -2038,21 +2038,21 @@ html .rv2-dock input:not([type="checkbox"]):not([type="radio"]):not([type="range
 html:has(.lf) { background: radial-gradient(90% 55% at 10% 0%, var(--glow1), transparent 60%), radial-gradient(70% 45% at 100% 0%, var(--glow2), transparent 60%), var(--bg); background-repeat: no-repeat; }
 html:has(.lf) body { background: transparent; }
 
-/* Navbar on this page: a soft pill (desktop only; the phone keeps its menu) */
+/* Navbar on every app page: a soft pill, as on the Lyric page (desktop only; the phone keeps its menu) */
 @media (min-width: 701px) {
-  body:has(.lf) .navbar { position: sticky; top: 0; z-index: 10; height: auto; background: var(--bg); box-shadow: none; padding: 14px 28px 10px; flex-wrap: nowrap; justify-content: center; }
-  body:has(.lf) .navbar ul { flex: 0 1 auto; flex-wrap: nowrap; min-width: 0; margin: 0 auto; background: var(--panel); border-radius: 999px; padding: 5px; gap: 2px; box-shadow: 0 6px 24px rgb(var(--text-rgb) / 0.08); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-  body:has(.lf) .navbar ul::-webkit-scrollbar { display: none; }
-  body:has(.lf) .navbar a { border-radius: 999px; padding: 6px 11px; font-size: 12.5px; white-space: nowrap; }
-  body:has(.lf) .navbar .nav-auth { margin-left: 0; }
+  html body .ct-app .navbar { position: sticky; top: 0; z-index: 10; height: auto; background: var(--bg); box-shadow: none; padding: 14px 28px 10px; flex-wrap: nowrap; justify-content: center; }
+  html body .ct-app .navbar ul { flex: 0 1 auto; flex-wrap: nowrap; min-width: 0; margin: 0 auto; background: var(--panel); border-radius: 999px; padding: 5px; gap: 2px; box-shadow: 0 6px 24px rgb(var(--text-rgb) / 0.08); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  html body .ct-app .navbar ul::-webkit-scrollbar { display: none; }
+  html body .ct-app .navbar a { border-radius: 999px; padding: 6px 11px; font-size: 12.5px; white-space: nowrap; }
+  html body .ct-app .navbar .nav-auth { margin-left: 0; }
 }
 
 /* Page frame and hero */
 html .lf { padding: 8px 28px 110px; }
-html .lf .lv2-top { align-items: flex-end; gap: 14px 32px; padding: 18px 4px 0; margin-bottom: 18px; }
-.lf-hello { display: block; color: var(--muted); font-size: 0.88rem; letter-spacing: 0.04em; }
-html .lf .lv2-top h1 { font: 500 2.05rem/1.15 var(--font-song); margin: 2px 0 4px; }
-.lf-greet p { margin: 0; color: var(--muted); }
+html .lf .lv2-top { align-items: center; gap: 8px 32px; padding: 6px 4px 0; margin-bottom: 10px; }
+.lf-hello { display: block; color: var(--muted); font-size: 0.78rem; letter-spacing: 0.04em; line-height: 1.2; }
+html .lf .lv2-top h1 { font: 500 1.6rem/1.1 var(--font-song); margin: 0 0 2px; }
+.lf-greet p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.3; }
 html .lf .return-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--accent-soft); color: var(--on-soft); border: 0; border-radius: 999px; padding: 6px 8px 6px 18px; margin: 0 0 16px; }
 html .lf .return-bar button { background: var(--accent); color: var(--on-accent); border: 0; }
 
@@ -2172,7 +2172,7 @@ html .lf .lv2-show > button { margin-left: 0; background: var(--accent); color: 
 /* Phone: one column, the same order. The slideshow pill sits in the page and the preview keeps its bottom bar */
 @media (max-width: 720px) {
   html .lf { padding: 8px 12px 24px; }
-  html .lf .lv2-top h1 { font-size: 1.55rem; }
+  html .lf .lv2-top h1 { font-size: 1.3rem; }
   html .lf .lv2-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   html .lf .lf-stop { display: contents; }
   html .lf .lv2-step-head::after { display: none; }
@@ -2269,3 +2269,19 @@ html body .sc.rl .passage-pick > * { min-width: 0; }
 html body .sc.rl .passage-pick button.fetch { margin: 0; white-space: nowrap; }
 @media (max-width: 720px) { html body .sc.rl .passage-pick { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); } html body .sc.rl .passage-pick select, html body .sc.rl .passage-pick button.fetch { grid-column: 1 / -1; } }
 html body .sc.rl .passage-pick input { padding: 7px 4px; text-align: center; font-size: 0.82rem; }
+
+/* Lyric editor hint: soft yellow note */
+html .lf .lv2-note { background: color-mix(in srgb, var(--gold) 28%, var(--surface, var(--bg))); border-left: 4px solid var(--gold); color: var(--text); border-radius: 12px; padding: 8px 12px; }
+html .lf .lv2-note span { color: var(--text); opacity: 0.85; }
+
+/* Whole app: one size for inputs, dropdowns and buttons (not the Nau Mpro reader) */
+html body .ct-app input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]):not([type=file]),
+html body .ct-app select { font-size: 0.72rem !important; padding: 2px 10px !important; min-height: 0 !important; height: 26px !important; }
+html body .ct-app button.primary, html body .ct-app button.secondary,
+html body .ct-app .btn, html body .ct-app button.ghost { height: auto !important; white-space: nowrap; font-size: 0.75rem !important; padding: 4px 12px !important; min-height: 0 !important; line-height: 1.2 !important; }
+html body .ct-app button.pg-btn, html body .ct-app button.th-btn { height: auto !important; min-height: 0 !important; padding: 4px 12px !important; font-size: 0.75rem !important; line-height: 1.2 !important; }
+
+/* Scripture app (/scripture/): keep the navbar for sign-in, hide links to the other pages */
+html body .sc-app .navbar ul, html body .sc-app .navbar .nav-toggle { display: none !important; }
+html body .sc-app .navbar .nav-auth { display: flex !important; flex: 0 0 auto; margin-left: auto; }
+html body .sc-app .navbar { justify-content: space-between !important; flex-wrap: nowrap !important; }

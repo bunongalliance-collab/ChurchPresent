@@ -27,7 +27,7 @@ export default function App() {
   // Some pages take extra data after a colon (#builder:<id>), so route on the part before it
   const page = hash.split(":")[0];
   const body = renderPage(page);
-  return <>{body}<Toasts /></>;
+  return <div className="ct-app">{body}<Toasts /></div>;
 }
 
 function renderPage(page: string) {

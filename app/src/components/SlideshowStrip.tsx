@@ -27,7 +27,7 @@ export default function SlideshowStrip({ extra = [] }: { extra?: StripItem[] }) 
       ) : (
         <p className="lv2-show-empty">Nothing added yet. Items you add appear here, in order.</p>
       )}
-      <button className="secondary small" onClick={() => { window.location.hash = "#builder"; }}>Open Presentation Builder</button>
+      <button className="secondary small" onClick={() => { window.location.href = "/#builder"; }}>Open Presentation Builder</button>
     </section>
   );
 }
