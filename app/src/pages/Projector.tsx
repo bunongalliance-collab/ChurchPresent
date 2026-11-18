@@ -136,6 +136,24 @@ function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?
   );
 }
 
+// Leave the presentation: close the window the app opened. A window the app did not open cannot close itself,
+// so after a moment it goes back to the Builder instead.
+function exitPresentation() {
+  try { if (document.fullscreenElement) void document.exitFullscreen(); } catch { /* not in full screen */ }
+  window.close();
+  window.setTimeout(() => { window.location.hash = "#builder"; }, 250);
+}
+
+// A small Exit button that appears when the mouse moves or the screen is touched, then fades away
+function ExitButton({ show }: { show: boolean }) {
+  return (
+    <button type="button" className={`proj-exit${show ? " show" : ""}`} aria-label="Exit presentation" tabIndex={show ? 0 : -1}
+      onClick={(e) => { e.stopPropagation(); exitPresentation(); }}>
+      Exit (Esc)
+    </button>
+  );
+}
+
 export default function Projector() {
   // "#projector:presenter" opens the presenter window (current slide, next slide, count)
   const presenter = window.location.hash.startsWith("#projector:presenter");
@@ -210,6 +228,11 @@ export default function Projector() {
         else document.documentElement.requestFullscreen();
         return;
       }
+      if (e.key === "Escape") {
+        // In full screen the browser uses Esc to leave full screen first; a second Esc exits the presentation
+        if (!document.fullscreenElement) exitPresentation();
+        return;
+      }
       if (e.key === "p" || e.key === "P") {
         if (!presenter) window.open(`${import.meta.env.BASE_URL}#projector:presenter`, "_blank");
         return;
@@ -233,6 +256,16 @@ export default function Projector() {
   useEffect(() => {
     if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting });
   }, [index, blackout, waiting, presenter]);
+
+  // The Exit button shows for 3 seconds after the mouse moves or the screen is touched
+  const [showExit, setShowExit] = useState(false);
+  useEffect(() => {
+    let timer = 0;
+    const wake = () => { setShowExit(true); window.clearTimeout(timer); timer = window.setTimeout(() => setShowExit(false), 3000); };
+    window.addEventListener("pointermove", wake);
+    window.addEventListener("pointerdown", wake);
+    return () => { window.removeEventListener("pointermove", wake); window.removeEventListener("pointerdown", wake); window.clearTimeout(timer); };
+  }, []);
 
   if (!deck) {
     return (
@@ -287,13 +320,13 @@ export default function Projector() {
   }
 
   if (blackout) {
-    return <div className="projector-blackout" onClick={() => setBlackout(false)} />;
+    return <div className="projector-blackout" onClick={() => setBlackout(false)}><ExitButton show={showExit} /></div>;
   }
 
   if (waiting) {
     let welcome = "Welcome";
     try { welcome = localStorage.getItem("projectorWelcome") || welcome; } catch { /* storage blocked */ }
-    return <div className="projector-waiting"><div>{welcome}</div></div>;
+    return <div className="projector-waiting"><div>{welcome}</div><ExitButton show={showExit} /></div>;
   }
 
   const slide = deck.slides[index];
@@ -301,6 +334,7 @@ export default function Projector() {
     <>
       {renderStage(slide, deck, "", () => setIndex((i) => Math.min(total - 1, i + 1)))}
       <div className="counter">{index + 1} / {total}</div>
+      <ExitButton show={showExit} />
     </>
   );
 }
