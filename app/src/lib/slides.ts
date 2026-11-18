@@ -517,12 +517,14 @@ export function parseBulk(text: string): ParsedSong[] {
 export const COLOR_PRESETS: { name: string; bg: string; fg: string; num: string }[] = [
   { name: "Navy and cream", bg: "#213648", fg: "#F5F2EA", num: "#F2C14E" },
   { name: "Black and white", bg: "#000000", fg: "#FFFFFF", num: "#FFC857" },
-  { name: "Charcoal and white", bg: "#1E1E1E", fg: "#FFFFFF", num: "#7FD1B9" },
+  { name: "Black and yellow", bg: "#000000", fg: "#FFD54A", num: "#FFFFFF" },
   { name: "Deep green and cream", bg: "#0F3B2E", fg: "#F4F1DE", num: "#E9B44C" },
   { name: "Deep blue and gold", bg: "#0B2545", fg: "#FFD166", num: "#7EC8E3" },
   { name: "Maroon and white", bg: "#5C1A1B", fg: "#F7F3EA", num: "#F6C6A8" },
-  { name: "Cream and dark", bg: "#F4F1DE", fg: "#1D2A36", num: "#B5452D" },
+  { name: "Charcoal and light", bg: "#2B2B2B", fg: "#EDEDED", num: "#7FD1B9" },
+  { name: "Cream and brown", bg: "#F3E7C9", fg: "#3A2B12", num: "#B5452D" },
   { name: "White and navy", bg: "#FFFFFF", fg: "#1B2A41", num: "#C2410C" },
+  { name: "Pale green and green", bg: "#E8F1EC", fg: "#1F5F4A", num: "#B5452D" },
 ];
 
 // Scripture slides: one text block that wraps at word boundaries, with 10 px padding (about 8 pt on the

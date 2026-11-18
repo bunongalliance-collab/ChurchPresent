@@ -1,6 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "../index.css";
+// The reader's fonts ship with the app (no Google Fonts request), so the first paint does not wait on another server
+import "@fontsource/alegreya/400.css";
+import "@fontsource/alegreya/400-italic.css";
+import "@fontsource/alegreya/500.css";
+import "@fontsource/alegreya/700.css";
+import "@fontsource/alegreya-sans/400.css";
+import "@fontsource/alegreya-sans/500.css";
+import "@fontsource/alegreya-sans/700.css";
 import "./reader.css";
 import Reader from "./Reader";
 import { startVisitLogging } from "../lib/visits";

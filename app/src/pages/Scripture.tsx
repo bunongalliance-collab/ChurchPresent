@@ -655,7 +655,7 @@ export default function Scripture() {
   return (
     <>
       <NavBar />
-      <div className="sc">
+      <div className="sc rl">
         <header className="sc-top">
           <div className="sc-title">
             <h1>Scripture Slides</h1>
@@ -813,19 +813,19 @@ export default function Scripture() {
                   </div>
                   </div></div>
                   <div className="rv2-line"><span className="lv2-field-label">Size</span><div className="rv2-row">
-                  <div className="fmt-size">
-                    <span className="fmt-small">A</span>
+                  <div className="fmt-size rl-qsize">
+                    <button type="button" className="rl-qb" aria-label="Smaller text" onClick={() => update(selected.id, { fmt: { ...selected.fmt, size: Math.max(20, (selected.fmt?.size ?? output.size) - 2) } })}>A−</button>
                     <input type="range" min={20} max={200} step={1} value={selected.fmt?.size ?? output.size} onChange={(e) => update(selected.id, { fmt: { ...selected.fmt, size: parseInt(e.target.value, 10) } })} aria-label="Font size for this slide" />
-                    <span className="fmt-large">A</span>
+                    <button type="button" className="rl-qb" aria-label="Larger text" onClick={() => update(selected.id, { fmt: { ...selected.fmt, size: Math.min(200, (selected.fmt?.size ?? output.size) + 2) } })}>A+</button>
                     <output>{selected.fmt?.size ? `${selected.fmt.size} pt` : `Auto (${output.size} pt)`}</output>
                     <button className="tool" onClick={() => update(selected.id, { fmt: { ...selected.fmt, size: undefined } })} disabled={!selected.fmt?.size}>Auto</button>
                   </div>
                   </div></div>
-                  <div className="rv2-line"><span className="lv2-field-label">Presets</span><div className="rv2-row">
+                  <div className="rv2-line"><span className="lv2-field-label">Theme</span><div className="rv2-row">
                   <div className="fmt-presets" role="group" aria-label="Recommended colours for this slide">
                     {COLOR_PRESETS.map((p) => (
                       <button key={p.name} type="button" className={`sc-preset${selected.fmt?.bg === p.bg && selected.fmt?.color === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name}
-                        style={{ background: p.bg, color: p.fg, boxShadow: `inset 0 -5px 0 ${p.num}` }} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bg: p.bg, color: p.fg, numColor: p.num } })}>Aa</button>
+                        style={{ background: p.bg, color: p.fg }} onClick={() => update(selected.id, { fmt: { ...selected.fmt, bg: p.bg, color: p.fg, numColor: p.num } })}>Aa</button>
                     ))}
                   </div>
                   </div></div>

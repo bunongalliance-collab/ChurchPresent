@@ -115,6 +115,8 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           // The Nau Mpro reader's manifest and lyric fonts are saved too, so the reader opens offline
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'nau-mpro/*.webmanifest', 'fonts/NotoSerif-*.ttf'],
+          // Reader fonts: only the Latin and Vietnamese letter sets are needed
+          globIgnores: ['**/*-cyrillic-*.woff2', '**/*-cyrillic-ext-*.woff2', '**/*-greek-*.woff2', '**/*-greek-ext-*.woff2'],
           navigateFallback: 'index.html',
           // The reader is its own page: never answer it with the team app's page
           navigateFallbackDenylist: [/^\/nau-mpro/],
@@ -135,7 +137,7 @@ export default defineConfig(({ mode }) => {
               handler: 'CacheFirst',
               options: {
                 cacheName: 'hymn-scores',
-                expiration: { maxEntries: 700, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                expiration: { maxEntries: 1500, maxAgeSeconds: 60 * 60 * 24 * 365 },
                 cacheableResponse: { statuses: [0, 200] },
               },
             },

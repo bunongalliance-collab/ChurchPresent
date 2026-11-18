@@ -395,7 +395,7 @@ export default function ReadingsV2() {
   return (
     <>
       <NavBar />
-    <div className="lv2">
+    <div className="lv2 rl">
       <header className="lv2-top">
         <div>
           <h1>Readings</h1>
@@ -528,15 +528,17 @@ export default function ReadingsV2() {
                     <label><input type="radio" name="rv2Size" checked={!look.customSize} onChange={() => setLook({ ...look, customSize: 0 })} /> Auto</label>
                     <label><input type="radio" name="rv2Size" checked={!!look.customSize} onChange={() => setLook({ ...look, customSize: look.customSize || 60 })} /> Manual</label>
                   </div>
-                  <div className="lv2-slider">
+                  <div className="lv2-slider rl-qsize">
+                    <button type="button" className="rl-qb" aria-label="Smaller text" onClick={() => setLook({ ...look, customSize: Math.max(20, (look.customSize || 60) - 2) })}>A−</button>
                     <input type="range" min={20} max={200} step={1} disabled={!look.customSize} value={look.customSize || 60} onChange={(e) => setLook({ ...look, customSize: parseInt(e.target.value, 10) })} aria-label="Font size in points" />
+                    <button type="button" className="rl-qb" aria-label="Larger text" onClick={() => setLook({ ...look, customSize: Math.min(200, (look.customSize || 60) + 2) })}>A+</button>
                     {look.customSize ? <output>{look.customSize} pt</output> : null}
                   </div>
                   <button type="button" className="lv2-quick" onClick={() => setLook({ ...look, customSize: RECOMMENDED_PT })}>Recommended {RECOMMENDED_PT} pt</button>
                 </div>
               </div>
               <div className="lv2-group rv2-line">
-                <span className="lv2-field-label">Colours</span>
+                <span className="lv2-field-label">Theme</span>
                 <div className="rv2-row">
                 <div className="lv2-presets" role="group" aria-label="Recommended colours">
                   {COLOR_PRESETS.map((p) => <button key={p.name} type="button" className={`lv2-preset${look.bg === p.bg && look.fg === p.fg ? " on" : ""}`} title={p.name} aria-label={p.name} aria-pressed={look.bg === p.bg && look.fg === p.fg} style={{ background: p.bg, color: p.fg }} onClick={() => setLook({ ...look, bg: p.bg, fg: p.fg })}>Aa</button>)}

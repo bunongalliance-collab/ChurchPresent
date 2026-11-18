@@ -194,3 +194,9 @@ body { margin: 0; overflow: hidden; }
 .nm-install-btn svg { width: 15px; height: 15px; }
 .nm-install-btn:hover { background: var(--nm-green-soft) !important; }
 @media (max-width: 420px) { .nm-install-btn span { display: none; } .nm-install-btn { width: var(--nm-tap); justify-content: center; padding: 0 !important; } }
+
+/* Save all scores for offline */
+.nm-offline { display: grid; gap: 6px; margin: 0 14px 10px; padding: 10px 12px; border-radius: 8px; background: var(--nm-green-soft); font-size: 0.85rem; }
+.nm-offline-text small { display: block; color: var(--nm-muted); margin-top: 2px; }
+.nm-offline-btn { justify-self: start; min-height: 36px; padding: 0 14px !important; border-radius: 6px; background: var(--nm-green) !important; color: var(--nm-on-green, #fff) !important; font-weight: 500; }
+.nm-offline progress { width: 100%; height: 6px; accent-color: var(--nm-green); }

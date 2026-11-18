@@ -64,18 +64,6 @@ function songIdsInPresentation(): Set<string> {
 }
 
 // Ten quick slide themes (background, text) shown under the lyrics box
-const QUICK_THEMES: { name: string; bg: string; fg: string }[] = [
-  { name: "Dark green and white", bg: "#0E1F19", fg: "#FFFFFF" },
-  { name: "White and black", bg: "#FFFFFF", fg: "#111111" },
-  { name: "Black and yellow", bg: "#000000", fg: "#FFD54A" },
-  { name: "Green and cream", bg: "#16352B", fg: "#F3E7C9" },
-  { name: "Navy and white", bg: "#1F3A5F", fg: "#FFFFFF" },
-  { name: "Cream and brown", bg: "#F3E7C9", fg: "#3A2B12" },
-  { name: "Wine and pink", bg: "#4A1F2E", fg: "#F6E3E8" },
-  { name: "Charcoal and light", bg: "#2B2B2B", fg: "#EDEDED" },
-  { name: "Pale green and green", bg: "#E8F1EC", fg: "#1F5F4A" },
-  { name: "Soft yellow and brown", bg: "#FFF4D6", fg: "#5A3B00" },
-];
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -719,7 +707,7 @@ export default function LyricsV2() {
                       </div>
                     </div>
                     <div className="lv2-cat rv2-line">
-                      <h3 className="lv2-field-label">Colours</h3>
+                      <h3 className="lv2-field-label">Theme</h3>
                       <div className="lv2-cat-body rv2-row">
                         <div className="lv2-presets" role="group" aria-label="Recommended colours">
                           {COLOR_PRESETS.map((p) => (
@@ -768,11 +756,11 @@ export default function LyricsV2() {
               {/* Quick theme colours, then the font size, right under the lyrics */}
               <div className="lf-quick" role="group" aria-label="Quick theme colours and font size">
                 <span className="lf-ql">Theme</span>
-                {QUICK_THEMES.map((t) => {
+                {COLOR_PRESETS.map((t) => {
                   const on = colorBg.toLowerCase() === t.bg.toLowerCase() && colorText.toLowerCase() === t.fg.toLowerCase();
                   return (
                     <button key={t.name} type="button" className={`lf-q${on ? " on" : ""}`} title={t.name} aria-label={t.name} aria-pressed={on}
-                      style={{ background: t.bg, color: t.fg }} onClick={() => { setColorBg(t.bg); setColorText(t.fg); }}>A</button>
+                      style={{ background: t.bg, color: t.fg }} onClick={() => { setColorBg(t.bg); setColorText(t.fg); }}>Aa</button>
                   );
                 })}
                 <span className="lf-qsize">

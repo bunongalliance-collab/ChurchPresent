@@ -5,6 +5,7 @@ import { fold, toSections } from "./lyrics";
 import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
+import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
 
 // Nau Mpro: the read-only hymn book for the congregation. No sign-in, works offline.
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
@@ -107,6 +108,35 @@ export default function Reader() {
   const images = (song?.scoreImages ?? []).map(scoreUrl).filter(Boolean);
   const pdf = song?.scorePath ? scoreUrl(song.scorePath) : "";
   const music = song?.music;
+
+  // Every score link in the hymn book, for "Save all scores"
+  const allScores = useMemo(() => [...new Set(all.flatMap((s) => s.scoreImages ?? []).map(scoreUrl).filter(Boolean))], [all]);
+  const [scoresSaved, setScoresSaved] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saveNote, setSaveNote] = useState("");
+  const saveStop = useRef<AbortController | null>(null);
+  useEffect(() => { countSaved(allScores).then(setScoresSaved); }, [allScores]);
+  useEffect(() => () => saveStop.current?.abort(), []);
+  async function saveScores() {
+    if (saving) { saveStop.current?.abort(); return; }
+    const ctl = new AbortController();
+    saveStop.current = ctl;
+    setSaving(true);
+    setSaveNote("");
+    await keepStorage();
+    const failed = await saveAll(allScores, setScoresSaved, ctl.signal);
+    setSaving(false);
+    if (ctl.signal.aborted) setSaveNote("Paused. Tap again to continue.");
+    else setSaveNote(failed ? `${failed} could not be saved. Check the connection and tap again.` : "All scores are saved on this device.");
+  }
+
+  // The next and previous songs' scores load in the background, so swiping shows them at once
+  useEffect(() => {
+    const urls = [next, prev].flatMap((s) => s?.scoreImages ?? []).map(scoreUrl).filter(Boolean);
+    if (!urls.length) return;
+    const t = window.setTimeout(() => prefetch(urls), 600);
+    return () => window.clearTimeout(t);
+  }, [next?.id, prev?.id]);
 
   function open(s: ReaderSong) {
     const hash = `#song-${encodeURIComponent(s.id)}`;
@@ -231,6 +261,20 @@ export default function Reader() {
             </div>
           )}
           <p className={`nm-saved${load?.error ? " warn" : ""}`} role="status">{savedLine}</p>
+          {allScores.length > 0 && typeof caches !== "undefined" && (
+            <div className="nm-offline">
+              <span className="nm-offline-text" role="status">
+                {scoresSaved >= allScores.length ? `All ${allScores.length} scores saved for offline` : `Scores saved for offline: ${scoresSaved} of ${allScores.length}`}
+                {saveNote && <small>{saveNote}</small>}
+              </span>
+              {scoresSaved < allScores.length && (
+                <button className="nm-offline-btn" onClick={saveScores} aria-pressed={saving}>
+                  {saving ? "Pause" : scoresSaved ? "Save the rest" : `Save all scores (about ${Math.max(1, Math.round((allScores.length - scoresSaved) * 0.15))} MB)`}
+                </button>
+              )}
+              {saving && <progress max={allScores.length} value={scoresSaved} aria-label="Scores saved" />}
+            </div>
+          )}
           <ul className="nm-list">
             {shown.map((s) => (
               <li key={s.id}>
