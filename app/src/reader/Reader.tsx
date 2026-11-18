@@ -127,7 +127,7 @@ export default function Reader() {
     const failed = await saveAll(allScores, setScoresSaved, ctl.signal);
     setSaving(false);
     if (ctl.signal.aborted) setSaveNote("Paused. Tap again to continue.");
-    else setSaveNote(failed ? `${failed} could not be saved. Check the connection and tap again.` : "All scores are saved on this device.");
+    else setSaveNote(failed ? `${failed} could not be saved. Check the connection and tap again.` : "All music sheets are saved on this device.");
   }
 
   // The next and previous songs' scores load in the background, so swiping shows them at once
@@ -233,7 +233,7 @@ export default function Reader() {
             <button className="nm-step" onClick={() => prev && open(prev)} disabled={!prev} aria-label={prev ? `Previous song: ${prev.number} ${prev.title}` : "No previous song"} title="Previous song">‹</button>
             <button className="nm-step" onClick={() => next && open(next)} disabled={!next} aria-label={next ? `Next song: ${next.number} ${next.title}` : "No next song"} title="Next song">›</button>
           </div>
-          <button className="nm-play" onClick={togglePlay} aria-pressed={playing} aria-label="Play" title={playing ? "Leave play mode" : "Play: score fills the screen"}>
+          <button className="nm-play" onClick={togglePlay} aria-pressed={playing} aria-label="Play" title={playing ? "Leave play mode" : "Play: music sheet fills the screen"}>
             <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg><span>{playing ? "Playing" : "Play"}</span>
           </button>
         </div>
@@ -242,7 +242,7 @@ export default function Reader() {
       {song && (
         <div className="nm-tabs" role="tablist" aria-label="View">
           <button role="tab" aria-selected={tab === "lyrics"} aria-controls="nm-lyrics" onClick={() => setTab("lyrics")}>Lyrics</button>
-          <button role="tab" aria-selected={tab === "score"} aria-controls="nm-score" onClick={() => setTab("score")}>Score</button>
+          <button role="tab" aria-selected={tab === "score"} aria-controls="nm-score" onClick={() => setTab("score")}>Music Sheet</button>
         </div>
       )}
 
@@ -264,15 +264,15 @@ export default function Reader() {
           {allScores.length > 0 && typeof caches !== "undefined" && (
             <div className="nm-offline">
               <span className="nm-offline-text" role="status">
-                {scoresSaved >= allScores.length ? `All ${allScores.length} scores saved for offline` : `Scores saved for offline: ${scoresSaved} of ${allScores.length}`}
+                {scoresSaved >= allScores.length ? `All ${allScores.length} music sheets saved for offline` : `Music sheets saved for offline: ${scoresSaved} of ${allScores.length}`}
                 {saveNote && <small>{saveNote}</small>}
               </span>
               {scoresSaved < allScores.length && (
                 <button className="nm-offline-btn" onClick={saveScores} aria-pressed={saving}>
-                  {saving ? "Pause" : scoresSaved ? "Save the rest" : `Save all scores (about ${Math.max(1, Math.round((allScores.length - scoresSaved) * 0.15))} MB)`}
+                  {saving ? "Pause" : scoresSaved ? "Save the rest" : `Save all music sheets (about ${Math.max(1, Math.round((allScores.length - scoresSaved) * 0.15))} MB)`}
                 </button>
               )}
-              {saving && <progress max={allScores.length} value={scoresSaved} aria-label="Scores saved" />}
+              {saving && <progress max={allScores.length} value={scoresSaved} aria-label="Music sheets saved" />}
             </div>
           )}
           <ul className="nm-list">
@@ -316,12 +316,12 @@ export default function Reader() {
           )}
         </main>
 
-        <section className="nm-score" id="nm-score" ref={scoreRef} aria-label="Piano score" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        <section className="nm-score" id="nm-score" ref={scoreRef} aria-label="Music sheet" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {song && (images.length ? (
             <div className="nm-score-inner" style={{ width: `${zoom * 100}%` }}>
               {images.map((src, i) => (
                 <figure key={src}>
-                  <img src={src} alt={`Score for hymn ${song.number}, part ${i + 1} of ${images.length}`} loading={i ? "lazy" : "eager"} />
+                  <img src={src} alt={`Music sheet for hymn ${song.number}, part ${i + 1} of ${images.length}`} loading={i ? "lazy" : "eager"} />
                   {images.length > 1 && <figcaption>Part {i + 1} of {images.length}</figcaption>}
                 </figure>
               ))}
@@ -329,7 +329,7 @@ export default function Reader() {
           ) : pdf ? (
             <p className="nm-empty"><a href={pdf} target="_blank" rel="noopener">Open the music sheet (PDF)</a></p>
           ) : (
-            <p className="nm-empty">No score for this song.</p>
+            <p className="nm-empty">No music sheet for this song.</p>
           ))}
         </section>
       </div>

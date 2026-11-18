@@ -747,7 +747,7 @@ export default function Scripture() {
 
                 <div className="sc-field">
                   <span className="sc-label">Passage</span>
-                  <div className="passage-pick">
+                  <div className="passage-pick" onKeyDown={(e) => { if (e.key === "Enter" && !busy && (e.target as HTMLElement).matches("input, select")) { e.preventDefault(); fetchPassage(); } }}>
                     <select value={selected.book ?? ""} onChange={(e) => update(selected.id, { book: e.target.value })} aria-label="Book">
                       <option value="">Book…</option>
                       {bookOptions.map(([name, code]) => <option key={code} value={code}>{name}</option>)}
@@ -758,8 +758,8 @@ export default function Scripture() {
                     <input type="number" min={1} value={selected.chapter ?? ""} placeholder="Chapter" aria-label="Chapter" onChange={(e) => update(selected.id, { chapter: e.target.value })} />
                     <input type="number" min={1} value={selected.verseFrom ?? ""} placeholder="From" aria-label="First verse" onChange={(e) => update(selected.id, { verseFrom: e.target.value })} />
                     <input type="number" min={1} value={selected.verseTo ?? ""} placeholder="To" aria-label="Last verse" onChange={(e) => update(selected.id, { verseTo: e.target.value })} />
+                    <button className="fetch" onClick={fetchPassage} disabled={busy}>{busy ? "Fetching…" : "Fetch passage"}</button>
                   </div>
-                  <button className="fetch" onClick={fetchPassage} disabled={busy}>{busy ? "Fetching…" : "Fetch passage"}</button>
                 </div>
               </>
             )}

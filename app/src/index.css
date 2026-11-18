@@ -2263,3 +2263,9 @@ html body .lv2.rl #rv2-content { min-height: 520px; }
 html body .lv2.rl .rv2-dock { position: sticky; bottom: 8px; z-index: 5; background: var(--sunken); box-shadow: 0 -6px 18px rgb(var(--text-rgb) / 0.12); border-radius: 16px; padding: 10px 12px; }
 /* Lyric page: the lyrics box fills the screen height */
 html .lf textarea.lv2-lyrics { min-height: max(360px, calc(100vh - 400px)); }
+/* Scripture: Fetch passage sits on the same row as the book, chapter and verse inputs */
+html body .sc.rl .passage-pick { grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr)) auto; align-items: center; }
+html body .sc.rl .passage-pick > * { min-width: 0; }
+html body .sc.rl .passage-pick button.fetch { margin: 0; white-space: nowrap; }
+@media (max-width: 720px) { html body .sc.rl .passage-pick { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); } html body .sc.rl .passage-pick select, html body .sc.rl .passage-pick button.fetch { grid-column: 1 / -1; } }
+html body .sc.rl .passage-pick input { padding: 7px 4px; text-align: center; font-size: 0.82rem; }

@@ -83,7 +83,6 @@ export default function NavBar() {
         <div className="nav-auth">
           {session ? (
             <>
-              <span className="nav-who">{session.user.email}</span>
               <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
             </>
           ) : (
