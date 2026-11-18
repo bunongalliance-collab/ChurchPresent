@@ -52,24 +52,30 @@ export const snooze = () => set(SNOOZE_KEY, String(Date.now() + SNOOZE_DAYS * 86
 export const snoozed = () => Number(get(SNOOZE_KEY) || 0) > Date.now();
 
 // Tell the server once; if it fails (offline), try again next time the app opens
-export async function countInstall(how: "home screen" | "browser prompt") {
-  markInstalled();
-  if (get(SENT_KEY)) return;
+// Which installed app is counting: the reader, the team app, or the Scripture app (all on this one site)
+export type InstallApp = "nau-mpro" | "church-tools" | "scripture";
+
+export async function countInstall(how: "home screen" | "browser prompt", app: InstallApp = "nau-mpro") {
+  if (app === "nau-mpro") markInstalled();
+  // Nau Mpro keeps its original keys and id; the other apps get their own, so one device counts once per app
+  const sentKey = app === "nau-mpro" ? SENT_KEY : `${SENT_KEY}-${app}`;
+  if (get(sentKey)) return;
+  const installId = app === "nau-mpro" ? deviceId() : `${app}-${deviceId()}`.slice(0, 64);
   try {
     const r = await fetch("/api/install", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ installId: deviceId(), how }),
+      body: JSON.stringify({ installId, how, app }),
     });
-    if (r.ok) set(SENT_KEY, "1");
+    if (r.ok) set(sentKey, "1");
   } catch { /* offline: next launch tries again */ }
 }
 
 // Call once when the reader starts
 let started = false;
-export function startInstallTracking() {
+export function startInstallTracking(app: InstallApp = "nau-mpro") {
   if (started) return;
   started = true;
-  if (isStandalone()) void countInstall("home screen");
-  window.addEventListener("appinstalled", () => void countInstall("browser prompt"));
+  if (isStandalone()) void countInstall("home screen", app);
+  window.addEventListener("appinstalled", () => void countInstall("browser prompt", app));
 }

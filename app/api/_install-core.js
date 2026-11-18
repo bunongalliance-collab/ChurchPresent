@@ -1,5 +1,5 @@
 // Shared by the Vercel function (api/install.js) and the Vite dev stand-in (vite.config.ts).
-// Records one install of the Nau Mpro app: no sign-in, one row per device (the device's random install id).
+// Records one install of Nau Mpro, the team app (church-tools) or the Scripture app: no sign-in, one row per device (the device's random install id).
 // Files starting with "_" in api/ are not routes on Vercel.
 import { deviceName } from "./_visit-core.js";
 
@@ -12,6 +12,7 @@ const decode = (v) => { try { return decodeURIComponent(v); } catch { return v; 
 // A random id made by the browser: letters, digits and dashes only
 export const validInstallId = (id) => typeof id === "string" && /^[a-z0-9-]{8,64}$/i.test(id);
 const HOW = new Set(["home screen", "browser prompt"]);
+const APPS = new Set(["nau-mpro", "church-tools", "scripture"]);
 
 // body: { installId, how }. Returns { status, body }.
 export async function recordInstall({ headers, body, supabaseUrl, serviceKey, fetchImpl = fetch }) {
@@ -24,7 +25,7 @@ export async function recordInstall({ headers, body, supabaseUrl, serviceKey, fe
   if (!validInstallId(installId)) return { status: 400, body: { error: "installId is missing or not valid" } };
   const row = {
     install_id: installId,
-    app: "nau-mpro",
+    app: APPS.has(body?.app) ? body.app : "nau-mpro",
     how: HOW.has(body?.how) ? body.how : "",
     device: deviceName(header(headers, "user-agent")),
     city: decode(header(headers, "x-vercel-ip-city")),

@@ -62,33 +62,35 @@ function VisitsSection() {
   );
 }
 
-// Nau Mpro app installs (no sign-in): one per device, recorded by reader/install.ts and api/install.js.
-// Only admin accounts can read them.
-interface Install { id: string; created_at: string; device: string; how: string; city: string; region: string; country: string }
+// App installs: one per device per app, recorded by reader/install.ts and api/install.js.
+// The totals are public (supabase/app-install-counts.sql); the list of installs is for admin accounts only.
+interface Install { id: string; created_at: string; app: string; device: string; how: string; city: string; region: string; country: string }
+const INSTALL_APPS = [
+  { app: "nau-mpro", label: "Nau Mpro" },
+  { app: "church-tools", label: "Church Tools" },
+  { app: "scripture", label: "Scripture" },
+];
+const appLabel = (a: string) => INSTALL_APPS.find((x) => x.app === a)?.label ?? a;
 
 function InstallsSection() {
   const [rows, setRows] = useState<Install[]>([]);
-  const [total, setTotal] = useState(0);
-  const [recent, setRecent] = useState(0);
-  const [state, setState] = useState<"loading" | "signed-out" | "error" | "ready" | "no-supabase">(supabase ? "loading" : "no-supabase");
+  const [counts, setCounts] = useState<Record<string, { total: number; recent: number }>>({});
+  const [state, setState] = useState<"loading" | "error" | "ready" | "no-supabase">(supabase ? "loading" : "no-supabase");
   const [error, setError] = useState("");
 
   async function load() {
     if (!supabase) return;
     setState("loading");
+    const { data: c, error: cErr } = await supabase.rpc("app_install_counts");
+    if (cErr) { setError(cErr.message); setState("error"); return; }
+    const byApp = new Map(((c ?? []) as { app: string; total: number; last_30_days: number }[]).map((r) => [r.app, r]));
+    setCounts(Object.fromEntries(INSTALL_APPS.map(({ app }) => [app, { total: Number(byApp.get(app)?.total ?? 0), recent: Number(byApp.get(app)?.last_30_days ?? 0) }])));
+    // The list (device, place) only loads for a signed-in admin; anyone else just sees the totals
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { setState("signed-out"); return; }
-    const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
-    const [all, last30, list] = await Promise.all([
-      supabase.from("app_installs").select("id", { count: "exact", head: true }),
-      supabase.from("app_installs").select("id", { count: "exact", head: true }).gte("created_at", since),
-      supabase.from("app_installs").select("id, created_at, device, how, city, region, country").order("created_at", { ascending: false }).limit(50),
-    ]);
-    const err = all.error || last30.error || list.error;
-    if (err) { setError(err.message); setState("error"); return; }
-    setTotal(all.count ?? 0);
-    setRecent(last30.count ?? 0);
-    setRows((list.data ?? []) as Install[]);
+    if (sess.session) {
+      const list = await supabase.from("app_installs").select("id, created_at, app, device, how, city, region, country").order("created_at", { ascending: false }).limit(50);
+      setRows(list.error ? [] : ((list.data ?? []) as Install[]));
+    } else setRows([]);
     setState("ready");
   }
   useEffect(() => { void load(); }, []);
@@ -97,25 +99,28 @@ function InstallsSection() {
   return (
     <section className="visits" aria-labelledby="installs-h">
       <div className="visits-head">
-        <h2 id="installs-h">Nau Mpro app installs</h2>
+        <h2 id="installs-h">App installs</h2>
         {supabase && <button className="secondary small" onClick={() => void load()} disabled={state === "loading"}>Refresh</button>}
       </div>
-      <p className="sub">Each device counts once, without sign-in: when the browser reports the install (Chrome, Edge, Samsung Internet), or the first time the app opens from the home screen (iPhone and iPad). Only the admin account can see this.</p>
+      <p className="sub">Each device counts once per app, without sign-in: when the browser reports the install (Chrome, Edge, Samsung Internet), or the first time the app opens from the home screen (iPhone and iPad). Anyone can see the totals; only the admin account sees the list.</p>
       {state === "no-supabase" && <p className="empty">Needs the Supabase settings.</p>}
       {state === "loading" && <p className="empty">Loading…</p>}
-      {state === "signed-out" && <p className="empty">Sign in to see the install count.</p>}
-      {state === "error" && <p className="empty">Could not load installs: {error}. Run supabase/app-installs.sql in the Supabase SQL editor if you have not yet.</p>}
+      {state === "error" && <p className="empty">Could not load installs: {error}. Run supabase/app-install-counts.sql in the Supabase SQL editor if you have not yet.</p>}
       {state === "ready" && (
         <>
-          <p className="installs-count"><strong>{total}</strong> {total === 1 ? "install" : "installs"} in all · <strong>{recent}</strong> in the last 30 days</p>
+          {INSTALL_APPS.map(({ app, label }) => {
+            const n = counts[app] ?? { total: 0, recent: 0 };
+            return <p className="installs-count" key={app}>{label}: <strong>{n.total}</strong> {n.total === 1 ? "install" : "installs"} in all · <strong>{n.recent}</strong> in the last 30 days</p>;
+          })}
           {rows.length > 0 && (
             <div className="visits-scroll">
               <table className="visits-table">
-                <thead><tr><th>When</th><th>Device</th><th>How</th><th>Location</th></tr></thead>
+                <thead><tr><th>When</th><th>App</th><th>Device</th><th>How</th><th>Location</th></tr></thead>
                 <tbody>
                   {rows.map((v) => (
                     <tr key={v.id}>
                       <td>{new Date(v.created_at).toLocaleString()}</td>
+                      <td>{appLabel(v.app)}</td>
                       <td>{v.device || "—"}</td>
                       <td>{v.how || "—"}</td>
                       <td>{place(v)}</td>

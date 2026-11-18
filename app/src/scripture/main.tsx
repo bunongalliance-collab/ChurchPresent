@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "../index.css";
 import Scripture from "../pages/Scripture";
 import Toasts from "../components/Toasts";
+import { startInstallTracking } from "../reader/install";
 import { startVisitLogging } from "../lib/visits";
 
 // Scripture as its own installable app at /scripture/, separate from the team app.
@@ -17,3 +18,6 @@ createRoot(document.getElementById("root")!).render(
 );
 
 startVisitLogging();
+
+// Counts this device once when this app is installed (shown on the Notes page)
+startInstallTracking("scripture");
