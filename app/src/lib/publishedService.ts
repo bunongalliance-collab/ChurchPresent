@@ -72,6 +72,8 @@ export async function publishService(p: { ownerId: string; serviceDate: string; 
   }, { onConflict: "owner_id,service_date" });
   if (!error) return null;
   if (/published_services/.test(error.message) && /exist|schema cache/i.test(error.message)) return "The published services table is not set up yet. Run supabase/published-services.sql in the Supabase SQL editor.";
+  // Only accounts in service_publishers may publish (supabase/service-publishers.sql)
+  if (/row-level security/i.test(error.message)) return "This account is not allowed to publish to the Nau Mpro App. Ask the person who manages the app to add it to the publisher list.";
   return error.message;
 }
 
