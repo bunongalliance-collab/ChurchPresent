@@ -6,7 +6,7 @@ import { buildProgramPdf } from "../lib/programPdf";
 import OrderEditor from "../components/OrderEditor";
 import { emptyLines, toRows, type Lines } from "../lib/orderLines";
 import { loadDraft, type Draft } from "./Program";
-import { loadReadingOptions, loadSongOptions, recentStudyIds, type ReadingOption, type SongOption } from "../lib/recentSongs";
+import { loadReadingOptions, recentStudyIds, useSongOptions, type ReadingOption } from "../lib/recentSongs";
 
 // Simple program builder (#program-simple).
 // Item (bold) → sub-item (the song, passage, or text) → nested item (the person responsible).
@@ -23,8 +23,7 @@ export default function ProgramSimple() {
   });
 
   // Dropdown options carry a date, so the lists can show the newest first
-  const [songs, setSongs] = useState<SongOption[]>([]);
-  useEffect(() => { void loadSongOptions().then(setSongs); }, []);
+  const songs = useSongOptions();
   const [people, setPeople] = useState<{ value: string; date: string }[]>([]);
   const [passages, setPassages] = useState<Record<string, string>>({});
   const [passageOpts, setPassageOpts] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);

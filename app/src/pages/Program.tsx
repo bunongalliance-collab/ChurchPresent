@@ -5,7 +5,7 @@ import logo from "../assets/church-logo.png?url";
 import { buildProgramPdf, todayScripture } from "../lib/programPdf";
 import OrderEditor from "../components/OrderEditor";
 import { PROGRAM_DRAFT_KEY, linkOf, rowsToLines, toRows, type Lines } from "../lib/orderLines";
-import { loadReadingOptions, loadSongOptions, recentStudyIds, type ReadingOption, type SongOption } from "../lib/recentSongs";
+import { loadReadingOptions, recentStudyIds, useSongOptions, type ReadingOption } from "../lib/recentSongs";
 import type { SetStateAction } from "react";
 import { publishService } from "../lib/publishedService";
 
@@ -179,8 +179,8 @@ export default function Program() {
   // The same passages with each slide's text on its own paragraph, for the Nau Mpro App
   const [passageText, setPassageText] = useState<Record<string, string>>({});
   // Song choices: the Presentation Builder's Recent songs first, then every saved song. Each choice carries the song's id.
-  const [songOptions, setSongOptions] = useState<SongOption[]>([]);
-  useEffect(() => { void loadSongOptions().then(setSongOptions); }, []);
+  // Kept up to date: a song added on the Lyric page (in another tab or on another device) appears without a reload
+  const songOptions = useSongOptions();
   // Passage suggestions: the study's title and its verse, e.g. "Trust in God — Psalm 23:1-6"; the verse is what gets saved
   const [passageOptions, setPassageOptions] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);
   // Reading suggestions: the saved readings from the Readings page, newest first

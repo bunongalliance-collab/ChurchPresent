@@ -78,6 +78,26 @@ export default function Reader() {
   // Today's service: the order of worship the team published from the Program, with its songs
   const [service, setService] = useState<PublishedService | null>(null);
   useEffect(() => { loadTodayService().then(setService); }, []);
+  // Phones keep the app open in the background for days, so the page would keep last week's service.
+  // Coming back to the app (or back online) quietly reloads Today's service and the songs, at most every 30 s.
+  useEffect(() => {
+    let last = Date.now();
+    const refresh = () => {
+      if (document.visibilityState !== "visible" || Date.now() - last < 30_000) return;
+      last = Date.now();
+      loadTodayService().then(setService);
+      loadSongs().then((r) => setLoad((cur) => (r.source === "none" && cur?.songs.length ? { ...cur, error: r.error } : r)));
+    };
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) refresh(); };
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("online", refresh);
+    window.addEventListener("pageshow", onShow);
+    return () => {
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("online", refresh);
+      window.removeEventListener("pageshow", onShow);
+    };
+  }, []);
   // Only what the congregation follows along with: songs, choirs, readings and scripture that are filled in
   const todayItems = useMemo(() => followAlong(service?.items ?? []), [service]);
   // Passages and readings open in the lyrics view like a song (they have no number or music sheet)
