@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import {
   DndContext, PointerSensor, useSensor, useSensors, pointerWithin, useDraggable, useDroppable,
   type CollisionDetection, type DragEndEvent, type DragOverEvent, type DragStartEvent,
 } from "@dnd-kit/core";
 import { STAGES } from "../lib/programPdf";
-import { ITEMS, blockOf, groupEnd, ownerOf, subKind, type Line, type Lines } from "../lib/orderLines";
+import { ITEMS, blockOf, groupEnd, linkOf, ownerOf, subKind, type Line, type Lines } from "../lib/orderLines";
 
 // The Order of Worship editor: stage cards, typed lines (item, sub-item, nested item), drag to reorder.
 // Used by the Program page and the Program Builder page. It only edits `lines`; the parent saves them.
@@ -39,15 +39,15 @@ function Grip({ id, data, title, stageName, index }: { id: string; data: DragDat
       style={{ touchAction: "none" }}
       {...attributes}
       {...listeners}
-    >⠿</span>
+    ><svg viewBox="0 0 10 16" aria-hidden="true"><circle cx="2" cy="2" r="1.5" /><circle cx="8" cy="2" r="1.5" /><circle cx="2" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="2" cy="14" r="1.5" /><circle cx="8" cy="14" r="1.5" /></svg></span>
   );
 }
 
-export type Option = { value: string; label?: string; date?: string };   // date: ISO time, used to sort newest first
+export type Option = { value: string; label?: string; date?: string; id?: string; recent?: boolean };   // date: ISO time, used to sort newest first; id: the saved song; recent: in the Builder's Recent songs
 
 // A text box with a dropdown. Empty or unchanged text shows the whole list; typing narrows it.
 // (The browser's own suggestion list only narrows to what is typed, so it can't show everything.)
-function SuggestInput({ value, onChange, onBlur, onKeyDown, options, placeholder, ariaLabel }: {
+function SuggestInput({ value, onChange, onBlur, onKeyDown, options, placeholder, ariaLabel, onPick, chosen, groups }: {
   value: string;
   onChange: (v: string) => void;
   onBlur: () => void;
@@ -55,12 +55,16 @@ function SuggestInput({ value, onChange, onBlur, onKeyDown, options, placeholder
   options: Option[];
   placeholder: string;
   ariaLabel: string;
+  onPick?: (o: Option) => void;   // song lists: clicking toggles the song, and the list stays open to pick more
+  chosen?: Set<string>;           // ids of the choices already picked for this item
+  groups?: [string, string];      // the labels of the Recent group and of the rest, e.g. "Recent songs" and "All songs"
 }) {
   const [typed, setTyped] = useState(false);   // the user has typed since the box was opened
   const [open, setOpen] = useState(true);
   const q = typed ? value.trim().toLowerCase() : "";
-  // Newest first, by date; items without a date go last
-  const sorted = [...options].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+  // The Recent songs come first, in their own order; the rest are newest first, by date (items without a date go last)
+  const sorted = [...options.filter((o) => o.recent), ...options.filter((o) => !o.recent).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))];
+  const hasRecent = options.some((o) => o.recent);
   const shown = q ? sorted.filter((o) => `${o.label ?? ""} ${o.value}`.toLowerCase().includes(q)) : sorted;
   return (
     <span className="ps-suggest-wrap">
@@ -77,17 +81,21 @@ function SuggestInput({ value, onChange, onBlur, onKeyDown, options, placeholder
       />
       {open && shown.length > 0 && (
         <ul className="ps-suggest-list" role="listbox" aria-label={`${ariaLabel} options`}>
-          {shown.map((o) => (
-            <li key={o.value + (o.label ?? "")}>
-              {/* mousedown keeps the box focused, so the click reaches the option before the box closes */}
-              <button
-                type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { onChange(o.value); setOpen(false); setTyped(false); }}
-              >
-                {o.label ?? o.value}
-              </button>
-            </li>
+          {shown.map((o, n) => (
+            <Fragment key={o.id ?? o.value + (o.label ?? "")}>
+              {hasRecent && (n === 0 || !!shown[n - 1].recent !== !!o.recent) && <li className="ps-suggest-group" aria-hidden="true">{o.recent ? (groups?.[0] ?? "Recent") : (groups?.[1] ?? "All")}</li>}
+              <li>
+                {/* mousedown keeps the box focused, so the click reaches the option before the box closes */}
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { if (onPick) { onPick(o); } else { onChange(o.value); setOpen(false); setTyped(false); } }}
+                  aria-pressed={onPick ? !!o.id && !!chosen?.has(o.id) : undefined}
+                >
+                  {o.id && chosen?.has(o.id) ? "✓ " : ""}{o.label ?? o.value}
+                </button>
+              </li>
+            </Fragment>
           ))}
         </ul>
       )}
@@ -231,6 +239,31 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
     setOpenMenu(null);
   }
 
+  // Pick or un-pick a choice from a Recent list (a song, reading or scripture) for the item a sub-item belongs to.
+  // The first pick fills an empty line; more picks add sub-items at the end of the item. Picking a ticked choice again removes it.
+  const linkField = { song: "songId", reading: "readingId", scripture: "studyId" } as const;
+  function togglePick(s: number, i: number, o: Option, kind: "song" | "reading" | "scripture") {
+    const list = lines[s] ?? [];
+    const field = linkField[kind];
+    const start = ownerOf(list, i);
+    const end = groupEnd(list, start);
+    const at = list.findIndex((x, k) => k > start && k < end && x.level === 1 && x[field] === o.id);
+    if (at >= 0) { removeLine(s, at); return; }
+    if (list[i].level === 1 && !list[i].text.trim() && !linkOf(list[i])) {
+      setStage(s, list.map((x, k) => (k === i ? { ...x, text: o.value, [field]: o.id } : x)));
+      return;
+    }
+    const next = list.slice();
+    next.splice(end, 0, { id: uid(), level: 1, text: o.value, [field]: o.id });
+    setStage(s, next);
+  }
+  const chosenIds = (list: Line[], i: number, kind: "song" | "reading" | "scripture"): Set<string> => {
+    const field = linkField[kind];
+    const start = ownerOf(list, i);
+    const end = groupEnd(list, start);
+    return new Set(list.slice(start + 1, end).filter((x) => x.level === 1 && x[field]).map((x) => x[field] as string));
+  };
+
   function onEditKey(s: number, i: number, e: ReactKeyboardEvent<HTMLInputElement>) {
     const list = lines[s] ?? [];
     const ln = list[i];
@@ -262,6 +295,8 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                     const kind = ln.level === 1 ? subKind(itemAbove(i)) : "text";
                     const hasChildren = ln.level === 0 ? list[i + 1]?.level === 1 : ln.level === 1 ? list[i + 1]?.level === 2 : false;
                     const menuOpen = openMenu === ln.id;
+                    // A sub-item with nobody named yet gets a "+ Who" chip, which adds a person line under it
+                    const needsWho = ln.level === 1 && !hasChildren;
                     const markClass = mark && mark.id === ln.id ? (mark.after ? " over-after" : " over-before") : "";
                     return (
                       <LineRow
@@ -275,10 +310,18 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                           const options: Option[] | null = ln.level === 1 ? (kind === "song" ? songOptions : kind === "scripture" ? passageOptions : kind === "reading" ? readingOptions : null) : ln.level === 2 ? personOptions : null;
                           const placeholder = ln.level === 0 ? "Item" : ln.level === 1 ? (kind === "song" ? "Song name and number" : kind === "scripture" ? "Passage" : kind === "reading" ? "Reading" : "What it is") : "Who is responsible";
                           const ariaLabel = `${stageName} line ${i + 1}`;
-                          const onChange = (v: string) => setStage(s, list.map((x, k) => (k === i ? { ...x, text: v } : x)));
+                          const onChange = (v: string) => setStage(s, list.map((x, k) => (k === i ? { ...x, text: v, songId: undefined, readingId: undefined, studyId: undefined } : x)));
                           const onBlur = () => setEditing((cur) => (cur === ln.id ? null : cur));
                           const onKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => onEditKey(s, i, e);
-                          if (options) return <SuggestInput value={ln.text} onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} options={options} placeholder={placeholder} ariaLabel={ariaLabel} />;
+                          if (options) {
+                            const pickKind = ln.level === 1 && (kind === "song" || kind === "reading" || kind === "scripture") ? kind : null;
+                            const groups: [string, string] | undefined = kind === "song" ? ["Recent songs", "All songs"] : kind === "reading" ? ["Recent readings", "All readings"] : kind === "scripture" ? ["Recent scriptures", "All scriptures"] : undefined;
+                            return (
+                              <SuggestInput value={ln.text} onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} options={options} placeholder={placeholder} ariaLabel={ariaLabel} groups={groups}
+                                onPick={pickKind ? (o) => (o.id ? togglePick(s, i, o, pickKind) : onChange(o.value)) : undefined}
+                                chosen={pickKind ? chosenIds(list, i, pickKind) : undefined} />
+                            );
+                          }
                           return (
                             <input
                               className="ps-edit"
@@ -302,6 +345,13 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                           </button>
                         )}
 
+                        {/* Empty slot: shown only when the next level is still missing */}
+                        {!hasChildren && ln.level === 0 && (
+                          <button className="ps-slot" onClick={() => addAfterGroup(s, i, 1)}>+ Add sub-item</button>
+                        )}
+                        {needsWho && !isEditing && (
+                          <button className="ps-who" onClick={() => addAfterGroup(s, i, 2)} aria-label={`Add who leads ${ln.text || "this item"}`}>+ Who</button>
+                        )}
                         {/* Quick remove: an item goes with its sub-items, a sub-item with its people */}
                         <button className="ps-x" aria-label={`Remove ${ln.text || "empty line"}`} title={ln.level === 0 ? "Remove item and its sub-items" : ln.level === 1 ? "Remove sub-item and its people" : "Remove"} onClick={() => removeLine(s, i)}>×</button>
                         <button className="ps-more" aria-label="More" aria-expanded={menuOpen} onClick={() => setOpenMenu(menuOpen ? null : ln.id)}>⋯</button>
@@ -312,12 +362,6 @@ export default function OrderEditor({ lines, setLines, songOptions = [], passage
                             <button onClick={() => { setEditing(ln.id); setOpenMenu(null); }}>Edit</button>
                             <button className="danger" onClick={() => removeLine(s, i)}>Remove{ln.level === 0 ? " item" : ""}</button>
                           </div>
-                        )}
-                        {/* Empty slot: shown only when the next level is still missing */}
-                        {!hasChildren && ln.level < 2 && (
-                          <button className="ps-slot" onClick={() => addAfterGroup(s, i, ln.level === 0 ? 1 : 2)}>
-                            {ln.level === 0 ? "+ Add sub-item" : "+ Add person"}
-                          </button>
                         )}
                       </LineRow>
                     );

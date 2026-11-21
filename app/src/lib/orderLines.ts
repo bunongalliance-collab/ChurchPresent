@@ -3,7 +3,12 @@
 import { STAGES } from "./programPdf";
 import type { Row } from "../pages/Program";
 
-export interface Line { id: string; level: number; text: string }
+// A sub-item chosen from a Recent list is linked to what it came from: songId (a saved song), readingId (a recent reading)
+// or studyId (a saved scripture study)
+export interface Line { id: string; level: number; text: string; songId?: string; readingId?: string; studyId?: string }
+export type LinkKind = "song" | "reading" | "scripture";
+export const linkOf = (ln: Line): { kind: LinkKind; id: string } | null =>
+  ln.songId ? { kind: "song", id: ln.songId } : ln.readingId ? { kind: "reading", id: ln.readingId } : ln.studyId ? { kind: "scripture", id: ln.studyId } : null;
 export type Lines = Record<number, Line[]>;
 
 export const ITEMS = [
@@ -80,4 +85,26 @@ export function rowsToLines(rows: Row[]): Lines {
     for (const n of r.names.filter((x) => x.trim())) out[s].push({ id: id(), level: 2, text: n.trim() });
   }
   return out;
+}
+
+// The Program's saved draft (the Program page stores it here)
+export const PROGRAM_DRAFT_KEY = "serviceProgramDraft5";
+
+// Everything chosen from the Recent lists in the Program, in service order: songs, readings and scriptures, once each
+export function linksFromLines(lines: Lines | undefined): { kind: LinkKind; id: string }[] {
+  const out: { kind: LinkKind; id: string }[] = [];
+  STAGES.forEach((_, s) => {
+    for (const ln of lines?.[s] ?? []) {
+      const link = ln.level === 1 ? linkOf(ln) : null;
+      if (link && !out.some((x) => x.kind === link.kind && x.id === link.id)) out.push(link);
+    }
+  });
+  return out;
+}
+export const songIdsFromLines = (lines: Lines | undefined): string[] => linksFromLines(lines).filter((x) => x.kind === "song").map((x) => x.id);
+export function programLinks(): { kind: LinkKind; id: string }[] {
+  try {
+    const d = JSON.parse(localStorage.getItem(PROGRAM_DRAFT_KEY) || "null") as { lines?: Lines } | null;
+    return linksFromLines(d?.lines);
+  } catch { return []; }
 }

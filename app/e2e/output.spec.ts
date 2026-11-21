@@ -14,10 +14,10 @@ test("#projector opens without console errors", async ({ page }) => {
 });
 
 // The program brochure downloads as a PDF and is exactly two pages (the layout rule in CLAUDE.md)
-test("Generate PDF makes a two-page brochure", async ({ page }) => {
+test("Download PDF makes a two-page brochure", async ({ page }) => {
   await page.goto("/#program");
   const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Generate PDF" }).click();
+  await page.getByRole("button", { name: "Download PDF" }).click();
   const file = await download;
   expect(file.suggestedFilename()).toMatch(/\.pdf$/);
   const doc = await PDFDocument.load(readFileSync(await file.path()));

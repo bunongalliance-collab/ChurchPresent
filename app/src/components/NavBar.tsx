@@ -7,13 +7,14 @@ import { currentTheme, setTheme, type Theme } from "../lib/theme";
 // Sign in and sign out live here, so they are the same on every page.
 // newTab: a separate page (the congregation's reader), opened in a new tab so the team app stays open
 const PAGES: { href: string; label: string; newTab?: boolean }[] = [
-  { href: "#", label: "Hymm/Nau Mpro" },
+  { href: "#", label: "Hymn/Nau Mpro" },
   { href: "/nau-mpro/", label: "Nau Mpro App ↗", newTab: true },
   { href: "#readings-v2", label: "Readings" },
   { href: "#scripture", label: "Scripture/Brah Ndu Ngoi" },
   { href: "#builder", label: "Presentation Builder" },
   { href: "#program", label: "Program" },
   { href: "#program-simple", label: "Program Builder" },
+  { href: "#service", label: "Service Slides" },
   { href: "#thumbnail", label: "Thumbnail" },
   { href: "#presentations", label: "Presentations" },
   { href: "#projector", label: "Projector" },

@@ -4,11 +4,12 @@ import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
 import { buildProgramPdf, todayScripture } from "../lib/programPdf";
 import OrderEditor from "../components/OrderEditor";
-import { rowsToLines, toRows, type Lines } from "../lib/orderLines";
+import { PROGRAM_DRAFT_KEY, linkOf, rowsToLines, toRows, type Lines } from "../lib/orderLines";
+import { loadReadingOptions, loadSongOptions, recentStudyIds, type ReadingOption, type SongOption } from "../lib/recentSongs";
 import type { SetStateAction } from "react";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
-// Every field is typed on the page. Generate PDF makes a PDF of the brochure only.
+// Every field is typed on the page. Download PDF makes a PDF of the brochure only.
 // Printed songs show number and title; scripture shows its reference and passage text (as in the sample);
 // readings show their title. Song lyrics belong to the projected slides, not to this page.
 
@@ -37,7 +38,7 @@ export interface Draft {
   lines?: Lines; // the Order of Worship as typed lines (the editor). rows are kept for older saves.
 }
 
-const KEY = "serviceProgramDraft5";
+const KEY = PROGRAM_DRAFT_KEY;
 const uid = () => Math.random().toString(36).slice(2, 9);
 const DEFAULT: Draft = {
   eyebrow: "A PLACE TO BELONG", welcomeTo: "Welcome to", church: "Montagnard Bunong Alliance Church",
@@ -154,7 +155,7 @@ export default function Program() {
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [status, setStatus] = useState("Type directly on the program. Generate PDF makes the brochure.");
+  const [status, setStatus] = useState("Type directly on the program. Download PDF saves the brochure.");
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* storage blocked */ } }, [d]);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
 
@@ -166,31 +167,54 @@ export default function Program() {
   });
   // Scripture text for the PDF comes from the saved studies, as in the Program Builder
   const [passages, setPassages] = useState<Record<string, string>>({});
-  const [songOptions, setSongOptions] = useState<{ value: string; date: string }[]>([]);
+  // Song choices: the Presentation Builder's Recent songs first, then every saved song. Each choice carries the song's id.
+  const [songOptions, setSongOptions] = useState<SongOption[]>([]);
+  useEffect(() => { void loadSongOptions().then(setSongOptions); }, []);
   // Passage suggestions: the study's title and its verse, e.g. "Trust in God — Psalm 23:1-6"; the verse is what gets saved
-  const [passageOptions, setPassageOptions] = useState<{ value: string; label: string; date: string }[]>([]);
+  const [passageOptions, setPassageOptions] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);
   // Reading suggestions: the saved readings from the Readings page, newest first
-  const [readingOptions, setReadingOptions] = useState<{ value: string; date: string }[]>([]);
+  // Recent readings (the Builder's list) come first; each carries the id of its saved copy
+  const [readingOptions, setReadingOptions] = useState<ReadingOption[]>([]);
+  useEffect(() => { void loadReadingOptions().then(setReadingOptions); }, []);
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("readings").select("number, title, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
-      setReadingOptions((data ?? []).map((x) => ({ value: (x.number ? `${x.number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
-    });
-    supabase.from("lyric_songs").select("song_number, title, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
-      setSongOptions((data ?? []).map((x) => ({ value: (x.song_number ? `${x.song_number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
-    });
-    supabase.from("scripture_studies").select("study_title, reference, data, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
+    supabase.from("scripture_studies").select("id, study_title, reference, data, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
       const map: Record<string, string> = {};
-      const opts: { value: string; label: string; date: string }[] = [];
+      const opts: { id: string; value: string; label: string; date: string; recent: boolean }[] = [];
+      // The Builder's Recent scriptures: the 8 newest studies, minus the ones hidden there
+      const recentIds = recentStudyIds(data ?? []);
       (data ?? []).forEach((x) => {
         if (!x.reference) return;
         map[x.reference] = studyText(x.data);
-        opts.push({ value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "" });
+        opts.push({ id: x.id, value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "", recent: recentIds.has(x.id) });
       });
       setPassages(map);
       setPassageOptions(opts);
     });
   }, []);
+  // A choice made from a Recent list stays linked to what it came from: if a song's number or title (or a study's
+  // reference) changes, the line follows
+  useEffect(() => {
+    const labels = new Map<string, string>();
+    for (const o of songOptions) labels.set(`song:${o.id}`, o.value);
+    for (const o of readingOptions) if (o.id) labels.set(`reading:${o.id}`, o.value);
+    for (const o of passageOptions) labels.set(`scripture:${o.id}`, o.value);
+    if (!labels.size) return;
+    setD((cur) => {
+      if (!cur.lines) return cur;
+      let changed = false;
+      const next: Lines = {};
+      for (const [stage, list] of Object.entries(cur.lines)) {
+        next[Number(stage)] = list.map((ln) => {
+          const link = linkOf(ln);
+          const label = link ? labels.get(`${link.kind}:${link.id}`) : undefined;
+          if (label && label !== ln.text) { changed = true; return { ...ln, text: label }; }
+          return ln;
+        });
+      }
+      return changed ? { ...cur, lines: next } : cur;
+    });
+  }, [songOptions, readingOptions, passageOptions]);
   const pdfDraft: Draft = useMemo(() => (d.lines ? { ...d, rows: toRows(d.lines, passages) } : d), [d, passages]);
 
     function printBrochure() {
@@ -211,8 +235,10 @@ export default function Program() {
   const addGroupItem = (gi: number) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, items: [...g.items, ""] } : g)));
   const removeGroupItem = (gi: number, i: number) => setGroups(d.prayerGroups.map((g, k) => (k === gi ? { ...g, items: g.items.filter((_, j) => j !== i) } : g)));
 
+  // Names in the program start each word with a capital ("rick lee" -> "Rick Lee")
+  const capitaliseName = (n: string) => n.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a: string, b: string) => a + b.toUpperCase());
   async function addPerson() {
-    const n = newPerson.trim();
+    const n = capitaliseName(newPerson);
     if (!n || !supabase) return;
     if (!userId) { setStatus("Sign in to add a name. Everyone can see the list without signing in."); return; }
     if (people.some((p) => p.name.toLowerCase() === n.toLowerCase())) { setNewPerson(""); return; }
@@ -234,7 +260,7 @@ export default function Program() {
     try { return new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }).toUpperCase(); } catch { return d.date; }
   }, [d.date]);
 
-  // Live brochure preview: the same PDF that Generate PDF makes, rebuilt shortly after each change
+  // Live brochure preview: the same PDF that Download PDF makes, rebuilt shortly after each change
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const previewRef = useRef<string | null>(null);
   useEffect(() => {
@@ -247,13 +273,13 @@ export default function Program() {
         if (previewRef.current) URL.revokeObjectURL(previewRef.current);
         previewRef.current = url;
         setPreviewUrl(url);
-      } catch { /* the preview is optional; Generate PDF reports any error */ }
+      } catch { /* the preview is optional; Download PDF reports any error */ }
     }, 700);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [d, coverDate]);
   useEffect(() => () => { if (previewRef.current) URL.revokeObjectURL(previewRef.current); }, []);
 
-  // Generate PDF: the brochure only, downloaded as a file. No webpage, buttons or editor controls.
+  // Download PDF: the brochure only, downloaded as a file. No webpage, buttons or editor controls.
   async function generatePdf() {
     setStatus("Making the PDF…");
     try {
@@ -282,20 +308,14 @@ export default function Program() {
           <p>{status}</p>
         </div>
         <div className="pg-actions">
-          <button className="pg-btn" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
-          <button className="pg-btn primary" onClick={generatePdf}>Generate PDF</button>
+          <button className="pg-btn link" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
+          <button className="pg-btn primary" onClick={generatePdf}>Download PDF</button>
         </div>
       </div>
 
-      <datalist id="pg-people">{people.map((p) => <option key={p.id} value={p.name} />)}</datalist>
+      <datalist id="pg-people">{people.map((p) => <option key={p.id} value={capitaliseName(p.name)} />)}</datalist>
       {/* Suggestions for the Order of Worship: saved songs, passages (their text fills Today's Scripture and the cover) and names */}
 
-      <section className="pg-preview" aria-label="Brochure preview">
-        <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
-        {previewUrl
-          ? <iframe className="pg-preview-frame" src={previewUrl} title="Brochure preview (PDF)" />
-          : <p className="pg-muted">Making the preview…</p>}
-      </section>
 
       {/* Page 1, outside: welcome (left), front cover (right) */}
       <p className="pg-pagelabel">Page 1 · Outside: back panel (left) and front cover (right)</p>
@@ -364,7 +384,7 @@ export default function Program() {
             songOptions={songOptions}
             passageOptions={passageOptions}
             readingOptions={readingOptions}
-            personOptions={people.map((p) => ({ value: p.name, date: p.created }))}
+            personOptions={people.map((p) => ({ value: capitaliseName(p.name), date: p.created }))}
           />
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
           <div className="pg-scripture">
@@ -428,10 +448,16 @@ export default function Program() {
         </div>
         <ul className="pg-people-list">
           {people.map((p) => (
-            <li key={p.id}>{p.name}{userId && p.owner === userId && <button className="pg-x" onClick={() => removePerson(p.id)} aria-label={`Remove ${p.name}`}>×</button>}</li>
+            <li key={p.id}>{capitaliseName(p.name)}{userId && p.owner === userId && <button className="pg-x" onClick={() => removePerson(p.id)} aria-label={`Remove ${p.name}`}>×</button>}</li>
           ))}
           {!people.length && <li className="pg-muted">No saved people yet.</li>}
         </ul>
+      </section>
+      <section className="pg-preview" aria-label="Brochure preview">
+        <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
+        {previewUrl
+          ? <iframe className="pg-preview-frame" src={previewUrl} title="Brochure preview (PDF)" />
+          : <p className="pg-muted">Making the preview…</p>}
       </section>
       <p className="pg-note-line">Projected slides still show the full lyrics. The brochure prints titles, numbers, references, passage text and names.</p>
     </div>

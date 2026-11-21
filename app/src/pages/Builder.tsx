@@ -8,6 +8,8 @@ import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
 import { carryFormattingSlides, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
 import { toast } from "../lib/toast";
+import { HIDDEN_SCRIPTURES_KEY, HIDDEN_SONGS_KEY, pickRecent, readAddedIds, readHiddenIds, readHiddenScriptureIds } from "../lib/recentSongs";
+import { programLinks } from "../lib/orderLines";
 
 // Formatted segments for the projector and preview, from the slide text
 const toSegs = (rows: string[]): Seg[][] => rows.map((r) => parseRich(r).map((seg) => ({
@@ -206,24 +208,13 @@ export default function Builder() {
 
   // Recent songs: the library is already newest first, so the top 8 are the latest saved songs
   // Removing an entry from Recent only hides it from this list; the saved song or study is not deleted
-  const HIDDEN_SONGS_KEY = "builderHiddenRecentSongs";
-  const HIDDEN_SCRIPTURES_KEY = "builderHiddenRecentScriptures";
-  const [hiddenSongs, setHiddenSongs] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(HIDDEN_SONGS_KEY) || "[]"); } catch { return []; }
-  });
-  const [hiddenScriptures, setHiddenScriptures] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(HIDDEN_SCRIPTURES_KEY) || "[]"); } catch { return []; }
-  });
+  const [hiddenSongs, setHiddenSongs] = useState<string[]>(() => readHiddenIds());
+  const [hiddenScriptures, setHiddenScriptures] = useState<string[]>(() => readHiddenScriptureIds());
   useEffect(() => { try { localStorage.setItem(HIDDEN_SONGS_KEY, JSON.stringify(hiddenSongs)); } catch { /* blocked */ } }, [hiddenSongs]);
   useEffect(() => { try { localStorage.setItem(HIDDEN_SCRIPTURES_KEY, JSON.stringify(hiddenScriptures)); } catch { /* blocked */ } }, [hiddenScriptures]);
   // Recent songs are the songs added with Add to Presentation on the Lyrics page, newest first
-  const addedLog = useMemo<string[]>(() => {
-    try { return (JSON.parse(localStorage.getItem("addedSongsLog") || "[]") as { id: string }[]).map((x) => x.id); } catch { return []; }
-  }, []);
-  const recentSongs = useMemo(
-    () => addedLog.map((id) => library.find((x) => x.id === id)).filter((x): x is LibrarySong => !!x && !hiddenSongs.includes(x.id)).slice(0, 8),
-    [addedLog, library, hiddenSongs],
-  );
+  const addedLog = useMemo<string[]>(() => readAddedIds(), []);
+  const recentSongs = useMemo(() => pickRecent(library, addedLog, hiddenSongs), [addedLog, library, hiddenSongs]);
   const recentScriptures = useMemo(() => recent.filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures]);
 
   // Add a saved song as a snapshot with its own slides, the same way scripture studies are added
@@ -236,6 +227,42 @@ export default function Builder() {
     setItems((cur) => [...cur, item]);
     setSelectedItem(item.id);
     say(`Added song ${song.number ? song.number + ". " : ""}${song.title || ""}.`);
+  }
+
+  // Everything chosen on the Program page from the Recent lists, added in service order: songs with their lyrics,
+  // readings and saved scriptures. Anything already in the presentation is not added twice.
+  async function addProgramItems() {
+    const links = programLinks();
+    if (!links.length) { say("Nothing is chosen in the Program yet. Pick songs, readings or scriptures on the Program page first."); return; }
+    // A scripture chosen from outside the Recent list is fetched by its id
+    const needStudy = links.filter((l) => l.kind === "scripture" && !recent.some((r) => r.id === l.id)).map((l) => l.id);
+    const fetched: RecentStudy[] = [];
+    if (needStudy.length && supabase) {
+      const { data } = await supabase.from("scripture_studies").select("id, study_title, updated_at, data").in("id", needStudy);
+      fetched.push(...(data || []).map((r) => ({ id: r.id, title: r.study_title, updated: r.updated_at, data: r.data as Record<string, unknown> })));
+    }
+    const haveSong = new Set(items.filter((x): x is SongItem => x.kind === "song").map((x) => x.songId));
+    const haveStudy = new Set(items.filter((x): x is ScriptureItem => x.kind === "scripture").map((x) => x.studyId));
+    const haveReading = new Set(items.filter((x): x is ReadingItem => x.kind === "reading").map((x) => x.title));
+    let added = 0;
+    let missing = 0;
+    for (const l of links) {
+      if (l.kind === "song") {
+        const song = library.find((x) => x.id === l.id);
+        if (!song) missing++;
+        else if (!haveSong.has(l.id)) { addSong(song); haveSong.add(l.id); added++; }
+      } else if (l.kind === "reading") {
+        const reading = recentReadings.find((x) => x.id === l.id);
+        if (!reading) missing++;
+        else if (!haveReading.has(reading.title)) { addRecentReading(reading); haveReading.add(reading.title); added++; }
+      } else {
+        const study = recent.find((x) => x.id === l.id) ?? fetched.find((x) => x.id === l.id);
+        if (!study) missing++;
+        else if (!haveStudy.has(l.id)) { addScripture(study); haveStudy.add(l.id); added++; }
+      }
+    }
+    const tail = missing ? ` ${missing} could not be found.` : "";
+    say(added ? `Added ${added} item${added === 1 ? "" : "s"} from the Program.${tail}` : missing ? `Those items could not be found.` : "Everything chosen in the Program is already in this presentation.");
   }
 
   // ---------- Sequence editing ----------
@@ -538,6 +565,7 @@ export default function Builder() {
             <div className="row">
               <button className="secondary small" onClick={() => addCustomAt(0)}>+ At start</button>
               <button className="secondary small" onClick={() => addCustomAt(null)}>+ At end</button>
+              <button className="secondary small" onClick={() => void addProgramItems()} title="Add the songs, readings and scriptures chosen on the Program page, in service order">Add from the Program</button>
             </div>
           </div>
           {!itemsWithFlags.length && <p className="empty">Nothing added yet.</p>}

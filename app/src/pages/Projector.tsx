@@ -92,7 +92,7 @@ const INDEX_KEY = "projectorIndex";
 const CHANNEL = "church-projector";
 
 // One slide as a stage. The audience uses it full screen; the presenter window shows it small.
-function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?: () => void) {
+export function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", onClick?: () => void) {
   const lines: Seg[][] = slide.segs ?? (slide.rows ?? []).map((r) => [{ text: r, f: null }]);
   // A wrapped block is one paragraph: its rows run together and the browser wraps them at word boundaries
   const shownLines: Seg[][] = slide.wrap ? [lines.flatMap((l, i) => (i ? [{ text: " ", f: null }, ...l] : l))] : lines;

@@ -6,6 +6,7 @@ import { buildProgramPdf } from "../lib/programPdf";
 import OrderEditor from "../components/OrderEditor";
 import { emptyLines, toRows, type Lines } from "../lib/orderLines";
 import { loadDraft, type Draft } from "./Program";
+import { loadReadingOptions, loadSongOptions, recentStudyIds, type ReadingOption, type SongOption } from "../lib/recentSongs";
 
 // Simple program builder (#program-simple).
 // Item (bold) → sub-item (the song, passage, or text) → nested item (the person responsible).
@@ -22,34 +23,29 @@ export default function ProgramSimple() {
   });
 
   // Dropdown options carry a date, so the lists can show the newest first
-  const [songs, setSongs] = useState<{ value: string; date: string }[]>([]);
+  const [songs, setSongs] = useState<SongOption[]>([]);
+  useEffect(() => { void loadSongOptions().then(setSongs); }, []);
   const [people, setPeople] = useState<{ value: string; date: string }[]>([]);
   const [passages, setPassages] = useState<Record<string, string>>({});
-  const [passageOpts, setPassageOpts] = useState<{ value: string; label: string; date: string }[]>([]);
+  const [passageOpts, setPassageOpts] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);
+  const [readings, setReadings] = useState<ReadingOption[]>([]);
+  useEffect(() => { void loadReadingOptions().then(setReadings); }, []);
   const [status, setStatus] = useState("Saved in this browser.");
 
   useEffect(() => {
-    if (!supabase) {
-      try {
-        const ls = JSON.parse(localStorage.getItem("lyricsSongs") || "[]") as { number?: string; title?: string }[];
-        setSongs(ls.map((x) => ({ value: (x.number ? `${x.number}. ` : "") + (x.title || ""), date: "" })).filter((o) => o.value));
-      } catch { /* storage blocked */ }
-      return;
-    }
+    if (!supabase) return;
     (async () => {
-      const [s, t, p] = await Promise.all([
-        supabase.from("lyric_songs").select("song_number, title, updated_at").order("updated_at", { ascending: false }),
-        supabase.from("scripture_studies").select("study_title, reference, data, updated_at").order("updated_at", { ascending: false }),
+      const [t, p] = await Promise.all([
+        supabase.from("scripture_studies").select("id, study_title, reference, data, updated_at").order("updated_at", { ascending: false }),
         supabase.from("saved_people").select("name, created_at").order("name"),
       ]);
-      if (s.error) setStatus(`Could not load songs: ${s.error.message}`);
-      setSongs((s.data ?? []).map((x) => ({ value: (x.song_number ? `${x.song_number}. ` : "") + (x.title || ""), date: x.updated_at ?? "" })).filter((o) => o.value));
       const map: Record<string, string> = {};
-      const opts: { value: string; label: string; date: string }[] = [];
+      const opts: { id: string; value: string; label: string; date: string; recent: boolean }[] = [];
+      const recentIds = recentStudyIds(t.data ?? []);
       (t.data ?? []).forEach((x) => {
         if (!x.reference) return;
         map[x.reference] = studyPassage(x.data);
-        opts.push({ value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "" });
+        opts.push({ id: x.id, value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "", recent: recentIds.has(x.id) });
       });
       setPassages(map);
       setPassageOpts(opts);
@@ -129,6 +125,7 @@ export default function ProgramSimple() {
             setLines={setLines}
             songOptions={songs}
             passageOptions={passageOpts}
+            readingOptions={readings}
             personOptions={people}
           />
 
