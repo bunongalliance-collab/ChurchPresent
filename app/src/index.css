@@ -2499,3 +2499,43 @@ html body .rm .rm-list-toggle { width: 100%; min-height: 48px !important; backgr
 html body .rm .rm-item { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 48px !important; padding: 8px 12px !important; text-align: left; background: transparent; color: var(--text) !important; border: 0; }
 html body .rm .rm-item.current { background: var(--accent); color: var(--on-accent) !important; }
 .rm-item small { opacity: 0.75; white-space: nowrap; }
+/* Phone remote, phone friendly: the page fills the screen, the words sit at the top, the order list scrolls
+   in the middle, and the controls stay at the bottom where a thumb reaches them. Next is the biggest target. */
+.rm { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; font-size: 17px; gap: 12px; }
+.rm-head strong { font-size: 1.1rem; }
+.rm-items { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.rm-controls { margin-top: auto; flex: none; display: flex; flex-direction: column; gap: 10px; }
+.rm-move { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+html body .rm .rm-move button { min-height: clamp(96px, 22dvh, 190px) !important; font-size: 1.4rem !important; }
+html body .rm .rm-nextbtn { font-size: 1.75rem !important; }
+html body .rm .rm-mode { min-height: 56px !important; font-size: 1.05rem !important; font-weight: 600; }
+html body .rm .rm-list-toggle { font-size: 1rem !important; min-height: 52px !important; }
+html body .rm .rm-item { font-size: 1rem !important; min-height: 52px !important; }
+.rm-text { font-size: 1.2rem; }
+.rm button:disabled { opacity: 0.4; }
+html body .rm button:active:not(:disabled) { transform: scale(0.97); }
+/* Very small phones */
+@media (max-width: 340px) { .rm-move { grid-template-columns: 1fr 1.6fr; } html body .rm .rm-mode { font-size: 0.95rem !important; } }
+/* Phone held sideways: words on the left, controls on the right */
+@media (orientation: landscape) and (max-height: 520px) {
+  .rm { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 16px; row-gap: 8px; padding-left: calc(16px + env(safe-area-inset-left, 0px)); padding-right: calc(16px + env(safe-area-inset-right, 0px)); }
+  .rm-head { grid-column: 1 / -1; }
+  .rm-help, .rm-now, .rm-items { grid-column: 1; }
+  .rm-now .rm-text { -webkit-line-clamp: 3; }
+  .rm-controls { grid-column: 2; grid-row: 2; margin-top: 0; justify-content: flex-end; }
+  html body .rm .rm-move button { min-height: clamp(80px, 34dvh, 160px) !important; }
+  html body .rm .rm-mode { min-height: 46px !important; }
+  .rm-modes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+}
+/* Tablets and wider: keep it a comfortable column */
+@media (min-width: 700px) and (min-height: 521px) { .rm { max-width: 600px; } }
+.rm-move { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
+html body .rm .rm-prev { font-size: 1.15rem !important; white-space: nowrap; }
+
+/* Lyric page on phones: the pinned slide preview and the pinned Theme row together covered the bottom of the screen,
+   hiding most of the open song list. On phones the Theme row stays in place, and while the song list is open the
+   preview stops pinning too, so every song in the list can be seen and tapped. */
+@media (max-width: 720px) {
+  html .lf .lf-quick { position: static; box-shadow: none; }
+  html .lf:has(.lv2-lib.open) .lv2-preview:not(.empty) { position: static; box-shadow: none; border-radius: 10px; }
+}

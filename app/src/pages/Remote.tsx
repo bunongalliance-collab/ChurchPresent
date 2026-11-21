@@ -75,18 +75,6 @@ export default function Remote() {
         </section>
       )}
 
-      <div className="rm-move">
-        <button type="button" className="rm-prev" onClick={() => send("prev")} disabled={!connected || (state?.index ?? 0) === 0}>‹ Previous</button>
-        <button type="button" className="rm-nextbtn" onClick={() => send("next")} disabled={!connected || !state || state.index >= state.total - 1}>Next ›</button>
-      </div>
-
-      <div className="rm-modes">
-        {toggle(state?.blackout, "blackout", "Black screen", "B")}
-        {toggle(state?.logo, "logo", "Logo", "L")}
-        {toggle(state?.waiting, "waiting", "Welcome", "W")}
-        {toggle(state?.clear, "clear", "Clear text", "C")}
-      </div>
-
       {state && state.items.length > 1 && (
         <section className="rm-items">
           <button type="button" className="rm-list-toggle" aria-expanded={showList} onClick={() => setShowList((v) => !v)}>
@@ -105,6 +93,19 @@ export default function Remote() {
           )}
         </section>
       )}
+      {/* Controls sit at the bottom, where a thumb reaches them; Next is the largest */}
+      <div className="rm-controls">
+        <div className="rm-modes">
+          {toggle(state?.blackout, "blackout", "Black screen", "B")}
+          {toggle(state?.logo, "logo", "Logo", "L")}
+          {toggle(state?.waiting, "waiting", "Welcome", "W")}
+          {toggle(state?.clear, "clear", "Clear text", "C")}
+        </div>
+        <div className="rm-move">
+          <button type="button" className="rm-prev" onClick={() => send("prev")} disabled={!connected || (state?.index ?? 0) === 0} aria-label="Previous slide">‹ Previous</button>
+          <button type="button" className="rm-nextbtn" onClick={() => send("next")} disabled={!connected || !state || state.index >= state.total - 1} aria-label="Next slide">Next ›</button>
+        </div>
+      </div>
     </div>
   );
 }

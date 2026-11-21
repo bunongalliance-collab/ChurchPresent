@@ -29,7 +29,7 @@ test("a phone controls the screen window", async ({ browser }) => {
   await expect(phone.locator(".rm-text")).toHaveText("Welcome");
   await expect(phone.locator(".rm-next")).toContainText("Hymn line one");
 
-  await phone.getByRole("button", { name: "Next ›" }).click();
+  await phone.getByRole("button", { name: "Next slide" }).click();
   await expect(screen.locator(".counter")).toHaveText("2 / 3", { timeout: 10000 });
   await expect(phone.locator(".rm-cap")).toContainText("12. Hymn · slide 2 of 3");
 
