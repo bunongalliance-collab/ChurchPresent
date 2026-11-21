@@ -7,6 +7,7 @@ import OrderEditor from "../components/OrderEditor";
 import { PROGRAM_DRAFT_KEY, linkOf, rowsToLines, toRows, type Lines } from "../lib/orderLines";
 import { loadReadingOptions, loadSongOptions, recentStudyIds, type ReadingOption, type SongOption } from "../lib/recentSongs";
 import type { SetStateAction } from "react";
+import { publishService } from "../lib/publishedService";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Download PDF makes a PDF of the brochure only.
@@ -132,6 +133,14 @@ function studyText(data: unknown): string {
   return slides.filter((x) => x.kind === "passage" && x.text).map((x) => (x.text ?? "").replace(/\*\*|~~|__|\{#?[^}]*\}|\{\/\}|[\u0001-\u0003]/g, "").trim()).join(" ");
 }
 
+// The passage for the Nau Mpro App: each passage slide as its own paragraph, verse numbers kept as plain numbers
+function studyParagraphs(data: unknown): string {
+  const slides = (data as { slides?: { kind?: string; text?: string }[] } | null)?.slides ?? [];
+  return slides.filter((x) => x.kind === "passage" && x.text)
+    .map((x) => (x.text ?? "").replace(/\*\*|~~|__|\{#?[^}]*\}|\{\/\}/g, "").replace(/\u0001(\d+)\u0001?/g, "$1 ").replace(/[\u0001-\u0003]/g, "").replace(/ {2,}/g, " ").trim())
+    .join("\n\n");
+}
+
 // Saved songs, readings and studies to pick from (signed in: database; otherwise this browser)
 
 
@@ -167,6 +176,8 @@ export default function Program() {
   });
   // Scripture text for the PDF comes from the saved studies, as in the Program Builder
   const [passages, setPassages] = useState<Record<string, string>>({});
+  // The same passages with each slide's text on its own paragraph, for the Nau Mpro App
+  const [passageText, setPassageText] = useState<Record<string, string>>({});
   // Song choices: the Presentation Builder's Recent songs first, then every saved song. Each choice carries the song's id.
   const [songOptions, setSongOptions] = useState<SongOption[]>([]);
   useEffect(() => { void loadSongOptions().then(setSongOptions); }, []);
@@ -180,15 +191,18 @@ export default function Program() {
     if (!supabase) return;
     supabase.from("scripture_studies").select("id, study_title, reference, data, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
       const map: Record<string, string> = {};
+      const full: Record<string, string> = {};
       const opts: { id: string; value: string; label: string; date: string; recent: boolean }[] = [];
       // The Builder's Recent scriptures: the 8 newest studies, minus the ones hidden there
       const recentIds = recentStudyIds(data ?? []);
       (data ?? []).forEach((x) => {
         if (!x.reference) return;
         map[x.reference] = studyText(x.data);
+        full[x.reference] = studyParagraphs(x.data);
         opts.push({ id: x.id, value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "", recent: recentIds.has(x.id) });
       });
       setPassages(map);
+      setPassageText(full);
       setPassageOptions(opts);
     });
   }, []);
@@ -298,6 +312,20 @@ export default function Program() {
     }
   }
 
+  // Publish to Nau Mpro App: the congregation sees this order and its songs under "Today's service".
+  // Only what is published is public; the program itself stays in this browser.
+  const [publishing, setPublishing] = useState(false);
+  async function publishToReader() {
+    if (!userId) { setStatus("Sign in to publish the order of worship to the Nau Mpro App."); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date)) { setStatus("Set the service date first."); return; }
+    setPublishing(true);
+    const title = d.coverKind.toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+    const dateLabel = new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const err = await publishService({ ownerId: userId, serviceDate: d.date, title, dateLabel, lines: orderLines, passages: passageText });
+    setPublishing(false);
+    setStatus(err ? `Could not publish: ${err}` : `Published. The Nau Mpro App now shows this order for ${dateLabel}. Publish again after changes.`);
+  }
+
   return (
     <>
       <NavBar />
@@ -309,6 +337,7 @@ export default function Program() {
         </div>
         <div className="pg-actions">
           <button className="pg-btn link" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
+          <button className="pg-btn link" onClick={publishToReader} disabled={publishing} title="Shows this order of worship and its songs at the top of the Nau Mpro App">{publishing ? "Publishing…" : "Publish to Nau Mpro App"}</button>
           <button className="pg-btn primary" onClick={generatePdf}>Download PDF</button>
         </div>
       </div>

@@ -122,7 +122,7 @@ test.describe("installed app", () => {
       window.matchMedia = (q: string) => (q.includes("display-mode: standalone") ? { ...real(q), matches: true } as MediaQueryList : real(q));
     });
     await page.goto("/nau-mpro/");
-    await expect(page.locator(".nm-row").first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator(".nm-list .nm-row").first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole("button", { name: "Install the Nau Mpro app" })).toHaveCount(0);
   });
 });

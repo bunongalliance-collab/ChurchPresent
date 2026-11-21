@@ -49,7 +49,7 @@ test.describe("Messenger on iPhone", () => {
 
 test("a normal browser never sees the notice", async ({ page }) => {
   await page.goto("/nau-mpro/");
-  await expect(page.locator(".nm-row").first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator(".nm-list .nm-row").first()).toBeVisible({ timeout: 15000 });
   await page.waitForTimeout(800);
   await expect(dialog(page)).toHaveCount(0);
 });

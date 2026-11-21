@@ -2,6 +2,9 @@ import { LYRIC_LABEL_PT, SLIDE_PAD } from "../lib/slides";
 import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 import Presenter from "./Presenter";
+import { supabase } from "../lib/supabase";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { getRemoteCode, remoteChannel, REMOTE_CODE_KEY, stateFor } from "../lib/remote";
 
 // A slide as saved by the lyrics page (and later the scripture and builder pages).
 // rows: plain lines. segs: optional formatted segments per line (scripture decks).
@@ -199,6 +202,12 @@ export default function Projector() {
   const chRef = useRef<BroadcastChannel | null>(null);
   const latest = useRef({ index, blackout, waiting, logo, clear });
   latest.current = { index, blackout, waiting, logo, clear };
+  // The command handler, shared with the phone remote
+  const actRef = useRef<(cmd: string, arg?: number) => void>(() => {});
+  // Phone remote: the pairing code (changed from the presenter's "New code"), and when a phone was last heard
+  const [remoteCode, setRemoteCode] = useState(getRemoteCode);
+  const [phoneAt, setPhoneAt] = useState(0);
+  const remoteRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     try { sessionStorage.setItem(INDEX_KEY, String(index)); } catch { /* storage blocked */ }
@@ -223,6 +232,7 @@ export default function Projector() {
         case "clear": setClear((v) => !v); break;
       }
     };
+    actRef.current = act;
     let ch: BroadcastChannel | null = null;
     if (typeof BroadcastChannel !== "undefined") {
       ch = new BroadcastChannel(CHANNEL);
@@ -235,6 +245,7 @@ export default function Projector() {
           lastSeen.current = Date.now();
           setConnected(true);
           setIndex(m.index); setBlackout(!!m.blackout); setWaiting(!!m.waiting); setLogo(!!m.logo); setClear(!!m.clear);
+          setPhoneAt(m.phoneAt ?? 0);
         }
       };
       if (presenter) {
@@ -298,10 +309,38 @@ export default function Projector() {
     };
   }, [deck, presenter]);
 
-  // The audience window tells the presenter window where it is
+  // The audience window tells the presenter window (and a paired phone) where it is
   useEffect(() => {
-    if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting, logo, clear });
-  }, [index, blackout, waiting, logo, clear, presenter]);
+    if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting, logo, clear, phoneAt });
+  }, [index, blackout, waiting, logo, clear, phoneAt, presenter]);
+  useEffect(() => {
+    if (!presenter && deck && remoteRef.current) void remoteRef.current.send({ type: "broadcast", event: "state", payload: stateFor(deck, { index, blackout, waiting, logo, clear }) });
+  }, [index, blackout, waiting, logo, clear, presenter, deck]);
+
+  // A new pairing code made in the presenter window reaches this window through storage
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => { if (e.key === REMOTE_CODE_KEY && e.newValue) setRemoteCode(e.newValue); };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Phone remote: the audience window joins the pairing code's channel, acts on the phone's commands and
+  // answers its hello with the current state. Needs internet; without it the keys and presenter still work.
+  useEffect(() => {
+    const sb = supabase;
+    if (presenter || !deck || !sb) return;
+    const rc = sb.channel(remoteChannel(remoteCode), { config: { broadcast: { self: false } } });
+    const sendState = () => void rc.send({ type: "broadcast", event: "state", payload: stateFor(deck, latest.current) });
+    rc.on("broadcast", { event: "cmd" }, ({ payload }) => {
+      setPhoneAt(Date.now());
+      const p = payload as { cmd?: string; index?: number };
+      if (typeof p.cmd === "string") actRef.current(p.cmd, typeof p.index === "number" ? p.index : undefined);
+    });
+    rc.on("broadcast", { event: "hello" }, () => { setPhoneAt(Date.now()); sendState(); });
+    rc.subscribe((status) => { if (status === "SUBSCRIBED") sendState(); });
+    remoteRef.current = rc;
+    return () => { remoteRef.current = null; void sb.removeChannel(rc); };
+  }, [deck, presenter, remoteCode]);
 
   // The Exit button shows for 3 seconds after the mouse moves or the screen is touched
   const [showExit, setShowExit] = useState(false);
@@ -329,7 +368,7 @@ export default function Projector() {
   };
 
   if (presenter) {
-    return <Presenter deck={deck} state={{ index, blackout, waiting, logo, clear }} connected={connected} send={send} />;
+    return <Presenter deck={deck} state={{ index, blackout, waiting, logo, clear }} connected={connected} send={send} phoneAt={phoneAt} />;
   }
 
   if (blackout) {

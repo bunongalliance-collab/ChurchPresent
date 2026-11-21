@@ -6,6 +6,7 @@ import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
 import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
+import { followAlong, loadTodayService, type PublishedService, type PubSub } from "../lib/publishedService";
 
 // Nau Mpro: the read-only hymn book for the congregation. No sign-in, works offline.
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
@@ -74,6 +75,27 @@ export default function Reader() {
     }
     return [...best.values()].sort(bySongNumber);
   }, [load]);
+  // Today's service: the order of worship the team published from the Program, with its songs
+  const [service, setService] = useState<PublishedService | null>(null);
+  useEffect(() => { loadTodayService().then(setService); }, []);
+  // Only what the congregation follows along with: songs, choirs, readings and scripture that are filled in
+  const todayItems = useMemo(() => followAlong(service?.items ?? []), [service]);
+  // Passages and readings open in the lyrics view like a song (they have no number or music sheet)
+  const todayTexts = useMemo(() => todayItems.flatMap((it, i) => it.subs.flatMap((sub, k): ReaderSong[] => sub.body
+    ? [{ id: `today-${i}-${k}`, number: "", title: sub.text, lyrics: sub.body, category: it.name, language: "", updated: "" }] : [])), [todayItems]);
+  const textFor = (i: number, k: number) => todayTexts.find((x) => x.id === `today-${i}-${k}`) ?? null;
+  // A song in the order: by its saved id, else by "number. title" as typed
+  const songFor = (sub: PubSub): ReaderSong | null => {
+    if (sub.kind !== "song") return null;
+    if (sub.songId) {
+      const byId = (load?.songs ?? []).find((x) => x.id === sub.songId);
+      if (byId) return all.find((x) => x.number.trim() === byId.number.trim() && fold(x.title) === fold(byId.title)) ?? byId;
+    }
+    const m = sub.text.match(/^\s*(\d+)\s*[.)-]?\s*(.*)$/);
+    if (m) return all.find((x) => x.number.trim() === m[1] && (!m[2] || fold(x.title) === fold(m[2]))) ?? all.find((x) => x.number.trim() === m[1]) ?? null;
+    return all.find((x) => fold(x.title) === fold(sub.text)) ?? null;
+  };
+
   const categories = useMemo(() => [...new Set(all.map((s) => s.category).filter(Boolean))], [all]);
   const languages = useMemo(() => [...new Set(all.map((s) => s.language).filter(Boolean))], [all]);
 
@@ -88,7 +110,7 @@ export default function Reader() {
     return [...exact, ...titled, ...worded];
   }, [all, q, cat, lang]);
 
-  const song = all.find((s) => s.id === selId) ?? null;
+  const song = all.find((s) => s.id === selId) ?? todayTexts.find((s) => s.id === selId) ?? null;
   // Imported hymns open with the title and the reference line (TC 19, KM 2…). The heading already shows
   // the title, so hide that line, and show the reference with the key and time instead.
   const { sections, refLine } = useMemo(() => {
@@ -259,6 +281,37 @@ export default function Reader() {
               <button className={`nm-chip${!lang ? " on" : ""}`} aria-pressed={!lang} onClick={() => setLang("")}>All languages</button>
               {languages.map((l) => <button key={l} className={`nm-chip${lang === l ? " on" : ""}`} aria-pressed={lang === l} onClick={() => setLang(lang === l ? "" : l)}>{l}</button>)}
             </div>
+          )}
+          {service && todayItems.length > 0 && !q && !cat && !lang && (
+            <details className="nm-today" open>
+              <summary>
+                <span className="nm-today-h">Today’s service</span>
+                <span className="nm-today-d">{[service.title, service.dateLabel].filter(Boolean).join(" · ")}</span>
+              </summary>
+              <ol className="nm-today-list">
+                {todayItems.map((it, i) => (
+                  <li key={i} className="nm-today-item">
+                    <span className="nm-today-name">{it.name}</span>
+                    {it.subs.map((sub, k) => {
+                      const tx = textFor(i, k);
+                      if (tx) return (
+                        <button key={k} className={`nm-row nm-today-song nm-today-text${tx.id === selId ? " sel" : ""}`} onClick={() => open(tx)} aria-current={tx.id === selId ? "true" : undefined}>
+                          <span className="nm-num" aria-hidden="true">¶</span>
+                          <span className="nm-rt">{sub.text}</span>
+                        </button>
+                      );
+                      const sg = songFor(sub);
+                      return sg ? (
+                        <button key={k} className={`nm-row nm-today-song${sg.id === selId ? " sel" : ""}`} onClick={() => open(sg)} aria-current={sg.id === selId ? "true" : undefined}>
+                          <span className="nm-num">{sg.number}</span>
+                          <span className="nm-rt">{sg.title || "Untitled"}</span>
+                        </button>
+                      ) : <span key={k} className="nm-today-sub">{sub.text}</span>;
+                    })}
+                  </li>
+                ))}
+              </ol>
+            </details>
           )}
           <p className={`nm-saved${load?.error ? " warn" : ""}`} role="status">{savedLine}</p>
           {allScores.length > 0 && typeof caches !== "undefined" && (

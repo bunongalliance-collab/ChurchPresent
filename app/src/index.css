@@ -2447,3 +2447,55 @@ html body .prv button.prv-item.done { color: var(--muted) !important; }
 html body .prv button.prv-mode.on { color: var(--on-accent) !important; }
 /* Presenter: one screen tall on wide screens, so the controls and shortcut keys never scroll away; the side list and slides scroll inside */
 @media (min-width: 901px) { .prv { height: 100vh; min-height: 0; overflow: hidden; } }
+
+/* Presenter: phone remote pairing panel */
+.prv .prv-phone-btn.on { background: var(--accent); color: var(--on-accent) !important; border-color: var(--accent); }
+.prv-phone { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; padding: 16px 20px; background: var(--panel); border-bottom: 1px solid rgb(var(--text-rgb) / 0.12); }
+.prv-qr { flex: none; width: 168px; height: 168px; padding: 6px; background: #fff; border-radius: 10px; }
+.prv-qr svg { width: 100%; height: 100%; display: block; }
+.prv-phone-text { flex: 1 1 320px; min-width: 0; }
+.prv-phone-text h2 { margin: 0 0 6px; font-size: 1.05rem; }
+.prv-phone-text ol { margin: 0 0 8px; padding-left: 20px; color: var(--muted); }
+.prv-phone-link { margin: 0 0 4px; font-size: 0.85rem; overflow-wrap: anywhere; }
+.prv-phone-code { margin: 0 0 6px; font-size: 0.85rem; color: var(--muted); }
+.prv-phone-code strong { color: var(--text); letter-spacing: 0.12em; font-size: 1rem; }
+.prv-phone-status { margin: 0 0 8px; font-weight: 600; color: var(--muted); }
+.prv-phone-status.on { color: var(--accent); }
+.prv-phone-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.prv-warn { color: var(--danger); margin: 0 0 6px; }
+/* Fixed rows so the pairing panel (row 2, empty when closed) never takes the slides' space */
+.prv { grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+.prv-head { grid-row: 1; } .prv-phone { grid-row: 2; } .prv-side, .prv-main { grid-row: 3; } .prv-foot { grid-row: 4; } .prv-keys { grid-row: 5; }
+@media (max-width: 900px) {
+  .prv { grid-template-rows: auto auto auto minmax(0, 1fr) auto auto; }
+  .prv-side { grid-row: 3; } .prv-main { grid-row: 4; } .prv-foot { grid-row: 5; } .prv-keys { grid-row: 6; }
+}
+
+/* ---------- Phone remote (#remote:<code>) ---------- */
+.rm { min-height: 100vh; min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--bg); color: var(--text); max-width: 560px; margin: 0 auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.rm-msg { margin: 40px 0; text-align: center; color: var(--muted); }
+.rm-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.rm-conn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.85rem; color: var(--muted); }
+.rm-conn.on { color: var(--accent); font-weight: 600; }
+.rm-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+.rm-conn.on .rm-dot { background: var(--accent); }
+.rm-help { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.rm-now { padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid rgb(var(--text-rgb) / 0.12); }
+.rm-cap { margin: 0 0 6px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.rm-text { margin: 0; font-size: 1.15rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.rm-next { margin: 10px 0 0; font-size: 0.9rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rm-next span { font-weight: 700; margin-right: 6px; }
+.rm-move { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+html body .rm button { font: inherit; border-radius: 14px !important; white-space: normal; }
+html body .rm .rm-move button { min-height: 120px !important; font-size: 1.3rem !important; font-weight: 700; padding: 10px !important; }
+html body .rm .rm-prev { background: var(--panel); color: var(--text) !important; border: 1px solid rgb(var(--text-rgb) / 0.2); }
+html body .rm .rm-nextbtn { background: var(--accent); color: var(--on-accent) !important; border: 0; font-size: 1.6rem !important; }
+.rm-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+html body .rm .rm-mode { min-height: 60px !important; font-size: 1rem !important; padding: 8px !important; background: var(--panel); color: var(--text) !important; border: 1px solid rgb(var(--text-rgb) / 0.2); }
+html body .rm .rm-mode.on { background: var(--accent); color: var(--on-accent) !important; border-color: var(--accent); }
+.rm button:disabled { opacity: 0.45; }
+.rm-items ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+html body .rm .rm-list-toggle { width: 100%; min-height: 48px !important; background: transparent; color: var(--accent) !important; border: 1px solid rgb(var(--text-rgb) / 0.2); font-size: 0.95rem !important; }
+html body .rm .rm-item { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 48px !important; padding: 8px 12px !important; text-align: left; background: transparent; color: var(--text) !important; border: 0; }
+html body .rm .rm-item.current { background: var(--accent); color: var(--on-accent) !important; }
+.rm-item small { opacity: 0.75; white-space: nowrap; }

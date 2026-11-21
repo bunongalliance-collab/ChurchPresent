@@ -28,7 +28,7 @@ async function openHymn(page: Page, n: string) {
 }
 
 // A list row by its hymn number (the row text runs the number into the title, so match the number cell)
-const row = (page: Page, n: string) => page.locator(".nm-row").filter({ has: page.locator(".nm-num", { hasText: new RegExp(`^${n}$`) }) }).first();
+const row = (page: Page, n: string) => page.locator(".nm-list .nm-row").filter({ has: page.locator(".nm-num", { hasText: new RegExp(`^${n}$`) }) }).first();
 
 // Swipe sideways on an element with real touch events
 async function swipe(page: Page, selector: string, dx: number) {
@@ -43,7 +43,7 @@ async function swipe(page: Page, selector: string, dx: number) {
 
 async function start(page: Page) {
   await page.goto("/nau-mpro/");
-  await expect(page.locator(".nm-row").first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator(".nm-list .nm-row").first()).toBeVisible({ timeout: 15000 });
 }
 
 test.describe("desktop", () => {
@@ -58,7 +58,7 @@ test.describe("desktop", () => {
     await expect(page.locator(".nm-side")).toBeVisible();
     await expect(page.locator(".nm-lyrics")).toBeVisible();
     await expect(page.locator(".nm-score")).toBeVisible();
-    await expect(page.locator(".nm-row.sel")).toContainText("10");
+    await expect(page.locator(".nm-list .nm-row.sel")).toContainText("10");
     // Next and previous buttons
     await page.getByRole("button", { name: /^Next song/ }).click();
     await expect(page.locator(".nm-hnum")).toHaveText("11");
@@ -74,11 +74,11 @@ test.describe("desktop", () => {
     await row(page, "1").click();
     await expect(page.locator(".nm-hnum")).toHaveText("1");
     // The first song in the book has no previous song
-    await page.locator(".nm-row").first().click();
+    await page.locator(".nm-list .nm-row").first().click();
     await expect(page.getByRole("button", { name: "No previous song" })).toBeDisabled();
     // Search by words, ignoring accents
     await page.getByRole("searchbox", { name: "Search songs" }).fill("gap tam rne pang");
-    await expect(page.locator(".nm-row").first()).toContainText("GÂP TÂM RNÊ PĂNG");
+    await expect(page.locator(".nm-list .nm-row").first()).toContainText("GÂP TÂM RNÊ PĂNG");
     expect(errors).toEqual([]);
   });
 
@@ -154,7 +154,7 @@ test.describe("tablet landscape", () => {
     await expect(page.locator(".nm-side")).toBeHidden();
     await page.getByRole("button", { name: "Songs", exact: true }).click();
     await expect(page.locator(".nm-side")).toBeVisible();
-    await expect(page.locator(".nm-row.sel")).toContainText("10");
+    await expect(page.locator(".nm-list .nm-row.sel")).toContainText("10");
     await page.mouse.click(1150, 400);
     await expect(page.locator(".nm-side")).toBeHidden();
     // Picking a song in the drawer closes it
@@ -235,7 +235,7 @@ test.describe("phone", () => {
     // Back returns to the list (the in-app button and the phone's Back)
     await page.getByRole("button", { name: "Back to songs" }).click();
     await expect(page.locator(".nm-side")).toBeVisible();
-    await page.locator(".nm-row").first().click();
+    await page.locator(".nm-list .nm-row").first().click();
     await page.goBack();
     await expect(page.locator(".nm-side")).toBeVisible();
     // Nothing is wider than the screen

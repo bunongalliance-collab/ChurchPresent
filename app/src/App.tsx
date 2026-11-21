@@ -8,6 +8,7 @@ import ProgramSimple from "./pages/ProgramSimple";
 import ServicePresentation from "./pages/ServicePresentation";
 import Thumbnail from "./pages/Thumbnail";
 import Projector from "./pages/Projector";
+import Remote from "./pages/Remote";
 import Builder from "./pages/Builder";
 import Scripture from "./pages/Scripture";
 import Presentations from "./pages/Presentations";
@@ -33,6 +34,7 @@ export default function App() {
 
 function renderPage(page: string) {
   if (page === "#projector") return <Projector />;
+  if (page === "#remote") return <Remote />;
   if (page === "#builder") return <Builder />;
   if (page === "#scripture") return <Scripture />;
   if (page === "#presentations") return <Presentations />;

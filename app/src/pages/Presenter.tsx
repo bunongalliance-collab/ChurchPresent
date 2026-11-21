@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { openAudience, renderStage, LOGO_KEY, type DeckItem, type ProjDeck } from "./Projector";
+import { getRemoteCode, newRemoteCode, qrSvg, remoteUrl, slideText } from "../lib/remote";
+import { supabase } from "../lib/supabase";
 
 // The presenter window: what the person running the slides sees on their own screen.
 // The audience window (the projector, a TV or any second screen) follows the commands sent from here.
@@ -13,11 +15,7 @@ function itemsOf(deck: ProjDeck): DeckItem[] {
   return [{ title: "Slides", first: 0, count: deck.slides.length }];
 }
 
-const slideText = (deck: ProjDeck, i: number) => {
-  const sl = deck.slides[i];
-  const rows = sl.segs ? sl.segs.map((l) => l.map((s) => s.text).join("")) : sl.rows ?? [];
-  return rows.join(" ").replace(/[\u0001-\u0003]/g, "").trim();
-};
+
 
 const two = (n: number) => String(n).padStart(2, "0");
 function elapsed(ms: number) {
@@ -26,8 +24,8 @@ function elapsed(ms: number) {
   return h ? `${h}:${two(m)}:${two(s % 60)}` : `${m}:${two(s % 60)}`;
 }
 
-export default function Presenter({ deck, state, connected, send }: {
-  deck: ProjDeck; state: PresenterState; connected: boolean; send: (cmd: string, arg?: number) => void;
+export default function Presenter({ deck, state, connected, send, phoneAt = 0 }: {
+  deck: ProjDeck; state: PresenterState; connected: boolean; send: (cmd: string, arg?: number) => void; phoneAt?: number;
 }) {
   const { index, blackout, waiting, logo, clear } = state;
   const total = deck.slides.length;
@@ -56,6 +54,13 @@ export default function Presenter({ deck, state, connected, send }: {
     r.readAsDataURL(file);
   }
 
+  // Phone remote: scan the QR code (or open the link) on a phone to control the screen from anywhere in the room
+  const [showPhone, setShowPhone] = useState(false);
+  const [code, setCode] = useState(getRemoteCode);
+  const link = remoteUrl(code);
+  const qr = useMemo(() => qrSvg(link), [link]);
+  const phoneOn = now - phoneAt < 10000;
+
   const screen = blackout ? "Black screen" : logo ? "Logo screen" : waiting ? "Welcome screen" : clear ? "Text cleared" : "";
 
   return (
@@ -71,6 +76,9 @@ export default function Presenter({ deck, state, connected, send }: {
             <button type="button" className="secondary small" onClick={() => openAudience(false)}>Open screen window</button>
           </span>
         )}
+        <button type="button" className={`secondary small prv-phone-btn${phoneOn ? " on" : ""}`} aria-expanded={showPhone} onClick={() => setShowPhone((v) => !v)}>
+          {phoneOn ? "Phone connected" : "Phone remote"}
+        </button>
         <span className="prv-grow" />
         <span className="prv-time">
           <span className="prv-tl">Service time</span>
@@ -82,6 +90,28 @@ export default function Presenter({ deck, state, connected, send }: {
           <span className="prv-tv">{new Date(now).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
         </span>
       </header>
+
+      {showPhone && (
+        <section className="prv-phone" aria-label="Phone remote">
+          <div className="prv-qr" dangerouslySetInnerHTML={{ __html: qr }} role="img" aria-label="QR code for the phone remote" />
+          <div className="prv-phone-text">
+            <h2>Control the slides from a phone</h2>
+            <ol>
+              <li>Open the phone's camera and point it at the code, or open this link on the phone.</li>
+              <li>The phone shows Next, Previous and the screen buttons. Both need internet.</li>
+            </ol>
+            <p className="prv-phone-link"><a href={link} target="_blank" rel="noopener">{link}</a></p>
+            <p className="prv-phone-code">Pairing code <strong>{code.replace(/(.{4})/, "$1 ")}</strong></p>
+            {!supabase && <p className="prv-warn">The phone remote needs the database settings, which this copy of the app does not have.</p>}
+            <p className={`prv-phone-status${phoneOn ? " on" : ""}`}>{phoneOn ? "A phone is connected." : connected ? "Waiting for a phone…" : "Open the screen window first: the phone talks to it."}</p>
+            <div className="prv-phone-actions">
+              <button type="button" className="secondary small" onClick={() => { void navigator.clipboard?.writeText(link); }}>Copy link</button>
+              <button type="button" className="secondary small" onClick={() => setCode(newRemoteCode())} title="Phones paired with the old code stop working">New code</button>
+              <button type="button" className="secondary small" onClick={() => setShowPhone(false)}>Close</button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <nav className="prv-side" aria-label="Order of worship">
         <p className="prv-cap">Order of worship</p>

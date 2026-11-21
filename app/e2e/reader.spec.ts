@@ -12,7 +12,7 @@ test("the reader lists songs and opens one", async ({ page }) => {
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
   await page.goto("/nau-mpro/");
   await expect(page).toHaveTitle("Nau Mpro");
-  const rows = page.locator(".nm-row");
+  const rows = page.locator(".nm-list .nm-row");
   await expect(rows.first()).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".nm-saved")).toContainText("song");
   await rows.first().click();
@@ -29,10 +29,10 @@ test("the reader lists songs and opens one", async ({ page }) => {
 
 test("search ignores accents", async ({ page }) => {
   await page.goto("/nau-mpro/");
-  await expect(page.locator(".nm-row").first()).toBeVisible({ timeout: 15000 });
-  const count = await page.locator(".nm-row").count();
+  await expect(page.locator(".nm-list .nm-row").first()).toBeVisible({ timeout: 15000 });
+  const count = await page.locator(".nm-list .nm-row").count();
   await page.getByRole("searchbox", { name: "Search songs" }).fill("zzqx-no-such-song");
   await expect(page.locator(".nm-empty")).toContainText("No songs match");
   await page.getByRole("searchbox", { name: "Search songs" }).fill("");
-  await expect(page.locator(".nm-row")).toHaveCount(count);
+  await expect(page.locator(".nm-list .nm-row")).toHaveCount(count);
 });

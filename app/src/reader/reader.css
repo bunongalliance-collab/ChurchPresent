@@ -200,3 +200,17 @@ body { margin: 0; overflow: hidden; }
 .nm-offline-text small { display: block; color: var(--nm-muted); margin-top: 2px; }
 .nm-offline-btn { justify-self: start; min-height: 36px; padding: 0 14px !important; border-radius: 6px; background: var(--nm-green) !important; color: var(--nm-on-green, #fff) !important; font-weight: 500; }
 .nm-offline progress { width: 100%; height: 6px; accent-color: var(--nm-green); }
+
+/* ----- Today's service: the order of worship published from the Program, at the top of the song list ----- */
+.nm-today { margin: 8px 10px 6px; border: 1px solid var(--nm-rule); border-radius: 12px; background: var(--nm-paper); flex: none; }
+.nm-today > summary { list-style: none; cursor: pointer; display: flex; flex-direction: column; gap: 1px; padding: 10px 14px; border-radius: 12px; }
+.nm-today > summary::-webkit-details-marker { display: none; }
+.nm-today > summary::after { content: "Hide"; align-self: flex-end; margin-top: -1.4em; font-size: 0.75rem; color: var(--nm-muted); }
+.nm-today:not([open]) > summary::after { content: "Show"; }
+.nm-today-h { font-family: var(--nm-serif); font-weight: 700; font-size: 1.05rem; color: var(--nm-green); }
+.nm-today-d { font-size: 0.8rem; color: var(--nm-muted); }
+.nm-today-list { list-style: none; margin: 0; padding: 0 0 8px; border-top: 1px solid var(--nm-rule); }
+.nm-today-item { display: flex; flex-direction: column; padding: 6px 0 2px; }
+.nm-today-name { padding: 0 14px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--nm-muted); }
+.nm-today-sub { padding: 2px 14px 2px calc(14px + 2.6em + 6px); font-size: 0.9rem; }
+.nm .nm-today-song { border-radius: 0; }
