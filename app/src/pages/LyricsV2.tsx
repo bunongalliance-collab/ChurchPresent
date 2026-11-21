@@ -10,6 +10,7 @@ import {
 } from "../lib/slides";
 import { SONG_CATEGORIES, SONG_LANGUAGES, type SongLook } from "./Lyrics";
 import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from "../lib/offlineCache";
+import { recordAddedSong } from "../lib/recentSongs";
 import { parseRows, songRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 
@@ -360,14 +361,9 @@ export default function LyricsV2() {
     const saved = await saveCurrent();
     if (!saved) { say("Not added. Paste lyrics and sign in first, so the song can be saved.", true); return; }
     setAddedNow((cur) => [...cur.filter((x) => x.id !== saved.id), { id: saved.id, title: saved.title || "(untitled)", number: saved.number }]);
-    // Remember this addition for the builder's Recent songs list (newest first)
-    try {
-      const log: { id: string; at: number }[] = JSON.parse(localStorage.getItem("addedSongsLog") || "[]");
-      localStorage.setItem("addedSongsLog", JSON.stringify([{ id: saved.id, at: Date.now() }, ...log.filter((x) => x.id !== saved.id)].slice(0, 30)));
-      // Adding a song again brings it back into the builder's Recent songs, even if it was removed there
-      const hidden: string[] = JSON.parse(localStorage.getItem("builderHiddenRecentSongs") || "[]");
-      localStorage.setItem("builderHiddenRecentSongs", JSON.stringify(hidden.filter((x) => x !== saved.id)));
-    } catch { /* storage blocked */ }
+    // Remember this addition for Recent songs in the Presentation Builder and the Program (newest first),
+    // in this browser and on the account, so it shows on every device
+    void recordAddedSong(saved.id);
     // Visible confirmation: a toast and a short "Added" label on the button
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 2000);

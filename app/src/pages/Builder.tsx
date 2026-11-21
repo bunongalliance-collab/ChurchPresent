@@ -8,7 +8,7 @@ import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
 import { carryFormattingSlides, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
 import { toast } from "../lib/toast";
-import { HIDDEN_SCRIPTURES_KEY, HIDDEN_SONGS_KEY, pickRecent, readAddedIds, readHiddenIds, readHiddenScriptureIds } from "../lib/recentSongs";
+import { HIDDEN_SCRIPTURES_KEY, HIDDEN_SONGS_KEY, pickRecent, readHiddenIds, readHiddenScriptureIds, RECENT_LIMIT, useAddedSongIds } from "../lib/recentSongs";
 import { programLinks } from "../lib/orderLines";
 
 // Formatted segments for the projector and preview, from the slide text
@@ -217,7 +217,17 @@ export default function Builder() {
   useEffect(() => { try { localStorage.setItem(HIDDEN_SONGS_KEY, JSON.stringify(hiddenSongs)); } catch { /* blocked */ } }, [hiddenSongs]);
   useEffect(() => { try { localStorage.setItem(HIDDEN_SCRIPTURES_KEY, JSON.stringify(hiddenScriptures)); } catch { /* blocked */ } }, [hiddenScriptures]);
   // Recent songs are the songs added with Add to Presentation on the Lyrics page, newest first
-  const addedLog = useMemo<string[]>(() => readAddedIds(), []);
+  // Kept up to date: a song added on the Lyric page (in another tab or on another device) appears without a reload
+  const addedLog = useAddedSongIds();
+  // A recent song the library does not hold yet (saved after this page loaded, or on another device): fetch just that song
+  const missingKey = library.length ? addedLog.slice(0, RECENT_LIMIT * 2).filter((id) => !library.some((x) => x.id === id)).join(",") : "";
+  useEffect(() => {
+    if (!missingKey || !supabase) return;
+    supabase.from("lyric_songs").select("id, title, song_number, lyrics, look").in("id", missingKey.split(",")).then(({ data }) => {
+      const found = (data || []).map((r) => ({ id: r.id, title: r.title, number: r.song_number, lyrics: r.lyrics, look: (r.look ?? {}) as LibrarySong["look"] }));
+      if (found.length) setLibrary((cur) => [...found.filter((f) => !cur.some((x) => x.id === f.id)), ...cur]);
+    });
+  }, [missingKey]);
   const recentSongs = useMemo(() => pickRecent(library, addedLog, hiddenSongs), [addedLog, library, hiddenSongs]);
   const recentScriptures = useMemo(() => recent.filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures]);
 
