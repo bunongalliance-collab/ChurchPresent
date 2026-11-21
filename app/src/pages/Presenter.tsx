@@ -139,7 +139,19 @@ export default function Presenter({ deck, state, connected, send }: {
           <input type="file" accept="image/*" onChange={(e) => chooseLogo(e.target.files?.[0])} />
         </label>
       </footer>
-      <p className="prv-help">Keys: arrows, Space and Enter move · Home and End jump to the first and last slide · B black · L logo · W welcome · C clear text</p>
+      <section className="prv-keys" aria-label="Shortcut keys">
+        <span className="prv-keys-h">Shortcut keys</span>
+        <span className="prv-key"><kbd>→</kbd><kbd>Space</kbd><kbd>Enter</kbd><kbd>Page Down</kbd> Next</span>
+        <span className="prv-key"><kbd>←</kbd><kbd>Page Up</kbd> Previous</span>
+        <span className="prv-key"><kbd>Home</kbd> First slide</span>
+        <span className="prv-key"><kbd>End</kbd> Last slide</span>
+        <span className="prv-key"><kbd>B</kbd><kbd>.</kbd> Black screen</span>
+        <span className="prv-key"><kbd>L</kbd> Logo</span>
+        <span className="prv-key"><kbd>W</kbd> Welcome</span>
+        <span className="prv-key"><kbd>C</kbd> Clear text</span>
+        <span className="prv-key"><kbd>Scroll</kbd> Next / previous</span>
+        <span className="prv-key prv-key-note">A clicker works too. On the screen window: <kbd>F</kbd> full screen, <kbd>Esc</kbd> exit.</span>
+      </section>
     </div>
   );
 }

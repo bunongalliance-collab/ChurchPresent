@@ -36,4 +36,15 @@ test("presenter controls the audience window", async ({ context }) => {
   await expect(audience.locator(".ref-tag")).toHaveCount(0);
   await presenter.getByRole("button", { name: "Clear text (C)" }).click();
   await expect(audience.locator(".stage .text")).toContainText("John 3:16");
+
+  // Clicker extras: "." blanks the screen; the scroll wheel moves back and forward
+  await presenter.keyboard.press(".");
+  await expect(audience.locator(".projector-blackout")).toBeVisible();
+  await presenter.keyboard.press(".");
+  await presenter.locator(".prv-now").hover();
+  await presenter.mouse.wheel(0, -120);
+  await expect(audience.locator(".counter")).toHaveText("3 / 4");
+  await presenter.waitForTimeout(700);
+  await presenter.mouse.wheel(0, 120);
+  await expect(audience.locator(".counter")).toHaveText("4 / 4");
 });

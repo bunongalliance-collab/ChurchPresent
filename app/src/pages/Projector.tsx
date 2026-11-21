@@ -251,7 +251,7 @@ export default function Projector() {
     const commandFor: Record<string, string> = {
       ArrowRight: "next", ArrowDown: "next", PageDown: "next", " ": "next", Enter: "next",
       ArrowLeft: "prev", ArrowUp: "prev", PageUp: "prev", Backspace: "prev",
-      Home: "first", End: "last", b: "blackout", B: "blackout", w: "waiting", W: "waiting", l: "logo", L: "logo", c: "clear", C: "clear",
+      Home: "first", End: "last", b: "blackout", B: "blackout", ".": "blackout", w: "waiting", W: "waiting", l: "logo", L: "logo", c: "clear", C: "clear",
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "f" || e.key === "F") {
@@ -275,7 +275,22 @@ export default function Projector() {
       else act(cmd);
     };
     document.addEventListener("keydown", onKey);
+    // Scroll wheel: down for the next slide, up for the previous one. One step per gesture, so a
+    // trackpad's long swipe does not run through many slides. Lists in the presenter still scroll.
+    let wheelAt = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < 4) return;
+      if (presenter && (e.target as HTMLElement | null)?.closest(".prv-side, .prv-thumbs-wrap")) return;
+      const t = Date.now();
+      if (t - wheelAt < 600) return;
+      wheelAt = t;
+      const cmd = e.deltaY > 0 ? "next" : "prev";
+      if (presenter) ch?.postMessage({ type: "cmd", cmd });
+      else act(cmd);
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
     return () => {
+      window.removeEventListener("wheel", onWheel);
       document.removeEventListener("keydown", onKey);
       (ch as (BroadcastChannel & { _cleanup?: () => void }) | null)?._cleanup?.();
       ch?.close();

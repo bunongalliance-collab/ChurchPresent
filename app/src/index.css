@@ -2424,7 +2424,11 @@ html .lf .lf-quick { position: sticky; bottom: 64px; z-index: 20; background: va
 .prv-logo-pick { font-size: 0.8rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
 .prv-logo-pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .prv-logo-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-.prv-help { grid-column: 1 / -1; margin: 0; padding: 0 20px 12px; font-size: 0.78rem; color: var(--muted); }
+.prv-keys { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 10px 20px 14px; border-top: 1px solid rgb(var(--text-rgb) / 0.08); font-size: 0.82rem; color: var(--text); }
+.prv-keys-h { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.prv-key { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.prv-key-note { color: var(--muted); white-space: normal; }
+.prv-keys kbd { display: inline-block; min-width: 1.6em; padding: 2px 6px; border-radius: 5px; border: 1px solid rgb(var(--text-rgb) / 0.25); border-bottom-width: 2px; background: var(--panel); color: var(--text); font: 600 0.75rem var(--font-ui, system-ui), sans-serif; text-align: center; line-height: 1.3; }
 @media (max-width: 900px) {
   .prv { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
   .prv-side { border-right: 0; border-bottom: 1px solid rgb(var(--text-rgb) / 0.12); max-height: 30vh; }
@@ -2441,3 +2445,5 @@ html body .ct-app .prv .prv-foot button.prv-mode { min-height: 48px !important; 
 html body .prv button.prv-item.current { color: var(--on-accent) !important; background: var(--accent); }
 html body .prv button.prv-item.done { color: var(--muted) !important; }
 html body .prv button.prv-mode.on { color: var(--on-accent) !important; }
+/* Presenter: one screen tall on wide screens, so the controls and shortcut keys never scroll away; the side list and slides scroll inside */
+@media (min-width: 901px) { .prv { height: 100vh; min-height: 0; overflow: hidden; } }
