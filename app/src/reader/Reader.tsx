@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type TouchEvent } from "react";
 import type { ReaderSong } from "../lib/offlineCache";
 import { bySongNumber, loadSavedSongs, loadSongs, scoreUrl, type LoadResult } from "./data";
 import { fold, toSections } from "./lyrics";
 import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
+import { PULL_THRESHOLD, usePullToRefresh } from "./usePullToRefresh";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
 import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
@@ -80,13 +81,21 @@ export default function Reader() {
   useEffect(() => { loadTodayService().then(setService); }, []);
   // Phones keep the app open in the background for days, so the page would keep last week's service.
   // Coming back to the app (or back online) quietly reloads Today's service and the songs, at most every 30 s.
+  const lastLoad = useRef(Date.now());
+  // Reload Today's service and the songs; true when the library answered (false when offline)
+  const reload = async (): Promise<boolean> => {
+    lastLoad.current = Date.now();
+    const [svc, r] = await Promise.all([loadTodayService(), loadSongs()]);
+    setService(svc);
+    setLoad((cur) => (r.source === "none" && cur?.songs.length ? { ...cur, error: r.error } : r));
+    return r.source !== "none" && !r.error;
+  };
+  const reloadRef = useRef(reload);
+  reloadRef.current = reload;
   useEffect(() => {
-    let last = Date.now();
     const refresh = () => {
-      if (document.visibilityState !== "visible" || Date.now() - last < 30_000) return;
-      last = Date.now();
-      loadTodayService().then(setService);
-      loadSongs().then((r) => setLoad((cur) => (r.source === "none" && cur?.songs.length ? { ...cur, error: r.error } : r)));
+      if (document.visibilityState !== "visible" || Date.now() - lastLoad.current < 30_000) return;
+      void reloadRef.current();
     };
     const onShow = (e: PageTransitionEvent) => { if (e.persisted) refresh(); };
     document.addEventListener("visibilitychange", refresh);
@@ -98,6 +107,16 @@ export default function Reader() {
       window.removeEventListener("pageshow", onShow);
     };
   }, []);
+  // Pull down on the song list (touch screens) to reload; a short note says how it went
+  const sideRef = useRef<HTMLElement>(null);
+  const [note, setNote] = useState("");
+  const noteTimer = useRef(0);
+  const { pull, state: pullState } = usePullToRefresh(sideRef, async () => {
+    const ok = await reload();
+    window.clearTimeout(noteTimer.current);
+    setNote(ok ? "Updated" : "Offline. Showing the saved copy.");
+    noteTimer.current = window.setTimeout(() => setNote(""), 1800);
+  });
   // Only what the congregation follows along with: songs, choirs, readings and scripture that are filled in
   const todayItems = useMemo(() => followAlong(service?.items ?? []), [service]);
   // Passages and readings open in the lyrics view like a song (they have no number or music sheet)
@@ -289,7 +308,17 @@ export default function Reader() {
       )}
 
       <div className="nm-panes">
-        <aside className="nm-side" id="nm-side" aria-label="Songs">
+        <aside ref={sideRef} className={`nm-side${pull ? " pulled" : ""}${pullState === "idle" ? "" : " pulling"}`} id="nm-side" aria-label="Songs"
+          style={pull ? ({ "--nm-pull": `${pull}px` } as CSSProperties) : undefined}>
+          {pullState !== "idle" && (
+            <div className={`nm-ptr${pullState === "refreshing" ? " spin" : ""}`} aria-hidden="true">
+              <svg viewBox="0 0 24 24" style={pullState === "pulling" ? { transform: `rotate(${Math.min(pull / PULL_THRESHOLD, 1) * 300 - 300}deg)` } : undefined}>
+                <path className="nm-ptr-arc" d="M12 4 a8 8 0 1 1 -7.4 5" />
+                {pullState === "ready" && <path className="nm-ptr-tip" d="M2.2 6.2 l5.4 1.2 -3.6 4.2z" />}
+              </svg>
+            </div>
+          )}
+          {pullState === "ready" && <div className="nm-ptr-label" aria-hidden="true">Release to refresh</div>}
           {categories.length > 1 && (
             <div className="nm-chips" role="group" aria-label="Category">
               <button className={`nm-chip${!cat ? " on" : ""}`} aria-pressed={!cat} onClick={() => setCat("")}>All</button>
@@ -421,6 +450,7 @@ export default function Reader() {
         </div>
       )}
       {drawer && <div className="nm-scrim" onClick={() => setDrawer(false)} />}
+      {note && <div className="nm-note" role="status">{note}</div>}
       <InstallPrompt />
       <OpenInBrowser />
     </div>
