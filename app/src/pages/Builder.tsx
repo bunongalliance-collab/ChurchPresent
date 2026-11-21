@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { selectAll, supabase } from "../lib/supabase";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import NavBar from "../components/NavBar";
 import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
@@ -197,7 +197,8 @@ export default function Builder() {
       if (supabase) {
         const { data: sess } = await supabase.auth.getSession();
         setUserId(sess.session?.user.id ?? null);
-        const { data } = await supabase.from("lyric_songs").select("id, title, song_number, lyrics, look").order("updated_at", { ascending: false });
+        const sb = supabase;
+        const { data } = await selectAll((from, to) => sb.from("lyric_songs").select("id, title, song_number, lyrics, look").order("updated_at", { ascending: false }).order("id").range(from, to));
         setLibrary((data || []).map((r) => ({ id: r.id, title: r.title, number: r.song_number, lyrics: r.lyrics, look: (r.look ?? {}) as LibrarySong["look"] })));
         if (sess.session) { await loadPresentations(); await loadRecent(); }
       } else {

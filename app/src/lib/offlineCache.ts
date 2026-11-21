@@ -143,7 +143,9 @@ export async function loadCachedSongs(): Promise<CachedSong[]> {
   const d = getDb();
   if (!d) return [];
   try {
-    return await d.songs.orderBy("savedAt").reverse().toArray();
+    // The songs table is keyed by id only (no savedAt index), so sort here: orderBy("savedAt") threw and
+    // the offline song list always came back empty
+    return (await d.songs.toArray()).sort((a, b) => b.savedAt - a.savedAt);
   } catch {
     return [];
   }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { onAuthChange, selectAll, supabase, withTimeout } from "../lib/supabase";
 import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
@@ -189,10 +189,12 @@ export default function LyricsV2() {
   const refreshSongs = async (user: Session["user"] | null) => {
     if (supabase) {
       // Reading is public: everyone sees the shared songs, signed in or not. Lyrics are not loaded here.
-      const { data, error } = await supabase
-        .from("lyric_songs")
-        .select("id, title, song_number, owner_id, look, category, language")
-        .order("updated_at", { ascending: false });
+      // Gives up after 12 seconds (a stalled phone connection) and falls back to the copy saved on this device
+      const { data, error } = await withTimeout(
+        selectAll((from, to) => supabase!.from("lyric_songs").select("id, title, song_number, owner_id, look, category, language").order("updated_at", { ascending: false }).order("id").range(from, to)),
+        12000,
+        { data: null, error: { message: "The connection is slow. Try again in a moment." } } as never,
+      );
       if (error) {
         // Offline: show the song list saved on this device
         const saved = await loadCachedSongs();
@@ -219,16 +221,15 @@ export default function LyricsV2() {
   };
 
   useEffect(() => {
-    if (!supabase) { refreshSongs(null); return; }
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      refreshSongs(data.session?.user ?? null);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    // Reading songs is public, so the list loads at once, without waiting for the sign-in check
+    refreshSongs(null);
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data }) => setSession(data.session)).catch(() => {});
+    // Signing in or out reloads the list (a token refresh does not)
+    return onAuthChange((s, event) => {
       setSession(s);
-      refreshSongs(s?.user ?? null);
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") refreshSongs(s?.user ?? null);
     });
-    return () => sub.subscription.unsubscribe();
   }, []);
     const user = session?.user ?? null;
 

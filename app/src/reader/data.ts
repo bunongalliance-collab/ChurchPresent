@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { selectAll, supabase } from "../lib/supabase";
 import { cacheReaderSongs, loadReaderSongs, type ReaderSong } from "../lib/offlineCache";
 
 // Songs for the reader. Everyone can read the song library without signing in.
@@ -32,8 +32,10 @@ export async function loadSongs(): Promise<LoadResult> {
     // Score images and music facts come from hymn-score-images.sql; until it is run, load without them
     const FULL = "id, title, song_number, lyrics, category, language, updated_at, score_path, score_images, music";
     const BASIC = "id, title, song_number, lyrics, category, language, updated_at, score_path";
-    let res = await supabase.from("lyric_songs").select(FULL);
-    if (res.error && /score_images|music/.test(res.error.message)) res = await supabase.from("lyric_songs").select(BASIC) as typeof res;
+    const sb = supabase;
+    // The library has more than 1000 songs, the most Supabase returns at once: read it in pages
+    let res = await selectAll((from, to) => sb.from("lyric_songs").select(FULL).order("id").range(from, to));
+    if (res.error && /score_images|music/.test(res.error.message)) res = await selectAll((from, to) => sb.from("lyric_songs").select(BASIC).order("id").range(from, to)) as typeof res;
     const { data, error } = res;
     if (error) throw new Error(error.message);
     const songs: ReaderSong[] = (data ?? []).map((r) => {

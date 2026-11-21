@@ -39,7 +39,7 @@ test("a phone controls the screen window", async ({ browser }) => {
   await phone.getByRole("button", { name: "Black screen" }).click();
 
   await phone.getByRole("button", { name: "Jump to an item" }).click();
-  await phone.getByRole("button", { name: /Welcome/ }).last().click();
+  await phone.locator(".rm-items").getByRole("button", { name: /Welcome/ }).click();
   await expect(screen.locator(".counter")).toHaveText("1 / 3", { timeout: 10000 });
 
   await computer.close();

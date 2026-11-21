@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { COLOR_PRESETS, deckSize, flowLines, FONTS } from "../lib/slides";
@@ -120,8 +120,8 @@ export default function Readings() {
   useEffect(() => {
     if (!supabase) { refresh(null); return; }
     supabase.auth.getSession().then(({ data }) => { setSession(data.session); refresh(data.session?.user ?? null); });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => { setSession(s); refresh(s?.user ?? null); });
-    return () => sub.subscription.unsubscribe();
+    const unsubAuth = onAuthChange((s) => { setSession(s); refresh(s?.user ?? null); });
+    return unsubAuth;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

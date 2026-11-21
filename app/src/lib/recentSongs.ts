@@ -1,6 +1,6 @@
 // Recent songs, shared by the Presentation Builder and the Program page.
 // "Recent" means the songs added with Add to Presentation on the Lyric page, newest first, minus the ones hidden in the Builder.
-import { supabase } from "./supabase";
+import { selectAll, supabase } from "./supabase";
 
 export const ADDED_SONGS_KEY = "addedSongsLog";
 export const HIDDEN_SONGS_KEY = "builderHiddenRecentSongs";
@@ -27,7 +27,8 @@ export interface SongOption { id: string; value: string; date: string; recent: b
 export async function loadSongOptions(): Promise<SongOption[]> {
   let rows: { id: string; number: string; title: string; date: string }[] = [];
   if (supabase) {
-    const { data } = await supabase.from("lyric_songs").select("id, song_number, title, updated_at").order("updated_at", { ascending: false });
+    const sb = supabase;
+    const { data } = await selectAll((from, to) => sb.from("lyric_songs").select("id, song_number, title, updated_at").order("updated_at", { ascending: false }).order("id").range(from, to));
     rows = (data ?? []).map((r) => ({ id: r.id, number: r.song_number ?? "", title: r.title ?? "", date: r.updated_at ?? "" }));
   } else {
     try {

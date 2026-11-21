@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
@@ -159,11 +159,11 @@ export default function Lyrics() {
       setSession(data.session);
       refreshSongs(data.session?.user ?? null);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const unsubAuth = onAuthChange((s) => {
       setSession(s);
       refreshSongs(s?.user ?? null);
     });
-    return () => sub.subscription.unsubscribe();
+    return unsubAuth;
   }, []);
     const user = session?.user ?? null;
 

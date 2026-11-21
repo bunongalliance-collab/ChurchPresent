@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { flatten, type Item, type PresentationData, type Settings } from "./Builder";
@@ -63,11 +63,11 @@ export default function Presentations() {
       setUserId(data.session?.user.id ?? null);
       load();
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const unsubAuth = onAuthChange((s) => {
       setUserId(s?.user.id ?? null);
       load();
     });
-    return () => sub.subscription.unsubscribe();
+    return unsubAuth;
     // load() reads only; subscribing once is enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -4,7 +4,7 @@ import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { onAuthChange, supabase } from "../lib/supabase";
 import SlideshowStrip from "../components/SlideshowStrip";
 import NavBar from "../components/NavBar";
 import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
@@ -361,11 +361,11 @@ export default function Scripture() {
       setSession(data.session);
       if (data.session) loadSaved();
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const unsubAuth = onAuthChange((s) => {
       setSession(s);
       if (s) loadSaved(); else setSaved([]);
     });
-    return () => sub.subscription.unsubscribe();
+    return unsubAuth;
     // loadSaved reads only, so subscribing once is enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
