@@ -2373,3 +2373,7 @@ html:has(.ss), html:has(.ss) body { height: auto; overflow: auto; background: va
   .ss-print-page:last-child { break-after: auto; page-break-after: auto; }
   .ss-print-page .stage.in-pres { width: 13.333in; height: 7.5in; aspect-ratio: auto; border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Lyric page: the Theme row stays visible at the bottom while scrolling, just above the Your slideshow pill */
+html .lf .lf-quick { position: sticky; bottom: 64px; z-index: 20; background: var(--panel); border-radius: 12px; padding: 6px 10px; box-shadow: 0 6px 18px rgb(var(--text-rgb) / 0.12); }
+@media (max-width: 720px) { html .lf .lf-quick { bottom: 8px; } }
