@@ -1,6 +1,7 @@
 import { LYRIC_LABEL_PT, SLIDE_PAD } from "../lib/slides";
 import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
+import Presenter from "./Presenter";
 
 // A slide as saved by the lyrics page (and later the scripture and builder pages).
 // rows: plain lines. segs: optional formatted segments per line (scripture decks).
@@ -38,7 +39,9 @@ export interface ProjDeck {
   tagPt?: number;
   tagOpacity?: number;
   slides: ProjSlide[];
+  outline?: DeckItem[]; // the order of worship items, for the presenter's side list (each item's first slide and slide count)
 }
+export interface DeckItem { title: string; first: number; count: number }
 
 export const PROJECTOR_KEY = "lyricsDeck";
 
@@ -89,6 +92,27 @@ function lineNodes(segs: Seg[], numColor: string | null) {
 }
 
 const INDEX_KEY = "projectorIndex";
+// The image for the Logo screen, chosen in the presenter window (a data URL kept in this browser)
+export const LOGO_KEY = "projectorLogo";
+const CHURCH_NAME = "Montagnard Bunong Alliance Church";
+
+// Open the audience window (the screen people see). With second = true, Chrome and Edge move it onto
+// another connected screen and fill it; other browsers open it as a normal window to drag across.
+// The window opens first, straight from the click, so the browser does not block it as a pop-up.
+export async function openAudience(second: boolean) {
+  const w = window.open(`${import.meta.env.BASE_URL}#projector`, "churchAudience", "popup,width=960,height=540");
+  if (!w || !second) return;
+  type Scr = { availLeft: number; availTop: number; availWidth: number; availHeight: number; isPrimary?: boolean };
+  const getDetails = (window as unknown as { getScreenDetails?: () => Promise<{ screens: Scr[]; currentScreen: Scr }> }).getScreenDetails;
+  if (!getDetails) return;
+  try {
+    const { screens, currentScreen } = await getDetails.call(window);
+    const other = screens.find((sc) => sc !== currentScreen && sc.availLeft !== currentScreen.availLeft) ?? screens.find((sc) => !sc.isPrimary);
+    if (!other) return;
+    w.moveTo(other.availLeft, other.availTop);
+    w.resizeTo(other.availWidth, other.availHeight);
+  } catch { /* permission refused: the window stays where it opened */ }
+}
 const CHANNEL = "church-projector";
 
 // One slide as a stage. The audience uses it full screen; the presenter window shows it small.
@@ -166,12 +190,15 @@ export default function Projector() {
   const [blackout, setBlackout] = useState(false);
   // Waiting screen: a welcome message before the service, turned on and off with W
   const [waiting, setWaiting] = useState(false);
+  // Logo screen (L) and Clear text (C): the background stays, the words are hidden
+  const [logo, setLogo] = useState(false);
+  const [clear, setClear] = useState(false);
   // Presenter only: is the projector window answering?
   const [connected, setConnected] = useState(true);
   const lastSeen = useRef(0);
   const chRef = useRef<BroadcastChannel | null>(null);
-  const latest = useRef({ index, blackout, waiting });
-  latest.current = { index, blackout, waiting };
+  const latest = useRef({ index, blackout, waiting, logo, clear });
+  latest.current = { index, blackout, waiting, logo, clear };
 
   useEffect(() => {
     try { sessionStorage.setItem(INDEX_KEY, String(index)); } catch { /* storage blocked */ }
@@ -181,15 +208,19 @@ export default function Projector() {
   useEffect(() => {
     if (!deck) return;
     const total = deck.slides.length;
+    // Moving to a slide brings the words back and leaves any special screen
+    const show = () => { setBlackout(false); setLogo(false); setClear(false); };
     const act = (cmd: string, arg?: number) => {
       switch (cmd) {
-        case "goto": setIndex(Math.max(0, Math.min(total - 1, arg ?? 0))); setBlackout(false); break;
-        case "next": setIndex((i) => Math.min(total - 1, i + 1)); setBlackout(false); break;
-        case "prev": setIndex((i) => Math.max(0, i - 1)); setBlackout(false); break;
-        case "first": setIndex(0); setBlackout(false); break;
-        case "last": setIndex(total - 1); setBlackout(false); break;
+        case "goto": setIndex(Math.max(0, Math.min(total - 1, arg ?? 0))); show(); break;
+        case "next": setIndex((i) => Math.min(total - 1, i + 1)); show(); break;
+        case "prev": setIndex((i) => Math.max(0, i - 1)); show(); break;
+        case "first": setIndex(0); show(); break;
+        case "last": setIndex(total - 1); show(); break;
         case "blackout": setBlackout((b) => !b); break;
         case "waiting": setWaiting((w) => !w); break;
+        case "logo": setLogo((v) => !v); break;
+        case "clear": setClear((v) => !v); break;
       }
     };
     let ch: BroadcastChannel | null = null;
@@ -203,7 +234,7 @@ export default function Projector() {
         if (presenter && m?.type === "state") {
           lastSeen.current = Date.now();
           setConnected(true);
-          setIndex(m.index); setBlackout(!!m.blackout); setWaiting(!!m.waiting);
+          setIndex(m.index); setBlackout(!!m.blackout); setWaiting(!!m.waiting); setLogo(!!m.logo); setClear(!!m.clear);
         }
       };
       if (presenter) {
@@ -220,7 +251,7 @@ export default function Projector() {
     const commandFor: Record<string, string> = {
       ArrowRight: "next", ArrowDown: "next", PageDown: "next", " ": "next", Enter: "next",
       ArrowLeft: "prev", ArrowUp: "prev", PageUp: "prev", Backspace: "prev",
-      Home: "first", End: "last", b: "blackout", B: "blackout", w: "waiting", W: "waiting",
+      Home: "first", End: "last", b: "blackout", B: "blackout", w: "waiting", W: "waiting", l: "logo", L: "logo", c: "clear", C: "clear",
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "f" || e.key === "F") {
@@ -254,8 +285,8 @@ export default function Projector() {
 
   // The audience window tells the presenter window where it is
   useEffect(() => {
-    if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting });
-  }, [index, blackout, waiting, presenter]);
+    if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting, logo, clear });
+  }, [index, blackout, waiting, logo, clear, presenter]);
 
   // The Exit button shows for 3 seconds after the mouse moves or the screen is touched
   const [showExit, setShowExit] = useState(false);
@@ -283,44 +314,22 @@ export default function Projector() {
   };
 
   if (presenter) {
-    return (
-      <div className="pres">
-        <div className="pres-head">
-          <strong>Presenter</strong>
-          <span>Slide {index + 1} of {total}{blackout ? " · screen blanked" : ""}{waiting ? " · waiting screen on" : ""}</span>
-        </div>
-        <div className="pres-row">
-          <div className="pres-card">
-            <div className="pres-label">Now</div>
-            {renderStage(deck.slides[index], deck, " in-pres")}
-          </div>
-          <div className="pres-card">
-            <div className="pres-label">Next</div>
-            {index + 1 < total ? renderStage(deck.slides[index + 1], deck, " in-pres") : <div className="pres-end">End of presentation</div>}
-          </div>
-        </div>
-        <div className="pres-controls">
-          <button className="secondary" onClick={() => send("prev")} disabled={index === 0}>← Previous</button>
-          <button className="primary" onClick={() => send("next")} disabled={index >= total - 1}>Next →</button>
-          <button className="secondary" onClick={() => send("blackout")}>{blackout ? "Show screen" : "Blank screen"}</button>
-          <button className="secondary" onClick={() => send("waiting")}>{waiting ? "Hide waiting screen" : "Waiting screen"}</button>
-        </div>
-        {!connected && <p className="pres-warn">Projector not connected. Open the projector window (#projector) and keep it open.</p>}
-        <div className="pres-list" role="list" aria-label="Jump to slide">
-          {deck.slides.map((sl, i) => (
-            <button key={i} role="listitem" className={`pres-jump${i === index ? " current" : ""}`} onClick={() => send("goto", i)} aria-current={i === index ? "true" : undefined}>
-              <span className="pres-jump-num">{i + 1}</span>
-              <span className="pres-jump-text">{(sl.rows ?? []).join(" ").slice(0, 60)}</span>
-            </button>
-          ))}
-        </div>
-        <p className="pres-help">Keys work in this window: arrows, Space and Enter move, Home and End jump to the first and last slide, B blanks, W shows the waiting screen, F goes full screen on the projector window.</p>
-      </div>
-    );
+    return <Presenter deck={deck} state={{ index, blackout, waiting, logo, clear }} connected={connected} send={send} />;
   }
 
   if (blackout) {
     return <div className="projector-blackout" onClick={() => setBlackout(false)}><ExitButton show={showExit} /></div>;
+  }
+
+  if (logo) {
+    let src = "";
+    try { src = localStorage.getItem(LOGO_KEY) || ""; } catch { /* storage blocked */ }
+    return (
+      <div className="projector-logo">
+        {src ? <img src={src} alt={CHURCH_NAME} /> : <div>{CHURCH_NAME}</div>}
+        <ExitButton show={showExit} />
+      </div>
+    );
   }
 
   if (waiting) {
@@ -329,7 +338,7 @@ export default function Projector() {
     return <div className="projector-waiting"><div>{welcome}</div><ExitButton show={showExit} /></div>;
   }
 
-  const slide = deck.slides[index];
+  const slide = clear ? { ...deck.slides[index], rows: [], segs: [], ref: undefined, label: undefined } : deck.slides[index];
   return (
     <>
       {renderStage(slide, deck, "", () => setIndex((i) => Math.min(total - 1, i + 1)))}

@@ -2377,3 +2377,67 @@ html:has(.ss), html:has(.ss) body { height: auto; overflow: auto; background: va
 /* Lyric page: the Theme row stays visible at the bottom while scrolling, just above the Your slideshow pill */
 html .lf .lf-quick { position: sticky; bottom: 64px; z-index: 20; background: var(--panel); border-radius: 12px; padding: 6px 10px; box-shadow: 0 6px 18px rgb(var(--text-rgb) / 0.12); }
 @media (max-width: 720px) { html .lf .lf-quick { bottom: 8px; } }
+
+/* ---------- Presenter view (#projector:presenter): the operator's screen ---------- */
+.prv { min-height: 100vh; box-sizing: border-box; display: grid; grid-template-columns: 280px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; background: var(--bg); color: var(--text); font-size: 0.92rem; }
+.prv-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 20px; border-bottom: 1px solid rgb(var(--text-rgb) / 0.12); }
+.prv-brand { font-size: 1.05rem; }
+.prv-conn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.85rem; color: var(--danger); }
+.prv-conn.on { color: var(--muted); }
+.prv-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.prv-conn.on .prv-dot { background: var(--accent); }
+.prv-open { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.prv-grow { flex: 1 1 auto; }
+.prv-time { display: inline-flex; align-items: center; gap: 8px; }
+.prv-tl { font-size: 0.78rem; color: var(--muted); }
+.prv-tv { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.prv-cap { margin: 0 0 6px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.prv-side { border-right: 1px solid rgb(var(--text-rgb) / 0.12); padding: 14px 10px; overflow-y: auto; min-height: 0; }
+.prv-side .prv-cap { margin-left: 8px; }
+.prv-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.prv-item { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; }
+.prv-item:hover { background: rgb(var(--text-rgb) / 0.06); }
+.prv-item.done { color: var(--muted); }
+.prv-item.current { background: var(--accent); color: var(--on-accent); }
+.prv-item-t { font-weight: 600; line-height: 1.3; }
+.prv-item-n { font-size: 0.75rem; opacity: 0.8; }
+.prv-main { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; min-height: 0; overflow-y: auto; }
+.prv-stages { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.prv-live { color: var(--danger); font-weight: 700; margin-right: 6px; }
+.prv-frame { border-radius: 8px; overflow: hidden; }
+.prv-frame.live { outline: 3px solid var(--danger); outline-offset: 3px; }
+.prv-frame.hidden-out { opacity: 0.45; }
+.prv-after { margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--panel); border: 1px solid rgb(var(--text-rgb) / 0.12); font-weight: 600; }
+.prv-after .prv-cap { display: block; margin-bottom: 2px; font-weight: 400; }
+.prv-thumbs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.prv-thumb { position: relative; display: block; width: 100%; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: none; cursor: pointer; }
+.prv-thumb:hover { border-color: rgb(var(--text-rgb) / 0.3); }
+.prv-thumb.current { border-color: var(--danger); }
+.prv-thumb .stage { pointer-events: none; }
+.prv-thumb-n { position: absolute; left: 6px; top: 6px; padding: 0 6px; border-radius: 4px; background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.72rem; }
+.prv-thumb-t { display: block; margin-top: 4px; font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prv-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 20px; border-top: 1px solid rgb(var(--text-rgb) / 0.12); }
+.prv .prv-foot .prv-big { min-height: 56px; min-width: 150px; font-size: 1.05rem; border-radius: 10px; }
+.prv .prv-foot .prv-nextbtn { min-width: 240px; font-size: 1.15rem; font-weight: 600; }
+.prv .prv-foot .prv-mode { min-height: 48px; border-radius: 10px; }
+.prv .prv-foot .prv-mode.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.prv-logo-pick { font-size: 0.8rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.prv-logo-pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.prv-logo-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.prv-help { grid-column: 1 / -1; margin: 0; padding: 0 20px 12px; font-size: 0.78rem; color: var(--muted); }
+@media (max-width: 900px) {
+  .prv { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+  .prv-side { border-right: 0; border-bottom: 1px solid rgb(var(--text-rgb) / 0.12); max-height: 30vh; }
+  .prv-stages { grid-template-columns: 1fr; }
+  .prv-big, .prv-nextbtn { flex: 1 1 140px; min-width: 0; }
+}
+/* Logo screen on the audience window */
+.projector-logo { position: fixed; inset: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; padding: 8vw; text-align: center; font: 700 5vw Georgia, serif; }
+.projector-logo img { max-width: 70%; max-height: 70%; object-fit: contain; }
+/* The app-wide compact button rule uses !important; the presenter's controls stay large for quick, sure clicks */
+html body .ct-app .prv .prv-foot button.prv-big { min-height: 56px !important; font-size: 1.05rem !important; padding: 8px 20px !important; }
+html body .ct-app .prv .prv-foot button.prv-nextbtn { font-size: 1.15rem !important; }
+html body .ct-app .prv .prv-foot button.prv-mode { min-height: 48px !important; font-size: 0.9rem !important; padding: 6px 16px !important; }
+html body .prv button.prv-item.current { color: var(--on-accent) !important; background: var(--accent); }
+html body .prv button.prv-item.done { color: var(--muted) !important; }
+html body .prv button.prv-mode.on { color: var(--on-accent) !important; }

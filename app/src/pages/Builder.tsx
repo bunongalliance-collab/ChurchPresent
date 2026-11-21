@@ -112,7 +112,9 @@ function slidesForSong(lyrics: string, title: string, number: string, s: Setting
 // Flatten the sequence into projector slides, in order. Each song keeps its own size.
 export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
   const slides: ProjDeck["slides"] = [];
+  const outline: NonNullable<ProjDeck["outline"]> = [];
   for (const it of items) {
+    const first = slides.length;
     if (it.kind === "reading") {
       it.slides.forEach((sl) => slides.push({ label: "", rows: sl.rows, segs: toSegs(sl.rows), verse: false, size: sl.size || it.size, bg: it.bg, fg: it.fg, font: it.font }));
     } else if (it.kind === "scripture") {
@@ -129,8 +131,9 @@ export function flatten(items: Item[], s: Settings, size: number): ProjDeck {
     } else {
       it.slides.forEach((rows, i) => slides.push({ label: it.slideLabels[i] ?? "", rows, size: it.size, bg: it.look?.bg, fg: it.look?.fg, font: it.look?.font }));
     }
+    if (slides.length > first) outline.push({ title: it.title || "Untitled", first, count: slides.length - first });
   }
-  return { font: s.font, size, bg: s.bg, fg: s.fg, showLabels: s.showLabels, slides };
+  return { font: s.font, size, bg: s.bg, fg: s.fg, showLabels: s.showLabels, slides, outline };
 }
 
 export default function Builder() {

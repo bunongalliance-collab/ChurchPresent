@@ -121,7 +121,8 @@ export default function ServicePresentation() {
     );
   }, [res, program, lines]);
 
-  const deck: ProjDeck | null = useMemo(() => (result ? { font: FONT, size: 60, bg: BG, fg: FG, showLabels: true, slides: result.slides } : null), [result]);
+  const deck: ProjDeck | null = useMemo(() => (result ? { font: FONT, size: 60, bg: BG, fg: FG, showLabels: true, slides: result.slides,
+    outline: result.outline.filter((o) => o.count > 0).map((o) => ({ title: o.detail ? `${o.item}: ${o.detail}` : o.item, first: o.first, count: o.count })) } : null), [result]);
   const total = deck?.slides.length ?? 0;
   const at = Math.min(index, Math.max(0, total - 1));
 
@@ -147,6 +148,17 @@ export default function ServicePresentation() {
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
   }
 
+  // Presenter: the operator's window (order of worship, now and next, clock, black and logo screens).
+  // It opens here; its "Show on second screen" button opens the audience window on the other screen.
+  function presenterView() {
+    if (!deck) return;
+    try {
+      localStorage.setItem(PROJECTOR_KEY, JSON.stringify(deck));
+      sessionStorage.setItem("projectorIndex", String(at));
+    } catch { /* storage blocked */ }
+    window.open(`${import.meta.env.BASE_URL}#projector:presenter`, "_blank");
+  }
+
   const stageName = (s: number) => STAGES[s] ?? "";
   const itemCount = parseItems(lines).length;
 
@@ -169,6 +181,7 @@ export default function ServicePresentation() {
             <button type="button" className="secondary" onClick={refresh}>Refresh</button>
             <button type="button" className="secondary" onClick={() => window.print()} disabled={!total}>Print</button>
             <button type="button" className="primary" onClick={present} disabled={!total}>Present</button>
+            <button type="button" className="secondary" onClick={presenterView} disabled={!total}>Presenter view</button>
           </div>
         </header>
 
