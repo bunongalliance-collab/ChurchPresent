@@ -17,9 +17,7 @@ Ideas discussed but not built yet. Each one says why it matters and what it need
 - Changes to the Program's Publish button and the reader's Today's service card.
 - Services published before the change have no church and must be published again.
 
-**Decision still open: who may publish for a church.**
-- Open: anyone signed in can publish under any church name. Simple, but someone could publish under another church's name.
-- Tied (recommended, since the app is public): a `church_publishers` table links each church to the team members allowed to publish for it, and the database rules check it.
+**Who may publish: decided, first step done.** Tied, not open. While there is one church and one account, `supabase/service-publishers.sql` adds a `service_publishers` list: only listed accounts can publish, and the app only shows services from them. To add a team member, add one row (the SQL is at the bottom of that file). When a second church joins, extend this list with a church column (it becomes `church_publishers`) instead of starting again.
 
 ## More than one service at the same church
 
