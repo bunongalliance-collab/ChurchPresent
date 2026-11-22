@@ -67,10 +67,6 @@ function songIdsInPresentation(): Set<string> {
 
 // Ten quick slide themes (background, text) shown under the lyrics box
 
-function greeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
 
 export default function LyricsV2() {
   // Form
@@ -560,9 +556,7 @@ export default function LyricsV2() {
       <div className="lv2 lf">
         <header className="lv2-top">
           <div className="lf-greet">
-            <span className="lf-hello">{greeting()}</span>
             <h1>Create Slide Show</h1>
-            <p>Pick a song, check the words, and add it to your slideshow.</p>
           </div>
           <SlideshowStrip inline extra={slideshowExtra} />
           <div className="lv2-top-actions lv2-top-actions-desk">

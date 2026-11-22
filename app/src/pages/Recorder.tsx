@@ -248,7 +248,6 @@ export default function Recorder() {
         <header className="rc-top">
           <div>
             <h1>Recorder</h1>
-            <p className="rc-sub">The camera with the Program Order as a lower third, saved to this computer.</p>
           </div>
           <div className="rc-actions">
             {rec ? (

@@ -184,7 +184,6 @@ export default function Thumbnail() {
       <NavBar />
     <div className="th">
       <h1>Sermon thumbnail</h1>
-      <p className="th-sub">Upload the program PDF. The title, verse and date are read automatically. Pick a design, add the pastor’s photo, and download.</p>
 
       <div className="th-grid">
         <section className="th-card">

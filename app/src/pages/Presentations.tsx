@@ -224,7 +224,6 @@ export default function Presentations() {
         <header className="pl-top">
           <div>
             <h1>Presentations</h1>
-            <p className="sub">Your saved presentations. Open one to keep editing, or present it straight from here.</p>
           </div>
           <button className="primary" onClick={() => { window.location.hash = "#builder"; }}>New presentation</button>
         </header>

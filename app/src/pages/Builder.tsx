@@ -523,7 +523,6 @@ export default function Builder() {
     <div className="builder-page">
       <header>
         <h1>Presentation Builder</h1>
-        <p className="sub">Choose songs, add your own slides, arrange them, then present in one order.</p>
       </header>
 
       <div className="builder-top">

@@ -169,12 +169,9 @@ export default function ServicePresentation() {
         <header className="ss-top">
           <div>
             <h1>Service presentation</h1>
-            <p className="ss-status">
-              {!result ? "Building the slides…" : `${total} slide${total === 1 ? "" : "s"} for ${itemCount} program item${itemCount === 1 ? "" : "s"}, from the Program saved in this browser.`}
-              {result && result.warnings.length > 0 && (
-                <> <button type="button" className="ss-warnlink" onClick={() => setShowWarnings((v) => !v)} aria-expanded={showWarnings}>{result.warnings.length} thing{result.warnings.length === 1 ? "" : "s"} to check</button></>
-              )}
-            </p>
+            {result && result.warnings.length > 0 && (
+              <p className="ss-status"><button type="button" className="ss-warnlink" onClick={() => setShowWarnings((v) => !v)} aria-expanded={showWarnings}>{result.warnings.length} thing{result.warnings.length === 1 ? "" : "s"} to check</button></p>
+            )}
           </div>
           <div className="ss-actions">
             <a className="ss-link" href="#program">Open Program</a>

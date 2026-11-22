@@ -329,7 +329,6 @@ export default function Program() {
       <div className="pg-top">
         <div>
           <h1>Service program</h1>
-          <p>Type directly on the program. Download PDF saves the brochure; Print opens it ready to print.</p>
         </div>
         <div className="pg-actions">
           <button className="pg-btn link" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>

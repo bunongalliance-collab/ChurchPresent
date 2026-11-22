@@ -219,7 +219,6 @@ export default function Notes() {
         <header className="pl-top">
           <div>
             <h1>Notes</h1>
-            <p className="sub">Your own notes. Kept in this browser, so they work offline.</p>
           </div>
           <button className="primary" onClick={add}>New note</button>
         </header>
