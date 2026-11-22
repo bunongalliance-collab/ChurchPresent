@@ -207,6 +207,11 @@ export default function Projector() {
   // left open in the background also answer, so listeners such as the Recorder use this to follow the right window.
   const sender = useRef({ sid: Math.random().toString(36).slice(2), changedAt: Date.now() });
   const meta = () => ({ sid: sender.current.sid, changedAt: sender.current.changedAt, visible: document.visibilityState === "visible" });
+  // Only one screen window is live. Present and "Show on second screen" each open a new one; the newest announces
+  // itself and older ones stop acting on commands, stop answering and try to close, so the presenter view, the phone
+  // remote and the Recorder all follow the same slide.
+  const [replaced, setReplaced] = useState(false);
+  const announced = useRef(false);
   // The command handler, shared with the phone remote
   const actRef = useRef<(cmd: string, arg?: number) => void>(() => {});
   // Phone remote: the pairing code (changed from the presenter's "New code"), and when a phone was last heard
@@ -220,7 +225,7 @@ export default function Projector() {
 
   // Both windows listen on one channel. The audience window acts on commands; the presenter window sends them.
   useEffect(() => {
-    if (!deck) return;
+    if (!deck || replaced) return;
     const total = deck.slides.length;
     // Moving to a slide brings the words back and leaves any special screen
     const show = () => { setBlackout(false); setLogo(false); setClear(false); };
@@ -242,8 +247,14 @@ export default function Projector() {
     if (typeof BroadcastChannel !== "undefined") {
       ch = new BroadcastChannel(CHANNEL);
       chRef.current = ch;
+      if (!presenter && !announced.current) { announced.current = true; ch.postMessage({ type: "takeover", sid: sender.current.sid }); }
       ch.onmessage = (e: MessageEvent) => {
         const m = e.data;
+        if (!presenter && m?.type === "takeover" && m.sid !== sender.current.sid) {
+          setReplaced(true);
+          window.close(); // works for windows the app opened; others show a note instead
+          return;
+        }
         if (!presenter && m?.type === "cmd") act(m.cmd, m.index);
         if (!presenter && m?.type === "hello") ch?.postMessage({ type: "state", ...latest.current, ...meta() });
         if (presenter && m?.type === "state") {
@@ -312,7 +323,7 @@ export default function Projector() {
       ch?.close();
       chRef.current = null;
     };
-  }, [deck, presenter]);
+  }, [deck, presenter, replaced]);
 
   // The audience window tells the presenter window (and a paired phone) where it is
   useEffect(() => {
@@ -342,7 +353,7 @@ export default function Projector() {
   // answers its hello with the current state. Needs internet; without it the keys and presenter still work.
   useEffect(() => {
     const sb = supabase;
-    if (presenter || !deck || !sb) return;
+    if (presenter || !deck || !sb || replaced) return;
     const rc = sb.channel(remoteChannel(remoteCode), { config: { broadcast: { self: false } } });
     const sendState = () => void rc.send({ type: "broadcast", event: "state", payload: stateFor(deck, latest.current) });
     rc.on("broadcast", { event: "cmd" }, ({ payload }) => {
@@ -350,11 +361,15 @@ export default function Projector() {
       const p = payload as { cmd?: string; index?: number };
       if (typeof p.cmd === "string") actRef.current(p.cmd, typeof p.index === "number" ? p.index : undefined);
     });
-    rc.on("broadcast", { event: "hello" }, () => { setPhoneAt(Date.now()); sendState(); });
+    // A Recorder or the OBS lower third ("follower") also says hello: answer it, but it is not a phone
+    rc.on("broadcast", { event: "hello" }, ({ payload }) => {
+      if ((payload as { role?: string } | undefined)?.role !== "follower") setPhoneAt(Date.now());
+      sendState();
+    });
     rc.subscribe((status) => { if (status === "SUBSCRIBED") sendState(); });
     remoteRef.current = rc;
     return () => { remoteRef.current = null; void sb.removeChannel(rc); };
-  }, [deck, presenter, remoteCode]);
+  }, [deck, presenter, remoteCode, replaced]);
 
   // The Exit button shows for 3 seconds after the mouse moves or the screen is touched
   const [showExit, setShowExit] = useState(false);
@@ -365,6 +380,10 @@ export default function Projector() {
     window.addEventListener("pointerdown", wake);
     return () => { window.removeEventListener("pointermove", wake); window.removeEventListener("pointerdown", wake); window.clearTimeout(timer); };
   }, []);
+
+  if (replaced) {
+    return <div className="projector-message">This presentation is now showing in another window. You can close this one.</div>;
+  }
 
   if (!deck) {
     return (

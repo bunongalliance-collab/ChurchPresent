@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import NavBar from "../components/NavBar";
-import { loadDeck, PROJECTOR_KEY, type ProjDeck } from "./Projector";
+import { cleanCode, hideCaption, useFollowPresenter, type FollowMode } from "../lib/recorder/follow";
+import { getRemoteCode } from "../lib/remote";
 import { captionAt, LowerThird } from "../lib/recorder/lowerThird";
 import { AUDIO_BPS, cameraMode, canSaveDirect, fileName, gbPerHour, listInputs, openAudio, openSink, openVideo, pickFormat, QUALITIES, qualityOf, startTicker, stopStream, type CameraMode, type Inputs, type Sink } from "../lib/recorder/media";
 
@@ -9,14 +10,12 @@ import { AUDIO_BPS, cameraMode, canSaveDirect, fileName, gbPerHour, listInputs, 
 // tells every window of this app which slide it is on (the "church-projector" channel), and the Recorder looks up
 // which Program Order item that slide belongs to. Run it on the presenting computer, in the same browser.
 
-const CHANNEL = "church-projector";
 const NO_AUDIO = "none";
 const PREFS_KEY = "recorderInputs";
 
-interface ScreenState { index: number; blackout: boolean; waiting: boolean; logo: boolean }
 
-interface Prefs { video: string; audio: string; quality: string; fps: number }
-const DEFAULT_PREFS: Prefs = { video: "", audio: "", quality: "standard", fps: 30 };
+interface Prefs { video: string; audio: string; quality: string; fps: number; follow: FollowMode; code: string }
+const DEFAULT_PREFS: Prefs = { video: "", audio: "", quality: "standard", fps: 30, follow: "local", code: "" };
 function readPrefs(): Prefs {
   try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") }; } catch { return DEFAULT_PREFS; }
 }
@@ -51,9 +50,12 @@ export default function Recorder() {
   const [drawFps, setDrawFps] = useState(0); // frames drawn per second, measured
 
   // What the projector window is showing
-  const [deck, setDeck] = useState<ProjDeck | null>(() => loadDeck());
-  const [screen, setScreen] = useState<ScreenState>({ index: 0, blackout: false, waiting: false, logo: false });
-  const [connected, setConnected] = useState(false);
+  // Following the presentation: on this computer, or on another one through the presenter's pairing code
+  const [follow, setFollow] = useState<FollowMode>(() => (readPrefs().follow === "code" ? "code" : "local"));
+  const [code, setCode] = useState(() => cleanCode(readPrefs().code));
+  const { connected, screen, outline, problem } = useFollowPresenter(follow, code);
+  const overlayCode = follow === "code" ? code : getRemoteCode();
+  const overlayUrl = `${window.location.origin}${import.meta.env.BASE_URL}#lowerthird:${overlayCode}`;
   const [hidden, setHidden] = useState(false);
 
   // Recording
@@ -66,9 +68,10 @@ export default function Recorder() {
   const [recError, setRecError] = useState("");
 
   // The draw loop reads these refs, so it never restarts
-  const live = useRef({ deck, screen, hidden });
-  live.current = { deck, screen, hidden };
-  const caption = deck && !hidden && !screen.blackout && !screen.waiting && !screen.logo ? captionAt(deck.outline, screen.index) : null;
+  // A short internet drop keeps the last item on screen until updates come back
+  const caption = !hidden && !hideCaption(screen) ? captionAt(outline, screen.index) : null;
+  const live = useRef(caption);
+  live.current = caption;
 
   const refreshInputs = useCallback(async () => {
     try { setInputs(await listInputs()); } catch { /* no media devices API */ }
@@ -125,8 +128,8 @@ export default function Recorder() {
   }, [audioId]);
 
   useEffect(() => {
-    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ video: videoId, audio: audioId, quality: qualityId, fps })); } catch { /* storage blocked */ }
-  }, [videoId, audioId, qualityId, fps]);
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ video: videoId, audio: audioId, quality: qualityId, fps, follow, code })); } catch { /* storage blocked */ }
+  }, [videoId, audioId, qualityId, fps, follow, code]);
 
   // Plugging in or unplugging a camera or capture card updates the lists
   useEffect(() => {
@@ -138,45 +141,6 @@ export default function Recorder() {
 
   // Leaving the page releases the camera and microphone
   useEffect(() => () => { stopStream(videoStream.current); stopStream(audioStream.current); }, []);
-
-  // Follow the projector window: ask where it is every 2 seconds, and listen for each slide change
-  useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return;
-    const ch = new BroadcastChannel(CHANNEL);
-    let seen = 0;
-    // Every open projector window answers, including old tabs left in the background (each Present opens a new
-    // one, and a phone remote moves them all). Follow the window that can be seen, and of those the one whose
-    // slide changed most recently.
-    const windows = new Map<string, { state: ScreenState; visible: boolean; changedAt: number; at: number }>();
-    ch.onmessage = (e: MessageEvent) => {
-      const m = e.data;
-      if (m?.type !== "state") return;
-      const t = Date.now();
-      seen = t;
-      windows.set(typeof m.sid === "string" ? m.sid : "older-version", {
-        state: { index: m.index ?? 0, blackout: !!m.blackout, waiting: !!m.waiting, logo: !!m.logo },
-        visible: m.visible !== false, changedAt: typeof m.changedAt === "number" ? m.changedAt : 0, at: t,
-      });
-      let best: { state: ScreenState; visible: boolean; changedAt: number } | null = null;
-      for (const [id, w] of windows) {
-        if (t - w.at > 6000) { windows.delete(id); continue; } // closed windows stop answering
-        if (!best || (w.visible && !best.visible) || (w.visible === best.visible && w.changedAt > best.changedAt)) best = w;
-      }
-      setConnected(true);
-      if (best) setScreen(best.state);
-    };
-    const hello = () => ch.postMessage({ type: "hello" });
-    hello();
-    const t = window.setInterval(() => { hello(); setConnected(Date.now() - seen < 4000); }, 2000);
-    return () => { window.clearInterval(t); ch.close(); };
-  }, []);
-
-  // Pressing Present on another page saves a new deck: pick it up
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => { if (e.key === PROJECTOR_KEY) setDeck(loadDeck()); };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
 
   // H shows or hides the lower third (not while typing)
   useEffect(() => {
@@ -200,7 +164,6 @@ export default function Recorder() {
       const t = performance.now();
       drawn++;
       const v = videoRef.current;
-      const { deck: d, screen: sc, hidden: hid } = live.current;
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, W, H);
       if (v && v.readyState >= 2 && v.videoWidth) {
@@ -210,7 +173,7 @@ export default function Recorder() {
         const dh = v.videoHeight * k;
         ctx.drawImage(v, (W - dw) / 2, (H - dh) / 2, dw, dh);
       }
-      lt.set(d && !hid && !sc.blackout && !sc.waiting && !sc.logo ? captionAt(d.outline, sc.index) : null, t);
+      lt.set(live.current, t);
       lt.draw(ctx, W, H, t);
     });
     return () => { stopTicker(); window.clearInterval(count); };
@@ -271,8 +234,9 @@ export default function Recorder() {
   const lowFps = mode && mode.fps > 0 && mode.fps < fps - 1;
   const slowCam = camFps > 0 && camFps < fps * 0.8 && !lowFps;
   const slowDraw = !!rec && drawFps > 0 && drawFps < fps * 0.85;
-  const status = !deck?.outline?.length ? "No Program Order yet. Open the Service page and press Present."
-    : !connected ? "Waiting for the screen window. Press Present on the Service page."
+  const status = problem ? problem
+    : !connected ? (follow === "code" ? "Connecting to the presenter's computer… (both computers need internet, and the presentation must be showing)" : "Waiting for the screen window. Press Present on the Service page.")
+    : !outline?.length ? "No Program Order in this presentation. Present from the Service page."
     : screen.blackout ? "Screen is black: lower third hidden."
     : screen.waiting || screen.logo ? "Screen shows the welcome or logo: lower third hidden."
     : hidden ? "Lower third hidden (press H to show)." : "Following the presentation.";
@@ -352,13 +316,33 @@ export default function Recorder() {
 
             <div className="rc-card">
               <h2>Lower third</h2>
-              <p className={`rc-follow${connected ? " on" : ""}`}>{status}</p>
+              <fieldset className="rc-mode">
+                <legend>Presentation is on</legend>
+                <label className="check"><input type="radio" name="rc-follow" checked={follow === "local"} onChange={() => setFollow("local")} /> This computer</label>
+                <label className="check"><input type="radio" name="rc-follow" checked={follow === "code"} onChange={() => setFollow("code")} /> Another computer</label>
+              </fieldset>
+              {follow === "code" && (
+                <>
+                  <label htmlFor="rc-code">Presenter's pairing code</label>
+                  <input id="rc-code" type="text" inputMode="text" autoComplete="off" spellCheck={false} maxLength={8} placeholder="ABCD2345"
+                    value={code} onChange={(e) => setCode(cleanCode(e.target.value))} className="rc-code" />
+                  <p className="rc-note">The presenter finds it in Presenter view → Phone remote. Following only listens: it never changes their slides.</p>
+                </>
+              )}
+              <p className={`rc-follow${connected ? " on" : ""}`} role="status">{status}</p>
               <div className="rc-now" aria-live="polite">
                 <span className="rc-now-k">On screen now</span>
                 {caption ? <><strong>{caption.title}</strong>{caption.subtitle && <span>{caption.subtitle}</span>}</> : <span className="rc-none">Nothing</span>}
               </div>
               <button type="button" className="secondary" onClick={() => setHidden((v) => !v)} aria-pressed={hidden}>{hidden ? "Show lower third (H)" : "Hide lower third (H)"}</button>
-              <p className="rc-note">The title changes when the presenter moves to the next Program Order item. Keep this window open beside the presentation.</p>
+              <p className="rc-note">The title changes when the presenter moves to the next Program Order item. Keep this window open and visible while recording.</p>
+            </div>
+
+            <div className="rc-card">
+              <h2>Using OBS instead</h2>
+              <p className="rc-note">Add a Browser Source in OBS with this address, size 1920 × 1080, above the camera. It shows only the lower third, on a transparent background, and follows the presenter{follow === "code" ? "" : " (through this computer's pairing code, so it needs internet)"}.</p>
+              <input type="text" readOnly value={overlayCode.length === 8 ? overlayUrl : "Enter the pairing code first"} className="rc-url" aria-label="Lower-third address for OBS" onFocus={(e) => e.currentTarget.select()} />
+              <button type="button" className="secondary" disabled={overlayCode.length !== 8} onClick={() => void navigator.clipboard?.writeText(overlayUrl)}>Copy address</button>
             </div>
 
             <p className="rc-note">{canSaveDirect() ? "Start recording asks where to save the file, then writes to it every second." : "This browser saves the file to Downloads when you stop. Chrome or Edge can write straight to a folder you choose."}</p>
