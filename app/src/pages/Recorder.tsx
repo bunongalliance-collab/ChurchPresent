@@ -15,7 +15,7 @@ const PREFS_KEY = "recorderInputs";
 
 
 interface Prefs { video: string; audio: string; quality: string; fps: number; follow: FollowMode; code: string }
-const DEFAULT_PREFS: Prefs = { video: "", audio: "", quality: "standard", fps: 30, follow: "local", code: "" };
+const DEFAULT_PREFS: Prefs = { video: "", audio: "", quality: "highest", fps: 30, follow: "local", code: "" };
 function readPrefs(): Prefs {
   try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") }; } catch { return DEFAULT_PREFS; }
 }

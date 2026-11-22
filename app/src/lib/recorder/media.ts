@@ -14,11 +14,13 @@ export function stopStream(s: MediaStream | null) {
 }
 
 // Recording quality: the frame size and how many bits per second the encoder may use (more = sharper, bigger file)
-export type QualityId = "standard" | "high" | "small";
+export type QualityId = "highest" | "high" | "standard" | "small";
 export interface Quality { id: QualityId; label: string; width: number; height: number; videoBps: number }
 export const QUALITIES: Quality[] = [
-  { id: "standard", label: "Standard · 1080p", width: 1920, height: 1080, videoBps: 8_000_000 },
+  // Highest: about as far as 1080p is worth pushing (a capture card like the HD60 S+ sends 1080p at most)
+  { id: "highest", label: "Highest · 1080p", width: 1920, height: 1080, videoBps: 25_000_000 },
   { id: "high", label: "High · 1080p", width: 1920, height: 1080, videoBps: 16_000_000 },
+  { id: "standard", label: "Standard · 1080p", width: 1920, height: 1080, videoBps: 8_000_000 },
   { id: "small", label: "Smaller file · 720p", width: 1280, height: 720, videoBps: 5_000_000 },
 ];
 export const AUDIO_BPS = 192_000;
