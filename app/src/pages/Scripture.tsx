@@ -662,7 +662,7 @@ export default function Scripture() {
           <div className="sc-title">
             <h1>Scripture Slides</h1>
           </div>
-          <SlideshowStrip inline extra={addedStudies} />
+          <SlideshowStrip inline extra={addedStudies.map((x) => ({ ...x, kind: "scripture" as const }))} />
           <div className="sc-actions">
             <input className="sc-search" type="search" value={studyQuery} onChange={(e) => setStudyQuery(e.target.value)} placeholder="Search studies" aria-label="Search saved studies" />
             <button className={`sc-star${currentId && scFavorites.includes(currentId) ? " on" : ""}`} onClick={toggleStudyFavorite} disabled={!currentId} aria-label="Favourite this study" aria-pressed={!!currentId && scFavorites.includes(currentId)} title="Favourite">★</button>

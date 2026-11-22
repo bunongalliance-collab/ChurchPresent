@@ -407,7 +407,7 @@ export default function ReadingsV2() {
           <h1>Readings</h1>
           <p className="lv2-sub">Church readings, responsive readings, prayers and other prepared passages.</p>
         </div>
-        <SlideshowStrip inline extra={addedList.slice().reverse().map((a) => ({ id: a.id, label: a.title }))} />
+        <SlideshowStrip inline extra={addedList.slice().reverse().map((a) => ({ id: a.id, label: a.title, kind: "reading" as const }))} />
         <div className="lv2-top-actions lv2-top-actions-desk">
           <button className="secondary" onClick={download} disabled={!slides.length}>Download PowerPoint</button>
           <button className="primary" onClick={present} disabled={!slides.length}>Present</button>

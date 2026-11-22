@@ -517,7 +517,7 @@ export default function LyricsV2() {
   const selectedInPresentation = !!selectedId && inPresentation.has(selectedId);
   const slideshowExtra = addedNow.map((x) => {
     const found = songs.find((y) => y.id === x.id);
-    return { id: x.id, label: `${found?.number || x.number ? (found?.number || x.number) + ". " : ""}${found?.title || x.title || "(untitled)"}` };
+    return { id: x.id, kind: "song" as const, label: `${found?.number || x.number ? (found?.number || x.number) + ". " : ""}${found?.title || x.title || "(untitled)"}` };
   });
 
   const [justAdded, setJustAdded] = useState(false);

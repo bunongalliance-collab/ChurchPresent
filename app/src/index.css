@@ -2607,3 +2607,12 @@ html body .ct-app .sc-pres-inline button.primary.flash { animation: add-pop 0.45
 /* Presentation Builder: the same "✓ Added" pop and ring on the Recent lists' Add buttons */
 html body .ct-app .builder-page button.primary.flash { animation: add-pop 0.45s ease-out; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { html body .ct-app .builder-page button.primary.flash { animation: none; } }
+
+/* Your slideshow: items colour coded like the Presentation Builder (songs blue, readings purple, scripture orange) */
+html body .lv2-show .lv2-show-items li.show-song { background: color-mix(in srgb, var(--recent-song) 16%, transparent); box-shadow: inset 3px 0 0 var(--recent-song); }
+html body .lv2-show .lv2-show-items li.show-reading { background: color-mix(in srgb, var(--recent-reading) 16%, transparent); box-shadow: inset 3px 0 0 var(--recent-reading); }
+html body .lv2-show .lv2-show-items li.show-scripture { background: color-mix(in srgb, var(--recent-scripture) 16%, transparent); box-shadow: inset 3px 0 0 var(--recent-scripture); }
+html body .lv2-show .lv2-show-items li.show-song .lv2-show-n { color: var(--recent-song); opacity: 1; font-weight: 700; }
+html body .lv2-show .lv2-show-items li.show-reading .lv2-show-n { color: var(--recent-reading); opacity: 1; font-weight: 700; }
+html body .lv2-show .lv2-show-items li.show-scripture .lv2-show-n { color: var(--recent-scripture); opacity: 1; font-weight: 700; }
+html body .lv2-show .lv2-show-items li[class^="show-"] { color: var(--text); padding-left: 10px; }

@@ -1,13 +1,20 @@
 // "Your slideshow": the items in the Presentation Builder's working presentation, in order (read-only here;
 // they are arranged and removed in the Builder). `extra` lists items added on this page that the Builder has not picked up yet.
 import { readAdded } from "../lib/slideshowQueue";
-export interface StripItem { id: string; label: string }
+export type StripKind = "song" | "reading" | "scripture" | "custom";
+export interface StripItem { id: string; label: string; kind?: StripKind }
+
+// Titles in Title Case: each word starts with a capital, the rest lower case ("MÂT TON NAU" → "Mât Ton Nau").
+// A letter after a hyphen stays lower case ("YÊ-SU" → "Yê-su").
+export function titleCase(t: string): string {
+  return t.toLocaleLowerCase().replace(/(^|[\s("“'‘])(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toLocaleUpperCase());
+}
 
 function builderItems(): StripItem[] {
   try {
     const d = JSON.parse(sessionStorage.getItem("builderDraft") || "null");
-    const items: { id?: string; songId?: string; studyId?: string; title?: string; number?: string }[] = d?.items ?? [];
-    return items.map((i, n) => ({ id: i.songId ?? i.studyId ?? i.id ?? String(n), label: `${i.number ? i.number + ". " : ""}${i.title || "(untitled)"}` }));
+    const items: { id?: string; songId?: string; studyId?: string; title?: string; number?: string; kind?: StripKind }[] = d?.items ?? [];
+    return items.map((i, n) => ({ id: i.songId ?? i.studyId ?? i.id ?? String(n), kind: i.kind, label: `${i.number ? i.number + ". " : ""}${i.title || "(untitled)"}` }));
   } catch {
     return [];
   }
@@ -24,7 +31,10 @@ export default function SlideshowStrip({ extra = [], inline = false }: { extra?:
       {all.length ? (
         <ol className="lv2-show-items">
           {all.map((x, i) => (
-            <li key={`${x.id}-${i}`}><span className="lv2-show-n">{i + 1}</span>{x.label}</li>
+            // Colour coded like the Presentation Builder: songs blue, readings purple, scripture orange
+            <li key={`${x.id}-${i}`} className={x.kind ? `show-${x.kind}` : undefined} title={x.kind === "song" ? "Song" : x.kind === "reading" ? "Reading" : x.kind === "scripture" ? "Scripture" : undefined}>
+              <span className="lv2-show-n">{i + 1}</span>{titleCase(x.label)}
+            </li>
           ))}
         </ol>
       ) : (

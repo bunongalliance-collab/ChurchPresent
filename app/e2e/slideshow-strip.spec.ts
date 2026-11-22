@@ -10,25 +10,28 @@ test("added items follow you from page to page and all readings reach the Builde
   const names = page.locator(".lv2-songs .lv2-song-name");
 
   await openList();
+  // The list shows "01. TITLE"; the slideshow shows the title (in Title Case)
+  const titleOf = async (i: number) => ((await names.nth(i).innerText()).replace(/^\s*\d+\.\s*/, "").trim());
+  const first = await titleOf(0);
   await names.nth(0).click();
-  const first = (await page.locator(".lv2-editor input").first().inputValue()).trim();
   await add.click();
   await expect(add).toHaveText("✓ Added");
   await openList();
+  const second = await titleOf(3);
   await names.nth(3).click();
-  const second = (await page.locator(".lv2-editor input").first().inputValue()).trim();
   await add.click();
   await expect(add).toHaveText("✓ Added");
 
   const strip = page.locator(".lv2-show");
   for (const hash of ["#", "#scripture", "#readings-v2"]) {
     await page.goto(`/${hash}`);
-    await expect(strip).toContainText(first);
-    await expect(strip).toContainText(second);
+    await expect(strip).toContainText(first, { ignoreCase: true });
+    await expect(strip).toContainText(second, { ignoreCase: true });
   }
 
   // The Builder adds both waiting readings, not only the last one
   await page.goto("/#builder");
   const draftTitles = async () => page.evaluate(() => (JSON.parse(sessionStorage.getItem("builderDraft") || "{}").items ?? []).map((i: { title?: string }) => i.title));
-  await expect.poll(draftTitles).toEqual(expect.arrayContaining([first, second]));
+  const upper = async () => (await draftTitles()).map((t: string) => t.toLocaleUpperCase());
+  await expect.poll(upper).toEqual(expect.arrayContaining([first.toLocaleUpperCase(), second.toLocaleUpperCase()]));
 });
