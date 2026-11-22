@@ -5,6 +5,7 @@ import { cacheReadingCategories, cacheReadings, loadCachedReadingCategories, loa
 import { parseRows, readingCategoryRowSchema, readingRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import SlideshowStrip from "../components/SlideshowStrip";
+import { queueReading, recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { COLOR_PRESETS, FONTS, RECOMMENDED_PT, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
@@ -30,7 +31,6 @@ const LOCAL_CATEGORIES = "readingCategoriesLocal";
 const FAV_KEY = "readingFavourites";
 const RECENT_KEY = "readingRecent";
 const DRAFT_KEY = "readingDraft";
-const PENDING_BUILDER_KEY = "pendingBuilderItem";
 
 const load = <T,>(key: string, fallback: T): T => { try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; } catch { return fallback; } };
 const store = (key: string, v: unknown) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* storage blocked */ } };
@@ -85,9 +85,9 @@ export default function ReadingsV2() {
   const [favorites, setFavorites] = useState<string[]>(() => load(FAV_KEY, []));
   const [recent, setRecent] = useState<string[]>(() => load(RECENT_KEY, []));
   const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState("Type or paste a reading to start.");
-  const [statusIsError, setStatusIsError] = useState(false);
-  const [addedNow, setAddedNow] = useState<string[]>([]);
+  const [, setStatus] = useState("");
+  const [, setStatusIsError] = useState(false);
+  const [, setAddedNow] = useState<string[]>([]);
   const [newCat, setNewCat] = useState("");
   const [sel, setSel] = useState({ start: 0, end: 0 });
   const seedingFor = useRef<string | null>(null);
@@ -364,10 +364,14 @@ export default function ReadingsV2() {
 
   // ----- Presentation Builder -----
   const [addedList, setAddedList] = useState<{ id: string; title: string }[]>([]);
+  // "✓ Added" on the button for a moment after each add
+  const [justAdded, setJustAdded] = useState(false);
   function addToPresentation() {
     if (!slides.length) { say("Type or paste the reading first.", true); return; }
     const item = { kind: "reading", id: uid(), title: title.trim() || "Reading", categoryName: categoryId ? catName(categoryId) : "Other", font: look.font, bg: look.bg, fg: look.fg, size, slides: slides.map((s) => ({ rows: s.rows, size: s.size })) };
-    try { sessionStorage.setItem(PENDING_BUILDER_KEY, JSON.stringify(item)); } catch { /* blocked */ }
+    // Every added reading waits for the Builder (before, a second reading replaced the first)
+    queueReading(item);
+    recordAdded({ id: item.id, kind: "reading", label: item.title });
     // Keep the newest 8 additions for the Builder's Recent readings list
     try {
       const log = JSON.parse(localStorage.getItem("addedReadingsLog") || "[]") as unknown[];
@@ -375,7 +379,9 @@ export default function ReadingsV2() {
     } catch { /* storage blocked */ }
     setAddedList((cur) => [{ id: item.id, title: item.title }, ...cur].slice(0, 20));
     setAddedNow((cur) => [...cur, item.id]);
-    say(`Added "${item.title}" to the presentation. Open the Presentation Builder to arrange it.`);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 2500);
+    say(`✓ Added "${item.title}" to the presentation. Open the Presentation Builder to arrange it.`);
   }
 
   const isFav = !!selected && favorites.includes(selected.id);
@@ -401,13 +407,13 @@ export default function ReadingsV2() {
           <h1>Readings</h1>
           <p className="lv2-sub">Church readings, responsive readings, prayers and other prepared passages.</p>
         </div>
+        <SlideshowStrip inline extra={addedList.slice().reverse().map((a) => ({ id: a.id, label: a.title }))} />
         <div className="lv2-top-actions lv2-top-actions-desk">
           <button className="secondary" onClick={download} disabled={!slides.length}>Download PowerPoint</button>
           <button className="primary" onClick={present} disabled={!slides.length}>Present</button>
         </div>
       </header>
 
-      <SlideshowStrip extra={addedList.slice().reverse().map((a) => ({ id: a.id, label: a.title }))} />
 
       <div className="lv2-grid">
         {/* Find a reading */}
@@ -475,8 +481,6 @@ export default function ReadingsV2() {
             <label className="lv2-field-label" htmlFor="rv2-content">Reading content <span className="lv2-sub">(blank line = new paragraph and new slide)</span></label>
             <VerseTextBox id="rv2-content" value={content} onChange={setContent} onSelect={(start, end) => setSel({ start, end })} numbers={false} />
           </div>
-
-          <p className={statusIsError ? "lv2-status error" : "lv2-status"} role="status">{status}</p>
 
 
           {addedList.length > 0 && (
@@ -575,7 +579,10 @@ export default function ReadingsV2() {
 
         {/* Check the slides */}
         <aside className={`lv2-card lv2-preview${slides.length ? "" : " empty"}`} aria-label="Slide preview">
-          <div className="lv2-preview-head"><div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div><span className="lv2-sub">Generated from the current text</span></div>
+          <div className="lv2-preview-head"><div className="lv2-step-head lv2-preview-row"><span className="lv2-step-n">3</span><h2>Preview the slides</h2>
+            {/* Wider screens: Add to Presentation on the heading's row (phones keep it at the bottom of the preview) */}
+            <button className={`primary lv2-add lv2-add-head${justAdded ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{justAdded ? "✓ Added" : "+ Add to Presentation"}</button>
+          </div><span className="lv2-sub">Generated from the current text</span></div>
           {slides.length ? (
             <>
               <div className="lv2-stage" style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }}>
@@ -612,7 +619,7 @@ export default function ReadingsV2() {
             </div>
           )}
 
-          <button className={`primary lv2-add lv2-add-bottom${addedNow.length && selected && addedNow.includes(selected.id) ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{addedNow.length && selected && addedNow.includes(selected.id) ? "✓ Added" : "+ Add to Presentation"}</button>
+          <button className={`primary lv2-add lv2-add-bottom${justAdded ? " flash" : ""}`} onClick={addToPresentation} disabled={!slides.length}>{justAdded ? "✓ Added" : "+ Add to Presentation"}</button>
         </aside>
       </div>
     </div>

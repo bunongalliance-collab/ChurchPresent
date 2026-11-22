@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "../lib/toast";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
@@ -29,7 +30,8 @@ export default function ProgramSimple() {
   const [passageOpts, setPassageOpts] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);
   const [readings, setReadings] = useState<ReadingOption[]>([]);
   useEffect(() => { void loadReadingOptions().then(setReadings); }, []);
-  const [status, setStatus] = useState("Saved in this browser.");
+  // Messages show in the banner at the top of the screen (each time, even when repeated)
+  const setStatus = (m: string) => toast(m, /^(Could not|Sign in)/.test(m));
 
   useEffect(() => {
     if (!supabase) return;
@@ -109,7 +111,7 @@ export default function ProgramSimple() {
         <div className="ps-top">
           <div>
             <h1>Service program</h1>
-            <p>{status} Every line prints in the program. Click a line to edit it.</p>
+            <p>Saved in this browser. Every line prints in the program. Click a line to edit it.</p>
           </div>
           <div className="ps-actions">
             <a className="ps-link" href="#program">Current editor</a>

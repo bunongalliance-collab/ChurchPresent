@@ -38,8 +38,8 @@ export default function Presentations() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("modified");
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState(false);
+  const [, setStatus] = useState("");
+  const [, setError] = useState(false);
   const [busyId, setBusyId] = useState("");
 
   const say = (m: string, e = false) => { setStatus(m); setError(e); toast(m, e); };
@@ -233,7 +233,6 @@ export default function Presentations() {
         {supabase && !userId && !loading && (
           <p className="status">Sign in on the Lyrics page to see your presentations.</p>
         )}
-        {status && <p className={error ? "status error" : "status"} role="status">{status}</p>}
 
         {loading && <p className="empty">Loading presentations…</p>}
 

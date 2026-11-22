@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "../lib/toast";
 import NavBar from "../components/NavBar";
 import { STYLES, renderTo, extractFromPdf, parseProgram, W, H } from "../lib/thumbnail";
 import { todayScripture } from "../lib/programPdf";
@@ -57,8 +58,8 @@ export default function Thumbnail() {
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   const [pdfName, setPdfName] = useState("");
   const [photoName, setPhotoName] = useState("");
-  const [status, setStatus] = useState("Upload a program PDF to start.");
-  const [statusError, setStatusError] = useState(false);
+  // Messages show in the banner at the top of the screen (each time, even when repeated); errors stay until closed
+  const setStatus = (m: string) => toast(m, /^(Could not|That image could not)/.test(m));
   const [dateChoice, setDateChoice] = useState("this");
   const [pastorChoice, setPastorChoice] = useState(JOHN);
   const [programDraft] = useState<Draft | null>(() => loadProgramDraft());
@@ -132,7 +133,7 @@ export default function Thumbnail() {
   async function handlePdf(file?: File) {
     if (!file) return;
     setPdfName(file.name);
-    setStatus("Reading program…"); setStatusError(false);
+    setStatus("Reading program…");
     try {
       await loadPdfJs();
       const found = parseProgram(await extractFromPdf(file));
@@ -148,7 +149,7 @@ export default function Thumbnail() {
     } catch (err) {
       console.error(err);
       setStatus("Could not read this PDF. If it is a scanned image, type the details below.");
-      setStatusError(true);
+     
     }
   }
 
@@ -157,7 +158,7 @@ export default function Thumbnail() {
     setPhotoName(file.name);
     const img = new Image();
     img.onload = () => setPhoto(img);
-    img.onerror = () => { setStatus("That image could not be opened."); setStatusError(true); };
+    img.onerror = () => { setStatus("That image could not be opened."); };
     img.src = URL.createObjectURL(file);
   }
 
@@ -274,7 +275,6 @@ export default function Thumbnail() {
         <section className="th-card th-preview">
           <h2>Preview (1280 × 720)</h2>
           <canvas className="th-main" ref={canvasRef} width={W} height={H} />
-          <div className={statusError ? "th-status error" : "th-status"} role="status">{status}</div>
           <div className="th-btns">
             <button className="th-btn" onClick={() => download("image/jpeg")}>Download JPG</button>
             <button className="th-btn secondary" onClick={() => download("image/png")}>Download PNG</button>

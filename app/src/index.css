@@ -873,10 +873,6 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 
 /* Toast pop-ups: bottom of the screen, above the page, readable on phones */
-.toast-stack { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000; display: grid; gap: 8px; width: min(92vw, 460px); pointer-events: none; }
-.toast { background: #1B2A41; color: var(--text); border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.35); animation: toast-in 0.2s ease-out; }
-.toast.error { border-left-color: var(--danger); }
-@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Presentations table on desktop: the actions column sizes to its buttons, so Delete stays inside the box */
 @media (min-width: 721px) {
@@ -1293,13 +1289,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .pg-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .pg-btn.small { height: 28px; font-size: 12px; margin-top: 6px; }
 .pg-pagelabel { font: 600 12px var(--font-ui); color: var(--muted); margin: 14px 2px 6px; }
-.pg-preview { margin: 14px 0 6px; }
-.pg-preview-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-bottom: 6px; font: 13px var(--font-ui); }
-.pg-preview-head span { color: var(--muted); font-size: 12px; }
-.pg .pg-preview-head strong { color: var(--text); }
 .pg-stage-group { margin-bottom: 6px; }
 .pg-stage-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0 4px; font: 600 11px var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 3px; }
-.pg-preview-frame { display: block; width: 100%; height: min(72vh, 620px); border: 1px solid var(--line); border-radius: 4px; background: #fff; }
 .pg-page { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; margin-bottom: 8px; }
 .pg-sheet { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; min-height: 640px; background: #fff; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .pg-panel { padding: 22px 26px; min-width: 0; min-height: 0; overflow: hidden; display: grid; align-content: start; gap: 4px; background: #fff; }
@@ -2539,3 +2530,80 @@ html body .rm .rm-prev { font-size: 1.15rem !important; white-space: nowrap; }
   html .lf .lf-quick { position: static; box-shadow: none; }
   html .lf:has(.lv2-lib.open) .lv2-preview:not(.empty) { position: static; box-shadow: none; border-radius: 10px; }
 }
+
+/* Scripture: the study name and Add to Presentation on the "Preview the slides" heading row; they wrap below the
+   heading only when the column is too narrow */
+.sc-preview .sc-preview-head { flex-wrap: wrap; row-gap: 8px; }
+.sc-preview .sc-preview-head h2 { margin: 0; white-space: nowrap; }
+.sc-preview .sc-pres-add.sc-pres-inline { flex: 1 1 300px; margin: 0 0 0 auto; padding: 0; border: 0; align-items: center; max-width: 460px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+html body .ct-app .sc-preview .sc-pres-inline button.primary { height: 26px !important; padding: 0 12px !important; }
+
+/* Lyric and Readings: Add to Presentation on the "Preview the slides" row on wider screens; phones keep the
+   button at the bottom of the preview (the Lyric page pins that preview to the bottom of the screen) */
+.lv2-preview-row { flex-wrap: wrap; row-gap: 8px; }
+.lv2-preview-row h2 { margin: 0; white-space: nowrap; }
+.lv2-preview-row .lv2-add-head { margin-left: auto; white-space: nowrap; width: auto; }
+@media (min-width: 721px) { .lv2-add-bottom { display: none !important; } }
+@media (max-width: 720px) { .lv2-add-head { display: none !important; } }
+.lv2-preview-head .lv2-preview-row { flex: 1 1 100%; }
+
+/* Your slideshow on the page title's row (Lyric, Readings, Scripture); it wraps under the title when space runs out */
+.lv2-top, .sc-top { flex-wrap: wrap; align-items: center; column-gap: 16px; row-gap: 10px; }
+html body .lv2-show.lv2-show-inline { position: static; transform: none; left: auto; bottom: auto; z-index: auto; flex: 1 1 340px; min-width: 0; width: auto; max-width: none; margin: 0; flex-wrap: nowrap; gap: 8px; padding: 6px 6px 6px 14px; border-radius: 999px; box-shadow: none; border: 1px solid rgb(var(--text-rgb) / 0.12); background: var(--panel); }
+html body .lv2-show.lv2-show-inline h2 { margin: 0; white-space: nowrap; flex: none; }
+html body .lv2-show.lv2-show-inline .lv2-show-items { flex: 1 1 auto; min-width: 0; max-width: none; overflow-x: auto; scrollbar-width: none; }
+html body .lv2-show.lv2-show-inline .lv2-show-empty { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .lv2-show.lv2-show-inline > button { flex: none; margin-left: auto; white-space: nowrap; }
+@media (max-width: 720px) {
+  html body .lv2-show.lv2-show-inline { flex: 1 1 100%; flex-wrap: wrap; border-radius: 14px; padding: 8px 12px; }
+  html body .lv2-show.lv2-show-inline .lv2-show-items { flex: 1 1 100%; order: 3; }
+}
+/* The floating slideshow pill moved to the title row, so the sticky Theme row sits at the bottom edge */
+html .lf .lf-quick { bottom: 8px; }
+
+
+/* Messages (toasts): one stack at the top right of the screen, just below the navbar, on every page.
+   Messages close after 5 seconds, errors after 8; the x closes one early. */
+.toast-stack { position: fixed; top: 64px; right: 16px; z-index: 2000; display: grid; gap: 8px; width: min(calc(100vw - 32px), 380px); pointer-events: none; }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border: 0; border-radius: 10px; background: var(--accent); color: var(--on-accent); box-shadow: 0 8px 24px rgb(0 0 0 / 0.25); font-size: 0.9rem; font-weight: 500; line-height: 1.35; animation: toast-in 0.2s ease-out; }
+.toast > span { flex: 1 1 auto; min-width: 0; }
+.toast.error { background: var(--danger); color: var(--bg); }
+html body .toast .toast-x { flex: none; background: transparent; color: inherit !important; border: 0; padding: 2px 8px !important; font-size: 1.1rem !important; line-height: 1; min-height: 0 !important; height: auto !important; opacity: 0.85; box-shadow: none; }
+html body .toast .toast-x:hover { opacity: 1; }
+@keyframes toast-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* Phones: Add to Presentation is a small round-cornered button floating at the bottom right (Lyric, Readings,
+   Scripture). The heading's copy is the one that floats; the old full-width button at the bottom is hidden. */
+@media (max-width: 720px) {
+  .lv2-add-bottom { display: none !important; }
+  /* The Lyric page hides the Preview heading on phones while a song is open; keep only its button */
+  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head { display: contents !important; }
+  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head > :not(.lv2-add-head) { display: none; }
+  html body .ct-app button.primary.lv2-add-head,
+  html body .ct-app .sc-preview .sc-pres-inline button.primary {
+    display: inline-flex !important; align-items: center; position: fixed; right: 16px; bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    z-index: 50; width: auto !important; height: auto !important; min-height: 36px !important; margin: 0;
+    padding: 6px 14px !important; border-radius: 999px !important; font-size: 0.82rem !important; white-space: nowrap;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.3);
+  }
+  html body .ct-app button.primary.lv2-add-head:disabled { display: none !important; }
+}
+@media (max-width: 720px) { html .lf .lf-quick { z-index: auto; } }
+
+/* Add to Presentation: a clear "✓ Added" confirmation on the button itself (a pop and a bright ring) */
+@keyframes add-pop { 0% { transform: scale(1); } 35% { transform: scale(1.12); } 100% { transform: scale(1); } }
+html body .ct-app button.primary.lv2-add.flash,
+html body .ct-app .sc-pres-inline button.primary.flash { animation: add-pop 0.45s ease-out; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--accent), 0 6px 18px rgb(0 0 0 / 0.3); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { html body .ct-app button.primary.lv2-add.flash, html body .ct-app .sc-pres-inline button.primary.flash { animation: none; } }
+/* Readings on phones: the preview heading is hidden while a reading is open; keep only its floating Add button */
+@media (max-width: 720px) {
+  .lv2-preview:not(.empty) .lv2-preview-head,
+  .lv2-preview:not(.empty) .lv2-preview-head .lv2-preview-row { display: contents !important; }
+  .lv2-preview:not(.empty) .lv2-preview-head > :not(.lv2-preview-row),
+  .lv2-preview:not(.empty) .lv2-preview-head .lv2-preview-row > :not(.lv2-add-head) { display: none !important; }
+}
+/* Presentation Builder: the same "✓ Added" pop and ring on the Recent lists' Add buttons */
+html body .ct-app .builder-page button.primary.flash { animation: add-pop 0.45s ease-out; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { html body .ct-app .builder-page button.primary.flash { animation: none; } }

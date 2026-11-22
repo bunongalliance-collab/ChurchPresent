@@ -3,6 +3,7 @@ import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { onAuthChange, selectAll, supabase, withTimeout } from "../lib/supabase";
 import SlideshowStrip from "../components/SlideshowStrip";
+import { recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
@@ -106,8 +107,8 @@ export default function LyricsV2() {
   const [confirmDel, setConfirmDel] = useState(false); // Delete asks first, in the page
   const [libOpen, setLibOpen] = useState(false); // phone only: the song list is folded away until chosen
   const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState("Paste lyrics to start.");
-  const [statusIsError, setStatusIsError] = useState(false);
+  const [, setStatus] = useState("");
+  const [, setStatusIsError] = useState(false);
 
   const lyricsRef = useRef<HTMLTextAreaElement>(null);
 
@@ -364,10 +365,12 @@ export default function LyricsV2() {
     // Remember this addition for Recent songs in the Presentation Builder and the Program (newest first),
     // in this browser and on the account, so it shows on every device
     void recordAddedSong(saved.id);
+    // And for "Your slideshow" on every page this session
+    recordAdded({ id: saved.id, kind: "song", label: `${saved.number ? `${saved.number}. ` : ""}${saved.title || "(untitled)"}` });
     // Visible confirmation: a toast and a short "Added" label on the button
     setJustAdded(true);
-    window.setTimeout(() => setJustAdded(false), 2000);
-    say(`Added "${saved.title || "(untitled)"}" to the presentation. Open the Presentation Builder to arrange it.`);
+    window.setTimeout(() => setJustAdded(false), 2500);
+    say(`✓ Added "${saved.title || "(untitled)"}" to the presentation. Open the Presentation Builder to arrange it.`);
   }
 
   async function onNext() {
@@ -561,6 +564,7 @@ export default function LyricsV2() {
             <h1>Create Slide Show</h1>
             <p>Pick a song, check the words, and add it to your slideshow.</p>
           </div>
+          <SlideshowStrip inline extra={slideshowExtra} />
           <div className="lv2-top-actions lv2-top-actions-desk">
             <button className="secondary" onClick={downloadPptx} disabled={!slides.length}>Download PowerPoint</button>
             <button className="primary" onClick={openProjector} disabled={!slides.length}>Present</button>
@@ -768,8 +772,6 @@ export default function LyricsV2() {
                   <output className="lf-qo">{sizeNow} pt</output>
                 </span>
               </div>
-
-              <p className={statusIsError ? "lv2-status error" : "lv2-status"} role="status">{status}</p>
               {warning && <p className="lv2-status">{warning}</p>}
 
               <div className="lv2-actions">
@@ -808,7 +810,11 @@ export default function LyricsV2() {
 
           {/* Step 3: check the slides */}
           <div className="lf-stop lf-s3">
-            <div className="lv2-step-head"><span className="lv2-step-n">3</span><h2>Preview the slides</h2></div>
+            {/* Wider screens: Add to Presentation on the heading's row (phones keep it in the pinned preview) */}
+            <div className="lv2-step-head lv2-preview-row">
+              <span className="lv2-step-n">3</span><h2>Preview the slides</h2>
+              <button className={`primary lv2-add lv2-add-head${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
+            </div>
             <p className="lf-sub">Generated from the current lyrics</p>
             <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
               {current ? (
@@ -859,8 +865,6 @@ export default function LyricsV2() {
           </div>
         </div>
 
-        {/* Your slideshow: a small pill floating at the bottom of the screen */}
-        <SlideshowStrip extra={slideshowExtra} />
       </div>
     </>
   );

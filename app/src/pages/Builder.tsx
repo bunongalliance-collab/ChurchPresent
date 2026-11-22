@@ -4,6 +4,7 @@ import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import NavBar from "../components/NavBar";
 import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
+import { takeQueuedReadings } from "../lib/slideshowQueue";
 import { buildOutput } from "./Scripture";
 import type { SlideFmt, Seg } from "./Projector";
 import { carryFormattingSlides, markVerses, parseRich, VERSE_SPLIT } from "../lib/richtext";
@@ -144,11 +145,11 @@ export default function Builder() {
   // A reading added from the Readings page waits in sessionStorage until the Builder opens
   useEffect(() => {
     try {
+      // Every reading added on the Readings page since the Builder was last open (and the older single slot)
+      const waiting = takeQueuedReadings<ReadingItem>();
       const raw = sessionStorage.getItem("pendingBuilderItem");
-      if (!raw) return;
-      sessionStorage.removeItem("pendingBuilderItem");
-      const item = JSON.parse(raw) as ReadingItem;
-      setItems((cur) => [...cur, item]);
+      if (raw) { sessionStorage.removeItem("pendingBuilderItem"); waiting.unshift(JSON.parse(raw) as ReadingItem); }
+      if (waiting.length) setItems((cur) => [...cur, ...waiting.filter((w) => !cur.some((c) => c.id === w.id))]);
     } catch { /* storage blocked or bad data */ }
     // The presentation name typed on the Scripture page
     try {
@@ -160,10 +161,12 @@ export default function Builder() {
   const recentReadings = useMemo<ReadingItem[]>(() => {
     try { return JSON.parse(localStorage.getItem("addedReadingsLog") || "[]") as ReadingItem[]; } catch { return []; }
   }, []);
-  function addRecentReading(item: ReadingItem) {
+  function addRecentReading(item: ReadingItem, quiet = false): boolean {
     const copy = { ...item, id: uid() } as ReadingItem;
     setItems((cur) => [...cur, copy]);
     setSelectedItem(copy.id);
+    if (!quiet) say(`✓ Added reading "${item.title || "(untitled)"}".`);
+    return true;
   }
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [title, setTitle] = useState(draft?.title ?? "Sunday Worship");
@@ -174,10 +177,18 @@ export default function Builder() {
   }, [settings, items, title, currentId]);
   const [library, setLibrary] = useState<LibrarySong[]>([]);
   const [recent, setRecent] = useState<RecentStudy[]>([]);
-  const [status, setStatus] = useState("Pick songs from the library to start a presentation.");
+  const [, setStatus] = useState("Pick songs from the library to start a presentation.");
   const [userId, setUserId] = useState<string | null>(null);
 
   const say = (m: string) => { setStatus(m); toast(m); };
+  // "✓ Added" on a Recent list's Add button for a moment (the add itself shows a message at the top)
+  const [addedKey, setAddedKey] = useState("");
+  const confirmAdded = (key: string) => {
+    setAddedKey(key);
+    window.setTimeout(() => setAddedKey((k) => (k === key ? "" : k)), 2500);
+  };
+  const addBtn = (key: string) => `primary small${addedKey === key ? " flash" : ""}`;
+  const addLabel = (key: string) => (addedKey === key ? "✓ Added" : "Add");
 
   // Opened from the Presentations list: the address carries the id (#builder:<id>)
   useEffect(() => {
@@ -232,7 +243,7 @@ export default function Builder() {
   const recentScriptures = useMemo(() => recent.filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures]);
 
   // Add a saved song as a snapshot with its own slides, the same way scripture studies are added
-  function addSong(song: LibrarySong) {
+  function addSong(song: LibrarySong, quiet = false): boolean {
     // The song's own saved look wins; anything it doesn't have comes from the builder's settings
     const eff = { ...settings, ...(song.look ?? {}) } as Settings & { customSize?: number };
     const gen = slidesForSong(song.lyrics, song.title, song.number, eff);
@@ -240,7 +251,8 @@ export default function Builder() {
     const item: Item = { kind: "song", id: uid(), songId: song.id, title: song.title, number: song.number, lyrics: song.lyrics, look, libraryLook: JSON.stringify(song.look ?? {}), ...gen };
     setItems((cur) => [...cur, item]);
     setSelectedItem(item.id);
-    say(`Added song ${song.number ? song.number + ". " : ""}${song.title || ""}.`);
+    if (!quiet) say(`✓ Added song ${song.number ? song.number + ". " : ""}${song.title || ""}.`);
+    return true;
   }
 
   // Everything chosen on the Program page from the Recent lists, added in service order: songs with their lyrics,
@@ -264,19 +276,19 @@ export default function Builder() {
       if (l.kind === "song") {
         const song = library.find((x) => x.id === l.id);
         if (!song) missing++;
-        else if (!haveSong.has(l.id)) { addSong(song); haveSong.add(l.id); added++; }
+        else if (!haveSong.has(l.id)) { addSong(song, true); haveSong.add(l.id); added++; }
       } else if (l.kind === "reading") {
         const reading = recentReadings.find((x) => x.id === l.id);
         if (!reading) missing++;
-        else if (!haveReading.has(reading.title)) { addRecentReading(reading); haveReading.add(reading.title); added++; }
+        else if (!haveReading.has(reading.title)) { addRecentReading(reading, true); haveReading.add(reading.title); added++; }
       } else {
         const study = recent.find((x) => x.id === l.id) ?? fetched.find((x) => x.id === l.id);
         if (!study) missing++;
-        else if (!haveStudy.has(l.id)) { addScripture(study); haveStudy.add(l.id); added++; }
+        else if (!haveStudy.has(l.id)) { addScripture(study, true); haveStudy.add(l.id); added++; }
       }
     }
     const tail = missing ? ` ${missing} could not be found.` : "";
-    say(added ? `Added ${added} item${added === 1 ? "" : "s"} from the Program.${tail}` : missing ? `Those items could not be found.` : "Everything chosen in the Program is already in this presentation.");
+    say(added ? `✓ Added ${added} item${added === 1 ? "" : "s"} from the Program.${tail}` : missing ? `Those items could not be found.` : "Everything chosen in the Program is already in this presentation.");
   }
 
   // ---------- Sequence editing ----------
@@ -386,11 +398,11 @@ export default function Builder() {
   }
 
   // Add a saved scripture study to the sequence, with its slides built the same way as on the scripture page
-  function addScripture(study: RecentStudy) {
+  function addScripture(study: RecentStudy, quiet = false): boolean {
     const d = study.data as { slides?: { kind: "passage" | "custom" | "questions"; title: string; text: string }[] } & Record<string, unknown>;
     const look = { font: "Arial", perSlide: 4, aspect: "16:9", bg: "#213648", fg: "#f5f2ea", verseNumbers: true, showLabels: false, numColor: "#f2c14e", labelColor: "#f2c14e", ...d };
     const out = buildOutput((d.slides ?? []) as never, look as never);
-    if (!out.slides.length) { say("That study has no text yet."); return; }
+    if (!out.slides.length) { say("That study has no text yet."); return false; }
     const item: ScriptureItem = {
       kind: "scripture", id: uid(), studyId: study.id, title: study.title,
       slides: out.slides.map((x) => ({ rows: [...x.rows], label: x.label, ref: x.ref, verse: x.verse, fmt: x.fmt, bg: x.bg, fg: x.fg, font: x.font, size: x.size, numColor: x.numColor })),
@@ -400,7 +412,8 @@ export default function Builder() {
     };
     setItems((cur) => [...cur, item]);
     setSelectedItem(item.id);
-    say(`Added scripture "${study.title}" (${out.slides.length} slide${out.slides.length === 1 ? "" : "s"}).`);
+    if (!quiet) say(`✓ Added scripture "${study.title}" (${out.slides.length} slide${out.slides.length === 1 ? "" : "s"}).`);
+    return true;
   }
 
   async function loadPresentations() {
@@ -527,7 +540,6 @@ export default function Builder() {
           <button className="primary" onClick={present} disabled={!items.length}>Present</button>
         </div>
       </div>
-      <p className="status">{status}</p>
 
       <div className="builder-grid">
         {/* A. Content selection */}
@@ -539,7 +551,7 @@ export default function Builder() {
             {recentSongs.map((r) => (
               <li key={r.id} className="recent-item recent-song">
                 <span className="recent-title"><strong>{r.number ? `${r.number}. ` : ""}{r.title || "(untitled)"}</strong><small>Song</small></span>
-                <button className="primary small" onClick={() => addSong(r)} aria-label={`Add ${r.title || "song"}`}>Add</button>
+                <button className={addBtn(`song:${r.id}`)} onClick={() => { if (addSong(r)) confirmAdded(`song:${r.id}`); }} aria-label={`Add ${r.title || "song"}`}>{addLabel(`song:${r.id}`)}</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenSongs((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "song"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}
@@ -552,7 +564,7 @@ export default function Builder() {
             {recentReadings.map((r) => (
               <li key={r.id} className="recent-item recent-reading">
                 <span className="recent-title"><strong>{r.title || "(untitled)"}</strong><small>Reading{r.categoryName ? ` · ${r.categoryName}` : ""}</small></span>
-                <button className="primary small" onClick={() => addRecentReading(r)} aria-label={`Add ${r.title || "reading"}`}>Add</button>
+                <button className={addBtn(`reading:${r.id}`)} onClick={() => { if (addRecentReading(r)) confirmAdded(`reading:${r.id}`); }} aria-label={`Add ${r.title || "reading"}`}>{addLabel(`reading:${r.id}`)}</button>
               </li>
             ))}
           </ul>
@@ -564,7 +576,7 @@ export default function Builder() {
             {recentScriptures.map((r) => (
               <li key={r.id} className="recent-item recent-scripture">
                 <span className="recent-title"><strong>{r.title || "(untitled)"}</strong><small>Scripture · {new Date(r.updated).toLocaleDateString()}</small></span>
-                <button className="primary small" onClick={() => addScripture(r)} aria-label={`Add ${r.title || "study"}`}>Add</button>
+                <button className={addBtn(`study:${r.id}`)} onClick={() => { if (addScripture(r)) confirmAdded(`study:${r.id}`); }} aria-label={`Add ${r.title || "study"}`}>{addLabel(`study:${r.id}`)}</button>
                 <button className="secondary small recent-x" onClick={() => setHiddenScriptures((cur) => [...cur, r.id])} aria-label={`Remove ${r.title || "study"} from recent`} title="Remove from this list">×</button>
               </li>
             ))}

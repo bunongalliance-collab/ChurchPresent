@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
@@ -8,6 +8,7 @@ import { PROGRAM_DRAFT_KEY, linkOf, rowsToLines, toRows, type Lines } from "../l
 import { loadReadingOptions, recentStudyIds, useSongOptions, type ReadingOption } from "../lib/recentSongs";
 import type { SetStateAction } from "react";
 import { publishService } from "../lib/publishedService";
+import { toast } from "../lib/toast";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Download PDF makes a PDF of the brochure only.
@@ -164,7 +165,8 @@ export default function Program() {
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [status, setStatus] = useState("Type directly on the program. Download PDF saves the brochure.");
+  // Messages show in the banner at the top of the screen (each time, even when repeated); errors stay until closed
+  const setStatus = (m: string) => toast(m, /^(Could not|Sign in|Set the)/.test(m));
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* storage blocked */ } }, [d]);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
 
@@ -231,9 +233,21 @@ export default function Program() {
   }, [songOptions, readingOptions, passageOptions]);
   const pdfDraft: Draft = useMemo(() => (d.lines ? { ...d, rows: toRows(d.lines, passages) } : d), [d, passages]);
 
-    function printBrochure() {
-    if (previewRef.current) window.open(previewRef.current, "_blank");
-    else setStatus("The preview is still being made. Try again in a moment.");
+  // Print: builds the brochure PDF and opens it in a new tab, ready to print. The tab opens straight from the
+  // click (so it is not blocked as a pop-up) and shows the PDF once it is made.
+  async function printBrochure() {
+    const tab = window.open("", "_blank");
+    setStatus("Making the PDF…");
+    try {
+      const bytes = await buildProgramPdf(pdfDraft, logo, coverDate);
+      const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
+      if (tab) tab.location.href = url; else window.open(url, "_blank");
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      setStatus("The brochure opened in a new tab, ready to print.");
+    } catch (err) {
+      tab?.close();
+      setStatus(`Could not make the PDF: ${err instanceof Error ? err.message : "unknown error"}`);
+    }
   }
   const setStep = (i: number, patch: Partial<Step>) => set("steps", d.steps.map((s, k) => (k === i ? { ...s, ...patch } : s)));
   const setList = (key: "weekLines" | "announcements", i: number, v: string) => set(key, d[key].map((x, k) => (k === i ? v : x)));
@@ -274,24 +288,6 @@ export default function Program() {
     try { return new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }).toUpperCase(); } catch { return d.date; }
   }, [d.date]);
 
-  // Live brochure preview: the same PDF that Download PDF makes, rebuilt shortly after each change
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const previewRef = useRef<string | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    const timer = setTimeout(async () => {
-      try {
-        const bytes = await buildProgramPdf(pdfDraft, logo, coverDate);
-        if (cancelled) return;
-        const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
-        if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-        previewRef.current = url;
-        setPreviewUrl(url);
-      } catch { /* the preview is optional; Download PDF reports any error */ }
-    }, 700);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [d, coverDate]);
-  useEffect(() => () => { if (previewRef.current) URL.revokeObjectURL(previewRef.current); }, []);
 
   // Download PDF: the brochure only, downloaded as a file. No webpage, buttons or editor controls.
   async function generatePdf() {
@@ -333,7 +329,7 @@ export default function Program() {
       <div className="pg-top">
         <div>
           <h1>Service program</h1>
-          <p>{status}</p>
+          <p>Type directly on the program. Download PDF saves the brochure; Print opens it ready to print.</p>
         </div>
         <div className="pg-actions">
           <button className="pg-btn link" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
@@ -481,12 +477,6 @@ export default function Program() {
           ))}
           {!people.length && <li className="pg-muted">No saved people yet.</li>}
         </ul>
-      </section>
-      <section className="pg-preview" aria-label="Brochure preview">
-        <div className="pg-preview-head"><strong>Brochure preview</strong><span>Updates a moment after you change something</span></div>
-        {previewUrl
-          ? <iframe className="pg-preview-frame" src={previewUrl} title="Brochure preview (PDF)" />
-          : <p className="pg-muted">Making the preview…</p>}
       </section>
       <p className="pg-note-line">Projected slides still show the full lyrics. The brochure prints titles, numbers, references, passage text and names.</p>
     </div>
