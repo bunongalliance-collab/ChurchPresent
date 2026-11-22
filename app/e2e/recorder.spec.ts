@@ -51,3 +51,40 @@ test("lower third follows the presentation", async ({ context }) => {
   await expect(now).toContainText("Nothing");
   expect(errors).toEqual([]);
 });
+
+// An old projector tab left open in the background (each Present opens a new one) must not pull the lower third
+// back to its slide: the Recorder follows the window people can see.
+test("lower third ignores a stale projector tab in the background", async ({ context }) => {
+  const live = await context.newPage();
+  await live.goto("/");
+  await live.evaluate((d) => localStorage.setItem("lyricsDeck", JSON.stringify(d)), deck);
+  await live.evaluate(() => sessionStorage.setItem("projectorIndex", "3"));
+  await live.goto("/#projector");
+  await expect(live.locator(".counter")).toHaveText("4 / 4");
+
+  const stale = await context.newPage();
+  await stale.goto("/");
+  await stale.evaluate((d) => { localStorage.setItem("lyricsDeck", JSON.stringify(d)); sessionStorage.setItem("projectorIndex", "0"); }, deck);
+  await stale.goto("/#projector");
+  await expect(stale.locator(".counter")).toHaveText("1 / 4");
+  // Playwright pages all report visible, so mark this one hidden the way a background tab is
+  await stale.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", { get: () => "hidden", configurable: true });
+    Object.defineProperty(document, "hidden", { get: () => true, configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+
+  const recorder = await context.newPage();
+  await recorder.goto("/#recorder");
+  const now = recorder.locator(".rc-now");
+  await expect(now).toContainText("Scripture Reading");
+  // Several check-ins (every 2 s): it must stay on the visible window's item
+  for (let i = 0; i < 3; i++) {
+    await recorder.waitForTimeout(2100);
+    await expect(now).toContainText("Scripture Reading");
+  }
+  await live.keyboard.press("ArrowLeft");
+  await expect(now).toContainText("Opening Song");
+  await recorder.waitForTimeout(4500);
+  await expect(now).toContainText("Opening Song");
+});

@@ -203,6 +203,10 @@ export default function Projector() {
   const chRef = useRef<BroadcastChannel | null>(null);
   const latest = useRef({ index, blackout, waiting, logo, clear });
   latest.current = { index, blackout, waiting, logo, clear };
+  // Who sent a state message, whether that window can be seen, and when its slide last changed. Old projector tabs
+  // left open in the background also answer, so listeners such as the Recorder use this to follow the right window.
+  const sender = useRef({ sid: Math.random().toString(36).slice(2), changedAt: Date.now() });
+  const meta = () => ({ sid: sender.current.sid, changedAt: sender.current.changedAt, visible: document.visibilityState === "visible" });
   // The command handler, shared with the phone remote
   const actRef = useRef<(cmd: string, arg?: number) => void>(() => {});
   // Phone remote: the pairing code (changed from the presenter's "New code"), and when a phone was last heard
@@ -241,7 +245,7 @@ export default function Projector() {
       ch.onmessage = (e: MessageEvent) => {
         const m = e.data;
         if (!presenter && m?.type === "cmd") act(m.cmd, m.index);
-        if (!presenter && m?.type === "hello") ch?.postMessage({ type: "state", ...latest.current });
+        if (!presenter && m?.type === "hello") ch?.postMessage({ type: "state", ...latest.current, ...meta() });
         if (presenter && m?.type === "state") {
           lastSeen.current = Date.now();
           setConnected(true);
@@ -312,8 +316,17 @@ export default function Projector() {
 
   // The audience window tells the presenter window (and a paired phone) where it is
   useEffect(() => {
-    if (!presenter && chRef.current) chRef.current.postMessage({ type: "state", index, blackout, waiting, logo, clear, phoneAt });
+    if (presenter) return;
+    sender.current.changedAt = Date.now();
+    chRef.current?.postMessage({ type: "state", index, blackout, waiting, logo, clear, phoneAt, ...meta() });
   }, [index, blackout, waiting, logo, clear, phoneAt, presenter]);
+  // Coming to the front or going to the background is reported straight away
+  useEffect(() => {
+    if (presenter) return;
+    const onVis = () => chRef.current?.postMessage({ type: "state", ...latest.current, phoneAt, ...meta() });
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [presenter, phoneAt]);
   useEffect(() => {
     if (!presenter && deck && remoteRef.current) void remoteRef.current.send({ type: "broadcast", event: "state", payload: stateFor(deck, { index, blackout, waiting, logo, clear }) });
   }, [index, blackout, waiting, logo, clear, presenter, deck]);

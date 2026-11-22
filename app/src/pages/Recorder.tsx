@@ -144,12 +144,26 @@ export default function Recorder() {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(CHANNEL);
     let seen = 0;
+    // Every open projector window answers, including old tabs left in the background (each Present opens a new
+    // one, and a phone remote moves them all). Follow the window that can be seen, and of those the one whose
+    // slide changed most recently.
+    const windows = new Map<string, { state: ScreenState; visible: boolean; changedAt: number; at: number }>();
     ch.onmessage = (e: MessageEvent) => {
       const m = e.data;
       if (m?.type !== "state") return;
-      seen = Date.now();
+      const t = Date.now();
+      seen = t;
+      windows.set(typeof m.sid === "string" ? m.sid : "older-version", {
+        state: { index: m.index ?? 0, blackout: !!m.blackout, waiting: !!m.waiting, logo: !!m.logo },
+        visible: m.visible !== false, changedAt: typeof m.changedAt === "number" ? m.changedAt : 0, at: t,
+      });
+      let best: { state: ScreenState; visible: boolean; changedAt: number } | null = null;
+      for (const [id, w] of windows) {
+        if (t - w.at > 6000) { windows.delete(id); continue; } // closed windows stop answering
+        if (!best || (w.visible && !best.visible) || (w.visible === best.visible && w.changedAt > best.changedAt)) best = w;
+      }
       setConnected(true);
-      setScreen({ index: m.index ?? 0, blackout: !!m.blackout, waiting: !!m.waiting, logo: !!m.logo });
+      if (best) setScreen(best.state);
     };
     const hello = () => ch.postMessage({ type: "hello" });
     hello();
