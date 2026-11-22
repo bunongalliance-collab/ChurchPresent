@@ -13,7 +13,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 
 ## Design rules
 - Show a sample page first when the user asks for a design change. Publish samples as artifacts.
-- Navbar: Lyric, Readings, Program, Scripture, Presentation Builder, Presentations, Projector, Notes, Thumbnail. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins).
+- Navbar: Lyric, Readings, Program, Scripture, Presentation Builder, Presentations, Projector, Notes, Thumbnail. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins), except Lyric, Readings and Scripture, which use the full window width (16px side margins).
 - Light mode is the default. Use the colour tokens in `index.css`. Don't hard-code colours in UI components. Dark mode must still work.
 - The brochure PDF is set in serif throughout, with burgundy only for headings and small accents. The PDF and the on-screen program use the same type scale.
 - Capitalise names in the program (each word starts with a capital).

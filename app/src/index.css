@@ -2702,3 +2702,5 @@ html body .ct-app :is(.lv2, .pg, .sc, .ss, .builder-page, .pl-page, .notes-page,
 html body .ct-app :is(.lv2-top, .sc-top, .pl-top, .ss-top, .rc-top) { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
 /* Slide thumbnails (Lyric, Readings, Scripture): each row is as tall as its slide, so long songs never overlap */
 html body .ct-app :is(.lv2-thumbs, .sc-cards) { grid-auto-rows: max-content; align-content: start; }
+/* Lyric, Readings and Scripture use the full window width (other pages keep 1280px) */
+html body .ct-app :is(.lv2, .sc) { max-width: none; }
