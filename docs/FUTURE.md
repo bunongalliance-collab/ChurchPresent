@@ -27,6 +27,26 @@ If a church holds several services on one day (for example Bunong and English), 
 
 Today's service opens a passage only when it was chosen from the saved scripture studies. A reference typed by hand (for example "Psalm 23") shows only its title. Possible fix: when publishing, fetch the verses from YouVersion (the Scripture page's Bible connection), reading references in English and Bunong book names. Check each Bible version's terms first: showing verses in the app is usually allowed, but storing them in the database and serving them publicly may not be.
 
+## Choosing how to record services: Recorder or OBS
+
+**Background.** Two ways to record with the Program Order lower third are built: the Recorder page (`#recorder`, in the browser) and the lower-third overlay for OBS (`#lowerthird:<pairing code>`, a Browser Source over the camera). Camera: Sony FDR-AX700 (HDMI Resolution set to 1080p, on-screen icons off). Capture card: Elgato HD60 S, which may not show up in Chrome on a Mac (the HD60 S+ would).
+
+**What decides it, most important first.**
+1. Reliability: records the whole service without stopping or losing the file.
+2. Ease for the volunteer: fewest steps.
+3. Sound: clear speech from the sound desk matters more than bitrate.
+4. Picture: true 1080p from the camera, steady frame rate.
+5. Extra needs: live streaming, mixing two sound sources, more cameras.
+
+**Plan.**
+1. Plug the HD60 S into a USB 3 port and check whether Chrome's Recorder lists it under Camera. If it does not, use OBS.
+2. If it does, record 20–30 minutes of a rehearsal with the presentation running. Check: "Camera sends" reads 1920×1080 with no warnings; the file plays to the end and can jump to the middle; the sound is clear and still in sync at the end; the lower third changed at every item.
+3. Record the same in OBS (HD60 S source, `#lowerthird` Browser Source on top) and compare both files where people will watch them (YouTube, a TV).
+4. Pick the simplest one that passes everything: the Recorder if it does and only recordings are needed; OBS if the Recorder falls short, or for live streaming or sound meters.
+5. Either way, also record 4K on the AX700's SD card as a backup.
+
+**Expected outcome.** OBS with the overlay page, mainly because the HD60 S may not appear in the browser on a Mac. OBS also adds live streaming and sound meters, and the lower third stays automatic.
+
 ## Other ideas from the app review
 
 - Phone remote for the presenter (Supabase Realtime, paired with a QR code). Needs internet.

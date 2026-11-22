@@ -7,6 +7,8 @@ import ProgramV3 from "./pages/ProgramV3";
 import ProgramSimple from "./pages/ProgramSimple";
 import ServicePresentation from "./pages/ServicePresentation";
 import Thumbnail from "./pages/Thumbnail";
+import Recorder from "./pages/Recorder";
+import LowerThirdOverlay from "./pages/LowerThirdOverlay";
 import Projector from "./pages/Projector";
 import Remote from "./pages/Remote";
 import Builder from "./pages/Builder";
@@ -48,5 +50,7 @@ function renderPage(page: string) {
   if (page === "#program-simple") return <ProgramSimple />;
   if (page === "#service") return <ServicePresentation />;
   if (page === "#thumbnail") return <Thumbnail />;
+  if (page === "#recorder") return <Recorder />;
+  if (page === "#lowerthird") return <LowerThirdOverlay />;
   return <LyricsV2 />;
 }
