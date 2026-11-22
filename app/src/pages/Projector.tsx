@@ -44,7 +44,8 @@ export interface ProjDeck {
   slides: ProjSlide[];
   outline?: DeckItem[]; // the order of worship items, for the presenter's side list (each item's first slide and slide count)
 }
-export interface DeckItem { title: string; first: number; count: number }
+// item and detail: the Program Order title and sub-items, kept apart for the Recorder's lower third
+export interface DeckItem { title: string; first: number; count: number; item?: string; detail?: string }
 
 export const PROJECTOR_KEY = "lyricsDeck";
 

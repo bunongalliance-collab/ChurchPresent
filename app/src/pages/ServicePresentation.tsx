@@ -122,7 +122,7 @@ export default function ServicePresentation() {
   }, [res, program, lines]);
 
   const deck: ProjDeck | null = useMemo(() => (result ? { font: FONT, size: 60, bg: BG, fg: FG, showLabels: true, slides: result.slides,
-    outline: result.outline.filter((o) => o.count > 0).map((o) => ({ title: o.detail ? `${o.item}: ${o.detail}` : o.item, first: o.first, count: o.count })) } : null), [result]);
+    outline: result.outline.filter((o) => o.count > 0).map((o) => ({ title: o.detail ? `${o.item}: ${o.detail}` : o.item, first: o.first, count: o.count, item: o.item, detail: o.detail })) } : null), [result]);
   const total = deck?.slides.length ?? 0;
   const at = Math.min(index, Math.max(0, total - 1));
 
@@ -182,6 +182,7 @@ export default function ServicePresentation() {
             <button type="button" className="secondary" onClick={() => window.print()} disabled={!total}>Print</button>
             <button type="button" className="primary" onClick={present} disabled={!total}>Present</button>
             <button type="button" className="secondary" onClick={presenterView} disabled={!total}>Presenter view</button>
+            <a className="ss-link" href="#recorder" target="_blank" rel="noopener">Record video ↗</a>
           </div>
         </header>
 
