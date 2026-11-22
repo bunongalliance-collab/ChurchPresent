@@ -10,11 +10,11 @@
   --recent-song: #1D5FA8; --recent-reading: #6A3FA0; --recent-scripture: #B65A00; color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --bg: #161D19; --panel: #1E2823; --sunken: #26332C; --text: #E4EDE7; --muted: #9DB0A4;
-  --line: transparent; --ctrl: rgba(228, 237, 231, 0.28); --text-rgb: 228 237 231;
-  --accent: #4FA88A; --accent-rgb: 79 168 138; --on-accent: #0B1A15; --accent-soft: rgba(79, 168, 138, 0.16); --on-soft: #98D9C2;
-  --info: #8FB3D1; --danger: #E07A6A; --danger-rgb: 224 122 106; --hint: #F2C14E; --focus: #F2C14E;
-  --gold: #F2C14E;
+  --bg: #14181B; --panel: #1B2125; --sunken: #242B30; --text: #E5EAEC; --muted: #9BA7AD;
+  --line: transparent; --ctrl: rgba(229, 234, 236, 0.28); --text-rgb: 229 234 236;
+  --accent: #6CB4C8; --accent-rgb: 108 180 200; --on-accent: #0A171B; --accent-soft: #1F3239; --on-soft: #AEDCE8;
+  --info: #8FB3D1; --danger: #E8836F; --danger-rgb: 232 131 111; --hint: #E8BF5A; --focus: #E8BF5A;
+  --gold: #E8BF5A;
   --recent-song: #7DB4EA; --recent-reading: #C3A6F0; --recent-scripture: #F5A640; color-scheme: dark;
 }
 /* The program's brochure pages are paper: they keep the light tokens in dark mode too */
@@ -2048,7 +2048,7 @@ html .rv2-dock input:not([type="checkbox"]):not([type="radio"]):not([type="range
 
 /* ===== Lyric page: the welcoming, flowing design (matches the approved sample). Everything is scoped to .lf ===== */
 :root, :root[data-theme="light"] { --glow1: #E4EFDF; --glow2: #F3EEDD; --card-shadow: 0 6px 22px rgb(var(--text-rgb) / 0.06); }
-:root[data-theme="dark"] { --glow1: #1D2B24; --glow2: #26261C; }
+:root[data-theme="dark"] { --glow1: #14181B; --glow2: #14181B; }
 html:has(.lf) { background: radial-gradient(90% 55% at 10% 0%, var(--glow1), transparent 60%), radial-gradient(70% 45% at 100% 0%, var(--glow2), transparent 60%), var(--bg); background-repeat: no-repeat; }
 html:has(.lf) body { background: transparent; }
 
