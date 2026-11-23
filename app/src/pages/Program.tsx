@@ -199,7 +199,7 @@ export default function Program() {
   const printCase = (t: string) => t.split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w)).join(" ");
   // The order as the brochure prints it (the same rows the PDF builder uses)
   const printedOrder = useMemo(() => toRows(orderLines, {}), [orderLines]);
-  // Scripture text for the PDF comes from the saved studies, as in the Program Builder
+  // Scripture text for the PDF comes from the saved studies
   const [passages, setPassages] = useState<Record<string, string>>({});
   // The same passages with each slide's text on its own paragraph, for the Nau Mpro App
   const [passageText, setPassageText] = useState<Record<string, string>>({});

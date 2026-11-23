@@ -2,10 +2,11 @@ import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeybo
 import { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter, useDraggable, useDroppable, type DragEndEvent } from "@dnd-kit/core";
 import { STAGES } from "../lib/programPdf";
 import { ITEMS, groupEnd, subKind, type Line, type Lines } from "../lib/orderLines";
-import type { Option } from "./OrderEditor";
+// A suggestion: date sorts newest first; id is the saved song, reading or study; recent puts it under "Recent"
+export type Option = { value: string; label?: string; date?: string; id?: string; recent?: boolean };
 
 // The Order of Worship as a table on the Program page: Item · Song, passage or reading · Who · ⋯
-// It edits the same lines as OrderEditor (level 0 item, level 1 sub-item, level 2 people under a sub-item), so the
+// It edits the order lines (level 0 item, level 1 sub-item, level 2 people under a sub-item), so the
 // PDF, publishing and Service Slides read them unchanged. Items drag to reorder (also between stages); sub-items
 // move with Move up / Move down in the row's menu.
 

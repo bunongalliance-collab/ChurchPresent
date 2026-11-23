@@ -4,7 +4,6 @@ import ReadingsV2 from "./pages/ReadingsV2";
 import Program from "./pages/Program";
 import ProgramV2 from "./pages/ProgramV2";
 import ProgramV3 from "./pages/ProgramV3";
-import ProgramSimple from "./pages/ProgramSimple";
 import ServicePresentation from "./pages/ServicePresentation";
 import Thumbnail from "./pages/Thumbnail";
 import Recorder from "./pages/Recorder";
@@ -49,7 +48,6 @@ function renderPage(page: string) {
   if (page === "#program") return <Program />;
   if (page === "#program-v2") return <ProgramV2 />;
   if (page === "#program-v3") return <ProgramV3 />;
-  if (page === "#program-simple") return <ProgramSimple />;
   if (page === "#service") return <ServicePresentation />;
   if (page === "#thumbnail") return <Thumbnail />;
   if (page === "#recorder") return <Recorder />;

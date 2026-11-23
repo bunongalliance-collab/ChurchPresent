@@ -1693,76 +1693,6 @@ textarea.th-field { resize: vertical; }
 .p3-subs button:hover { color: var(--accent); }
 .p3-nested-in { margin-left: 30px; }
 
-/* ---------- Simple program builder (#program-simple): typed lines ---------- */
-.ps { max-width: none; margin: 0 auto; padding: 16px 16px 40px; color: var(--text); }
-.ps-top { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-.ps h1 { font: 400 22px/1.2 var(--font-ui); margin: 0; }
-.ps-top p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-.ps-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.ps-link { color: var(--muted); font-size: 13px; margin-right: 6px; }
-.ps-btn { font: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text); cursor: pointer; }
-.ps-btn:hover { border-color: var(--accent); }
-.ps-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.ps-btn:focus-visible, .ps-add:focus-visible, .ps-more:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.ps-muted { color: var(--muted); font-size: 13px; }
-.ps-preview { margin-bottom: 18px; }
-.ps-frame { display: block; width: 100%; height: min(70vh, 600px); border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-.ps-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 20px; align-items: start; }
-@media (max-width: 900px) { .ps-layout { grid-template-columns: minmax(0, 1fr); } }
-.ps-doc { min-width: 0; display: grid; gap: 14px; }
-.ps-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
-.ps-card-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-.ps-stage-name { font: 600 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
-.ps-line { position: relative; display: flex; align-items: center; gap: 6px; min-height: 30px; border-radius: 6px; }
-.ps-line:hover { background: var(--sunken); }
-.ps-line.l0 { padding: 4px 4px 4px 0; margin-top: 6px; }
-.ps-line.l1 { padding: 2px 4px 2px 22px; }
-.ps-line.l2 { padding: 2px 4px 2px 44px; color: var(--muted); }
-.ps-text { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 2px 0; font: inherit; color: inherit; cursor: text; overflow-wrap: anywhere; }
-.ps-line.l0 .ps-text { font-weight: 400; }
-.ps-text.empty { color: var(--muted); font-style: italic; }
-.ps-edit { flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 8px; }
-.ps-more { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
-.ps-more:hover, .ps-more:focus-visible { color: var(--accent); }
-/* Order of Worship: quick remove button on each line */
-.ps-x { border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
-.ps-x:hover, .ps-x:focus-visible { color: var(--danger); background: rgb(var(--danger-rgb) / 0.1); }
-.ps-line .ps-menu { position: absolute; right: 4px; top: 100%; z-index: 5; display: grid; min-width: 180px; max-width: none; margin: 0; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
-.ps-line .ps-menu button { text-align: left; border: 0; background: none; color: var(--text); padding: 7px 10px; border-radius: 4px; cursor: pointer; font: inherit; font-size: 13px; }
-.ps-line .ps-menu button:hover, .ps-line .ps-menu button:focus-visible { background: var(--sunken); color: var(--accent); }
-.ps-line .ps-menu button.danger:hover { color: var(--danger); }
-.ps-picker { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 6px; display: grid; gap: 2px; }
-.ps-picker-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px 2px; }
-.ps-cat { text-align: left; font: inherit; border: 0; background: none; color: var(--text); padding: 7px 10px; border-radius: 6px; cursor: pointer; }
-.ps-cat:hover { background: var(--accent-soft); color: var(--accent); }
-.ps-picker-foot { text-align: right; padding: 4px 6px 2px; }
-.ps-picker-foot button { border: 0; background: none; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; }
-.ps-add { justify-self: start; font: inherit; font-size: 13px; color: var(--muted); border: 1px dashed var(--line); background: none; border-radius: 6px; padding: 4px 12px; cursor: pointer; }
-.ps-add:hover, .ps-add:focus-visible { color: var(--accent); border-color: var(--accent); }
-.ps-side { position: sticky; top: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-width: 0; }
-@media (max-width: 900px) { .ps-side { position: static; } }
-.ps-side-head { font: 400 13px var(--font-ui); margin-bottom: 8px; }
-.ps-side .ps-frame { height: min(70vh, 640px); }
-.ps-slot { margin-left: auto; font: inherit; font-size: 12px; color: var(--muted); background: none; border: 1px dashed var(--line); border-radius: 999px; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
-.ps-slot:hover, .ps-slot:focus-visible { color: var(--accent); border-color: var(--accent); }
-.ps-grip { cursor: grab; color: var(--muted); opacity: .35; font-size: 14px; padding: 0 2px; user-select: none; line-height: 1; }
-.ps-line:hover .ps-grip, .ps-grip:focus-visible { opacity: .9; }
-.ps-grip:active { cursor: grabbing; }
-/* Row buttons stay out of the way until the row is hovered or focused; touch screens always show them */
-.ps-line > .ps-x, .ps-line > .ps-more { opacity: 0; transition: opacity .12s; }
-.ps-line:hover > .ps-x, .ps-line:hover > .ps-more,
-.ps-line:focus-within > .ps-x, .ps-line:focus-within > .ps-more { opacity: 1; }
-@media (hover: none) { .ps-line > .ps-x, .ps-line > .ps-more { opacity: 1; } }
-.ps-grip { display: inline-grid; place-items: center; width: 18px; height: 24px; border-radius: 4px; opacity: .6; }
-.ps-grip svg { width: 10px; height: 16px; fill: currentColor; }
-.ps-line:hover .ps-grip, .ps-grip:focus-visible { opacity: 1; color: var(--accent); }
-.ps-who { margin-left: auto; font: inherit; font-size: 12px; color: var(--muted); background: none; border: 1px dashed var(--ctrl); border-radius: 999px; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
-.ps-who:hover, .ps-who:focus-visible { color: var(--accent); border-color: var(--accent); }
-.ps-slot + .ps-who { margin-left: 0; }
-@media print { .ps-who { display: none !important; } }
-@media (max-width: 760px) { .ps-line { flex-wrap: wrap; row-gap: 2px; } .ps-line > .ps-text, .ps-line > .ps-edit { flex: 1 1 55%; min-width: 0; } }
-.ps-line.over-before { box-shadow: inset 0 2px 0 var(--accent); }
-.ps-line.over-after { box-shadow: inset 0 -2px 0 var(--accent); }
 .lv2-quick { margin-top: 6px; font: inherit; font-size: 12px; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
 .lv2-quick:hover, .lv2-quick:focus-visible { background: var(--accent-soft); }
 /* Font size controls: one small row (Lyric and Scripture) */
@@ -1848,13 +1778,6 @@ textarea.th-field { resize: vertical; }
 .recent-item.recent-song > button.primary { background: var(--recent-song); border-color: var(--recent-song); color: var(--panel); }
 .recent-item.recent-reading > button.primary { background: var(--recent-reading); border-color: var(--recent-reading); color: var(--panel); }
 .recent-item.recent-scripture > button.primary { background: var(--recent-scripture); border-color: var(--recent-scripture); color: var(--panel); }
-
-/* Order of Worship: dropdown for songs, passages and names; shows the full list until you type */
-.ps-suggest-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
-.ps-suggest-wrap .ps-edit { width: 100%; }
-.ps-suggest-list { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 240px; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
-.ps-suggest-list button { display: block; width: 100%; text-align: left; padding: 6px 8px; background: none; border: 0; border-radius: 6px; color: var(--text); font: inherit; cursor: pointer; }
-.ps-suggest-list button:hover, .ps-suggest-list button:focus-visible { background: var(--line); outline: none; }
 
 /* Notes: where the app is opened from (admin only) */
 .visits { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
@@ -2336,8 +2259,6 @@ html body .sc-app .navbar { justify-content: space-between !important; flex-wrap
 .proj-exit.show { opacity: 1; pointer-events: auto; }
 .proj-exit:hover { background: rgb(0 0 0 / 0.8); }
 .proj-exit:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 2px; }
-
-/* Program: the song list shows the Recent songs first, under small group labels */
 .ps-suggest-group { padding: 6px 8px 2px; font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
 
 /* ===== Service presentation (#service) ===== */

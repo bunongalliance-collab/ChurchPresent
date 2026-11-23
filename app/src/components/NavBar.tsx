@@ -15,7 +15,6 @@ const PAGES: { href: string; label: string; newTab?: boolean }[] = [
   { href: "#scripture", label: "Scripture/Brah Ndu Ngoi" },
   { href: "#builder", label: "Presentation Builder" },
   { href: "#program", label: "Program" },
-  { href: "#program-simple", label: "Program Builder" },
   { href: "#service", label: "Service Slides" },
   { href: "#thumbnail", label: "Thumbnail" },
   { href: "#presentations", label: "Presentations" },

@@ -1,5 +1,5 @@
 // The Order of Worship as typed lines (item, sub-item, nested item), and how they become PDF rows.
-// Shared by the Program page and the Program Builder page.
+// Used by the Program page (OrderTable), the PDF, publishing and Service Slides.
 import { STAGES } from "./programPdf";
 import type { Row } from "../pages/Program";
 
