@@ -87,6 +87,30 @@ main{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px))}
 .hint.keys{display:none}
 kbd{font:600 11px var(--sans);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--fg)}
 
+/* Go to Scripture / For slides button (corner) */
+.fab{position:fixed;right:max(12px,calc(env(safe-area-inset-right,0px) + 8px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:25;width:48px;height:48px;border-radius:50%;
+  display:grid;place-items:center;background:var(--surface);color:var(--muted);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.fab:hover{color:var(--fg)}
+.fab .badge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--sage);color:var(--surface);font-size:11px;font-weight:600;line-height:19px;text-align:center}
+@media (min-width:900px){.fab{bottom:32px}
+  body.drawer-open .fab{right:432px}
+  body.slides-open .actions{display:flex}
+  body.slides-open .fab{background:var(--fg);color:var(--bg);border-color:var(--fg)}}
+/* For slides drawer */
+.fs-list{list-style:none;margin:0;padding:0;counter-reset:fs}
+.fs-item{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);counter-increment:fs}
+.fs-item::before{content:counter(fs);flex:none;width:22px;height:22px;border-radius:50%;background:var(--sage-soft);color:var(--fg);font:600 12px var(--sans);display:grid;place-items:center;margin-top:1px}
+.fs-main{flex:1;min-width:0}
+.fs-main .r{display:flex;justify-content:space-between;gap:8px}
+.fs-main b{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--clay)}
+.fs-main p{font-family:var(--serif);font-size:15px;line-height:1.5;margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fs-ctl{display:flex;flex-direction:column}
+.ib.sm{width:32px;height:32px}
+.ib.sm svg{width:16px;height:16px}
+.ib.sm:disabled{opacity:.3;cursor:default}
+.fs-foot{position:sticky;bottom:-20px;display:flex;gap:8px;justify-content:flex-end;background:var(--surface);padding:14px 0 6px;margin-top:4px;border-top:1px solid var(--line)}
+.none svg.inl{width:16px;height:16px;vertical-align:-3px}
+
 /* Make slides */
 .actions .mk-slides{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .actions .mk-slides:hover:not(:disabled){color:var(--bg)}
@@ -193,6 +217,9 @@ textarea{width:100%;min-height:110px;font:15px/1.5 var(--sans);color:var(--fg);b
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-hl" viewBox="0 0 24 24"><path d="m14 4 6 6-9 9H5v-6z"/><path d="M4 21h16"/></symbol>
   <symbol id="i-slides" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4M7 9h10M7 13h6"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24"><path d="M14 9V5H3v14h11v-4"/><path d="M9 12h12M17 8l4 4-4 4"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+  <symbol id="i-dn" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
   <symbol id="i-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
@@ -235,6 +262,9 @@ textarea{width:100%;min-height:110px;font:15px/1.5 var(--sans);color:var(--fg);b
     <div id="scSlides"></div>
   </div>
 </section>
+
+<!-- Go to Scripture / For slides: phones go to the Scripture page; desktop opens the For slides drawer -->
+<button class="fab" id="goBtn" aria-label="For slides"><svg><use href="#i-open"/></svg><span class="badge" id="goCount" hidden></span></button>
 
 <div class="scrim" id="scrim" hidden></div>
 <section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle" hidden>
@@ -312,7 +342,7 @@ function tapVerse(k){setPicked(picked.includes(k)?picked.filter(x=>x!==k):[...pi
 function clearSel(){setPicked([])}
 function refresh(){const keep=picked;render();setPicked(keep)}
 function updateTools(){const n=picked.length;
-  $("actions").hidden=!n||!$("panel").hidden||!$("sc").hidden;if(!n)return;
+  $("actions").hidden=!n||(!$("panel").hidden&&panelKind!=="slides")||!$("sc").hidden;if(!n)return;
   $("actLab").textContent=n===1?"v"+parts(picked[0]).v:`${n} verses`;
   $("aNote").disabled=n>1;$("aNote").title=n>1?"Note (one verse at a time)":"Note";
   const allHl=picked.every(k=>S.hl[k]),allSaved=picked.every(k=>S.saved[k]);
@@ -354,7 +384,10 @@ $("aSave").onclick=()=>{const on=!picked.every(k=>S.saved[k]);picked.forEach(k=>
 $("aNote").onclick=()=>{if(picked.length===1)openNotes(picked[0])};
 $("aCopy").onclick=async()=>{const s=passages(picked).map(g=>ptext(g).map(x=>`${x.v} ${x.t}`).join(" ")+` (${plabel(g)} KJV)`).join("\n\n");
   try{await navigator.clipboard.writeText(s);toast("Copied")}catch(e){const t=document.createElement("textarea");t.value=s;document.body.append(t);t.select();try{document.execCommand("copy");toast("Copied")}catch(_){toast("Copy isn't available here")}t.remove()}};
-$("aSlides").onclick=()=>openMakeSlides(passages(picked),true);
+// One tap: add to the slide list (as in the app). If the For slides drawer is open, it updates in place.
+$("aSlides").onclick=()=>{const gs=passages(picked);const have=new Set((S.slideList||[]).map(plabel));
+  S.slideList=[...(S.slideList||[]),...gs.filter(g=>!have.has(plabel(g)))];persist();clearSel();updateGo();
+  if(panelKind==="slides")openSlides();else toast(`Added ${gs.length} passage${gs.length===1?"":"s"} to slides`)};
 document.addEventListener("click",e=>{if(picked.length&&!e.target.closest(".v,.actions,.panel,.scrim,.sc"))clearSel()});
 
 /* ---------- Panels ---------- */
@@ -362,17 +395,18 @@ let lastFocus=null,onClose=null;
 /* Saved, Notes and Settings open as a drawer on the right on desktop (the passage stays visible and scrolls);
    on phones every panel is a bottom sheet over a dimmed reader. */
 const desk=()=>matchMedia("(min-width:900px)").matches;
-let drawer=false;
+let drawer=false,panelKind="";
 // Crossing the desktop width while a panel is open: close it, so a drawer never turns into a sheet without its dimmer
 matchMedia("(min-width:900px)").addEventListener("change",()=>{onClose=null;closePanel()});
 function openPanel(title,sub,html,wide,asDrawer){lastFocus=document.activeElement;$("pTitle").textContent=title;$("pSub").textContent=sub||"";$("pBody").innerHTML=html;
-  drawer=!!asDrawer&&desk();
+  drawer=!!asDrawer&&desk();panelKind=asDrawer==="slides"&&drawer?"slides":"";
+  document.body.classList.toggle("slides-open",panelKind==="slides");
   $("panel").classList.toggle("wide",!!wide);$("panel").classList.toggle("drawer",drawer);$("panel").setAttribute("aria-modal",!drawer);
   document.body.classList.toggle("drawer-open",drawer);
-  $("panel").hidden=false;$("scrim").hidden=drawer;$("actions").hidden=true;
+  $("panel").hidden=false;$("scrim").hidden=drawer;if(panelKind!=="slides")$("actions").hidden=true;
   document.body.style.overflow=drawer?"":"hidden";($("panel").querySelector("[autofocus]")||$("pClose")).focus()}
 function closePanel(){if($("panel").hidden)return;$("panel").hidden=true;$("scrim").hidden=true;document.body.style.overflow="";updateTools();
-  document.body.classList.remove("drawer-open");drawer=false;
+  document.body.classList.remove("drawer-open","slides-open");drawer=false;panelKind="";updateTools();
   if(onClose){const f=onClose;onClose=null;f()}else if(lastFocus)lastFocus.focus()}
 $("pClose").onclick=closePanel;$("scrim").onclick=closePanel;
 document.addEventListener("keydown",e=>{
@@ -455,6 +489,28 @@ function openMakeSlides(gs,fromSelection){
   $("msOpen").onclick=()=>{onClose=()=>{if(fromSelection)clearSel();openScripture(gs)};closePanel()};
 }
 
+/* For slides drawer (desktop): the passages waiting for the Scripture page, beside the text. The verse tools stay
+   available while it is open, so you can keep reading and adding; the list updates in place. */
+function openSlides(){const list=S.slideList||[];
+  const h=list.length?`<ol class="fs-list">${list.map((g,i)=>`<li class="fs-item"><div class="fs-main"><div class="r"><b>${esc(plabel(g))}</b><small class="cnt">${g.v2-g.v1+1} verse${g.v2>g.v1?"s":""}</small></div>
+      <p class="clip">${esc(ptext(g).map(x=>x.t).join(" "))||"&nbsp;"}</p></div>
+      <div class="fs-ctl"><button class="ib sm" data-up="${i}" aria-label="Move ${esc(plabel(g))} up" ${i===0?"disabled":""}><svg><use href="#i-up"/></svg></button>
+      <button class="ib sm" data-dn="${i}" aria-label="Move ${esc(plabel(g))} down" ${i===list.length-1?"disabled":""}><svg><use href="#i-dn"/></svg></button>
+      <button class="ib sm" data-rm="${i}" aria-label="Remove ${esc(plabel(g))}"><svg><use href="#i-x"/></svg></button></div></li>`).join("")}</ol>
+      <div class="fs-foot"><button class="btn" id="fsClear">Clear</button><button class="btn pri" id="fsOpen"><svg><use href="#i-open"/></svg>Open in Scripture</button></div>`
+    :`<div class="none">Nothing for slides yet.<br>Select verses, then tap the slides button <svg class="inl"><use href="#i-slides"/></svg>.<br>They’ll collect here while you read.</div>`;
+  openPanel("For slides",list.length?`${list.length} passage${list.length===1?"":"s"} · in this order on the Scripture page`:"",h,false,"slides");
+  const mv=(i,d)=>{const l=S.slideList;[l[i],l[i+d]]=[l[i+d],l[i]];persist();openSlides()};
+  $("pBody").querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>mv(+b.dataset.up,-1));
+  $("pBody").querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>mv(+b.dataset.dn,1));
+  $("pBody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{S.slideList.splice(+b.dataset.rm,1);persist();updateGo();openSlides()});
+  if($("fsClear"))$("fsClear").onclick=()=>{S.slideList=[];persist();updateGo();openSlides()};
+  if($("fsOpen"))$("fsOpen").onclick=()=>{const gs=S.slideList;S.slideList=[];persist();updateGo();onClose=()=>openScripture(gs);closePanel()};
+}
+function updateGo(){const n=(S.slideList||[]).length;$("goCount").hidden=!n;$("goCount").textContent=n;
+  $("goBtn").setAttribute("aria-label",desk()?`For slides${n?`, ${n} waiting`:""}`:`Go to Scripture${n?`, ${n} waiting`:""}`)}
+$("goBtn").onclick=()=>{if(desk()){if(panelKind==="slides")closePanel();else openSlides()}else{const gs=S.slideList||[];S.slideList=[];persist();updateGo();openScripture(gs)}};
+
 /* Scripture page preview: what the real page would show when opened from the Bible */
 let study=[{label:"Passage",lines:[],empty:true}];
 function openScripture(gs){
@@ -491,5 +547,5 @@ $("bookBtn").onclick=openBooks;$("chapBtn").onclick=()=>openChapters();
 $("savedBtn").onclick=openSaved;$("notesBtn").onclick=()=>openNotes();$("setBtn").onclick=openSettings;
 $("homeBtn").onclick=()=>{closePanel();clearSel();if(!TEXT[`${S.book} ${S.chap}`])go("Exodus",3);else window.scrollTo({top:0})};
 
-applyPrefs();render();clearSel();
+applyPrefs();render();clearSel();updateGo();
 </script>

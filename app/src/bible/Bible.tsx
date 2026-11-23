@@ -54,12 +54,14 @@ const PATHS: Record<string, ReactNode> = {
   copy: <><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" /></>,
   l: <path d="m15 6-6 6 6 6" />,
   r: <path d="m9 6 6 6-6 6" />,
+  up: <path d="m6 15 6-6 6 6" />,
+  dn: <path d="m6 9 6 6 6-6" />,
   open: <><path d="M14 9V5H3v14h11v-4" /><path d="M9 12h12M17 8l4 4-4 4" /></>,
   slides: <><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></>,
 };
 const Icon = ({ n }: { n: string }) => <svg viewBox="0 0 24 24" aria-hidden="true">{PATHS[n]}</svg>;
 
-type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings";
+type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings" | "slides";
 interface PanelState { name: PanelName; book?: string; chap?: number; edit?: string }
 
 export default function Bible() {
@@ -169,8 +171,13 @@ export default function Bible() {
     if (saved) setForSlides(ownList(list));
     else setForSlides((cur) => { const have = new Set(cur.map((x) => `${x.b}.${x.c}.${x.v1}.${x.v2}`)); return [...cur, ...ps.filter((x) => !have.has(`${x.b}.${x.c}.${x.v1}.${x.v2}`))]; });
     setPicked([]);
-    if (saved) say(`Added ${ps.length} passage${ps.length === 1 ? "" : "s"} to slides`, true);
+    if (saved) { if (panel?.name !== "slides") say(`Added ${ps.length} passage${ps.length === 1 ? "" : "s"} to slides`, true); }
     else say("This browser won’t save them. Open Scripture now to use them.", true);
+  };
+  const moveForSlides = (i: number, d: -1 | 1) => {
+    const next = forSlides.slice(); const j = i + d; if (j < 0 || j >= next.length) return;
+    [next[i], next[j]] = [next[j], next[i]];
+    writeForSlides([...readForSlides().filter((p) => p.t !== TRANSLATION), ...next.map(toShared)]); setForSlides(next);
   };
   const removeForSlides = (i: number) => { const next = forSlides.filter((_, j) => j !== i); writeForSlides([...readForSlides().filter((p) => p.t !== TRANSLATION), ...next.map(toShared)]); setForSlides(next); };
   const clearForSlides = () => { writeForSlides(readForSlides().filter((p) => p.t !== TRANSLATION)); setForSlides([]); };
@@ -198,6 +205,9 @@ export default function Bible() {
   // Tablet and desktop: the verse tools sit right beside the selected verses, level with the first one, just right of the
   // text. They follow while scrolling and stay on screen (clear of the bar). Phones keep them at the right edge.
   const [near, setNear] = useState(() => matchMedia(NEAR_MQ).matches);
+  // Desktop: the corner button opens the For slides drawer; phones and tablets go straight to the Scripture page
+  const [desk, setDesk] = useState(() => matchMedia(DESK).matches);
+  useEffect(() => { const mq = matchMedia(DESK); const f = () => setDesk(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
   useEffect(() => { const mq = matchMedia(NEAR_MQ); const f = () => setNear(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
   const toolsRef = useRef<HTMLDivElement>(null);
   const placeTools = useCallback(() => {
@@ -218,9 +228,10 @@ export default function Bible() {
   useLayoutEffect(() => {
     if (!near) return;
     placeTools();
+    const later = window.setTimeout(placeTools, 260);   // again once the page has finished moving for a drawer
     window.addEventListener("scroll", placeTools, { passive: true });
     window.addEventListener("resize", placeTools);
-    return () => { window.removeEventListener("scroll", placeTools); window.removeEventListener("resize", placeTools); };
+    return () => { window.clearTimeout(later); window.removeEventListener("scroll", placeTools); window.removeEventListener("resize", placeTools); };
   }, [near, placeTools, panel, s.size, s.leading]);
 
   // Clear the selection on a click outside the passage, or with Escape
@@ -270,7 +281,7 @@ export default function Bible() {
 
       {/* Floating buttons. Phones: the verse tools stack above Go to Scripture at the right edge. Tablet and desktop: the
           verse tools sit beside the selected verses (placed by placeTools), and Go to Scripture stays in its corner. */}
-      {!panel && picked.length > 0 && near && (
+      {(!panel || panel.name === "slides") && picked.length > 0 && near && (
         <div ref={toolsRef} className="actions near" role="toolbar" aria-label="Verse actions" aria-orientation="vertical">
             <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
             <button onClick={toggleHl} aria-pressed={allHl} aria-label="Highlight" title="Highlight"><Icon n="hl" /></button>
@@ -280,7 +291,7 @@ export default function Bible() {
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
         </div>
       )}
-      {!panel && (
+      {(!panel || panel.name === "slides") && (
         <div className="actions" role="toolbar" aria-label={picked.length && !near ? "Verse actions" : "Scripture slides"} aria-orientation="vertical">
           {picked.length > 0 && !near && <>
             <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
@@ -290,14 +301,16 @@ export default function Bible() {
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}
-          <button className="go" onClick={() => openScripture(forSlides)} aria-label={forSlides.length ? `Go to Scripture, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : "Go to Scripture"} title="Go to Scripture">
+          <button className="go" aria-pressed={desk ? panel?.name === "slides" : undefined}
+            onClick={() => (desk ? setPanel(panel?.name === "slides" ? null : { name: "slides" }) : openScripture(forSlides))}
+            aria-label={`${desk ? "For slides" : "Go to Scripture"}${forSlides.length ? `, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : ""}`} title={desk ? "For slides" : "Go to Scripture"}>
             <Icon n="open" />{forSlides.length > 0 && <span className="badge" aria-hidden="true">{forSlides.length}</span>}
           </button>
         </div>
       )}
 
       {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
-        passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} />}
+        passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} moveForSlides={moveForSlides} />}
       {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(forSlides); }}>Open Scripture</button>}</div>}
     </>
   );
@@ -346,7 +359,7 @@ interface PanelProps {
   update: (fn: (p: State) => State) => void; go: (b: string, c: number, v?: number) => void; say: (m: string) => void;
   refOf: (k: string) => string; textOf: (k: string) => string;
   passLabel: (p: Pass) => string; passesOf: (keys: string[]) => Pass[]; addToSlides: (ps: Pass[]) => void;
-  forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void;
+  forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void; moveForSlides: (i: number, d: -1 | 1) => void;
 }
 function Panels(props: PanelProps) {
   const { p, setPanel } = props;
@@ -358,6 +371,7 @@ function Panels(props: PanelProps) {
     case "saved": return <SavedPanel {...props} close={close} />;
     case "notes": return <NotesPanel {...props} close={close} />;
     case "settings": return <SettingsPanel {...props} close={close} />;
+    case "slides": return <SlidesPanel {...props} close={close} />;
   }
 }
 
@@ -366,16 +380,16 @@ function Panels(props: PanelProps) {
 // On phones every panel is a bottom sheet over a dimmed reader.
 const DESK = "(min-width: 900px)";
 const NEAR_MQ = "(min-width: 768px)";
-function Panel({ title, sub, wide, drawer: asDrawer, close, children }: { title: string; sub?: string; wide?: boolean; drawer?: boolean; close: () => void; children: ReactNode }) {
+function Panel({ title, sub, wide, drawer: asDrawer, bodyClass, close, children }: { title: string; sub?: string; wide?: boolean; drawer?: boolean; bodyClass?: string; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   const [drawer] = useState(() => !!asDrawer && matchMedia(DESK).matches);
   useEffect(() => {
     const back = document.activeElement as HTMLElement | null;
-    if (drawer) document.body.classList.add("drawer-open"); else document.body.style.overflow = "hidden";
+    if (drawer) document.body.classList.add("drawer-open", ...(bodyClass ? [bodyClass] : [])); else document.body.style.overflow = "hidden";
     // Crossing the desktop width while open: close, so a drawer never turns into a sheet without its dimmer
     const mq = matchMedia(DESK);
     mq.addEventListener("change", close);
-    return () => { document.body.classList.remove("drawer-open"); document.body.style.overflow = ""; mq.removeEventListener("change", close); back?.focus?.(); };
+    return () => { document.body.classList.remove("drawer-open", ...(bodyClass ? [bodyClass] : [])); document.body.style.overflow = ""; mq.removeEventListener("change", close); back?.focus?.(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => { (ref.current?.querySelector<HTMLElement>("[data-autofocus]") ?? ref.current?.querySelector<HTMLElement>(".ph .ib"))?.focus(); }, [title]);
@@ -491,6 +505,51 @@ function SavedPanel({ s, update, go, close, passLabel, passesOf, addToSlides, fo
           </div>); })}
         <div className="btns"><button className="btn" onClick={() => addToSlides(passesOf(keys))}><Icon n="slides" />Add saved verses to slides</button></div>
       </> : !list.length && <div className="none">No saved verses yet.<br />Tap a verse, then choose Save.</div>}
+    </Panel>
+  );
+}
+
+// For slides (desktop drawer): the passages waiting for the Scripture page, in slide order, beside the text. The verse
+// tools stay usable while it is open, so passages can be added while reading; the list updates in place.
+function SlidesPanel({ forSlides, passLabel, moveForSlides, removeForSlides, clearForSlides, close }: PanelProps & { close: () => void }) {
+  // The first words of each passage, from the books saved on this device (or fetched once)
+  const [texts, setTexts] = useState<Record<string, string>>({});
+  const codes = forSlides.map((x) => `${x.b}|${x.c}|${x.v1}|${x.v2}`).join(",");
+  useEffect(() => {
+    let live = true;
+    for (const x of forSlides) {
+      const k = `${x.b}|${x.c}|${x.v1}|${x.v2}`;
+      getBook(x.b).then((bk) => {
+        const t = (bk.chapters[x.c]?.verses ?? []).filter((v) => (v.end ?? v.v) >= x.v1 && v.v <= x.v2).map((v) => v.text).join(" ");
+        if (live) setTexts((cur) => (cur[k] === t ? cur : { ...cur, [k]: t }));
+      }).catch(() => {});
+    }
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codes]);
+  const n = forSlides.length;
+  return (
+    <Panel drawer bodyClass="slides-open" title="For slides" sub={n ? `${n} passage${n === 1 ? "" : "s"} · in this order on the Scripture page` : undefined} close={close}>
+      {n ? <>
+        <ol className="fs-list">
+          {forSlides.map((x, i) => { const label = passLabel(x); return (
+            <li className="fs-item" key={`${label}-${i}`}>
+              <div className="fs-main">
+                <div className="r"><b>{label}</b><small className="cnt">{x.v2 - x.v1 + 1} verse{x.v2 > x.v1 ? "s" : ""}</small></div>
+                <p>{texts[`${x.b}|${x.c}|${x.v1}|${x.v2}`] ?? "\u00a0"}</p>
+              </div>
+              <div className="fs-ctl">
+                <button className="ib sm" onClick={() => moveForSlides(i, -1)} disabled={i === 0} aria-label={`Move ${label} up`}><Icon n="up" /></button>
+                <button className="ib sm" onClick={() => moveForSlides(i, 1)} disabled={i === n - 1} aria-label={`Move ${label} down`}><Icon n="dn" /></button>
+                <button className="ib sm" onClick={() => removeForSlides(i)} aria-label={`Remove ${label}`}><Icon n="x" /></button>
+              </div>
+            </li>); })}
+        </ol>
+        <div className="fs-foot">
+          <button className="btn" onClick={clearForSlides}>Clear</button>
+          <button className="btn pri" onClick={() => openScripture(forSlides)}><Icon n="open" />Open in Scripture</button>
+        </div>
+      </> : <div className="none">Nothing for slides yet.<br />Select verses, then tap the slides button <span className="inl"><Icon n="slides" /></span>.<br />They’ll collect here while you read.</div>}
     </Panel>
   );
 }
