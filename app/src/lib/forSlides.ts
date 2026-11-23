@@ -3,6 +3,7 @@
 // page picks them up whenever it is opened (from the Bible reader, the navbar or a new tab) and clears them once added.
 
 export const FOR_SLIDES_KEY = "bible.forSlides";
+const CHANGED = "forslides-changed";
 
 // A passage: database translation, book code, chapter, first and last verse
 export interface SlidePass { t: string; b: string; c: number; v1: number; v2: number }
@@ -21,6 +22,8 @@ export function writeForSlides(list: SlidePass[]): void {
     if (list.length) localStorage.setItem(FOR_SLIDES_KEY, JSON.stringify(list));
     else localStorage.removeItem(FOR_SLIDES_KEY);
   } catch { /* storage blocked */ }
+  // The storage event only reaches other tabs; tell this page too (e.g. the navbar count)
+  window.dispatchEvent(new Event(CHANGED));
 }
 
 // Add passages, skipping ones already waiting. Returns the new list.
@@ -36,8 +39,10 @@ export function addForSlides(add: SlidePass[]): SlidePass[] {
 export function watchForSlides(fn: (list: SlidePass[]) => void): () => void {
   const onStorage = (e: StorageEvent) => { if (e.key === FOR_SLIDES_KEY || e.key === null) fn(readForSlides()); };
   const onShow = () => { if (document.visibilityState === "visible") fn(readForSlides()); };
+  const onChange = () => fn(readForSlides());
   window.addEventListener("storage", onStorage);
+  window.addEventListener(CHANGED, onChange);
   document.addEventListener("visibilitychange", onShow);
   window.addEventListener("pageshow", onShow);
-  return () => { window.removeEventListener("storage", onStorage); document.removeEventListener("visibilitychange", onShow); window.removeEventListener("pageshow", onShow); };
+  return () => { window.removeEventListener("storage", onStorage); window.removeEventListener(CHANGED, onChange); document.removeEventListener("visibilitychange", onShow); window.removeEventListener("pageshow", onShow); };
 }

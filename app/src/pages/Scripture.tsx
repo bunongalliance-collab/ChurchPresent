@@ -305,6 +305,26 @@ export default function Scripture() {
     return watchForSlides((list) => { const inc = list.map(fromShared); setIncoming(inc); if (inc.length) setLaterIncoming(false); autoAdd(inc); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // The first words of the first passage, so people recognise what they picked
+  const [incomingPeek, setIncomingPeek] = useState("");
+  const firstIncoming = incoming[0] ? passCode(toShared(incoming[0])) : "";
+  useEffect(() => {
+    const r = incoming[0];
+    if (!r) { setIncomingPeek(""); return; }
+    let live = true;
+    fetchDbPassage(r.bible, r.code, r.ch, r.v1, r.v1).then((rows) => { if (live) setIncomingPeek((rows[0]?.text ?? "").split(/\s+/).slice(0, 10).join(" ")); }).catch(() => {});
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstIncoming]);
+  // Slides just added from the Bible: tinted for a few seconds, with a "New" tag, and the first one scrolled into view
+  const [newIds, setNewIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!newIds.length) return;
+    const el = document.querySelector(".sc-item.sc-new");
+    el?.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    const t = window.setTimeout(() => setNewIds([]), 6000);
+    return () => window.clearTimeout(t);
+  }, [newIds]);
   const incomingLabel = (r: Incoming) => `${incomingNames[`${r.bible}|${r.code}`] || bookName(r.code)} ${r.ch}:${r.v1}${r.v2 > r.v1 ? `-${r.v2}` : ""}`;
 
   const [pickColor, setPickColor] = useState("#ff5050");
@@ -563,7 +583,7 @@ export default function Scripture() {
     if (fresh) { setCurrentId(""); setTitle("Scripture study"); setPreviewIndex(0); }
     // An empty passage slide (the one a new study starts with) is replaced
     setSlides((cur) => [...(fresh ? [] : cur.filter((x) => !(x.kind === "passage" && !x.text.trim()))), ...made]);
-    if (made[0]) setSelectedId(made[0].id);
+    if (made[0]) { setSelectedId(made[0].id); setNewIds(made.map((x) => x.id)); }
     if (!made.length) say("The passages could not be loaded. Check the connection and try again.", true);
     else say(`Added ${made.length} passage slide${made.length === 1 ? "" : "s"}${failed ? `; ${failed} could not be loaded` : ""}.`, failed > 0);
   }
@@ -779,6 +799,23 @@ export default function Scripture() {
           <div className="sc-title">
             <h1>Scripture Slides</h1>
           </div>
+          {incoming.length > 0 && !laterIncoming && (
+            <section className="sc-incoming" aria-labelledby="sc-incoming-hd">
+              <span className="sc-incoming-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></svg>
+              </span>
+              <div className="sc-incoming-txt">
+                <div className="sc-incoming-hd" id="sc-incoming-hd">From the Bible <span className="sc-incoming-count">{incoming.length} passage{incoming.length === 1 ? "" : "s"}</span></div>
+                <p className="sc-incoming-refs">{incoming.map(incomingLabel).join(" · ")}</p>
+                {incomingPeek && <p className="sc-incoming-peek">“{incomingPeek}…</p>}
+              </div>
+              <div className="sc-incoming-btns">
+                <button className="secondary" onClick={() => setLaterIncoming(true)} disabled={busy}>Later</button>
+                <button className="secondary" onClick={() => addIncoming(true)} disabled={busy}>Start a new study</button>
+                <button className="primary" onClick={() => addIncoming(false)} disabled={busy}>Add to this study</button>
+              </div>
+            </section>
+          )}
           <SlideshowStrip inline extra={addedStudies.map((x) => ({ ...x, kind: "scripture" as const }))} />
           <div className="sc-actions">
             <input className="sc-search" type="search" value={studyQuery} onChange={(e) => setStudyQuery(e.target.value)} placeholder="Search studies" aria-label="Search saved studies" />
@@ -824,20 +861,6 @@ export default function Scripture() {
         )}
 
 
-
-        {incoming.length > 0 && !laterIncoming && (
-          <div className="sc-incoming" role="region" aria-label="Passages from the Bible">
-            <div>
-              <b>{incoming.length} passage{incoming.length === 1 ? "" : "s"} from the Bible</b>
-              <p>{incoming.map(incomingLabel).join(" · ")}</p>
-            </div>
-            <div className="sc-incoming-btns">
-              <button className="secondary" onClick={() => setLaterIncoming(true)} disabled={busy}>Later</button>
-              <button className="secondary" onClick={() => addIncoming(true)} disabled={busy}>Start a new study</button>
-              <button className="primary" onClick={() => addIncoming(false)} disabled={busy}>Add to this study</button>
-            </div>
-          </div>
-        )}
 
         <div className="sc-body">
           {/* Edit the selected slide */}
@@ -980,7 +1003,7 @@ export default function Scripture() {
               {slides.map((s, i) => (
                 <li
                   key={s.id}
-                  className={`sc-item${selectedId === s.id ? " selected" : ""}${dragId === s.id ? " dragging" : ""}${dragId && dragId !== s.id && dropAt === i ? " drop-before" : ""}${dragId && dragId !== s.id && dropAt === i + 1 && i === slides.length - 1 ? " drop-after" : ""}`}
+                  className={`sc-item${selectedId === s.id ? " selected" : ""}${newIds.includes(s.id) ? " sc-new" : ""}${dragId === s.id ? " dragging" : ""}${dragId && dragId !== s.id && dropAt === i ? " drop-before" : ""}${dragId && dragId !== s.id && dropAt === i + 1 && i === slides.length - 1 ? " drop-after" : ""}`}
                   draggable
                   onDragStart={(e) => { setDragId(s.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", s.id); }}
                   onDragOver={(e) => {
@@ -997,7 +1020,7 @@ export default function Scripture() {
                     <span className="sc-num">{i + 1}</span>
                     <span className="sc-pick-text">
                       <strong>{s.title || (s.kind === "passage" ? "Passage (not fetched)" : "Untitled")}</strong>
-                      <small>{s.kind === "passage" ? "Passage" : s.kind === "questions" ? "Questions" : "Custom"}</small>
+                      <small>{s.kind === "passage" ? "Passage" : s.kind === "questions" ? "Questions" : "Custom"}{newIds.includes(s.id) && <span className="sc-new-tag"> · New</span>}</small>
                     </span>
                   </button>
                   <span className="sc-arrows">

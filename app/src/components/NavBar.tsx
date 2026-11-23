@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { currentTheme, setTheme, type Theme } from "../lib/theme";
+import { readForSlides, watchForSlides } from "../lib/forSlides";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
@@ -30,6 +31,9 @@ export default function NavBar() {
   const [pass, setPass] = useState("");
   const [msg, setMsg] = useState("");
   const [theme, setThemeState] = useState<Theme>(() => currentTheme());
+  // Passages sent from the Bible reader and not yet added: a small count on the Scripture link
+  const [waiting, setWaiting] = useState(() => readForSlides().length);
+  useEffect(() => watchForSlides((list) => setWaiting(list.length)), []);
   function toggleTheme() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -71,6 +75,7 @@ export default function NavBar() {
               ) : (
                 <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
                   {p.label}
+                  {p.href === "#scripture" && waiting > 0 && <span className="nav-count" aria-label={`, ${waiting} passage${waiting === 1 ? "" : "s"} from the Bible waiting`}>{waiting}</span>}
                 </a>
               )}
             </li>

@@ -278,10 +278,28 @@ button.small { padding: 2px 6px; font-size: 0.75rem; }
 .sc button:disabled { opacity: 0.4; cursor: default; }
 .sc .status, .sc-status { color: var(--sc-muted); font-size: 0.8rem; margin: 6px 0; min-height: 1em; }
 .sc-status.error, .sc .status.error { color: var(--danger); }
-/* Passages sent from the Bible reader, waiting to be added */
-.sc-incoming { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px 0 4px; padding: 12px 14px; background: var(--sc-panel); border: 1px solid var(--sc-accent); border-radius: 10px; color: var(--sc-text); }
-.sc-incoming p { margin: 2px 0 0; color: var(--sc-muted); font-size: 0.9rem; }
-.sc-incoming-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Passages sent from the Bible reader, waiting to be added: first under the page title, in the soft accent tint */
+.sc-incoming { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 14px; margin: 4px 0 2px; padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); color: var(--on-soft); animation: sc-arrive .9s ease-out; }
+.sc-top > * { order: 2; }
+.sc-top > .sc-title { order: 0; }
+.sc-top > .sc-incoming { order: 1; }
+.sc-incoming-ic { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
+.sc-incoming-ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sc-incoming-txt { flex: 1 1 260px; min-width: 0; }
+.sc-incoming-hd { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.02rem; }
+.sc-incoming-count { background: var(--accent); color: var(--on-accent); border-radius: 999px; font-size: 0.75rem; padding: 1px 8px; font-variant-numeric: tabular-nums; }
+.sc-incoming-refs { margin: 2px 0 0; font-weight: 600; }
+.sc-incoming-peek { margin: 2px 0 0; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-incoming-btns { display: flex; flex-wrap: wrap; gap: 8px; align-self: center; }
+@keyframes sc-arrive { 0% { transform: translateY(-10px); opacity: 0; background: rgb(var(--accent-rgb) / .38); } 35% { transform: none; opacity: 1; } 100% { background: var(--accent-soft); } }
+/* Slides just added from the Bible: tint fades over about 3 seconds, small "New" tag */
+.sc-item.sc-new { animation: sc-newslide 3s ease-out; }
+@keyframes sc-newslide { 0%, 35% { box-shadow: inset 0 0 0 999px var(--accent-soft); } 100% { box-shadow: inset 0 0 0 999px transparent; } }
+.sc-new-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .sc-incoming, .sc-item.sc-new { animation: none; } }
+/* Navbar: passages from the Bible waiting on the Scripture page */
+.nav-count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 700; line-height: 1; vertical-align: 1px; font-variant-numeric: tabular-nums; }
+.navbar a.active .nav-count { background: var(--on-accent); color: var(--accent); }
 .sc .empty, .sc-empty { color: var(--sc-muted); font-size: 0.85rem; }
 
 /* Header */

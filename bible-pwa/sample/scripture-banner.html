@@ -1,0 +1,134 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Passages Arrival</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Sample of the Scripture page receiving passages from the Bible reader. Colours are the team app's tokens (index.css).
+   Layout: navbar, page title, the arrival banner first, then the slide list. */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --text:#243028; --muted:#5F6E64;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A; --accent-rgb:31 95 74;
+  --font:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#9BA7AD;
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --accent-rgb:108 180 200; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#9BA7AD;
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --accent-rgb:108 180 200; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto}
+
+/* 4. Navbar: a small dot with the count on Scripture while passages wait */
+.navbar{display:flex;gap:4px;overflow-x:auto;padding:10px 0;margin-bottom:6px;scrollbar-width:none}
+.navbar a{color:var(--text);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap;position:relative;font-size:.95rem}
+.navbar a.active{background:var(--accent);color:var(--on-accent)}
+.navbar .dot{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:999px;
+  background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;vertical-align:1px}
+.navbar a.active .dot{background:var(--on-accent);color:var(--accent)}
+
+h1{font-size:1.9rem;margin:8px 0 14px;letter-spacing:-.01em}
+
+/* 1. Arrival banner: first on the page, soft accent tint, icon, count, preview */
+.arrive{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;background:var(--accent-soft);color:var(--on-soft);
+  border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.arrive .ic{flex:none;width:40px;height:40px;border-radius:10px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.arrive .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.arrive .txt{flex:1 1 260px;min-width:0}
+.arrive .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.02rem}
+.arrive .count{background:var(--accent);color:var(--on-accent);border-radius:999px;font-size:12px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.arrive .refs{margin:2px 0 0;font-weight:600}
+.arrive .peek{margin:2px 0 0;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arrive .btns{display:flex;gap:8px;flex-wrap:wrap;align-self:center}
+.b{border-radius:999px;padding:8px 16px;min-height:40px;border:1.5px solid currentColor;background:transparent;color:inherit;font-weight:600}
+.b.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+/* 2. Arrival cue: slides down once, tint settles from stronger to normal */
+.arrive.in{animation:arrive .9s ease-out}
+@keyframes arrive{0%{transform:translateY(-10px);opacity:0;background:rgb(var(--accent-rgb)/.38)}35%{transform:none;opacity:1}100%{background:var(--accent-soft)}}
+
+/* Slide list (simplified) */
+.col{background:var(--panel);border-radius:14px;padding:16px}
+.col h2{font-size:1.15rem;margin:0 0 10px}
+.slide{display:flex;gap:12px;align-items:flex-start;background:var(--sunken);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:2px solid transparent}
+.slide .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:13px;font-weight:700}
+.slide b{display:block}
+.slide p{margin:2px 0 0;color:var(--text);opacity:.8;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slide.sel{border-color:var(--accent)}
+/* 3. New slides: tinted, fading out over about 3 seconds; a small "New" tag */
+.slide.new{animation:newslide 3s ease-out}
+@keyframes newslide{0%,35%{background:var(--accent-soft)}100%{background:var(--sunken)}}
+.slide .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-left:6px}
+.slide .txt{min-width:0;flex:1}
+@media (prefers-reduced-motion:reduce){.arrive.in,.slide.new{animation:none}}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:9}
+.demo{margin:22px 0 40px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.9rem}
+.demo button{border:1px dashed var(--muted);background:transparent;color:var(--text);border-radius:8px;padding:6px 12px}
+</style>
+
+<div class="wrap">
+  <nav class="navbar" aria-label="Pages">
+    <a href="#">Lyric</a><a href="#">Readings</a><a href="#">Program</a>
+    <a href="#" class="active" id="navSc">Scripture/Brah Ndu Ngoi<span class="dot" id="navDot" aria-label="passages waiting">2</span></a>
+    <a href="#">Presentation Builder</a><a href="#">Presentations</a><a href="#">Projector</a><a href="#">Notes</a>
+  </nav>
+
+  <h1>Scripture Slides</h1>
+
+  <section class="arrive in" id="arrive" role="region" aria-labelledby="arriveHd">
+    <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4M7 9h10M7 13h6"/></svg></div>
+    <div class="txt">
+      <div class="hd" id="arriveHd">From the Bible <span class="count">2 passages</span></div>
+      <p class="refs">Nau Ngluh 3:1-3 · Kan Lêvi 5:13-16</p>
+      <p class="peek">“Y-Môis chiă biăp po păng Y-Jêtrô, Kôranh ƀư brah Midian…</p>
+    </div>
+    <div class="btns">
+      <button class="b" id="later">Later</button>
+      <button class="b" id="fresh">Start a new study</button>
+      <button class="b pri" id="add">Add to this study</button>
+    </div>
+  </section>
+
+  <section class="col" aria-label="Slides">
+    <h2>Choose the slides</h2>
+    <div id="list"></div>
+  </section>
+
+  <div class="demo">Sample controls:
+    <button id="replay">Replay arrival</button>
+    <button id="auto">Empty study (adds at once)</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const START=[{t:"Welcome",p:"Custom slide"},{t:"Y-Yôhan 3:16",p:"16 Yorlah Brah Ndu rŏng ngăn ma phung neh ntu…"}];
+const NEW=[{t:"Nau Ngluh 3:1-3",p:"1 Y-Môis chiă biăp po păng Y-Jêtrô, Kôranh ƀư brah Midian…"},{t:"Kan Lêvi 5:13-16",p:"13 Pô ri Kôranh ƀư brah mra nau ƀư kloh nau tih…"}];
+let slides=[...START];
+function draw(newFrom=-1,sel=-1){
+  $("list").innerHTML=slides.map((s,i)=>`<div class="slide${i>=newFrom&&newFrom>=0?" new":""}${i===sel?" sel":""}" id="s${i}"><span class="n">${i+1}</span><div class="txt"><b>${s.t}${i>=newFrom&&newFrom>=0?'<span class="tag">New</span>':""}</b><p>${s.p}</p></div></div>`).join("");
+}
+function toast(m){$("toast").textContent=m;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").hidden=true,2600)}
+function addNew(fresh){
+  const from=fresh?0:slides.length;
+  slides=fresh?[...NEW]:[...slides,...NEW];
+  $("arrive").hidden=true;$("navDot").hidden=true;
+  draw(from,from);
+  const first=$("s"+from);first.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"});
+  toast(`Added ${NEW.length} passage slides`);
+  setTimeout(()=>document.querySelectorAll(".slide .tag").forEach(t=>t.remove()),6000);
+}
+$("add").onclick=()=>addNew(false);
+$("fresh").onclick=()=>addNew(true);
+$("later").onclick=()=>{$("arrive").hidden=true;toast("They’ll wait here until you add them")};
+$("replay").onclick=()=>{slides=[...START];draw();$("navDot").hidden=false;const a=$("arrive");a.hidden=false;a.classList.remove("in");void a.offsetWidth;a.classList.add("in")};
+$("auto").onclick=()=>{slides=[];draw();setTimeout(()=>addNew(true),300)};
+draw();
+</script>
