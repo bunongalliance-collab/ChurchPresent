@@ -1,0 +1,159 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "PHM",
+  "order": 57,
+  "testament": "NT",
+  "name": "Philemon",
+  "local_name": "Y-Philêmôn",
+  "title_block": [
+   "Sămƀŭt Y-Pôl Njuăl Ma",
+   "Y-PHILÊMÔN"
+  ]
+ },
+ "source": {
+  "file": "057. 57PHM.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nơm Dơn Sămƀŭt Jêh Ri Nau Khâl"
+    },
+    {
+     "before_verse": 4,
+     "type": "heading",
+     "text": "Nau Y-Pôl Tâm Rnê Yor Nau Chroh Jêh Ri Nau Rŏng Y-Philêmôn"
+    },
+    {
+     "before_verse": 8,
+     "type": "heading",
+     "text": "Y-Pôl Kơl N'gang Y-Ônêsim"
+    },
+    {
+     "before_verse": 21,
+     "type": "heading",
+     "text": "Nau Khâl"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Y-Pôl, bu nă Yêsu Krist, jêh ri oh he Y-Timôthê, njuăl sămƀŭt ma Y-Philêmôn, nơm hên rŏng jêh ri nơm pah kan ndrel ma hên,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "ma ruh hên H'Apia jêh ri ma Y-Archip, bunuyh tâm lơh ndrel ma hên jêh ri ma phung ngih Brah Ndu tâm ngih may."
+    },
+    {
+     "verse": 3,
+     "text": "Ăn khân may geh nau yô̆ jêh ri nau đăp mpăn bơh Brah Ndu, Mbơ̆ he, jêh ri bơh Brah Yêsu Krist."
+    },
+    {
+     "verse": 4,
+     "text": "Gâp tâm rnê ma Brah Ndu gâp ƀa ƀơ, kah gĭt ma may dôl gâp mbơh sơm,",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "yor lah gâp tăng jêh ma nau may chroh ma Brah Yêsu, jêh ri ma nau may rŏng ma lĕ rngôch phung kloh ueh."
+    },
+    {
+     "verse": 6,
+     "text": "Gâp dăn ma nau tâm rnglăp ma nau may chroh dơi tâm n'hao nau gĭt rbăng ma lĕ nau ueh he geh jêh tâm Brah Krist."
+    },
+    {
+     "verse": 7,
+     "text": "Yor lah, hơi oh gâp ơi, gâp geh âk nau maak jêh ri nau bonh leng bơh nau may rŏng, yor lah nuih n'hâm phung kloh ueh geh nau đăp mpăn yor may."
+    },
+    {
+     "verse": 8,
+     "text": "Yor lah tâm Brah Krist gâp geh lĕ nau janh ntăm ma may ƀư nau di,",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "ƀiă lah yor nau rŏng ma may, gâp vơh vơl pô aơ, gâp nơm, Y-Pôl, du huê bu ranh, jêh ri aƀaơ jêng bu nă yor Yêsu Krist."
+    },
+    {
+     "verse": 10,
+     "text": "Gâp vơh vơl ma may yor kon gâp, nơm gâp deh jêh tâm rse rvăk, Y-Ônêsim."
+    },
+    {
+     "verse": 11,
+     "text": "Kăl e ri păng mâu jêng khlay ma may ôh, ƀiă lah aƀaơ păng jêng khlay jêh ma may jêh ri ma gâp."
+    },
+    {
+     "verse": 12,
+     "text": "Gâp mplơ̆ păng ma may, păng jêng ndŭl proch gâp nơm."
+    },
+    {
+     "verse": 13,
+     "text": "Gâp ŭch ngăn ma păng ndrel ma gâp, gay ma păng pah kan ma gâp tâm tang ma may dôl gâp gŭ tâm rse rvăk yor nau mhe mhan ueh,"
+    },
+    {
+     "verse": 14,
+     "text": "ƀiă lah gâp mâu ŭch ƀư ôh nau nây tơ lah may mâu dơn, gay ma lơi ăn gâp nchâp may ƀư ueh ôh, ƀiă lah tĭng nâm nau may ŭch."
+    },
+    {
+     "verse": 15,
+     "text": "Klăp lah yor nau aơ păng tâm nkhah đah may ƀât lât, gay ma may dơi geh păng n'ho ro,"
+    },
+    {
+     "verse": 16,
+     "text": "mâu di nâm bu du huê dĭk rlau lơn ma dĭk, păng jêng du huê oh he rŏng ngăn ngên, nanê̆ ma gâp, ƀiă lah rlau lơn ma may, tâm nglay săk jêh ri tâm Kôranh Brah."
+    },
+    {
+     "verse": 17,
+     "text": "Pô ri, tơ lah may kơp gâp jêng mĭt jiăng may, rom păng nâm bu gâp nơm.",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Tơ lah păng ƀư tih ma may, mâu lah tơ lah păng iang rnon may, gâp mra trok an."
+    },
+    {
+     "verse": 19,
+     "text": "Gâp nơm, Y-Pôl, nchih nau aơ ma ti gâp nơm. Gâp mra trok rnon nây, ƀiă lah gâp mâu lah ôh ma may iang may nơm ma gâp."
+    },
+    {
+     "verse": 20,
+     "text": "Hơi oh ơi, gâp ŭch geh nau ueh uĭn aơ bơh may tâm Kôranh Brah. Ăn mpăn nuih n'hâm gâp tâm Brah Krist."
+    },
+    {
+     "verse": 21,
+     "text": "Gâp nchih ma may yor lah gâp rnơm ma nau may tông bâr, jêh ri gâp gĭt may mra ƀư rlau lơn ma nau gâp lah.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Tâm ban lĕ nkra hom ntŭk gŭ ma gâp, yor lah gâp kâp gân mra tât ta may yor nau may mbơh sơm."
+    },
+    {
+     "verse": 23,
+     "text": "Y-Êpapras, nơm jêng bu nă ndrel ma gâp tâm Yêsu Krist, njuăl nau khâl đah may,",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "jêh ri Y-Markôs, Y-Aristar, Y-Đêmas, jêh ri Y-Luk, phung pah kan ndrel ma gâp."
+    },
+    {
+     "verse": 25,
+     "text": "Ăn nau yô̆ bơh Kôranh Brah he, Yêsu Krist, gŭ ndrel ma huêng may.",
+     "para": true
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": []
+}

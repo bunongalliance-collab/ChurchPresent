@@ -1,0 +1,287 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "TIT",
+  "order": 56,
+  "testament": "NT",
+  "name": "Titus",
+  "local_name": "Y-Tit",
+  "title_block": [
+   "Sămƀŭt Y-Pôl Njuăl Ma",
+   "Y-TIT"
+  ]
+ },
+ "source": {
+  "file": "056. 56TIT.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nơm Dơn Sămƀŭt Jêh Ri Nau Khâl"
+    },
+    {
+     "before_verse": 5,
+     "type": "heading",
+     "text": "Ntăm Ma Y-Tit Rdâk Phung Ngih Brah Ndu Ta N'gor Kơrêt"
+    },
+    {
+     "before_verse": 10,
+     "type": "heading",
+     "text": "Ăn Păng Dơi Đah Phung Nti Tih"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Y-Pôl, oh mon Brah Ndu, jêh ri kôranh oh mon Yêsu Krist, gay ma tâm n'hao nau chroh phung Brah Ndu săch jêh, jêh ri nau khân păng gĭt rbăng ma nau ngăn tĭng nâm nau blau yơk ma Brah Ndu,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "tâm nau kâp gân ma nau rêh n'ho ro Brah Ndu ton jêh bơh âk rnôk, jêh ri păng mâu mâp mƀruh ôh,"
+    },
+    {
+     "verse": 3,
+     "text": "jêh ri tâm rnôk di păng tâm mpơl jêh nau păng ngơi tâm nau nti lah păng jao jêh ma gâp tĭng nâm Brah Ndu, Nơm Tâm Rklaih he, ntăm jêh."
+    },
+    {
+     "verse": 4,
+     "text": "Njuăl sămƀŭt ma Y-Tit, kon gâp ngăn tâm nau he chroh tâm ban: Ăn nau yô̆ jêh ri nau đăp mpăn bơh Brah Ndu, Mbơ̆ , jêh ri Yêsu Krist, Nơm Tâm Rklaih he."
+    },
+    {
+     "verse": 5,
+     "text": "Gâp cha lơi jêh may tâm n'gor Kret, gay ma may nkra nau ê hŏ ueh ôh, jêh ri tĭng nâm nau gâp ntăm, ăn may săch phung bu ranh tâm ăp ƀon,",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "tơ lah geh bunuyh bu mâu dơi nduyh, gŭ knŏng du huê ur, geh kon gŭ răp jăp bu mâu geh nau phong ma nau tih mâu lah ma nau dăng bôk ôh."
+    },
+    {
+     "verse": 7,
+     "text": "Yor lah ăn phung kôranh chiă uănh jêng bunuyh bu mâu dơi nduyh, nâm bu du huê oh mon Brah Ndu; păng mâu jêng sưr, gơnh nuih hay nhêt dak play kriăk ƀâu, janh ƀai, mâu lah hay ma prăk âk ôh,",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "ƀiă lah ăn păng jêng bunuyh rom bu, mĭt jiăng đah phung ueh, blau njrăng, sŏng, kloh ueh, di keh;"
+    },
+    {
+     "verse": 9,
+     "text": "djôt prăp Nau Brah Ndu Ngơi ngăn tâm ban ma bu hŏ nti jêh, gay ma păng dơi tâm n'hao nuih tĭng nâm nau nti kloh, jêh ri dơi đah phung tâm rlăch ma nau nây."
+    },
+    {
+     "verse": 10,
+     "text": "Geh âk ngăn phung bunuyh dăng bôk, hâu ngăn ngên tâm phung koh ntâu, phung ngơi nau mâu khlay, jêh ri phung ndơm.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Ăn khân păng gŭ rklăk yor lah khân păng ƀư rŭng lĕ ndŭl mpôl tâm du mlâm ngih dôl nti nau bu mâu vay nti yor khân păng rŏng ma prăk lă lêng.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Du huê tâm phung khân păng, kôranh nơm mbơh lor khân păng nơm lah jêh: “Phung Kret mƀruh ƀa ƀơ, jêng phung mpa janh, ndŭl ƀlao”."
+    },
+    {
+     "verse": 13,
+     "text": "Nau mbơh aơ ngăn. Yor nây ăn may nduyh khân păng ma nau ktang gay ma khân păng geh nau chroh kloh."
+    },
+    {
+     "verse": 14,
+     "text": "Jêh ri lơi khân păng dơn ôh nau phung Yuđa nkoch bri mƀruh, jêh ri ma nau bunuyh ntăm, ăn cha lơi nau nanê̆."
+    },
+    {
+     "verse": 15,
+     "text": "Lĕ rngôch mpa jêng kloh da dê ma phung kloh, ƀiă lah ma phung ƀơ̆ jêh ri ma phung mâu chroh mâu geh du ntil ndơ kloh ôh, ƀiă lah nau mĭn jêh ri nuih n'hâm sŏng khân păng nơm ôm jêh."
+    },
+    {
+     "verse": 16,
+     "text": "Khân păng nkoch khân păng nơm gĭt năl Brah Ndu, ƀiă lah khân păng dun nau nây đah kan khân păng ƀư. Khân păng jêng phung bu tâm rmot, dăng bôk, jêh ri mâu dơi ƀư du ntil kan ueh ôh."
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Tâm N'hao Nuih Ma Phung Bu Ranh Jêh Ri Phung Druh Ndăm"
+    },
+    {
+     "before_verse": 11,
+     "type": "heading",
+     "text": "Nau Yô̆ Brah Ndu Tâm Mpơl Jêh"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Ƀiă lah ăn may ngơi nau di ma nau nti kloh.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Ntăm ma phung bu ranh mra di keh, sŏng srăng, blau njrăng nâp tâm nau chroh, nau rŏng, jêh ri nau srôih."
+    },
+    {
+     "verse": 3,
+     "text": "Ntăm ma bu ranh bu ur gŭ ngao krao sach ma nau kloh ueh, mâu jêng bunuyh ngơi mhĭk ma bu ôh, mâu lĕ jêng hay ma dak play kriăk ƀâu, dơi nti moh nau jêng ueh.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Blau sâm nti ma phung bu ur druh rŏng ma sai jêh ri kon khân păng,",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "blau njrăng gŭ kloh ueh, blau pah kan tâm ngih, jêng ueh, blau tông ma sai khân păng, gay lơi ăn bu mưch ma Nau Brah Ndu Ngơi."
+    },
+    {
+     "verse": 6,
+     "text": "Ntăm lĕ ma phung bu klâu ndăm ăn gŭ di keh.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Tâm mpơl may nơm tâm lĕ rngôch nau jêng nau tâm ntĭt tâm kan ueh, jêh ri tâm nau may nti lah, tâm mpơl nau kloh, nau khư,"
+    },
+    {
+     "verse": 8,
+     "text": "nau ngơi di mâu geh nau bu dơi nduyh, gay ma nơm rlăng mra bêk, mâu geh du ntil nau dơi ngơi mhĭk ma he."
+    },
+    {
+     "verse": 9,
+     "text": "Ntăm ma phung oh mon ăn tông ma kôranh khân păng, ƀư maak ma khân păng tâm lĕ rngôch ndơ, mâu ngơi tâm rdâng ôh.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Mâu ntŭng ôh, ƀiă lah tâm mpơl ƀa ƀơ nau răp jăp rah vah, gay ma tâm lĕ rngôch nau khân păng dơi yơk ma nau nti bơh Brah Ndu, Nơm Tâm Rklaih he.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Yor lah nau Brah Ndu yô̆ tâm mpơl jêh, dơi tâm rklaih lĕ rngôch bunuyh.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Nau yô̆ nây nti ma he ăn dun nau mâu blau yơk ma Brah Ndu, jêh ri nau kơnh ma neh ntu, jêh ri gŭ rêh tâm rnôk aơ tĭng nâm nau blau mĭn, nau sŏng,"
+    },
+    {
+     "verse": 13,
+     "text": "jêh ri nau blau kâp gân răm maak jêh ri nau tâm mpơl ma nau chrêk rmah Brah Ndu toyh he, jêh ri Nơm Tâm Rklaih he, Yêsu Krist."
+    },
+    {
+     "verse": 14,
+     "text": "Păng jao jêh păng nơm ma he, gay ma tâm chuai he bơh lĕ nau tih, jêh ri ƀư kloh păng nơm du phung ndŭl mpôl geh nau duh nđơr ma kan ueh."
+    },
+    {
+     "verse": 15,
+     "text": "Nti nau nây; tâm n'hao nuih jêh ri nduyh ma lĕ nau dơi. Lơi ăn bu tâm rmot ma may ôh.",
+     "para": true
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Ntăm Ma Y-Tit Mra Nti"
+    },
+    {
+     "before_verse": 12,
+     "type": "heading",
+     "text": "Nau Ntăm Êng Êng Nau Khâl"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Ăn nkah ma khân păng blau tông phung kôranh chiă uănh jêh ri phung geh nau dơi, ăn tông bâr, kâp ƀư lĕ kan ueh,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "mâu ngơi mhĭk ma bu ôh, gŭ đăp mpăn, blau njrăng, jêh ri bêng ma nau rdơ̆ rbăn ma lĕ rngôch bunuyh."
+    },
+    {
+     "verse": 3,
+     "text": "Yor lah sa ơm ri he tâm ban lĕ jêng rluk, mâu blau tông bâr, nkhah du, jêng dĭk ma ăp ntil nau kơnh jêh ri ma nau nglay săk ŭch, gŭ rêh tâm nau djơh mhĭk jêh ri tâm nau kơnh, bu tâm rmot jêh ri he tâm rmot ndrăng he."
+    },
+    {
+     "verse": 4,
+     "text": "Ƀiă lah tơ lah nau ueh Brah Ndu, Nơm Tâm Rklaih he, jêh ri nau păng rŏng ma bunuyh tâm mpơl jêh,"
+    },
+    {
+     "verse": 5,
+     "text": "Păng tâm rklaih jêh he mâu di yor kan bơh nau sŏng he ƀư jêh ôh, ƀiă lah tĭng nâm nau păng yô̆ ma he, ma nau ƀư kloh bơh nau deh mhe, jêh ri nau ƀư mhe tay bơh Brah Huêng Ueh,"
+    },
+    {
+     "verse": 6,
+     "text": "Păng nkhŭt jêh ma he rmeh ler ma Yêsu Krist, Nơm Tâm Rklaih he,"
+    },
+    {
+     "verse": 7,
+     "text": "gay ma he mra geh nau kơp sŏng ma nau Păng yô̆, jêh ri jêng phung dơn tâm nau kâp gân ma nau rêh n'ho ro."
+    },
+    {
+     "verse": 8,
+     "text": "Nau ngơi aơ jêng ngăn. Gâp ŭch ma may ƀư ngăn nau aơ, gay ma phung chroh jêh ma Brah Ndu mra blau njrăng ƀư kan ueh, nau nây ueh jêh ri khlay ma bunuyh.",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Ƀiă lah dun nau tâm rlăch rluk, nau ƀoi yau u che, nau tâm djrel, jêh ri nau tâm rlăch ma nau vay, yor lah nau nây mâu khlay ôh jêh ri dơm dam."
+    },
+    {
+     "verse": 10,
+     "text": "Bi ma bunuyh joi nau tâm nkhah, jêh nduyh păng nguay mâu lah bar tơ̆ lơi geh nau đah păng ôh."
+    },
+    {
+     "verse": 11,
+     "text": "Yor lah may gĭt jêh bunuyh tâm ban pô nây jêng nkhah du jêh, jêh ri ƀư tih; dôl ƀư pô nây păng phat dôih păng nơm yơh."
+    },
+    {
+     "verse": 12,
+     "text": "Tơ lah gâp njuăl ma may Y-Artêmas mâu lah Y-Tisik, ăn may ndal văch tâm mâp đah gâp ta ƀon Nikôpôlis, yor lah gâp mĭn ŭch gŭ ta nây dôl yan puh.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Njrăng ma nau kơl Y-Sênas, kôranh nơm nti nau vay, jêh ri Y-Apôlôs, dôl khân păng sak nsong lơi ăn khân păng pưt kƀah du ntil ndơ ôh."
+    },
+    {
+     "verse": 14,
+     "text": "Ăn nđâp phung he lĕ nti ƀư kan ueh gay dơi kơl tơ lah geh kan ndal, pô ri lơi he pưt play blau kơl.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Lĕ rngôch phung gŭ ndrel gâp njuăl nau khâl đah may. Ăn may khâl đah phung rŏng ma hên tâm nau chroh. Ăn nau yô̆ gŭ ndrel ma lĕ rngôch khân may."
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": [
+  {
+   "ref": "TIT 1:4",
+   "issue": "space before punctuation"
+  }
+ ]
+}

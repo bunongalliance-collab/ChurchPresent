@@ -1,0 +1,303 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "ZEP",
+  "order": 36,
+  "testament": "OT",
+  "name": "Zephaniah",
+  "local_name": "Y-Sôphôni",
+  "title_block": [
+   "Ndrom Sămƀŭt Bơh",
+   "Y-SÔPHÔNI"
+  ]
+ },
+ "source": {
+  "file": "036. 36ZEP.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nar Yêhôva Ji Nuih"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Aơ jêng nau Yêhôva ngơi ma Y-Sôphôni, kon bu klâu Y-Kusi, sau Y-Gêdalia, se Y-Amaria săn Y-Hêsakia, tâm rnôk Y-Jôsia, kon bu klâu Y-Amôn, hađăch n'gor Yuđa.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "“Gâp ma ƀư rai lơi lĕ rngôch ndơ tă bơh klơ neh ntu,” Yêhôva lah.",
+     "para": true
+    },
+    {
+     "verse": 3,
+     "text": "“Gâp mra ƀư rai bunuyh jêh ri mpô mpa; gâp mra ƀư rai sĭm klơ trôk jêh ri ka tâm dak mƀŭt. Gâp mra n'glưh lơi nau phung djơh nking, jêh ri gâp mra ƀư rai lơi phung bunuyh ta klơ neh ntu,” Yêhôva lah."
+    },
+    {
+     "verse": 4,
+     "text": "“Gâp mra yơr ti gâp tâm rdâng đah phung Yuđa, jêh ri ma lĕ rngôch phung gŭ ta ƀon Yêrusalem; jêh ri gâp mra rai lĕ tă bơh ntŭk aơ phung hôm e yơk mbah ma brah Baal jêh ri kôranh ƀư brah ma rup brah;"
+    },
+    {
+     "verse": 5,
+     "text": "Gâp mra ƀư rai phung chon mbah ma ndơ tâm trôk ta klơ chor bôk pho; jêh ri phung yơk mbah jêh ri sơm săk đah Yêhôva jêh ri ăt sơm săk đŏng đah hađăch khân păng;"
+    },
+    {
+     "verse": 6,
+     "text": "phung lĕ cha lơi jêh Yêhôva, phung mâu ŭch joi Yêhôva, mâu ôp ôh ma păng.”"
+    },
+    {
+     "verse": 7,
+     "text": "Gŭ klăk klêm hom ta năp Yêhôva Brah Ndu. Yor lah nar Yêhôva dăch tât, Yêhôva hŏ ndrăp nkra jêh ndơ nhhơr ƀư brah, prăp êng ma phung păng jă."
+    },
+    {
+     "verse": 8,
+     "text": "Ta nar Yêhôva ƀư brah, gâp mra tâm rmal phung kôranh jêh ri phung kon hađăch jêh ri lĕ rngôch phung nsoh kho ao bu năch."
+    },
+    {
+     "verse": 9,
+     "text": "Ta nar nây, gâp mra tâm rmal lĕ rngôch phung ta lô̆ ta klơ mbong ngih, jêh ri phung ăn bêng ngih kôranh khân păng ma nau djơh mhĭk jêh ri nau ndơm."
+    },
+    {
+     "verse": 10,
+     "text": "“Ta nar nây.” Yêhôva lah, “Bu mra tăng bâr bu nter huy ngăn bơh ntŭk Mpông Pêr Ka, nau nhĭm nter bơh ntŭk Nkual Tal Bar, nter huy ngăn bơh klơ yôk.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Hơi phung gŭ tâm ƀon dêh tâm dâng Maktes! Nhĭm nter hom; yor lah lĕ rngôch phung tăch rgâl lĕ rai roh, jêh ri phung njing prăk lĕ rai jêh."
+    },
+    {
+     "verse": 12,
+     "text": "Rnôk nây, gâp djôt ŭnh kađen sek uănh ƀon Yêrusalem, jêh ri gâp mra tâm rmal phung troch bêng thŭng ndrănh păng jêh ri lah tâm nuih n'hâm khân păng: ‘Yêhôva mâu mra ăn nau ueh ôh, mâu lĕ ăn nau mhĭk.’",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Bu mra pit in drăp ndơ khân păng, ngih vâl khân păng lĕ bu ƀư rai lơi; khân păng mra ƀư ngih, ƀiă lah mâu geh gŭ ôh tăm tơm play kriăk ƀâu, ƀiă lah mâu geh nhêt dak păng.”"
+    },
+    {
+     "verse": 14,
+     "text": "Nar toyh Yêhôva hŏ dăch tât, hŏ dăch ngăn jêh, păng mra tât gơnh ngăn, nar Yêhôva geh nau nteh n'găr ktang, rnôk nây phung janh ktang mra nhĭm nter hâu ngăn yơh.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Nar nây jêng nar ji nuih, nar rêh ni jêh ri nar rngot klâng, nar bu ƀư rai jêh ri rai lôch, nar nau ngo jêh ri gui nkâm, nar geh ndâr tŭk jêh ri ngo klĕng,"
+    },
+    {
+     "verse": 16,
+     "text": "Nar geh bâr nŭng jêh ri nau nter tâm lơh đah ƀon toyh geh mpêr nâp jêh ri vâl tŭm pôih prêh ta njônh ƀon."
+    },
+    {
+     "verse": 17,
+     "text": "Gâp mra leo nau rêh ni tât ma bunuyh, pô ri khân păng mra chuat hăn nâm bu bunuyh chieh măt, yor lah khân păng ƀư tih jêh đah Yêhôva. Bu mra ƀư pling mham khân păng nâm bu njŏk ƀơ̆ ;",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Mâu lah prăk mâu lah mah khân păng, mâu dơi tâm rklaih khân păng ôh tâm nar Yêhôva ji nuih; ƀiă lah lĕ rngôch bri dak aơ mra rai ma ŭnh nau păng ntôn, jêh ri Păng su ƀư rai lĕ rngôch bri dak; yor lah Păng mra ƀư rai ngăn yơh lĕ rngôch bri neh aơ ƀât lât mâu năn saơ."
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Ƀư Rai Ntil Mpôl Bunuyh Gŭ Jŭm"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Hơi mpôl băl bunuyh mâu gĭt nau prêng ôh, văch ndrel hom, tâm rgum ndrel,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Ê lor tơ lah nau ntăm ê hŏ tât, jêh ri nar nây rlau nâm bu lâk sial đô̆, lor tơ lah nar Yêhôva ji nuih ê hŏ tât ma khân may,"
+    },
+    {
+     "verse": 3,
+     "text": "Hơi lĕ rngôch khân may, jêng phung hêt rhôi tâm bri neh, tĭng joi hom nau Kôranh Brah ntăm, joi hom Yêhôva, joi hom nau sŏng srăng, joi hom nau hêt rhôi, mâu lah bu ƀư pôn khân may mra ăn tâm nar Yêhôva ji nuih."
+    },
+    {
+     "verse": 4,
+     "text": "Yor nây, bu mra cha lơi ƀon Gaxa jêh ri ƀon Askalon mra jêng ntŭk rngol; bu mra mprơh ƀon Asdôt ta nklang bôk nar, bu mra đôk lơi ƀon Ekron.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Rêh ni ngăn ma khân may gŭ ta kơh dak mƀŭt, jêng phung mpôl Kêrêthit! Hơi Kanaan, jêng bri phung Philistin; nau Yêhôva ngơi tâm rdâng đah khân may; gâp mra ƀư rai lơi khân may kŏ tât mâu hôm geh bunuyh ôh."
+    },
+    {
+     "verse": 6,
+     "text": "Pô nây ta kơh dak mƀŭt mra jêng gơ̆ ndrêch, jêng ntŭk ndưp phung chiăp jêh ri ndrung phung biăp."
+    },
+    {
+     "verse": 7,
+     "text": "N'gor nây jêng ntŭk prăp ăn ma phung ngih Yuđa hôm e klen, ntŭk khân păng mât rong phung biăp, lah măng ngo mra bêch lâng măng tâm ăp rplay ngih vâl ƀon Askalon; yor lah Yêhôva Brah Ndu khân păng mra chop khâl khân păng, jêh ri leo sĭt phung tă ƀư bună ăn khân păng plơ̆ sĭt."
+    },
+    {
+     "verse": 8,
+     "text": "“Gâp hŏ tăng jêh nau Môap mưch rmot, nau phung kon sau Amôn suai rak, ma phung ƀon lan gâp, jêh ri thăm gay ŭch sŏk bri neh khân ô băl.",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Yor nây, tĭng nâm gâp gŭ rêh,” Yêhôva phung ta han, lah, “Môap mra jêng nâm bu Sôdôm, jêh ri kon sau Amôn nâm bu Gômôrơ, du nkuĭl lok chăt hon geh ntu rlŭng boh, jêh ri jêng ntŭk rdah ƀa ƀơ n'ho ro; phung ƀon lan gâp hôm e klen mra pit in ndơ khân păng, phung băl mpôl gâp hôm e rêh mra ndơn sŏk khân păng.”"
+    },
+    {
+     "verse": 10,
+     "text": "Nau nây mra tât ma khân păng yor nau sưr khân păng, yor khân păng mưch jêh ri ngơi sưr tâm rdâng đah Yêhôva phung ta han."
+    },
+    {
+     "verse": 11,
+     "text": "Yêhôva mra jêng du nau nkhĭt ăn khân păng klach; yor lah Păng nkrit ăn ma lĕ brah yang ta neh ntu ât ji ngot; jêh ri ăp ntil mpôl bunuyh mra chon mbah ta năp măt Păng; nđâp tâm kô dak mƀŭt, tâm lĕ n'gor bri tâm ban lĕ, yơk mbah tâm ntŭk păng nơm.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Tâm ban lĕ, Hơi phung Êthiôpi, khân may mra khĭt ma đao gâp."
+    },
+    {
+     "verse": 13,
+     "text": "Pô nây, Yêhôva mra yơr ti păng tâm rdâng đah phung ta dor, jêh ri ƀư rai bri Asiri; jêh ri păng mra ăn ƀon Ninivơ jêng rngol, neh sơh nâm bu bri rdah.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Phung biăp mra bêch kuen ta nklang khân păng, lĕ rngôch ntil mpô mpa êng, klang grât jêh ri blŏ ma mra gŭ tâm chiông meh gâng păng, klang kô ndrau ta mpông bloh ngih; ndơ bu ƀư ma tơm si sêdar lĕ bu rơih trơn jêh."
+    },
+    {
+     "verse": 15,
+     "text": "Aơ yơh ƀon toyh răm maak ngăn, hŏ gŭ jêh ma nau mpăn mâu hôm rvê mĭn ôh, jêh ri lah êng tâm nuih n'hâm khân păng: “Ta aơ, mâu hôm geh bunuyh êng ôh rlau lơn ma gâp.” Ƀiă lah păng nkhơng lah jêng rngol, jêng ntŭk ma phung mpô mpa bri bêch kuen ta nây! Ăp nuyh hăn rgăn ta nây bu gơm mưch jêh ri vơch ti nsŭch."
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Tih Jêh Ri Nau Tâm Chuai Ƀon Yêrusalem"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Rêh ni ngăn ma ƀon tâm rdâng, jêh ri ƀơ̆ ƀơch, ƀư nau tŭn jot!",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Păng mâu tông bar bu ôh; păng mâu dơn nau bu lah nti păng. Păng mâu rnơm ma Yêhôva ôh, păng mâu hăn dăch Brah Ndu păng ôh."
+    },
+    {
+     "verse": 3,
+     "text": "Phung kôranh ta nklang păng nâm bu yau mŭr dôl ngrông; phung kôranh phat dôih păng jêng so bri rsong măng mâu têm om ôh tât kêng ôi taơ.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Phung kôranh nơm mbơh lor, păng ƀư tĭng nâm khân păng ŭch, jêh ri ƀư ma nau ndơm; phung kôranh ƀư brah păng ƀư ƀơ̆ ntŭk kloh ueh, jêh ri ƀư rlau nau vay."
+    },
+    {
+     "verse": 5,
+     "text": "Yêhôva ta nklang păng jêng sŏng, mâu ƀư nau djơh ôh; ăp ôi păng mpơl nau sŏng păng ta nklang nau ang, mâu blau lôch ôh; ƀiă lah bunuyh kue mâu gĭt prêng ôh.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Gâp hŏ ƀư rai jêh phung ntil mpôl bunuyh; vâl tŭm khân păng ta pôih njônh ƀon lah jêng vâl rŭng. Gâp ƀư jêh ntŭk rgum tăch ndơ lah jêng rngol, kŏ tât mâu geh ôh bunuyh hăn rgăn ta nây. Ƀon păng lah roh rai, mâu hôm geh du huê bunuyh, jêh ri kŏ mâu geh lĕ bunuyh gŭ ta nây.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Gâp lah ma ƀon nây: Nanê̆ ngăn, may knŏng klach yơk ma gâp, dơn nau bu lah nti, pô ri ntŭk păng gŭ mâu geh trơn ôh. Ƀiă lah khân păng sŏl ko, ŭch ƀư nau kan mhĭk khân păng nơm."
+    },
+    {
+     "verse": 8,
+     "text": "Yor nây, Yêhôva lah: Ăn khân may gŭ kâp gâp tât, kŏ tât nar gâp mra dâk mbơh ngăn; yor lah gâp ŭch mĭn gay sŏk rgum mpôl băl bunuyh jêh ri tâm rgum lĕ yor lah lĕ bri dak, gay gâp nkhŭt ma khân păng nau gâp nuih jêh ri lĕ nau gâp duh nuih, yor lah lĕ rngôch bri dak mra rai lôch.",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Yor lah rnôk nây gâp mra ăn kloh trôm mbung phung ƀon lan, gay ăn lĕ rngôch khân păng kuăl amoh Yêhôva, jêh ri pah kan du ai ma păng.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Phung yơk mbah ma gâp, nâm bu ntĭt kon bu ur gâp nhhơt gŭ kơh đah ri dak krong Êthiôpi, mra leo ndơ nhhơr djôt ma gâp."
+    },
+    {
+     "verse": 11,
+     "text": "Tâm nar nây, may mâu mra bêk prêng ma bu ôh; yor lĕ nau may ƀư tih jêh ma gâp; yor lah rnôk nây gâp sŏk lơi tă bơh phung răm maak ma nau khân păng sưr ir ta nklang khân păng; ntơm aƀaơ tât kăndơ̆ khân păng mâu hôm sưr đŏng ôh ta klơ yôk kloh ueh gâp.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Ƀiă lah gâp mra lơi ta nklang may phung gĭt dêh-rhêt jêh ri rah rơch, phung blau nsing ma amoh Yêhôva."
+    },
+    {
+     "verse": 13,
+     "text": "Phung hôm e tâm n'gor Israel, mâu mra ƀư du ntil nau tih ôh, jêh ri mâu mra ngơi mƀruh ôh; mâu lĕ geh nau ngơi ndơm bơh mpiăt khân păng, yor lah khân păng mra sông sa jêh ri bêch rlu, jêh ri mâu geh ôh bunuyh ƀư nkrit khân păng.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Hơi kon bu ur Siôn, mprơ huy hôm! Hơi Israel, nter bâr ngơi huy! Hơi kon bu ur ƀon Yêrusalem! Răm jêh ri răm rhơn hom ma lĕ nuih n'hâm ay,",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Yêhôva hŏ cha lơi jêh nau phat dôih ay, nsot phung rlăng du ngai ma ay; Hađăch Israel, jêng Yêhôva, gŭ ta nklang may, may mâu mra mâp nau mhĭk đŏng ôh."
+    },
+    {
+     "verse": 16,
+     "text": "Tâm nar nây, bu mra lah ma ƀon Yêrusalem pô aơ: Hơi Siôn, lơi klach ôh, lơi ăn ti may jêng ra ai ôh!",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Yêhôva Brah Ndu may gŭ ta nklang may; Păng jêng nơm geh nau brah dơi tâm rklaih may; păng mra rhơn răm ngăn yor ma may, yor nuih n'hâm păng rŏng mpơl ma may. Jêh ri yor ma may păng mra mprơ ma nau rhơn răm.",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "“Gâp mra sŏk rgum phung dôl geh nau rngot, yor nhêt sa toyh; khân păng luh tă bơh may, dơn nau nduyh ƀư prêng jêh ri anh jâk.",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "Aơ, tâm rnôk nây, gâp mra ƀư rai lĕ rngôch phung ƀư nau rngot ma may, gâp mra tâm rklaih phung kuet rvĕn, jêh ri rgum sĭt phung tă mprơh du, gay ăn khân păng nau tâm rnê jêh ri nau lư n'găr tâm ăp n'gor bri bu hŏ ƀư bêk prêng jêh khân păng.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Tâm rnôk nây, gâp mra djôt leo khân may plơ̆ sĭt, tâm rnôk nây gâp mra tâm rgum ndrel đŏng khân may, yor lah gâp mra ăn khân may jêng lư n'găr jêh ri geh nau tâm rnê ta nklang lĕ rngôch phung ƀon lan tâm neh ntu, tơ lah gâp leo sĭt phung tă ƀư bună ta năp măt khân may,” Yêhôva lah nau nây.",
+     "para": true
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": [
+  {
+   "ref": "ZEP 1:17",
+   "issue": "space before punctuation"
+  }
+ ]
+}

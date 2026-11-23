@@ -1,0 +1,4004 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "MRK",
+  "order": 41,
+  "testament": "NT",
+  "name": "Mark",
+  "local_name": "Y-Markôs",
+  "title_block": [
+   "Nau Mhe Mhan Ueh Tĭng Nâm",
+   "Y-MARKÔS"
+  ]
+ },
+ "source": {
+  "file": "041. 41MRK.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Yôhan Nơm Ƀư Ƀaptem Nau Nti Lah (Math 3:1-12; Luk 3:1-18; Y-Yôhan 1:19-28)"
+    },
+    {
+     "before_verse": 9,
+     "type": "heading",
+     "text": "Y-Yôhan Ƀư Ƀaptem Ma Brah Yêsu Satan Joi Ndơm Brah Yêsu"
+    },
+    {
+     "before_verse": 9,
+     "type": "parallel",
+     "text": "(Mathiơ 3:13; 4:1-11; Luk 3:21-22; 4:1-13)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Brah Yêsu Kuăl Puăn Nuyh Seng Jal"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 4:12-22; Luk 4:14-15; 5:1-11)"
+    },
+    {
+     "before_verse": 21,
+     "type": "heading",
+     "text": "Yêsu Mprơh Brah Mhĭk"
+    },
+    {
+     "before_verse": 21,
+     "type": "parallel",
+     "text": "(Luk 4:31-37)"
+    },
+    {
+     "before_verse": 29,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Âk Bunuyh"
+    },
+    {
+     "before_verse": 29,
+     "type": "parallel",
+     "text": "(Mathiơ 8:14-17; Luk 4:38-41)"
+    },
+    {
+     "before_verse": 35,
+     "type": "heading",
+     "text": "Brah Yêsu Nti Tâm N'gor Galilê"
+    },
+    {
+     "before_verse": 35,
+     "type": "parallel",
+     "text": "(Luk 4:42-44)"
+    },
+    {
+     "before_verse": 40,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Bunuyh Phŭng"
+    },
+    {
+     "before_verse": 40,
+     "type": "parallel",
+     "text": "(Mathiơ 8:1-4; Luk 5:12-16)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Nau ntơm ma nau mhe mhan ueh ma Brah Yêsu Krist, Kon Brah Ndu.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Tĭng nâm nau bu nchih jêh tâm ndrom sămƀŭt kôranh nơm mbơh lor Y-Êsai: “Ta aơ, gâp prơh hăn nơm mbơh ma gâp ta năp may, păng mra nkra trong ma may."
+    },
+    {
+     "verse": 3,
+     "text": "Geh bâr nter tâm bri rdah: Nkra hom trong Kôranh Brah, ƀư lâng hom trong Păng.”",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Y-Yôhan nơm ƀư ƀaptem văch jêh, tâm bri rdah jêh ri nti nau ƀư ƀaptem ma mbu nơm rmal nau tih, gay dơi geh nau yô̆ an."
+    },
+    {
+     "verse": 5,
+     "text": "Lĕ n'gor bri Yuđa jêh ri lĕ rngôch phung ƀon lan Yêrusalem hăn ma păng. Khân păng mbơh nau tih jêh ri ăn Y-Yôhan ƀư ƀaptem ma khân păng tâm dak krong Yurdan.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Y-Yôhan nsoh ao rsau seh samô, jêh ri păng vân rse bŭt ntâu. Păng sa krah jêh ri dak sŭt bri."
+    },
+    {
+     "verse": 7,
+     "text": "Păng nti kơt aơ: “Du huê mra văch pa kơi gâp, jêng brah lơn ma gâp, jêh ri gâp mâu khư ôh kŭnh doh rse ntâu jot Păng."
+    },
+    {
+     "verse": 8,
+     "text": "Gâp ƀư ƀaptem ma khân may ma dak, ƀiă lah Păng mra ƀư ƀaptem ma khân may đah Brah Huêng Ueh.”"
+    },
+    {
+     "verse": 9,
+     "text": "Rnôk nây Brah Yêsu văch tă bơh ƀon Nasaret n'gor Galilê, jêh ri ăn Y-Yôhan ƀư ƀaptem ma Păng tâm dak krong Yurdan.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Dôl Brah Yêsu luh tă bơh dak Păng saơ trôk pơk mpơl jêh ri Brah Huêng Ueh jŭr drâm ta klơ Brah Yêsu nâm bu plŭk.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Jêh ri geh bâr ngơi tă bơh trôk lah: “May jêng kon gâp rŏng ngăn ngên; tâm may gâp geh nau răm maak ngăn.”"
+    },
+    {
+     "verse": 12,
+     "text": "Ƀât lât ta nây Brah Huêng Ueh ntrôl Brah Yêsu luh hăn tâm bri rdah."
+    },
+    {
+     "verse": 13,
+     "text": "Păng gŭ tâm bri rdah puăn jât nar, jêh ri Satan ndơm Păng. Păng gŭ ndrel ma mpô mpa bri, jêh ri Tông mpăr ueh Brah Ndu kơl Păng."
+    },
+    {
+     "verse": 14,
+     "text": "Jêh bu nhŭp krŭng Y-Yôhan, Brah Yêsu hăn rlet n'gor Galilê nti nau mhe mhan ueh Brah Ndu,",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Păng lah: “Rô̆ aơ tât jêh, jêh ri ƀon bri hađăch Brah Ndu dăch tât jêh. Rmal lơi hom nau tih khân may, jêh ri chroh ma nau mhe mhan ueh.”"
+    },
+    {
+     "verse": 16,
+     "text": "Dôl Brah Yêsu hăn rgŏ dak mƀŭt Galilê, Păng saơ Y-Simôn jêh ri Y-Andrê, oh Y-Simôn. Khân păng gŭ seng ka tâm dak mƀŭt; yor lah khân păng jêng bunuyh vay seng jal.",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Brah Yêsu lah ma khân păng: “Tĭng hom gâp, jêh ri gâp mra ăn khân may jêng bunuyh seng bunuyh.”"
+    },
+    {
+     "verse": 18,
+     "text": "Ƀât lât ta nây khân păng mƀăr lơi jal khân păng, jêh ri khân păng tĭng ndô̆ Brah Yêsu."
+    },
+    {
+     "verse": 19,
+     "text": "Tơ lah păng hăn ngai oi đê̆, păng saơ Y-Yakơ, kon Y-Sêƀêđê, jêh ri Y-Yôhan, oh păng. Phung nây gŭ tâm plŭng nsrêp jal."
+    },
+    {
+     "verse": 20,
+     "text": "Brah Yêsu kuăl khân păng ro; jêh ri khân păng cha lơi êng mbơ̆ khân păng, Y-Sêƀêđê tâm plŭng ndrel ma phung oh mon păng, bi khân păng hăn tĭng Brah Yêsu."
+    },
+    {
+     "verse": 21,
+     "text": "Khân păng hăn ta ƀon Kapernum; jêh ri ta nar Saƀat, Brah Yêsu lăp ro tâm ngih tâm rƀŭn Yuđa jêh ri nti lah ta nây.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Bunuyh gŭ iăt hih rhâl nau păng nti, yor lah Păng nti ma khân păng nâm bu du huê geh nau dơi toyh, mâu di ôh nâm bu phung kôranh nchih sămƀŭt."
+    },
+    {
+     "verse": 23,
+     "text": "Pô ri, ƀât lât ta nây geh tâm ngih rƀŭn Yuđa du huê bunuyh brah mhĭk gŭ tâm păng, jêh ri păng nter kơt aơ:",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "“Ơ Brah Yêsu, ƀon Nasaret, moh nau may geh đah hên? May văch gay ƀư rai hên ƀơh? Gâp gĭt jêh mbu may jêng, Nơm Kloh Ueh bơh Brah Ndu.”"
+    },
+    {
+     "verse": 25,
+     "text": "Ƀiă lah Brah Yêsu buay brah mhĭk nây, lah: “Gŭ rklăk hom may, jêh ri du luh hom bơh bunuyh aơ.”"
+    },
+    {
+     "verse": 26,
+     "text": "Jêh nây brah mhĭk du luh ro tă bơh bunuyh nây ma nau nsâr râm săk jăn ô băl, jêh ri ma nau lŭng nter."
+    },
+    {
+     "verse": 27,
+     "text": "Lĕ rngôch khân păng hih rhâl, jêh ri tâm ôp ndrăng khân Păng lah: “Moh nau tât aơ? Nau nti mhe ƀơh! Nơm aơ Păng dŏng nau dơi toyh nđâp ma phung brah mhĭk dơi tông nau Păng da dê.”"
+    },
+    {
+     "verse": 28,
+     "text": "Jêh ri amoh Păng lư n'găr lam n'gor Galilê."
+    },
+    {
+     "verse": 29,
+     "text": "Dôl khân păng luh tă bơh ngih rƀŭn Yuđa, khân păng hăn ndrel ma Y-Yakơ jêh ri Y-Yôhan rlet ma ngih Y-Simôn jêh ri Y-Andrê.",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "Po bu ur Y-Simôn bêch ji kop. Bu mbơh ro nau păng ji nây ma Brah Yêsu."
+    },
+    {
+     "verse": 31,
+     "text": "Brah Yêsu hăn êp bu ur nây, jêh ri kuăn ta ti păng ăn ô băl dâk; ƀât lât ta nây nau ji păng bah ro jêh ri păng n'ho pah kan ma khân păng.",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Tât kêng mhaơ, nar lĕ nhâp jêh bu njŭn leo ma Brah Yêsu lĕ rngôch phung ji kuet, jêh ri brah mhĭk lơh.",
+     "para": true
+    },
+    {
+     "verse": 33,
+     "text": "Lĕ rngôch bunuyh tâm ƀon nây tâm rgum pa năp mpông ngih păng gŭ."
+    },
+    {
+     "verse": 34,
+     "text": "Brah Yêsu ƀư bah âk bunuyh geh nau ji êng êng, jêh ri nsot âk brah mhĭk, mâu hôm geh nau dơi ôh brah mhĭk dơi ngơi, yor lah khân păng lĕ gĭt năl jêh Păng."
+    },
+    {
+     "verse": 35,
+     "text": "Ơm ôi taơ, ƀhit rvi ang, Brah Yêsu dâk jêh ri du luh bơh ngih nây hăn êng, tâm ntŭk bri rdah jêh ri gŭ mbơh sơm ta nây.",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "Y-Simôn jêh ri phung băl păng tĭng joi Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 37,
+     "text": "Tơ lah khân păng saơ Brah Yêsu, jêh ri lah: “Lĕ rngôch bunuyh tĭng joi may.”"
+    },
+    {
+     "verse": 38,
+     "text": "Brah Yêsu lah: “Hăn hom he tâm nkual ƀon dăch tâm aơ, gay ma gâp dơi nti lah ta nây tâm ban lĕ; yor ma nau nây yơh gâp văch.”"
+    },
+    {
+     "verse": 39,
+     "text": "Jêh nây Brah Yêsu hăn lam tâm n'gor Galilê, nti tâm ngih rƀŭn Yuđa jêh ri mprơh nsot brah mhĭk."
+    },
+    {
+     "verse": 40,
+     "text": "Geh du huê bunuyh phŭng sa hăn ran ta Brah Yêsu. Păng chon kômâk jêh ri vơh vơl ma păng: “Lah may ŭch, may dơi ƀư kloh gâp.”",
+     "para": true
+    },
+    {
+     "verse": 41,
+     "text": "Brah Yêsu geh nau yô̆ klâng, yơr ti rpôt ô băl, jêh ri lah: “Gâp ŭch lĕ, ăn may jêng kloh hom.”"
+    },
+    {
+     "verse": 42,
+     "text": "Ƀât lât phŭng păng bah, jêh ri păng jêng kloh."
+    },
+    {
+     "verse": 43,
+     "text": "Brah Yêsu ăn păng sĭt ro jêh ri ntĭnh mprân lơi ma păng:"
+    },
+    {
+     "verse": 44,
+     "text": "“Njrăng hom, lơi nkoch nau nây ma bu ôh, ƀiă lah hăn mpơl săk may nơm ma kôranh ƀư brah, jêh ri nhhơr mpa yor nau ƀư kloh may tĭng nâm Y-Môis ntĭnh jêh, jêng nau ăn n'hêl nanê̆ ma phung ƀon lan.”"
+    },
+    {
+     "verse": 45,
+     "text": "Ƀiă lah bunuyh nây dak hăn, jêh ri ntơm nkoch bri jêh ri mbơh nau nây lam ntŭk. Yor nây Brah Yêsu mâu hôm dơi lăp tâm ƀon nây. Păng gŭ pa dih ƀon, tâm ntŭk bri rdah, jêh ri lĕ rngôch bunuyh tă bơh lam ntŭk hăn tât ta Păng."
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Bunuyh Rvĕn"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 9:1-8; Luk 5:17-26)"
+    },
+    {
+     "before_verse": 13,
+     "type": "heading",
+     "text": "Brah Yêsu Kuăl Y-Lêvi"
+    },
+    {
+     "before_verse": 13,
+     "type": "parallel",
+     "text": "(Mathiơ 9:9-13; Luk 5:27-32)"
+    },
+    {
+     "before_verse": 18,
+     "type": "heading",
+     "text": "Bu Ôp Ma Nau Ât Sông Sa"
+    },
+    {
+     "before_verse": 18,
+     "type": "parallel",
+     "text": "(Mathiơ 9:14-17; Luk 5:33-39)"
+    },
+    {
+     "before_verse": 23,
+     "type": "heading",
+     "text": "Bu Ôp Di Ma Nar Saƀat"
+    },
+    {
+     "before_verse": 23,
+     "type": "parallel",
+     "text": "(Mathiơ 12:1-8; Luk 6:1-5)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Bar pe nar ta nây, Brah Yêsu plơ̆ sĭt đŏng ma ƀon Kapernum, jêh ri bu gĭt ma Păng gŭ tâm ngih nây.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Khân păng tâm rƀŭn ta nây, geh âk râk bunuyh văch bêng ngih, nđâp ma pa năp mpông ngih kŏ tât mâu hôm geh ntŭk gŭ ôh, Brah Yêsu nti lah nau Brah Ndu ngơi ma khân păng."
+    },
+    {
+     "verse": 3,
+     "text": "Jêh nây geh puăn nuyh bu klâu tung njŭn leo tât ma Păng du huê bunuyh rvĕn."
+    },
+    {
+     "verse": 4,
+     "text": "Ƀiă lah, yor lah âk ir bunuyh, mâu dơi nglăp lăp êp Brah Yêsu ôh, pô ri khân păng plơk chor ngih tra klơ bôk Brah Yêsu, jêh nây, ta trôm nây yơh khân păng yur ntrŭnh ndrel ka mbuk bunuyh rvĕn nây bêch."
+    },
+    {
+     "verse": 5,
+     "text": "Brah Yêsu saơ nau khân păng rnơm, jêh ri Păng lah ma nơm rvĕn nây: “Kon gâp ơi, nau tih may hŏ yô̆ an jêh.”"
+    },
+    {
+     "verse": 6,
+     "text": "Ta nây, geh ƀa ƀă kôranh nchih sămƀŭt, jêh ri geh nau mĭn êng tâm nuih n'hâm lah:"
+    },
+    {
+     "verse": 7,
+     "text": "“Mâm ƀư bunuyh nây ngơi kơt nây? Păng ngơi sưr yơh! Mbu moh dơi yô̆ an nau tih, knŏng du huê Brah Ndu dơm yơh?”"
+    },
+    {
+     "verse": 8,
+     "text": "Brah Yêsu gĭt ro tâm nau mĭn khân păng, ŭch tâm rlăch tâm dun tâm nuih n'hâm khân păng, jêh ri păng ôp: “Mâm ƀư khân may geh nau tâm rlăch tâm nuih n'hâm tâm ban kơt nây?"
+    },
+    {
+     "verse": 9,
+     "text": "Mâm nau lah ma bunuyh rvĕn, jêng di lơn: ‘Nau tih may hŏ yô̆ an jêh’, mâu lah, lah: ‘Dâk hom may, sŏk djôt ka mbuk may jêh ri chuat hăn?’"
+    },
+    {
+     "verse": 10,
+     "text": "Ƀiă lah gay ma khân may dơi gĭt ma Kon Bunuyh geh nau dơi yô̆ an nau tih ta neh ntu.” Păng n'gĭl ta bunuyh rvĕn jêh ri lah:"
+    },
+    {
+     "verse": 11,
+     "text": "“Gâp lah ma may, dâk hom, sŏk djôt ka mbuk may jêh ri sĭt ma ngih may nơm.”"
+    },
+    {
+     "verse": 12,
+     "text": "Bunuyh rvĕn dâk ro, sŏk ka mbuk păng jêh ri du luh bơh pa năp lĕ rngôch phung nây; pô ri, lĕ rngôch khân păng hih rhâl jêh ri tâm rnê ma Brah Ndu, lah: “He mâu mâp prot saơ ôh nau nâm bu pô aơ.”",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Brah Yêsu plơ̆ hăn ta meng kơh dak mƀŭt, jêh ri lĕ rngôch phung âk văch tâm rƀŭn jŭm Păng; jêh ri Păng nti lah ma khân păng.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Dôl Brah Yêsu găn ta nây Păng saơ Y-Lêvi, kon Y-Alphê, păng gŭ tâm ngih riu pi. Jêh ri Păng lah ma Y-Lêvi: “Tĭng hom gâp.” Pô nây, Y-Lêvi dâk jêh ri tĭng ndô̆ Păng."
+    },
+    {
+     "verse": 15,
+     "text": "Dôl Brah Yêsu gŭ sông sa tâm ngih Y-Lêvi, geh âk phung riu pi jêh ri bunuyh tih gŭ sông sa ndrel ma Brah Yêsu, jêh ri nđâp ma phung oh mon Păng. Yor lah tâm phung nây geh lĕ, âk nơm lĕ tă tĭng jêh Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Phung kôranh nchih sămƀŭt jêng mpôl Pharisi, saơ Brah Yêsu gŭ sông sa ndrel ma phung riu pi jêh ri phung tih, khân păng lah ma phung oh mon Brah Yêsu: “Mâm ƀư Păng gŭ sông sa jêh ri nhêt ndrel ma phung riu pi jêh ri phung tih mhĭk pô nây?”"
+    },
+    {
+     "verse": 17,
+     "text": "Tơ lah Brah Yêsu tăng nau nây, Păng lah ma khân păng: “Mâu di phung soih săk lăng jăn ôh ŭch ma nai dak si, ƀiă lah phung ji kuet; mâu di gâp văch kuăl phung sŏng ôh, ƀiă lah phung tih.”"
+    },
+    {
+     "verse": 18,
+     "text": "Phung oh mon Y-Yôhan jêh ri phung Pharisi ver sông sa. Phung khân păng ôp Brah Yêsu: “Mâm ƀư phung oh mon Y-Yôhan jêh ri phung Pharisi ver sông sa, ƀiă lah phung oh mon may mâu ver ôh?”",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "Brah Yêsu plơ̆ sĭt lah ma khân păng: “Bi phung oh nâu bu klâu mra gŭ ur, dơi lĕ khân păng ver sông sa dôl păng ăt hôm gŭ ndrel ma khân păng? Dôl bu klâu mra gŭ ur hôm gŭ ndrel ma khân păng, khân păng mâu dơi ver ôh.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Ƀiă lah nar mra tât, tơ lah bu sŏk lơi bu klâu gŭ ur tă bơh khân păng, rnôk nây khân păng mra ver sông sa."
+    },
+    {
+     "verse": 21,
+     "text": "Mâu geh du huê bunuyh jĭm bok mhe ndop đah bok ơm ôh. Lah ƀư pô nây bok mhe mra ƀư prek lơi bok ơm, jêh ri ntŭk hêk mra prek huy lơn."
+    },
+    {
+     "verse": 22,
+     "text": "Tâm ban pô nây lĕ, mâu geh ôh bunuyh troch dak kriăk ƀâu mhe tâm nông ntâu ơm; lah ƀư pô nây, dak kriăk ƀâu mra ƀư rmŭk nông ntâu ơm, jêh ri dak kriăk ƀâu nđâp ma nông ntâu roh lĕ. Bu troch dak kriăk ƀâu mhe tâm nông ntâu mhe.”"
+    },
+    {
+     "verse": 23,
+     "text": "Geh du nar Saƀat Brah Yêsu găn prot mir ba me. Dôl hăn phung oh mon păng roih sa đeh ba me.",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "Phung Pharisi lah ma Păng: “Uănh ri, mâm ƀư phung nây ƀư pô nây, bu lĕ buay jêh tâm nar Saƀat?”"
+    },
+    {
+     "verse": 25,
+     "text": "Brah Yêsu lah: “Khân may mâp uănh lĕ tâm ndrom sămƀŭt moh Y-Đavit ƀư tơ lah păng ji ngot kăl e, păng jêh ri phung gŭ ndrel ma păng?",
+     "para": true
+    },
+    {
+     "verse": 26,
+     "text": "Păng lăp tâm ngih Brah Ndu rô̆ Y-Abiathar, kôranh ƀư brah toyh, jêh ri păng sa kapŭng kloh ueh, knŏng phung kôranh ƀư brah vay sa kapŭng nây, jêh ri Y-Đavit ăn nđâp ma bunuyh hăn ndrel ma păng sa đŏng?”"
+    },
+    {
+     "verse": 27,
+     "text": "Pô ri, Brah Yêsu ngơi rkêch đŏng ma khân păng lah: “Bu njêng nar Saƀat prăp ma bunuyh, mâu di bunuyh prăp ma nar Saƀat ôh."
+    },
+    {
+     "verse": 28,
+     "text": "Pô nây yơh kon bunuyh jêng kôranh nđâp ma nar Saƀat lĕ.”"
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Yêsu Ƀư Bah Bunuyh Siăr Ti"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 12:9-14; Luk 6:6-11)"
+    },
+    {
+     "before_verse": 7,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Âk Bunuyh"
+    },
+    {
+     "before_verse": 13,
+     "type": "heading",
+     "text": "Brah Yêsu Kuăl Phung Jât Ma Bar Oh Mon"
+    },
+    {
+     "before_verse": 13,
+     "type": "parallel",
+     "text": "(Mathiơ 10:1-4; Luk 6:12-16)"
+    },
+    {
+     "before_verse": 22,
+     "type": "heading",
+     "text": "Du Ntil Nau Tih Brah Ndu Mâu Dơi Yô̆ An"
+    },
+    {
+     "before_verse": 22,
+     "type": "parallel",
+     "text": "(Mathiơ 12:22-32; Luk 11:14-23; 12:10)"
+    },
+    {
+     "before_verse": 31,
+     "type": "heading",
+     "text": "Mê̆ Jêh Ri Oh Nâu Brah Yêsu"
+    },
+    {
+     "before_verse": 31,
+     "type": "parallel",
+     "text": "(Mathiơ 12:46-50; Luk 8:19-21)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Jêh ri Brah Yêsu lăp tâm ngih rƀŭn Yuđa, ta nây geh du huê bunuyh siăr ti.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Khân păng kâp uănh ma Brah Yêsu gĭt lah Păng mra ƀư bah bunuyh aơ tâm nar Saƀat lĕ, gay dơi joi nau phong păng."
+    },
+    {
+     "verse": 3,
+     "text": "Păng lah ma nơm siăr ti nây: “Dâk hom may bơh ntŭk aơ.”",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Jêh nây Brah Yêsu ôp ma khân păng: “Tâm nar Saƀat dơi lĕ ƀư kan ueh mâu lah kan mhĭk? Vay lĕ prăp om nau rêh bunuyh mâu lah ƀư nkhĭt bunuyh?” Ƀiă lah khân păng gŭ răk klăk."
+    },
+    {
+     "verse": 5,
+     "text": "Jêh Păng uănh ma phung nây ma nau ji nuih Păng rngot yor phung nây dăng bôk ngăn. Păng lah ma bunuyh siăr ti nây: “Yơr ti may.” Ô băl yơr ro, jêh ri ti păng bah ro,"
+    },
+    {
+     "verse": 6,
+     "text": "Phung Pharisi luh jêh ri tâm chră ro đah phung Hêrôdian, jêh ri joi nau dơi ƀư nkhĭt ô băl."
+    },
+    {
+     "verse": 7,
+     "text": "Pô nây yơh Brah Yêsu du ndrel ma phung oh mon Păng hăn rlet dak mƀŭt, jêh ri geh âk bunuyh tă bơh n'gor Galilê tĭng Brah Yêsu, nđâp ma n'gor Yuđa,",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "jêh ri tă bơh ƀon Yêrusalem, tă bơh n'gor Iđumê, tă bơh kăl tê̆ dak krong Yurdan, jêh ri văr jŭm ƀon Tyr jêh ri ƀon Sidôn. Âk bunuyh tăng lư lĕ nau Păng ƀư, hăn ran ma Păng da dê,"
+    },
+    {
+     "verse": 9,
+     "text": "jêh nây Păng ntăm ma phung oh mon, ăn bu prăp du mlâm plŭng jê̆ ma Păng, klach lah phung âk nây khŭm nchâp Păng."
+    },
+    {
+     "verse": 10,
+     "text": "Yor lah Păng hŏ ƀư bah jêh âk bunuyh, pô nây yơh mbu nơm ji kuet hăn dăch, gay ma Păng pah bi."
+    },
+    {
+     "verse": 11,
+     "text": "Tơ lah phung brah mhĭk saơ Brah Yêsu, khân păng chon mon pa năp Păng, jêh ri nter huy: “May jêng Kon Brah Ndu.”"
+    },
+    {
+     "verse": 12,
+     "text": "Ƀiă lah Brah Yêsu buay mprân khân păng lơi ăn bu gĭt năl Păng ôh."
+    },
+    {
+     "verse": 13,
+     "text": "Jêh ta nây, Brah Yêsu hao ta klơ yôk, jêh ri păng kuăl mbu nơm păng ŭch, jêh ri khân păng hăn rlet ma Păng.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Jêh ri Păng njêng khân păng jât ma bar nuyh ăn gŭ ndrel ma Păng, jêh ri bu ntơ phung oh mon, jêh ri prơh hăn nti lah nau chroh,"
+    },
+    {
+     "verse": 15,
+     "text": "jêh ri ăn ma khân păng nau dơi mprơh brah mhĭk."
+    },
+    {
+     "verse": 16,
+     "text": "Aơ amoh phung jât ma bar nuyh nây: Y-Simôn bu ntơ amoh đŏng Y-Pêtrôs,"
+    },
+    {
+     "verse": 17,
+     "text": "Y-Yakơ, kon Y-Sêƀêđê, jêh ri Y-Yôhan, nâu Y-Yakơ, bar hê aơ Păng ntơ Bôanerjơ, nâm bu ntĭt, phung kon nglaih;"
+    },
+    {
+     "verse": 18,
+     "text": "jêh ri Y-Andrê, Y-Philip; Y-Ƀartêlômi, Y-Mathiơ, Y-Thômas, Y-Yakơ, kon Y-Alphê, Y-Thadê, Y-Simôn, bunuyh bri Kanaan."
+    },
+    {
+     "verse": 19,
+     "text": "Jêh ri Y-Yuđas Iskariôt, nơm rlăng ma Păng."
+    },
+    {
+     "verse": 20,
+     "text": "Jêh ri Păng lăp tâm ngih geh phung bunuyh âk râk gŭ tâm rƀŭn ta nây, kŏ tât Păng jêh ri phung oh mon Păng mâu geh sông sa.",
+     "para": true
+    },
+    {
+     "verse": 21,
+     "text": "Phung mpôl băl păng tăng nau nây, khân păng văch gay sŏk leo Brah Yêsu sĭt jêh ri buay ktang ngăn, yor lah khân păng lah: “Păng lĕ roh nau mĭn jêh.”"
+    },
+    {
+     "verse": 22,
+     "text": "Jêh nây phung kôranh nchih sămƀŭt tă bơh ƀon Yêrusalem lah tâm ban lĕ: “Păng geh Bêlsêbul gŭ tâm păng, jêh ri păng dơi nsot phung brah mhĭk ma kon hađăch brah mhĭk.”",
+     "para": true
+    },
+    {
+     "verse": 23,
+     "text": "Păng kuăl phung nây jêh ri păng lah ma nau ngơi hôr. “Mâm ƀư Satan dơi nsot Satan nơm?"
+    },
+    {
+     "verse": 24,
+     "text": "Tơ lah du ƀon bri hađăch tâm nkhah lơi êng păng nơm, ƀon bri hađăch nây mâu dơi gŭ jŏ ôh."
+    },
+    {
+     "verse": 25,
+     "text": "Jêh ri tơ lah du rnăk sa tâm rnglah, rnăk sa nây mâu dơi gŭ jŏ ôh."
+    },
+    {
+     "verse": 26,
+     "text": "Pô nây yơh tơ lah Satan tâm rdâng đah păng nơm, nau nây jêng blah lơi săk păng nơm. Păng mâu dơi gŭ jŏ ôh, ƀiă lah lôch săk păng yơh."
+    },
+    {
+     "verse": 27,
+     "text": "Bu mâu dơi lăp ôh tâm ngih du huê bunuyh dăng suan jêh ri ntŭng ndô ndơ păng, knŏng tơ lah chăp lơi păng lor; kơt nây mơ păng dơi ntŭng ndô ndơ păng."
+    },
+    {
+     "verse": 28,
+     "text": "Gâp lah ma khân may n'hêl nanê̆, Brah Ndu dơi yô̆ an lĕ rngôch nau tih bunuyh, nđâp nau ngơi sưr kđôi lĕ,",
+     "para": true
+    },
+    {
+     "verse": 29,
+     "text": "ƀiă lah mbu nơm sưr đah Brah Huêng Ueh mâu mra geh nau yô̆ an ôh, ƀiă lah păng tih ƀa ƀơ n'ho ro.”"
+    },
+    {
+     "verse": 30,
+     "text": "Yor lah khân păng lah: “Păng geh brah mhĭk.”"
+    },
+    {
+     "verse": 31,
+     "text": "Mê̆ jêh ri oh păng tât, gŭ kâp pa dih, ăn bu kuăl Păng.",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Phung bunuyh ƀon lan âk râk hôm gŭ jŭm Păng, jêh ri geh bunuyh mbơh ma Păng: “Aơ, mê̆ may jêh ri phung oh may gŭ pa dih joi may.”"
+    },
+    {
+     "verse": 33,
+     "text": "Păng plơ̆ sĭt lah: “Mbu nơm mê̆ gâp jêh ri oh gâp?”"
+    },
+    {
+     "verse": 34,
+     "text": "Păng nchrâng uănh ma phung âk gŭ jŭm Păng ta nây jêh ri lah: “Aơ, mê̆ gâp jêh ri oh gâp!"
+    },
+    {
+     "verse": 35,
+     "text": "Yor lah mbu nơm tông bâr ma Brah Ndu, păng nây yơh oh nâu gâp, oh ruh gâp, jêh ri mê̆ gâp.”"
+    }
+   ]
+  },
+  {
+   "chapter": 4,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Ngơi Hôr Nơm Srih Grăp"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 13:1-9; Luk 8:4-8)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Brah Yêsu Rblang Nau Ngơi Hôr Ma Nơm Srih Grăp"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 13:19-23; Luk 8:11-15)"
+    },
+    {
+     "before_verse": 21,
+     "type": "heading",
+     "text": "Nau Hôr Ma Ŭnh Kađen"
+    },
+    {
+     "before_verse": 21,
+     "type": "parallel",
+     "text": "(Luk 8:6-18)"
+    },
+    {
+     "before_verse": 26,
+     "type": "heading",
+     "text": "Nau Hôr Ma Grăp Hon Êng"
+    },
+    {
+     "before_verse": 30,
+     "type": "heading",
+     "text": "Nau Hôr Ma Găr Mutar Jê̆ Lê̆(Mathiơ 13:31-32; Luk 13:18-19)"
+    },
+    {
+     "before_verse": 35,
+     "type": "heading",
+     "text": "Brah Yêsu Buay Phŭt Sial"
+    },
+    {
+     "before_verse": 35,
+     "type": "parallel",
+     "text": "(Mathiơ 8:23-27; Luk 8:22-25)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Brah Yêsu ntơm nti lah ta kơh dak mƀŭt, jêh ri geh âk ngăn bunuyh gŭ jŭm Păng, yor ri Păng du gŭ tâm plŭng ta dak mƀŭt, lĕ rngôch phung âk ri gŭ klơ kơh.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Brah Yêsu nti lah ma khân păng âk nau hôr jêh ri lah:"
+    },
+    {
+     "verse": 3,
+     "text": "“Iăt hom hơi lĕ rngôch khân may! Geh du huê nơm srih grăp hăn srih."
+    },
+    {
+     "verse": 4,
+     "text": "Dôl păng srih, geh grăp ƀa ƀă tŭp rŏ trong jêh ri sĭm chôk lơi."
+    },
+    {
+     "verse": 5,
+     "text": "Ƀa ƀă tŭp tâm ntŭk neh n'hơ klơ klêr, păng chăt gơnh ngăn yor lah mâu jru neh;"
+    },
+    {
+     "verse": 6,
+     "text": "ƀiă lah tât kranh nar, tơm păng klêu păng kro yor lah mâu geh jru reh ôh păng khĭt rsăp."
+    },
+    {
+     "verse": 7,
+     "text": "Ƀa ƀă tŭp tâm ntŭk lok; lok chăt prêh lor, tơm ri nu lok in, mâu geh play."
+    },
+    {
+     "verse": 8,
+     "text": "Ƀa ƀă tŭp tâm neh ueh, hon rêh ueh geh play âk, play păng du ryôk geh pe jât grăp, ƀă prao jât grăp, ƀă du rhiăng grăp.”",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Brah Yêsu păng ntop lah: “Mbu nơm geh tôr prăp iăt! Ăn khân ay may djôt prăp nau aơ!”"
+    },
+    {
+     "verse": 10,
+     "text": "Lah Brah Yêsu gŭ êng păng, phung jât ma bar nuyh jêh ri bunuyh gŭ ndrel Păng, khân păng ôp Brah Yêsu, ăn Păng rblang nau hôr nây.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Brah Yêsu plơ̆ lah ma khân păng: “Ma khân may yơh bu ăn jêh nau khlay ndâp ma ƀon bri hađăch Brah Ndu. Ƀiă lah ma phung pa dih, bu ngơi ma khân păng ma nau hôr da dê."
+    },
+    {
+     "verse": 12,
+     "text": "Gay ăn: Khân păng uănh ăt uănh ƀiă lah mâu saơ. Khân păng tăng ăt tăng ƀiă lah mâu gĭt rbăng ôh. Lah mâu, khân păng saơ jêh ri gĭt rbăng klăp lah khân păng rmal nau tih jêh ri geh nau yô̆ an.”"
+    },
+    {
+     "verse": 13,
+     "text": "Brah Yêsu lah: “Lĕ rngôch khân may mâu gĭt rbăng bơh nau hôr ri? Mâm ƀư gay ma khân may dơi gĭt rbăng lĕ rngôch nau ngơi hôr aơ?”",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "“Bunuyh srih grăp nây srih nau ngơi.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Ƀa ƀă bunuyh dơn grăp bu srih rŏ trong nây jêng bunuyh bu srih grăp tâm nuih n'hâm păng. Ƀiă lah jêh bunuyh nây tăng nau ngơi, Satan văch jêh ri sŏk lơi nau ngơi bơh nuih n'hâm păng.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Tâm ban lĕ phung dơn grăp tâm neh n'gơ klơ klêr, jêh mhe tăng nau nti, khân păng dơn ro ma nau maak."
+    },
+    {
+     "verse": 17,
+     "text": "Ƀiă lah păng mâu geh reh tâm păng ôh. Păng mâu gŭ jŏ ôh, jêh ri tơ lah geh nau rêh ni mâu lah nau bu ƀư mhĭk ma păng yor nau ngơi, păng tŭp ro."
+    },
+    {
+     "verse": 18,
+     "text": "Geh bunuyh ƀa ƀă dơn grăp tâm nklang lok. Phung nây tăng jêh nau nti,",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "ƀiă lah kan neh ntu aơ nau ndrŏng ndơm, jêh ri kơnh drăp ndơ êng êng, ntŭn lơi nau ngơi jêh ri nau ngơi mâu dơi geh play ôh."
+    },
+    {
+     "verse": 20,
+     "text": "Bi ƀa ƀă bunuyh dơn grăp srih tâm neh ueh nây, khân păng yơh tăng nau ngơi jêh ri djôt prăp. Khân păng nây geh play tâm pe jât mâu lah prao jât, mâu lah du rhiăng tâm du găr.”"
+    },
+    {
+     "verse": 21,
+     "text": "Brah Yêsu lah đŏng ma khân păng: “Vay lĕ bu sŏk ŭnh kđen nkŭm lơi ma rbâng mâu lah n'gân tâm dâng sưng bêch? Bu vay yông păng ta klơ n'gâng ŭnh.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Yor lah moh ndơ gŭ tâm ndâp mra mpơl, jêh ri moh ndơ bu pôn mra saơ ang."
+    },
+    {
+     "verse": 23,
+     "text": "Mbu nơm geh tôr prăp iăt, iăt hom!”"
+    },
+    {
+     "verse": 24,
+     "text": "Brah Yêsu ntơm lah: “Njrăng hom mâm nau khân may tăng. Bu mra veh njing ma khân may tĭng nâm khân may hŏ veh jêh njing ma bu, jêh ri bu mra ntop ăn ma khân may.",
+     "para": true
+    },
+    {
+     "verse": 25,
+     "text": "Yor lah mbu nơm geh jêh, bu mra ăn đŏng ma păng, ƀiă lah mbu nơm mâu geh, bu mra sŏk lơi đŏng nđâp ma ndơ păng hŏ geh jêh.”"
+    },
+    {
+     "verse": 26,
+     "text": "Brah Yêsu ngơi: “Ƀon bri hađăch Brah Ndu nâm bu ntĭt ma du huê srih grăp tâm neh.",
+     "para": true
+    },
+    {
+     "verse": 27,
+     "text": "Dôl păng lêt bêch mâu lah kah rngăl, nar jêh ri măng, grăp nây hon jêh ri prêh, ƀiă lah bunuyh nây mâu gĭt rbăng ôh nau nây."
+    },
+    {
+     "verse": 28,
+     "text": "Neh nây jêng êng ba, tơm păng lor, jêh ri nkong, geh grăp rhêh tâm nkong nây lĕ."
+    },
+    {
+     "verse": 29,
+     "text": "Tât păng lĕ dŭm jêh, bu hăn rek ma nhuĕ yor lah yan rek lĕ tât jêh.”"
+    },
+    {
+     "verse": 30,
+     "text": "Brah Yêsu lah: “Moh nau đah he ntĭt ƀon bri hađăch Brah Ndu? Mâu lah moh đah nau he dơi ngơi hôr gay tâm mpơl păng?",
+     "para": true
+    },
+    {
+     "verse": 31,
+     "text": "Ƀon bri hađăch Brah Ndu nâm bu ntĭt du găr mutar jê̆ bu tăm tâm neh. Păng jêng jê̆ lơn ma lĕ rngôch grăp tâm neh ntu aơ."
+    },
+    {
+     "verse": 32,
+     "text": "Ƀiă lah tơ lah bu tăm păng, păng hon ro, păng jêng toyh lơn ma lĕ rngôch tơm trao, jêh ri păng geh n'gĭng toyh, pô nây phung sĭm dơi gŭ tâm dâng gui n'hâm păng.”"
+    },
+    {
+     "verse": 33,
+     "text": "Brah Yêsu ngơi đŏng geh âk nau ngơi hôr kơt nây, tĭng nâm phung bunuyh nây dơi gĭt vât.",
+     "para": true
+    },
+    {
+     "verse": 34,
+     "text": "Păng ngơi ma nau ngơi hôr da dê, ƀiă lah dôl păng gŭ êng ndrel ma phung oh mon păng, păng rblang lĕ rngôch ndơ nây ma khân păng."
+    },
+    {
+     "verse": 35,
+     "text": "Mhaơ nây Brah Yêsu lah ma phung oh mon păng: “Hăn hom he găn kơh tê̆ dak.”",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "Pô nây tơ lah phung ƀon lan lĕ chah rai sĭt jêh, phung oh mon Păng kuăl Brah Yêsu leo ncho tâm plŭng ndrel ma khân păng nơm. Jêh ri hôm geh plŭng êng tĭng hăn ndrel ma Păng.",
+     "para": true
+    },
+    {
+     "verse": 37,
+     "text": "Geh phŭt vănh ktang ngăn kŏ tât dak rbuh lăp tâm trôm plŭng jêh ri plŭng bơi ngâm."
+    },
+    {
+     "verse": 38,
+     "text": "Ƀiă lah Brah Yêsu nơm hăk bêch pa kơi tâm plŭng nây, sŏk ka n'hơi dâm bôk. Pô nây, khân păng rlay Brah Yêsu, jêh ri lah: “Hơi Kôranh nơm nti, may mâu rvê ma he bơi khĭt jêh?”"
+    },
+    {
+     "verse": 39,
+     "text": "Pô nây Brah Yêsu kah rngăl, jêh ri Păng buay phŭt vănh, jêh ri lah ma dak rbuh nây: “Rngân hom jêh ri đăp mpăn.” Phŭt rngân njop, jêh ri khân păng geh nau đăp mpăn."
+    },
+    {
+     "verse": 40,
+     "text": "Brah Yêsu ôp ma phung oh mon Păng: “Moh nau khân may klach? Khân may mâu geh nau chroh ƀơh?”",
+     "para": true
+    },
+    {
+     "verse": 41,
+     "text": "Jêh ri phung khân păng klach ngăn, lah ndrăng khân păng: “Pô nây, mbu moh bunuyh aơ? Nđâp ma phŭt jêh ri dak tông bâr ma păng da dê!”"
+    }
+   ]
+  },
+  {
+   "chapter": 5,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Bunuyh Ƀon Gađara Brah Mhĭk Lăp"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 8:28-34; Luk 8:26-39)"
+    },
+    {
+     "before_verse": 21,
+     "type": "heading",
+     "text": "Kon Bu Ur Y-Jairus Jêh Ri Bu Ur Luh Mham"
+    },
+    {
+     "before_verse": 21,
+     "type": "parallel",
+     "text": "(Mathiơ 9:18-26; Luk 8:40-56)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Khân păng tât kơh tê̆ dak nglao tâm ƀon Gađara.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Brah Yêsu mhe tă luh bơh plŭng, ƀât lât geh du huê bunuyh brah mhĭk lơh luh tă bơh môch jêh ri hăn ta năp Păng."
+    },
+    {
+     "verse": 3,
+     "text": "Bunuyh nây vay gŭ tâm ntŭk môch jêh ri bu mâu dơi kât păng ôh, kât ma rse rvăk mâu dơi lĕ."
+    },
+    {
+     "verse": 4,
+     "text": "Geh âk tơ̆ jêh bu nkông păng ma nkông loih jêh ri rse rvăk, ƀiă lah lĕ rngôch rplay rse rvăk klah da dê, jêh ri nkông loih nây rai lĕ đŏng. Mâu hôm geh nơm ktang dơi đăp păng ôh."
+    },
+    {
+     "verse": 5,
+     "text": "Păng vay gŭ ƀa ƀơ nar nâm măng tâm mpông môch, tâm yôk, jêh ri păng vay nter ktang, mbang ji rnglay săk nơm đah lŭ mplanh."
+    },
+    {
+     "verse": 6,
+     "text": "Jêh păng saơ Brah Yêsu ngai đê̆ ta nây, păng nchuăt ran ro jêh ri kŭnh mbah ma Păng,"
+    },
+    {
+     "verse": 7,
+     "text": "jêh ri păng nter huy: “Moh nau gâp geh đah may, Ơ Brah Yêsu Kon Brah Ndu Nơm ta klơ lơn? Tâm amoh Brah Ndu gâp vơh vơl ma may, lơi ƀư mhĭk ma gâp ôh.”"
+    },
+    {
+     "verse": 8,
+     "text": "Yor lah Brah Yêsu hŏ lah jêh ma păng ndơh: “Brah mhĭk, luh du hom may tă bơh bunuyh aơ.”"
+    },
+    {
+     "verse": 9,
+     "text": "Brah Yêsu ôp păng: “Mbu moh săk may?” Păng lah: “Amoh gâp phung âk, yor lah hên jêng phung âk.”",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Jêh ri păng dăn ma Brah Yêsu lơi nsot khân păng tă bơh n'gor nây ôh."
+    },
+    {
+     "verse": 11,
+     "text": "Ta njâng yôk nây geh phung sŭr âk râk gŭ sa gơ̆ ta nây.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Pô nây yơh, phung brah mhĭk dăn ma Brah Yêsu: “Ăn phung hên hăn ma phung sŭr nây, jêh ri ăn hên lăp tâm khân păng.”"
+    },
+    {
+     "verse": 13,
+     "text": "Brah Yêsu ăn khân păng hăn, phung brah mhĭk nây luh jêh ri lăp tâm phung sŭr. Phung sŭr nây geh klăp lah bar rbăn mlâm. Khân păng nchuăt du tă bơh yôk, nklăch săk tâm dak mƀŭt, jêh ri lĕ rngôch phung sŭr nây khĭt rmok tâm dak."
+    },
+    {
+     "verse": 14,
+     "text": "Phung mât sŭr nchuăt du jêh ri mbơh nau mhe mhan nây tâm lam ƀon toyh ƀon jê̆; phung ƀon lan hăn uănh moh nau tât nây.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Jêh phung bunuyh nây tât ma Brah Yêsu, khân păng saơ du huê bunuyh brah mhĭk lơh ơm bơh kăl e ô băl gŭ đăp mpăn, nsoh kho ao, jêh ri nau mĭn păng ueh đŏng. Lĕ rngôch bunuyh nây klach."
+    },
+    {
+     "verse": 16,
+     "text": "Mbu nơm saơ jêh nau nây nkoch bri ma phung bunuyh âk ma nau tât ma bunuyh brah mhĭk lơh nây, nđâp ma nau tât ma phung sŭr."
+    },
+    {
+     "verse": 17,
+     "text": "Jêh ri phung bunuyh nây ăn Brah Yêsu luh du tă bơh n'gor bri khân păng."
+    },
+    {
+     "verse": 18,
+     "text": "Dôl Brah Yêsu ntơm ncho plŭng du huê bunuyh brah mhĭk lơh nây dăn hăn ndrel ma Păng.",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "Ƀiă lah Brah Yêsu mâu rom ôh. Brah Yêsu lah ma păng: “Sĭt hom ma ndŭl mpôl may jêh ri mbơh ma khân păng ăp ntil ndơ Kôranh Brah hŏ ƀư jêh ma may, jêh ri nau Păng yô̆ an jêh ma may.”"
+    },
+    {
+     "verse": 20,
+     "text": "Bunuyh nây sĭt, jêh ri mbơh tâm n'gor Đêkapôlis ăp ntil nau Brah Yêsu hŏ ƀư ăn jêh ma păng, jêh ri lĕ rngôch bunuyh gŭ iăt hih rhâl."
+    },
+    {
+     "verse": 21,
+     "text": "Brah Yêsu ncho plŭng hăn găn kơh tê̆. Ta nây geh âk bunuyh tâm rƀŭn jŭm Păng. Păng gŭ ta kơh dak mƀŭt nây.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Jêh ri geh du huê kôranh ngih tâm rƀŭn Yuđa, amoh păng Y-Jairus, văch, tơ lah păng saơ Brah Yêsu, păng kuăn ta jâng Brah Yêsu ro."
+    },
+    {
+     "verse": 23,
+     "text": "Jêh ri păng dăn ma Brah Yêsu pô aơ: “Kon bu ur gâp ji bơi khĭt. Gâp dăn may hăn jêh ri bi ăn ti may ta săk jăn păng ăn păng bah jêh ri rêh.”"
+    },
+    {
+     "verse": 24,
+     "text": "Brah Yêsu dâk hăn ndrel ma păng. Jêh ri geh âk râk bunuyh tĭng mpet trong Păng."
+    },
+    {
+     "verse": 25,
+     "text": "Ta nây geh du huê bu ur ji rih hŏ jŏ jêh jât ma bar năm.",
+     "para": true
+    },
+    {
+     "verse": 26,
+     "text": "Păng săm tă bơh âk nai dak si. Păng dŏng roh âk jêh ndô ndơ păng, gay ma bah nau ji, ƀiă lah lơ hâu glăm lơn."
+    },
+    {
+     "verse": 27,
+     "text": "Păng tăng lư bu nkoch bri ma Brah Yêsu. Păng văch ndrel ma phung âk tĭng pa kơi Brah Yêsu, jêh ri păng pah ta ao Brah Yêsu."
+    },
+    {
+     "verse": 28,
+     "text": "Păng lah: “Tơ lah gâp dơi geh pah knŏng ta ao Păng gâp mra bah yơh.”"
+    },
+    {
+     "verse": 29,
+     "text": "Ƀât lât ta nây mham păng suăt ro, jêh ri păng gĭt tâm rnglay săk păng nau ji păng hŏ bah jêh."
+    },
+    {
+     "verse": 30,
+     "text": "Jêh ri ƀât lât ta nây Brah Yêsu gĭt ma nau brah ƀư bah luh jêh tă bơh Păng, pô nây yơh păng n'gơr ta phung âk nây, jêh ri ôp: “Mbu moh pah ao gâp?”"
+    },
+    {
+     "verse": 31,
+     "text": "Phung oh mon Păng lah ma Păng: “May saơ bơh phung âk aơ mpet may, jêh ri may ôp, mbu moh pah gâp?”"
+    },
+    {
+     "verse": 32,
+     "text": "Ƀiă lah Brah Yêsu joi uănh jŭm păng gay ma gĭt năl mbu nơm ƀư pô nây."
+    },
+    {
+     "verse": 33,
+     "text": "Bu ur nây klach nsâr săk jăn, yor lah ô băl gĭt mâm nau tât tâm rnglay săk păng. Pô nây yơh păng văch, kuăn ta jâng Brah Yêsu, jêh ri nkoch bri ma Păng lĕ nau tât khlay ngăn."
+    },
+    {
+     "verse": 34,
+     "text": "Brah Yêsu lah ma păng: “Hơi kon gâp ơi, nau chroh ay yơh ƀư bah ay jêh. Hăn hom đăp mpăn, jêh ri bah hom ay.”"
+    },
+    {
+     "verse": 35,
+     "text": "Dôl Brah Yêsu gŭ ngơi, geh bar pe nuyh văch tă bơh jay jêh ri lah ma Y-Jairus, kôranh ngih tâm rƀŭn Yuđa nây: “Kon bu ur may khĭt jêh. Moh nau dăn đŏng ma Kôranh nơm nti?”",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "Ƀiă lah Brah Yêsu mâu dơn ôh nau khân păng lah pô nây, jêh ri Păng lah ma kôranh ngih tâm rƀŭn Yuđa nây: “Lơi klach ôh, knŏng may chroh, dŭm rĭ dơm.”"
+    },
+    {
+     "verse": 37,
+     "text": "Jêh ri Păng mâu ăn bunuyh hăn ndrel ma Păng, knŏng Y-Pêtrôs, phung oh nâu Y-Yakơ jêh ri Y-Yôhan.",
+     "para": true
+    },
+    {
+     "verse": 38,
+     "text": "Khân păng tât ta ngih kôranh ngih tâm rƀŭn Yuđa nây. Brah Yêsu saơ âk bunuyh ta nây uh ah tah târ. Ƀa ƀă gŭ nhĭm nhhiăng, jêh ri nter nđor."
+    },
+    {
+     "verse": 39,
+     "text": "Brah Yêsu lăp tâm ngih nây Păng lah: “Mâm ƀư khân may ƀư uh ah tah târ jêh ri nhĭm nhhiăng? Bu ur jê̆ aơ bêch, mâu di Păng khĭt ôh.”",
+     "para": true
+    },
+    {
+     "verse": 40,
+     "text": "Jêh ri geh bunuyh ta nây mưch mach ma Brah Yêsu. Brah Yêsu ăn lĕ rngôch bunuyh du luh tă bơh jrô nây jêh ri Păng kuăl sŏk knŏng mê̆ mbơ̆ bu ur jê̆ nây ndrel ma phung oh mon Păng, jêh ri Păng lăp tâm jrô bu ur jê̆ gŭ bêch."
+    },
+    {
+     "verse": 41,
+     "text": "Brah Yêsu kuăn ta ti păng jêh ri lah: “Talatha kumi” nâm bu ntĭt bu ur jê̆ ơi, dâk hom ay."
+    },
+    {
+     "verse": 42,
+     "text": "Ƀât lât ta nây, bu ur jê̆ nây dâk jêh ri hăn, yor lah păng hŏ geh jêh jât ma bar năm, bunuyh gŭ ta nây hih rhâl ngăn."
+    },
+    {
+     "verse": 43,
+     "text": "Ƀiă lah Brah Yêsu ntăm ma khân păng nanê̆, lơi ăn bu gĭt nau aơ ôh, jêh ri păng lah ma bu ăn bu ur jê̆ nây sông sa hom."
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Hăn Ƀon Nasaret"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 13:53-58; Luk 4:16-40)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Hêrôt Nkhĭt Y-Yôhan Nơm Ƀư Ƀaptem"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 14:1-12; Luk 9:7-9)"
+    },
+    {
+     "before_verse": 30,
+     "type": "heading",
+     "text": "Phung Oh Mon Yêsu Sĭt Tă Bơh Ƀon Bu"
+    },
+    {
+     "before_verse": 35,
+     "type": "heading",
+     "text": "Brah Yêsu Siăm Prăm Rbăn Bunuyh"
+    },
+    {
+     "before_verse": 35,
+     "type": "parallel",
+     "text": "(Mathiơ 14:13-21; Luk 9:10-17; Yôhan 6:1-14)"
+    },
+    {
+     "before_verse": 45,
+     "type": "heading",
+     "text": "Brah Yêsu Chuat Ta Klơ Mpiăt Dak"
+    },
+    {
+     "before_verse": 45,
+     "type": "parallel",
+     "text": "(Mathiơ 14:22-33; Yôhan 6:15-21)"
+    },
+    {
+     "before_verse": 53,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Bunuyh Ƀon Gênêsaret"
+    },
+    {
+     "before_verse": 53,
+     "type": "parallel",
+     "text": "(Mathiơ 14:34-36)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Brah Yêsu luh tă bơh nây jêh ri hăn rlet bri Păng nơm ndrel ma phung oh mon Păng.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Tơ lah tât nar Saƀat Păng ntơm nti lah tâm ngih tâm rƀŭn Yuđa. Âk bunuyh gŭ iăt Păng hih rhâl jêh ri ôp: “Mbah tă luh Păng geh lĕ rngôch nau aơ? Mbu nơm ăn nau blau mĭn nây ma Păng? Jêh ri moh nau dĭng khlay ir ar nau Păng ƀư đah ti Păng?"
+    },
+    {
+     "verse": 3,
+     "text": "Di lĕ nơm nây jêng bunuyh trah meh kon H'Mari, nâu phung Y-Yakơ, Y-Yôsê, Y-Yut, jêh ri Y-Simôn? Bi phung oh bu ur păng gŭ ta aơ ndrel he ƀơh?” Pô nây yơh Păng jêng nau ƀư vĭ khân păng.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Ƀiă lah Brah Yêsu lah ma khân păng: “Bu yơk ma phung kôranh nơm mbơh lor, ƀiă lah tâm ƀon lan Păng nơm ndrel đah mê̆ Mbơ̆ Păng tâm ngih Păng nơm, bu mâu ŭch yơk ôh.”"
+    },
+    {
+     "verse": 5,
+     "text": "Jêh ta nây Brah Yêsu mâu dơi ƀư nau mbên khlay ôh, knŏng Păng dra ăn ti Păng ta bar, pe nuyh ji jêh ri ƀư bah khân păng."
+    },
+    {
+     "verse": 6,
+     "text": "Jêh ri Brah Yêsu gŭ srŭng dơm yor lah bunuyh ta nây mâu geh nau chroh. Pô nây yơh Brah Yêsu hăn tâm ƀon dăch êp nây jêh ri nti lah."
+    },
+    {
+     "verse": 7,
+     "text": "Jêh ri Brah Yêsu kuăl jât ma bar nuyh nây văch ta Păng, jêh ri prơh njuăl khân păng hăn bar hê bar hê. Păng ăn nau dơi ma khân păng dơi nsot brah mhĭk.",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "Păng ntăm ma khân păng lơi djôt ndrel ndô ndơ ôh dôl hăn nsong, mâu lah kapŭng, mâu lah dŭng cheng, mâu lah prăk rêl tâm rse bŭt, knŏng mâng jra rĭ dơm;"
+    },
+    {
+     "verse": 9,
+     "text": "knŏng nsoh ntâu jot, lơi ta nsoh ao bar tăp ôh."
+    },
+    {
+     "verse": 10,
+     "text": "Brah Yêsu lah ma phung oh mon păng: “Mbu nơm ngih khân may hao, khân may mra gŭ ta nây tât khân may luh tă bơh ƀon nây."
+    },
+    {
+     "verse": 11,
+     "text": "Ta ntŭk bu mâu ŭch rom khân may, mâu lĕ ŭch iăt nau khân may, jêh khân may luh tă bơh ntŭk nây, khân may rtuh lơi ndruyh neh tă bơh jâng khân may, gay geh trong mbơh ma khân păng.”",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Pô nây phung oh mon Păng dâk hăn, nti lah ma phung bunuyh ăn khân păng rmal nau tih khân păng nơm.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Khân păng nsot âk brah mhĭk, khân păng mhĭng dak ngi ma âk bunuyh ji, jêh ri ƀư bah lĕ rngôch khân păng."
+    },
+    {
+     "verse": 14,
+     "text": "Hađăch Hêrôt lư n'găr nau bu nkoch bri ma Brah Yêsu, jêh ri păng lah: “Y-Yôhan, nơm ƀư ƀaptem, hŏ dâk rêh jêh bơh nau khĭt; pô nây yơh păng ƀư nau brah khlay.”",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Bunuyh ƀa ƀă lah: “Păng jêng Y-Êli”, ƀa ƀă lah: “Păng jêng kôranh nơm mbơh lor, nâm bu du huê toyh tâm phung kôranh nơm mbơh lor nây.”",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Ƀiă lah jêh Hêrôt tăng nau nây, păng lah: “Y-Yôhan aơ, lĕ gâp ăn bu koh trô ko jêh. Păng yơh dâk rêh tay.”"
+    },
+    {
+     "verse": 17,
+     "text": "Yor lah Hêrôt yơh nơm đă bu chăp Y-Yôhan jêh ri krŭng kât păng tâm ndrung păng đah rse rvăk, yor lah H'Hêrôdias ŭch pô nây H'Hêrôdias nây jêng ur oh Hêrôt, amoh păng Y-Philip. Yor lah Hêrôt gŭ jêh bu ur nây.",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Y-Yôhan lah lor jêh ma Hêrôt: “May, mâu vay ôh gŭ ur oh may.”"
+    },
+    {
+     "verse": 19,
+     "text": "Pô nây yơh H'Hêrôdias ji nuih mro ma Y-Yôhan jêh ri ŭch ƀư nkhĭt ô băl, ƀiă lah păng mâu dơi ôh."
+    },
+    {
+     "verse": 20,
+     "text": "Yor lah Hêrôt klach ma Y-Yôhan. Păng gĭt jêh păng jêng bunuyh sŏng jêh ri bunuyh ueh ngăn. Pô nây yơh păng sâm king an ô băl. Jêh ri Hêrôt tăng păng nti lah, păng mâu gĭt ôh moh nau păng ƀư, ƀiă lah păng ŭch iăt ma nau maak."
+    },
+    {
+     "verse": 21,
+     "text": "Kah gĭt nar bu deh ma păng, Hêrôt nkra nau nhêt sa toyh ngăn ăn phung kôranh toyh tâm bri hađăch păng. Păng jă phung kôranh ta han, jêh ri phung bunuyh kôranh toyh tâm n'gor Galilê.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Kon bu ur H'Hêrôdias lăp tâm jrô nây jêh ri păng ntlơ̆ ntlơn ƀư maak ngăn ma hađăch Hêrôt, nđâp ma phung gŭ ndrel păng ta nây. Hađăch lah ma bu druh nây: “Dăn hom moh ndơ ay ŭch jêh ri gâp mra ăn ma ay.”"
+    },
+    {
+     "verse": 23,
+     "text": "Păng plơ̆ sĭt lah nanê̆: “Moh ndơ ay dăn ma gâp, gâp mra ăn ma ay, kŏ tât n'gul ƀon bri hađăch gâp kđôi lĕ gâp ăn đŏng.”"
+    },
+    {
+     "verse": 24,
+     "text": "Bu druh nây luh ro jêh ri ôp mê̆ păng: “Moh ndơ gâp mra dăn ma hađăch?” Mê̆ păng plơ̆ lah: “Ay dăn ma păng bôk Y-Yôhan nơm ƀư ƀaptem nây.”"
+    },
+    {
+     "verse": 25,
+     "text": "Bu druh nây lăp gơnh tâm jrô hađăch nây, jêh ri păng dăn: “Gâp ŭch may ăn aƀaơ ro bôk Y-Yôhan, nơm ƀư ƀaptem nây n'gân tâm ngan grưng.”",
+     "para": true
+    },
+    {
+     "verse": 26,
+     "text": "Hađăch rngot, ƀiă lah yor nau păng ngơi nanê̆ lor jêh, jêh ri yor phung bunuyh gŭ sông sa nhêt ndrel păng ta nây. Păng mâu dơi dun ôh nau păng ton đah bu druh nây."
+    },
+    {
+     "verse": 27,
+     "text": "Hađăch prơh hăn du huê ta han chiă uănh, nchâp păng sŏk leo bôk Y-Yôhan."
+    },
+    {
+     "verse": 28,
+     "text": "Tahan nây hăn koh trô ko Y-Yôhan tâm ndrung ro, jêh ri păng sŏk leo bôk ô băl n'gân tâm ngan grưng, ăn ma bu ur druh nây. Jêh ri bu druh nây ăn ma mê̆ păng."
+    },
+    {
+     "verse": 29,
+     "text": "Phung oh mon Y-Yôhan lư jêh nau nây, khân păng hăn sŏk rnglay săk ô băl njŭn leo tâp tâm môch."
+    },
+    {
+     "verse": 30,
+     "text": "Phung kôranh oh mon nây sĭt jêh ri tâm rƀŭn jŭm Brah Yêsu. Khân păng nkoch bri lĕ rngôch kan khân păng pah jêh ri lĕ rngôch nau khân păng nti.",
+     "para": true
+    },
+    {
+     "verse": 31,
+     "text": "Brah Yêsu lah ma khân păng: “Hăn hom he lĕ rngôch ta ntŭk nsoih, jêh ri rlu ƀât.” Ƀiă lah geh âk bunuyh nsong sĭt hăn, kŏ tât khân păng mâu ru sông sa ôh."
+    },
+    {
+     "verse": 32,
+     "text": "Pô nây, Păng jêh ri phung oh mon jŭr bơh plŭng ŭch hăn tâm ntŭk bri lach êng khân păng."
+    },
+    {
+     "verse": 33,
+     "text": "Âk bunuyh saơ khân păng dâk hăn, jêh ri bu gĭt năl khân păng; pô nây, âk phung bunuyh ƀon lan nây hăn jâng ngăch ngăn, jêh ri khân păng tât lor lơn ma ntŭk nây.",
+     "para": true
+    },
+    {
+     "verse": 34,
+     "text": "Tơ lah Brah Yêsu tă luh bơh plŭng, Păng saơ bunuyh âk ngăn ngên, jêh ri nuih n'hâm Păng bêng ma nau yô̆ yach ma khân păng, yor lah khân păng nâm bu phung biăp mâu geh rmăk. Brah Yêsu ntơm dâk nti lah ma khân păng.",
+     "para": true
+    },
+    {
+     "verse": 35,
+     "text": "Dăch kêng mhaơ jêh, pô nây phung oh mon lah ma Brah Yêsu: “Ntŭk aơ jêng bri lach, jêh ri trôk lĕ măng jêh.",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "May prơh hăn phung âk aơ hăn ma ƀon lan êp dăch kêng aơ, ăn khân păng rvăt mpa sông sa.”"
+    },
+    {
+     "verse": 37,
+     "text": "Brah Yêsu plơ̆ lah: “Dâk khân may nơm, ăn mpa ma khân păng sông sa.” Ƀiă lah khân păng lah ma Brah Yêsu: “Mâm ƀư hên ƀơh, mra hăn rvăt kapŭng tâm bar rhiăng prăk jêh ri ăn khân păng sa?”",
+     "para": true
+    },
+    {
+     "verse": 38,
+     "text": "Brah Yêsu ôp khân păng: “Ndah âk khân may geh kapŭng? Hăn uănh.” Khân păng hăn uănh jêh ri plơ̆ lah: “Prăm mlâm, jêh ri bar mlâm ka.”"
+    },
+    {
+     "verse": 39,
+     "text": "Pô nây, Brah Yêsu ntăm ma khân păng ăn lĕ rngôch nây gŭ rnhuel ta gơ̆ nse nây."
+    },
+    {
+     "verse": 40,
+     "text": "Jêh ri khân păng gŭ dăp mbor, du rhiăng nuyh du mbor; mâu lah prăm jât nuyh du mbor."
+    },
+    {
+     "verse": 41,
+     "text": "Brah Yêsu sŏk prăm mpơng kapŭng, bar mlâm ka, jêh ri n'gơr măt ta klơ, mbơh sơm nau kah gĭt tôr. Păng pêch kapŭng jêh ri nta ăn ma phung oh mon tâm pă ma phung âk. Bar mlâm ka păng tâm pă đŏng ma lĕ rngôch phung khân păng."
+    },
+    {
+     "verse": 42,
+     "text": "Lĕ rngôch bunuyh nây sa hơm da dê."
+    },
+    {
+     "verse": 43,
+     "text": "Jêh ri bu dônh jât ma bar bĭ bêng kapŭng rmeh bu sa nđâp ma ka ndrel nây."
+    },
+    {
+     "verse": 44,
+     "text": "Lĕ rngôch phung bunuyh sa kapŭng nây klăp lah tâm prăm rbăn nuyh bu klâu."
+    },
+    {
+     "verse": 45,
+     "text": "Dôl Brah Yêsu ăn phung ƀon lan sĭt, Păng đă phung oh mon Păng ncho plŭng, rgăn lor pa năp păng hăn rlet kơh tê̆ dak tât ta ƀon Ƀêtsaiđa.",
+     "para": true
+    },
+    {
+     "verse": 46,
+     "text": "Jêh păng mƀơk phung ƀon lan sĭt, Păng hăn hao ta klơ yôk gay mbơh sơm."
+    },
+    {
+     "verse": 47,
+     "text": "Trôk ntơm ngo jêh, plŭng nây hôm tâm nklang dak mƀŭt, ƀiă lah Brah Yêsu hôm gŭ ta kơh êng Păng."
+    },
+    {
+     "verse": 48,
+     "text": "Brah Yêsu saơ phung oh mon Păng vah plŭng dŭt hŏt ngăn, yor lah drơ sial, sial trâm khân păng. Tât puăn tong iăr ndrau kêng ôi."
+    },
+    {
+     "verse": 49,
+     "text": "Brah Yêsu hăn rlet ma khân păng, chuat hăn ta klơ mpiăt dak mƀŭt Galilê, jêh ri khân păng ntôn lah chiak nhhu, yor ri yơh khân păng nter. Lĕ rngôch khân păng saơ Brah Yêsu jêh ri phit klach ngăn."
+    },
+    {
+     "verse": 50,
+     "text": "Brah Yêsu lah ro ma khân păng: “Gŭ đăp mpăn hom! Gâp yơh aơ! Lơi klach ôh!”"
+    },
+    {
+     "verse": 51,
+     "text": "Jêh ri Brah Yêsu hăn hao rlet khân păng ncho tâm plŭng, jêh nây phŭt n'ho rngân yơh. Lĕ khân păng hih rhâl ngăn yơh;"
+    },
+    {
+     "verse": 52,
+     "text": "yor lah khân păng mâu gĭt vât ôh nau mbên khlay ngăn ngên Brah Yêsu hŏ ƀư lir jêh kapŭng, yor lah nuih n'hâm khân păng jêng dăng ngăn."
+    },
+    {
+     "verse": 53,
+     "text": "Tơ lah Brah Yêsu jêh ri phung oh mon lĕ găn jêh kơh tê̆ dak mƀŭt, tât ta n'gor Gênêsaret, jêh ri veh njưh plŭng kêng meng kơh.",
+     "para": true
+    },
+    {
+     "verse": 54,
+     "text": "Dôl khân păng du luh tă bơh plŭng, geh phung bunuyh ƀon lan gĭt năl, Păng ro Brah Yêsu."
+    },
+    {
+     "verse": 55,
+     "text": "Khân păng hăn bra lam nkual nây, jêh ri ta ntŭk bu tăng lư păng njưh, ta nây ro yơh bu tung njŭn phung ji kuet; jêh ri bu tung ma rpê̆, gay ăn Brah Yêsu ƀư bah."
+    },
+    {
+     "verse": 56,
+     "text": "Ăp ntŭk Brah Yêsu tât hăn lăp, tâm ƀon toyh, mâu lah ƀon jê̆, mâu lah tâm mir ba, bu njŭn leo phung ji ta ntŭk nglŏng ƀon, jêh ri khân păng dăn ma Brah Yêsu, gay ăn khân păng pah bi knŏng ta ntôr ao păng. Jêh ri lĕ rngôch mbu nơm pah ta ao Brah Yêsu, păng nây bah ro."
+    }
+   ]
+  },
+  {
+   "chapter": 7,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "b 7:6, 7 Êsai 2:13; Êsêkiêl 33:31"
+    },
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Nti Ma Phung Pharisi"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 15:1-9)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Mpa Ƀư Ƀơ̆ Bunuyh"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 15:10-20)"
+    },
+    {
+     "before_verse": 24,
+     "type": "heading",
+     "text": "Bu Ur Bri Kanaan Chroh"
+    },
+    {
+     "before_verse": 24,
+     "type": "parallel",
+     "text": "(Mathiơ 15:21-28)"
+    },
+    {
+     "before_verse": 31,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Bunuyh Tê̆ k Mlo"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Phung Pharisi, jêh ri phung kôranh nchih sămƀŭt ƀa ƀă tă bơh ƀon Yêrusalem, hăn tâm rƀŭn ndrel ma Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Phung khân păng saơ jêh oh mon Brah Yêsu gŭ sông sa ma ti ƀơ̆ , nâm bu ntĭt, mâu rao ti."
+    },
+    {
+     "verse": 3,
+     "text": "(Pô ri, phung Pharisi jêh ri phung Yuđa, mâu sông ôh tơ lah mâu rao ti ăn kloh lor, tĭng nâm nau vay bu bŭnh bu ranh ơm."
+    },
+    {
+     "verse": 4,
+     "text": "Jêh ri tơ lah khân păng sĭt tă bơh ngih tăch drăp; khân păng hăn ŭm lơi, ê lor khân păng sông sa. Phung nây hôm geh âk ntil nau vay êng êng, khân păng tĭng ndô̆, nâm bu ntĭt: Nau rao ngan, jêh ri glah bu mon đah uk mâu lah ma kông)."
+    },
+    {
+     "verse": 5,
+     "text": "Phung Pharisi jêh ri phung kôranh nchih sămƀŭt ôp ma păng: “Mâm ƀư phung oh mon may mâu tĭng nau vay phung bu bŭnh bu ranh ơm ôh, ƀiă lah sông sa nđâp ma ti ƀơ̆ .”",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Brah Yêsu plơ̆ lah ma khân păng: “Di jêh Y-Êsai mbơh lor jêh ma nau rêh khân may hơi phung n'hi săk, tĭng nâm bu nchih jêh pô aơ: ‘Phung ƀon lan aơ yơk ma gâp ma trôm mbung khân păng, ƀiă lah nuih n'hâm khân păng gŭ ngai đah gâp. b"
+    },
+    {
+     "verse": 7,
+     "text": "Mâu khlay ôh nau khân păng yơk mbah ma gâp, yor lah khân păng nti lah tĭng nâm lĕ nau vay bunuyh; njêng nau vay nây jêng nau ngăn.’"
+    },
+    {
+     "verse": 8,
+     "text": "Khân may cha lơi jêh nau Brah Ndu ntăm, ƀiă lah djôt prăp răp jăp nau vay bunuyh.”"
+    },
+    {
+     "verse": 9,
+     "text": "Jêh nây Brah Yêsu lah ma khân păng: “Khân may jut lơi jêh nau vay Brah Ndu, gay tĭng kơt nau vay phung bu bŭnh bu ranh ơm khân may nơm.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Yor lah Y-Môis lah: ‘Yơk hom ma mê̆ mbơ̆ may?’ Jêh ri, ‘Mbu nơm rak rtăp ma mbơ̆ mâu lah mê̆ păng nơm, mra tâm rmal tât khĭt.’"
+    },
+    {
+     "verse": 11,
+     "text": "Ƀiă lah khân may lah: ‘Tơ lah du huê bunuyh lah ma mbơ̆ mâu lah ma mê̆ păng. Lĕ ntil ndơ gâp mra dơi kơl ma mê̆ mbơ̆ , ri mơ jêng Kôrban? Nâm bu ntĭt nhhơr jêh ma Brah Ndu.’"
+    },
+    {
+     "verse": 12,
+     "text": "Pô nây khân may mâu hôm ŭch ăn ô băl kơl ma mê̆ mbơ̆ ô băl ôh."
+    },
+    {
+     "verse": 13,
+     "text": "Kơt nây đŏng khân may jut lơi nau Brah Ndu ngơi jêng dơm dam lơn đê̆ khlay nau vay khân may njêng. Jêh ri geh âk ntil nau êng đŏng khân may njêng tâm ban kơt nây.”"
+    },
+    {
+     "verse": 14,
+     "text": "Jêh ta nây, Brah Yêsu kuăl đŏng phung bunuyh ƀon lan, jêh ri lah: “Ăn ăp nơm tâm phung khân may iăt hom jêh ri gĭt vât.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Mâu geh ôh du ntil ndơ tă pa dih bunuyh lăp tâm săk jăn jêh ri dơi ƀư ƀơ̆ păng; ƀiă lah moh ndơ luh tă bơh bunuyh, ndơ nây yơh ƀư ƀơ̆ păng.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Mbu nơm geh tôr iăt, rkêng tôr iăt hom.”"
+    },
+    {
+     "verse": 17,
+     "text": "Tơ lah Păng lăp jêh tâm ngih, lĕ ngai jêh đah phung ƀon lan; phung oh mon ôp Păng tâm nau ngơi hôr nây."
+    },
+    {
+     "verse": 18,
+     "text": "Brah Yêsu lah ma khân păng: “Nđâp ma khân may tâm ban lĕ ê hŏ gĭt vât đŏng ƀơh? Khân may mâu gĭt rbăng ƀơh ndơ tă bơh pa dih aơ lăp tâm bunuyh mâu dơi ƀư ƀơ̆ păng ôh."
+    },
+    {
+     "verse": 19,
+     "text": "Yor lah ndơ nây lăp, mâu di tâm nuih n'hâm păng ôh, ƀiă lah tâm trôm ndŭl, jêh ri n'ho luh du pa dih?” (Pô nây yơh Brah Yêsu dơi ƀư ma lĕ ntil ndơ sa dơi jêng kloh)."
+    },
+    {
+     "verse": 20,
+     "text": "Brah Yêsu lah: “Moh ndơ luh tă bơh bunuyh, ndơ nây yơh ƀư ƀơ̆ păng."
+    },
+    {
+     "verse": 21,
+     "text": "Yor lah tă bơh tâm trôm, bơh nuih n'hâm bunuyh, du luh nau mĭn mhĭk, nau văng tĭr, nau ntŭng, nau ƀư khĭt bunuyh, nau ka n'hong,",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "nau kơnh ma drăp ndơ, nau djơh, nau nchơt, nau sưr jêh ri nau brŭt ndrăng."
+    },
+    {
+     "verse": 23,
+     "text": "Lĕ rngôch nau mhĭk nây luh tă bơh tâm trôm, jêh ri nau nây ƀư ƀơ̆ bunuyh.”",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "Pô nây, Păng luh tă bơh nây dâk hăn rlet ma nkual ƀon Tir jêh ri ƀon Sidôn. Păng lăp tâm du mbŏng ngih, mâu ăn bu dơi gĭt ôh, ƀiă lah Păng mâu dơi gŭ ndâp ôh.",
+     "para": true
+    },
+    {
+     "verse": 25,
+     "text": "Ƀât lât du huê bu ur, geh kon bu ur jê̆ păng brah mhĭk lơh, tăng lư bu mbơh geh Brah Yêsu, jêh ri păng hăn păn ta jâng Brah Yêsu."
+    },
+    {
+     "verse": 26,
+     "text": "Bu ur nây jêng du huê Grek bơh n'gor Phênisi bri Siri; jêh ri păng vơl dăn ma Brah Yêsu prơh lơi brah mhĭk luh du bơh kon bu ur păng.",
+     "para": true
+    },
+    {
+     "verse": 27,
+     "text": "Brah Yêsu lah ma păng: “Ăn ma phung kon sông sa hơm lor ƀât, yor lah mâu di ôh sŏk kapŭng ma phung kon jêh ri mƀăr lơi ma so.”"
+    },
+    {
+     "verse": 28,
+     "text": "Ƀiă lah bu ur nây plơ̆ sĭt lah: “Di jêh, ơ Kôranh Brah, ƀiă lah nđâp ma so tâm sưng sông, khân păng sa ndơ djah kapŭng ndăk kon se sa.”"
+    },
+    {
+     "verse": 29,
+     "text": "Brah Yêsu lah: “Hăn sĭt hom ay, yor lah nau ngơi nây, brah mhĭk luh du jêh tă bơh kon bu ur ay.”"
+    },
+    {
+     "verse": 30,
+     "text": "Tơ lah bu ur nây sĭt ta ngih, saơ kon jê̆ păng lâng bêch ta sưng, jêh ri brah mhĭk lĕ luh du jêh."
+    },
+    {
+     "verse": 31,
+     "text": "Brah Yêsu sĭt tă bơh ƀon Tir, jêh ri găn ƀon Sidôn, jêh ri lăp găn ƀon Dêkapôlis, n'hot tât ta dak mƀŭt Galilê.",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Bu njŭn leo ma păng du huê bunuyh tê̆ k jêh ri mlo; jêh ri khân păng vơl dăn ma Brah Yêsu dra ti păng ta nơm nây."
+    },
+    {
+     "verse": 33,
+     "text": "Brah Yêsu leo nơm nây luh pa dih êng du huê păng, hăn ta ntŭk êng jêh ri păng lŏk nglau ti păng ta sŭng tôr ô băl. Păng soh dak diu păng lĭp ta mpiăt ô băl."
+    },
+    {
+     "verse": 34,
+     "text": "Pô ri, Păng n'gơr măt klơ trôk, păng nsôr n'hâm, jêh ri lah ma ô băl: “Êpatha!” nâm bu ntĭt, “Hă hom.”"
+    },
+    {
+     "verse": 35,
+     "text": "Ƀât lât ta nây, tôr păng rbăng ro, khay dơ̆ păng pơk ngloh ro, jêh ri ô băl ntơm ngơi kloh rah vah."
+    },
+    {
+     "verse": 36,
+     "text": "Brah Yêsu buay mprân phung nây lơi dah nkoch bri ma bu ôh, ƀiă lah ktang Brah Yêsu buay, lơ hâu lơn đŏng khân păng nkoch bri nau nây lam ntŭk."
+    },
+    {
+     "verse": 37,
+     "text": "Phung nây saơ jêh nau nây hih rhâl ngăn ngên, jêh ri lah: “Păng ƀư lĕ rngôch nau ueh da dê. Păng ăn bunuyh tê̆ k dơi tăng, jêh ri bunuyh mlo dơi ngơi.”"
+    }
+   ]
+  },
+  {
+   "chapter": 8,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Siăm Puăn Rbăn Bunuyh"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 15:32-39)"
+    },
+    {
+     "before_verse": 11,
+     "type": "heading",
+     "text": "Phung Pharisi Dăn Nau Mbên Khlay"
+    },
+    {
+     "before_verse": 11,
+     "type": "parallel",
+     "text": "(Mathiơ 16:1-4)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Brah Yêsu Ngơi Hôr Ma Ndrui"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 16:5-12)"
+    },
+    {
+     "before_verse": 22,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Ang Măt Ta Ƀêtsaiđa"
+    },
+    {
+     "before_verse": 27,
+     "type": "heading",
+     "text": "Y-Pêtrôs Mbơh Mbu Brah Yêsu jêng"
+    },
+    {
+     "before_verse": 27,
+     "type": "parallel",
+     "text": "(Mathiơ 16:13-20; Luk 9:18-21)"
+    },
+    {
+     "before_verse": 31,
+     "type": "heading",
+     "text": "Brah Yêsu Mbơh Nau Păng Mra Khĭt"
+    },
+    {
+     "before_verse": 31,
+     "type": "parallel",
+     "text": "(Mathiơ 16:21-28; Luk 9:22-27)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Dôl nar nây, geh phung bunuyh âk ngăn tĭng Brah Yêsu gŭ tâm rƀŭn, jêh ri khân păng mâu geh mpa sông sa ôh, pô ri Brah Yêsu kuăl phung oh mon Păng văch ma Păng, jêh ri lah:",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "“Gâp yô̆ ngăn ma phung âk aơ: Yor lah khân păng hŏ gŭ ndrel ma gâp pe nar jêh, jêh ri mâu geh mpa sông sa ôh."
+    },
+    {
+     "verse": 3,
+     "text": "Tơ lah gâp mprơh sĭt khân păng hôm ji ngot, khân păng mra khĭt huăr rgŏ trong, jêh ri geh ƀa ƀă tâm phung khân păng hŏ tât jêh tă bơh ntŭk ngai ri.”"
+    },
+    {
+     "verse": 4,
+     "text": "Phung oh mon Păng plơ̆ sĭt lah: “Tâm nklang bri lach aơ mâm ƀư dơi geh kapŭng siăm phung aơ sa tât hơm?”"
+    },
+    {
+     "verse": 5,
+     "text": "Brah Yêsu ôp ma khân păng: “Ndah âk kapŭng khân may geh aƀaơ ri?” Khân păng lah: “Pơh mlâm.”"
+    },
+    {
+     "verse": 6,
+     "text": "Brah Yêsu ntĭnh ăn phung ƀon lan gŭ ta neh. Păng sŏk pơh mlâm kapŭng, jêh ri mbơh sơm tâm rnê ma Brah Ndu, Păng pêch kapŭng ăn phung oh mon păng tâm pă, jêh ri khân păng tâm pă ăn ma phung âk nây."
+    },
+    {
+     "verse": 7,
+     "text": "Phung oh mon geh đŏng bar pe mlâm ka jê̆ jê̆. Brah Yêsu mbơh sơm tâm rnê ma Brah Ndu jêh ri ntĭnh ma phung oh mon păng tâm pă đŏng kan nây tâm ban lĕ ăn ma phung âk."
+    },
+    {
+     "verse": 8,
+     "text": "Phung âk nây sa hơm da dê; jêh ri bu dônh rƀŭn geh pơh bĭ ndơ rmeh."
+    },
+    {
+     "verse": 9,
+     "text": "Phung âk nây geh klăp tâm puăn rbăn nuyh."
+    },
+    {
+     "verse": 10,
+     "text": "Brah Yêsu ăn khân păng sĭt, jêh ri Brah Yêsu n'ho ncho plŭng ndrel ma phung oh mon Păng, jêh ri hăn rlet ma n'gor Đalmanutha."
+    },
+    {
+     "verse": 11,
+     "text": "Phung Pharisi văch ta nây, jêh ri ntơm tâm dun đah Brah Yêsu. Khân păng dăn ma Brah Yêsu ăn du nau mbên khlay tă bơh trôk, gay rlong uănh Păng.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Păng nsôr n'hâm ƀhu jêh ri lah: “Mâm ƀư phung rnôk aƀaơ joi nau tâm mbên? N'hêl nanê̆ gâp lah ngăn ma khân may, bu mâu mra ăn ôh nau tâm mbên ma bunuyh rnôk aơ.”"
+    },
+    {
+     "verse": 13,
+     "text": "Jêh ri Brah Yêsu cha lơi phung nây, jêh nây ncho đŏng plŭng hăn n'hot tât kơh tê̆.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Khân păng chuêl djôt leo kapŭng, jêh ri khân păng geh knŏng du mlâm kapŭng ndrel ma khân păng tâm trôm plŭng.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Brah Yêsu ăn khân păng gŭ njrăng, lah: “Njrăng hom ma ndrui phung Pharisi, jêh ndrui Hêrôt.”",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Phung oh mon păng tâm lah ndrăng khân păng: “Nây jêng, yor lah, he mâu geh kapŭng.”"
+    },
+    {
+     "verse": 17,
+     "text": "Ƀiă lah Brah Yêsu gĭt nau nây, jêh ri lah ma khân păng: “Mâm ƀư khân may tâm lah ndrăng khân may yor ma nau mâu geh kapŭng? Mâm ƀư khân may ê hŏ gĭt, ê hŏ rbăng? Nuih n'hâm khân may ăt hôm dăng ƀơh?"
+    },
+    {
+     "verse": 18,
+     "text": "Khân may geh jêh trôm măt ƀiă lah mâu saơ? Khân may geh jêh tôr, ƀiă lah mâu tăng? Jêh ri mâm khân may mâu hôm kah gĭt đŏng?"
+    },
+    {
+     "verse": 19,
+     "text": "Tơ lah gâp pêch prăm mlâm kapŭng ăn ma phung prăm rbăn nuyh, ndah âk bĭ bêng ndơ rmeh kapŭng ndăk khân may geh dônh?” Khân păng plơ̆ lah: “Jât ma bar bĭ.”"
+    },
+    {
+     "verse": 20,
+     "text": "“Jêh ri pơh mlâm kapŭng ăn ma puăn rbăn nuyh, ndah âk bĭ lĕ bêng ndơ rmeh kapŭng ndăk khân may geh dônh?” Khân păng plơ̆ lah: “Pơh bĭ.”"
+    },
+    {
+     "verse": 21,
+     "text": "Brah Yêsu lah: “Khân may ê hŏ gĭt rbăng ƀơh?”"
+    },
+    {
+     "verse": 22,
+     "text": "Jêh ta nây, Brah Yêsu jêh ri phung oh mon hăn tât ta ƀon Ƀêtsaiđa. Bu njŭn leo ma Păng du huê bunuyh chieh măt, jêh ri vơl dăn ma Brah Yêsu bi ô băl.",
+     "para": true
+    },
+    {
+     "verse": 23,
+     "text": "Brah Yêsu kuăn ta ti bunuyh chieh măt, njŭn leo ô băl pa dih mpâr ƀon. Jêh ri tơ lah bu soh dak diu ta trôm măt ô băl, jêh ri dra ti ta ô băl, păng ôp ô băl: “May saơ lĕ ndô ndơ?”"
+    },
+    {
+     "verse": 24,
+     "text": "Ô băl n'gơr uănh jêh ri lah: “Gâp saơ bunuyh ƀiă lah khân păng jêng nâm bu tơm si hăn.”"
+    },
+    {
+     "verse": 25,
+     "text": "Du tơ̆ đŏng Brah Yêsu dra ti păng ta măt ô băl, jêh ri ô băl uănh mâu mƀrêh jêh ri ô băl saơ ang ro, jêh ri saơ rah vah lĕ rngôch ndô ndơ.",
+     "para": true
+    },
+    {
+     "verse": 26,
+     "text": "Brah Yêsu ăn ô băl sĭt ta ngih, lah: “Lơi ta lăp ôh tâm ƀon aơ.”"
+    },
+    {
+     "verse": 27,
+     "text": "Brah Yêsu hăn ndrel ma phung oh mon păng tâm âk ƀon tâm bri Sêsarê Philip. Dôl khân păng hăn rgŏ trong, Yêsu ôp ma phung oh mon păng: “Mbu nơm gâp jêng tĭng nâm bu lah?”",
+     "para": true
+    },
+    {
+     "verse": 28,
+     "text": "Khân păng plơ̆ sĭt lah: “Y-Yôhan, nơm ƀư ƀaptem, jêh ri phung êng lah: Y-Êli, jêh ri geh phung êng đŏng lah du huê tâm phung kôranh nơm mbơh lor.”"
+    },
+    {
+     "verse": 29,
+     "text": "Jêh nây Brah Yêsu ôp đŏng ma khân păng: “Ƀiă lah mbu nơm gâp jêng tĭng nâm khân may lah?” Y-Pêtrôs plơ̆ sĭt lah ma Păng: “May jêng Brah Krist.”"
+    },
+    {
+     "verse": 30,
+     "text": "Jêh ri Brah Yêsu mprân ma khân păng, lơi mbơh ma bu ôh păng jêng."
+    },
+    {
+     "verse": 31,
+     "text": "Brah Yêsu ntơm nti ma khân păng nau Kon Bunuyh mra dơn âk nau rêh ni, jêh ri phung kôranh ma bu ranh, phung n'gâng kôranh ƀư brah, jêh ri phung kôranh nchih sămƀŭt mra nsot lơi Păng, jêh ri ƀư nkhĭt Păng, lôch pe nar Păng mra dâk rêh đŏng.",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Brah Yêsu lah nau nây kloh rah vah ngăn ma phung oh mon Păng. Y-Pêtrôs jă Brah Yêsu leo rlet ntŭk êng jêh ri buay king Brah Yêsu, lơi ăn ƀư nau nây ôh.",
+     "para": true
+    },
+    {
+     "verse": 33,
+     "text": "Ƀiă lah Brah Yêsu rle măt uănh ma phung oh mon Păng, jêh ri nduyh Y-Pêtrôs, lah: “Hơi Satan, rŭch hom pa kơi Gâp; yor lah may mâu gŭ mpeh ma Brah Ndu, ƀiă lah mpeh ma bunuyh.”"
+    },
+    {
+     "verse": 34,
+     "text": "Brah Yêsu kuăl phung ƀon lan ndrel phung oh mon Păng jêh ri lah ma khân păng: “Tơ lah mbu nơm ŭch tĭng gâp, ăn ngroh săk nơm, tuy si tâm rkăng păng nơm, ri mơ dơi jêng bunuyh tĭng gâp.",
+     "para": true
+    },
+    {
+     "verse": 35,
+     "text": "Yor lah mbu nơm ŭch tâm rklaih nau rêh păng nơm mra roh, ƀiă lah mbu nơm ngroh lơi nau rêh păng nơm yor Gâp, jêh ri yor nau mhe mhan ueh, mra geh nau tâm rklaih."
+    },
+    {
+     "verse": 36,
+     "text": "Yor lah moh nau khlay tơ lah du huê bunuyh geh ăp ntil ndơ tâm neh ntu, ƀiă lah nau rêh păng roh huêng?"
+    },
+    {
+     "verse": 37,
+     "text": "Moh ndơ bunuyh ăn gay dơi tâm chuai huêng păng?"
+    },
+    {
+     "verse": 38,
+     "text": "Yor lah mbu nơm prêng ma gâp jêh ri ma nau gâp ngơi, tâm rnôk noi rô̆ phung văng tĭr ƀư tih aơ; tâm ban lĕ Kon Bunuyh mra prêng ma nơm nây, tơ lah Păng văch tâm nau chrêk rmah Mbơ̆ Păng ndrel ma phung Tông mpăr kloh ueh.”"
+    }
+   ]
+  },
+  {
+   "chapter": 9,
+   "headings": [
+    {
+     "before_verse": 2,
+     "type": "heading",
+     "text": "Nau Brah Yêsu Rgâl Săk Păng Nơm"
+    },
+    {
+     "before_verse": 2,
+     "type": "parallel",
+     "text": "(Mathiơ 17:1-13; Luk 9:28-36)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Bunuyh Brah Mhĭk Lơh"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 17:14-21; Luk 9:37-43)"
+    },
+    {
+     "before_verse": 30,
+     "type": "heading",
+     "text": "Brah Yêsu Mbơh Tay Nau Păng Mra Khĭt Jêh Ri Dâk Rêh Đŏng"
+    },
+    {
+     "before_verse": 30,
+     "type": "parallel",
+     "text": "(Mathiơ 17:22-23; Luk 9:43b-45)"
+    },
+    {
+     "before_verse": 33,
+     "type": "heading",
+     "text": "Nau Dêh Rhêt Ma Bu"
+    },
+    {
+     "before_verse": 33,
+     "type": "parallel",
+     "text": "(Mathiơ 18:1-5; Luk 9:46-48)"
+    },
+    {
+     "before_verse": 38,
+     "type": "heading",
+     "text": "Brah Yêsu Buay Nau Nach"
+    },
+    {
+     "before_verse": 38,
+     "type": "parallel",
+     "text": "(Luk 9:49-50)"
+    },
+    {
+     "before_verse": 42,
+     "type": "heading",
+     "text": "Nau Ndơm"
+    },
+    {
+     "before_verse": 42,
+     "type": "parallel",
+     "text": "(Mathiơ 18:6-9; Luk 17:1-21)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Jêh ri Brah Yêsu lah ma phung oh mon Păng: “N'hêl nanê̆, gâp lah ngăn ma khân may, geh ƀa ƀă tâm phung gŭ ta aơ, geh nơm mâu mra khĭt ôh lor ma khân păng saơ jêh ƀon bri hađăch Brah Ndu tât ma nau brah.”",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Rlau prao nar Brah Yêsu jă leo Y-Pêtrôs, Y-Yakơ, jêh ri Y-Yôhan hao yôk prêh êng khân păng. Jêh ri săk jăn Brah Yêsu geh nau rgâl (njêng săk) ta năp pe nuyh khân păng.",
+     "para": true
+    },
+    {
+     "verse": 3,
+     "text": "Ao jâr Păng jêng chrêk lơp, nglang ƀhiau ral ngăn ngên, nglang lơn ma nau bu dơi jan ta neh ntu aơ."
+    },
+    {
+     "verse": 4,
+     "text": "Y-Êli jêh ri Y-Môis tâm mpơl ma khân păng. Phung bar hê nây gŭ nkoch bri đah Brah Yêsu."
+    },
+    {
+     "verse": 5,
+     "text": "Y-Pêtrôs lah ma Brah Yêsu: “Hơi Kôranh nơm nti, ueh ngăn hên gŭ ta aơ. Ăn hên ƀư pe mlâm ngih bok, du mlâm ma may, du mlâm ma Y-Môis, jêh ri du mlâm ma Y-Êli.”"
+    },
+    {
+     "verse": 6,
+     "text": "Yor lah Y-Pêtrôs mâu gĭt moh nau lah, yor lah lĕ pe khân păng klach ngăn ngên."
+    },
+    {
+     "verse": 7,
+     "text": "Ƀât lât ta nây geh ndâr tŭk nkŭm khân păng jêh ri geh bâr ngơi luh bơh tâm tŭk: “Aơ yơh jêng kon gâp, nơm gâp rŏng ngăn ngên; ăn khân may iăt hom nau Păng.”"
+    },
+    {
+     "verse": 8,
+     "text": "Ƀât lât, pe nuyh phung oh mon klep n'gơr uănh văr jŭm, mâu hôm saơ bunuyh, knŏng du huê Brah Yêsu dơm gŭ ndrel ma khân păng."
+    },
+    {
+     "verse": 9,
+     "text": "Tơ lah khân păng trŭnh jêh bơh klơ yôk, Brah Yêsu buay mprân lơi phung oh mon păng, lơi nkoch bri đưn đŏng ma bu ôh lĕ ntil nau khân păng hŏ saơ jêh, ăn tât Kon Bunuyh dâk rêh jêh tă bơh phung khĭt.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Pô nây, khân păng mpôn nau nây gĭt êng khân păng nơm, dôl nây khân păng tâm ôp ndrăng khân păng, nâm bu ntĭt nau dâk rêh tă bơh phung khĭt."
+    },
+    {
+     "verse": 11,
+     "text": "Khân păng ôp ma Brah Yêsu: “Mâm phung kôranh nchih sămƀŭt lah ma Y-Êli mra văch lor?”"
+    },
+    {
+     "verse": 12,
+     "text": "Yêsu plơ̆ lah: “Nanê̆ Y-Êli mra văch lor gay nkra tay lĕ rngôch kan. Ƀiă lah mâm ƀư bu nchih jêh ri ma Kon Bunuyh mra dơn âk nau rêh ni jêh ri bu mra mưch ma păng?",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Ƀiă lah gâp lah ma khân may, Y-Êli tât jêh, jêh ri khân păng ƀư jêh ma păng tĭng nâm khân păng ŭch, tĭng nâm nau bu nchih jêh di ma păng.”"
+    },
+    {
+     "verse": 14,
+     "text": "Brah Yêsu ndrel pe nuyh tât ma phung oh mon ƀa ƀă, saơ phung ƀon lan âk ngăn gŭ nchueng jŭm khân păng, jêh ri geh phung kôranh nchih sămƀŭt tâm rlăch đah phung oh mon nây.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Ƀât lât lĕ rngôch phung ƀon lan âk saơ jêh Brah Yêsu, geh nau hih rhâl ngăn, jêh ri nchuăt hăn ran mbah Brah Yêsu."
+    },
+    {
+     "verse": 16,
+     "text": "Brah Yêsu ôp ma khân păng: “Moh nau khân may tâm rlăch đah phung oh mon aơ?”"
+    },
+    {
+     "verse": 17,
+     "text": "Geh du huê tâm phung âk nây lah ma Brah Yêsu: “Hơi Kôranh nơm nti, gâp njŭn leo kon bu klâu gâp ma may, geh brah mhĭk mlo lăp gŭ tâm păng."
+    },
+    {
+     "verse": 18,
+     "text": "Kêng nôk tât, păng ƀư ma ô băl, cha lôt ta neh. Luh mpŭnh dak diu trôm mbung, rket sêk, jêh nây khĭt yơh n'ho dăng jâng ti. Gâp dăn jêh ma phung oh mon may mprơh brah mhĭk nây, ƀiă lah khân păng mâu dơi mprơh ôh.”"
+    },
+    {
+     "verse": 19,
+     "text": "Brah Yêsu plơ̆ lah ma khân păng: “Hơi ndŭl mpôl mâu chroh ri, ndah klăp jŏ gâp mra gŭ ndrel ma khân may? Ndah klăp jŏ gâp mra srôih ndrel ma khân may hia? Njŭn leo hom kon may ri tât ma gâp.”"
+    },
+    {
+     "verse": 20,
+     "text": "Jêh ri khân păng njŭn leo kon se nây ma Brah Yêsu, jêh ri lah brah mhĭk saơ Brah Yêsu ƀât lât ta nây brah mhĭk rgu râm săk jăn ô băl. Ô băl cha lôt ta neh plăch nkŭp mplơt, luh mpŭnh dak diu trôm mbung."
+    },
+    {
+     "verse": 21,
+     "text": "Brah Yêsu ôp mbơ̆ păng: “Ndah hŏ jŏ ô băl geh nau nây?” Păng lah: “Ntơm bơh hôm jê̆."
+    },
+    {
+     "verse": 22,
+     "text": "Ƀa ƀơ brah mhĭk mbŭk ô băl tâm ŭnh mâu lah nkrâm tâm dak gay ƀư nkhĭt ô băl. Ƀiă lah may dơi kơl, yô̆ an ma hên jêh ri sâm kơl hên ƀă.”"
+    },
+    {
+     "verse": 23,
+     "text": "Brah Yêsu lah ma păng, “Tơ lah may dơi! Lĕ rngôch nau dơi da dê ma mbu nơm chroh.”"
+    },
+    {
+     "verse": 24,
+     "text": "Ƀât lât mbơ̆ kon se nây nter lah: “Gâp chroh yơh; sâm kơl nau chroh gâp rdja!”"
+    },
+    {
+     "verse": 25,
+     "text": "Tơ lah Brah Yêsu saơ phung ƀon lan âk ri nchuăt ran, văch tât, pô ri Păng nduyh, lah ma brah mhĭk nây pô aơ: “Hơi brah mlo jêh ri tê̆ k, Gâp đă may luh du tă bơh kon se jê̆ aơ, lơi hôm may lơh njê păng ôh.”"
+    },
+    {
+     "verse": 26,
+     "text": "Jêh brah mhĭk nter jêh ri rgu mprâm săk jăn ô băl dŭt ktang ngăn, ri mơ păng luh. Kon se nây lĕ khĭt yơh jêh du ndâm; kŏ tât tâm phung âk nây lah: “Ô băl khĭt jêh.”"
+    },
+    {
+     "verse": 27,
+     "text": "Ƀiă lah Brah Yêsu kuăn ta ti ô băl jêh ri rdâk ô băl dâk, jêh ri ô băl n'ho dâk ro."
+    },
+    {
+     "verse": 28,
+     "text": "Brah Yêsu lăp jêh tâm ngih, phung oh mon păng ôp păng dôl păng gŭ êng: “Mâm ƀư hên mâu dơi nsot brah mhĭk nây?”",
+     "para": true
+    },
+    {
+     "verse": 29,
+     "text": "Brah Yêsu plơ̆ lah ma khân păng, “Ntil brah mhĭk nây bu mâu dơi nsot ôh, knŏng ma nau mbơh sơm yơh dơi.”",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "Tă bơh ntŭk nây khân păng n'ho hăn găn n'gor Galilê, ƀiă lah mâu ŭch ăn bu gĭt ôh;",
+     "para": true
+    },
+    {
+     "verse": 31,
+     "text": "yor lah păng nti ma phung oh mon păng, lah ma khân păng: “Bu mra jao Kon Bunuyh tâm ti phung bunuyh khân păng mra ƀư khĭt lơi; jêh bu ƀư nkhĭt, lôch pe nar păng mra dâk rêh.”"
+    },
+    {
+     "verse": 32,
+     "text": "Ƀiă lah phung oh mon mâu gĭt rbăng ôh nau ngơi nây, jêh ri khân păng klach hêng mâu janh ôp Brah Yêsu ôh."
+    },
+    {
+     "verse": 33,
+     "text": "Khân păng tât ta ƀon Kapernum. Dôl Păng gŭ tâm ngih, Brah Yêsu ôp ma khân păng: “Moh nau tâm rlăch ndrăng khân may rŏ trong ndơh?”",
+     "para": true
+    },
+    {
+     "verse": 34,
+     "text": "Ƀiă lah khân păng gŭ răk klăk, yor lah rŏ trong khân păng tâm rlăch jêh ăn gĭt mbu nơm jêng toyh lơn tâm phung khân păng."
+    },
+    {
+     "verse": 35,
+     "text": "Brah Yêsu gŭ jêh ri kuăl phung jât ma bar nuyh; jêh ri lah ma khân păng: “Tơ lah mbu nơm ŭch jêng nơm lor lơn, ăn păng jêng nglĕ dŭt lơn; jêh ri jêng oh mon ma lĕ rngôch bunuyh.”"
+    },
+    {
+     "verse": 36,
+     "text": "Pô ri, Brah Yêsu sŏk du huê kon se jê̆, ăn ta nklang phung oh mon păng; jêh nây Păng pư tô̆ ô băl, dôl mbơh ma phung nây:",
+     "para": true
+    },
+    {
+     "verse": 37,
+     "text": "“Mbu nơm rom du huê kon se jê̆ nâm bu pô aơ ma amoh gâp, nâm bu rom gâp lĕ; jêh ri mbu nơm rom gâp, mâu di rom knŏng gâp ôh, ƀiă lah păng rom nđâp ma Nơm tơm njuăl gâp.”"
+    },
+    {
+     "verse": 38,
+     "text": "Y-Yôhan lah ma Brah Yêsu: “Hơi Kôranh nơm nti, hên saơ du huê bunuyh nsot brah mhĭk yor ma amoh may, hên buay păng, păng mâu tĭng he ôh.”",
+     "para": true
+    },
+    {
+     "verse": 39,
+     "text": "Ƀiă lah Brah Yêsu lah: “Lơi ta buay păng ôh, yor lah mâu geh ôh du huê dơi ƀư nau khlay, tâm amoh gâp mra gơnh ngơi mhĭk ma gâp."
+    },
+    {
+     "verse": 40,
+     "text": "Yor lah mbu nơm mâu tâm rdâng đah he jêng băl he.",
+     "para": true
+    },
+    {
+     "verse": 41,
+     "text": "Yor nây, n'hêl nanê̆ gâp lah ma khân may, mbu nơm ăn ma khân may nhêt du kchok dak ma amoh gâp, yor lah khân may jêng oh mon Brah Krist, nơm nây mâu mra roh ôh nau nkhôm ma păng.”"
+    },
+    {
+     "verse": 42,
+     "text": "“Ƀiă lah mbu nơm nsŭk du huê tâm phung kon se aơ lĕ chroh ma gâp ăn păng cha lơi, ueh lơn ăn bu kât ta trô ko păng du mlâm mpăl lŭ toyh jêh ri nklơ̆ păng tâm dak mƀŭt.",
+     "para": true
+    },
+    {
+     "verse": 43,
+     "text": "Tơ lah ti may nsŭk may nơm, ăn may ƀư tih, koh lơi păng; ueh lơn may lăp tâm nau rêh geh knŏng du đah ti, ma may geh bar đah ti jêh ri lăp tâm ndrung ŭnh, tâm ŭnh mâu blau nhhât ôh."
+    },
+    {
+     "verse": 44,
+     "text": "Ta nây rahai khân păng mâu blau khĭt ôh; jêh ri ŭnh mâu blau nhhât lĕ.",
+     "para": true
+    },
+    {
+     "verse": 45,
+     "text": "Jêh ri tơ lah jâng may nsŭk may nơm, ăn may ƀư tih, koh lơi păng, ueh lơn may lăp tâm nau rêh geh knŏng du đah jâng ma may geh bar đah jâng jêh ri bu mƀăr may tâm ndrung ŭnh."
+    },
+    {
+     "verse": 46,
+     "text": "Ta nây rahai khân păng mâu blau khĭt ôh, jêh ri ŭnh mâu blau nhhât lĕ."
+    },
+    {
+     "verse": 47,
+     "text": "Jêh ri tơ lah măt may nsŭk may nơm ăn may ƀư tih, rloch lơi păng; ueh lơn may lăp tâm ƀon bri hađăch Brah Ndu ma du ding măt, ma may geh bar ding măt jêh ri bu mƀăr may tâm ndrung ŭnh.",
+     "para": true
+    },
+    {
+     "verse": 48,
+     "text": "Ta nây rahai khân păng mâu blau khĭt ôh, jêh ri ŭnh mâu blau nhhât lĕ."
+    },
+    {
+     "verse": 49,
+     "text": "Yor lah bu mra pâr ăp nơm đah ŭnh."
+    },
+    {
+     "verse": 50,
+     "text": "“Boh jêng ndơ kah, ƀiă lah tơ lah boh roh nau kah păng, mâm đah khân may mra ƀư kah đŏng păng? Ăn khân may geh boh tâm nuih n'hâm khân ay may nơm, jêh ri ăn ay may gŭ đăp mpăn ndrăng khân ay may.”",
+     "para": true
+    }
+   ]
+  },
+  {
+   "chapter": 10,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Brah Yêsu Nti Di Ma Nau Cha lơi Ur Sai"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 19:1-12; Luk 16:18)"
+    },
+    {
+     "before_verse": 13,
+     "type": "heading",
+     "text": "Brah Yêsu Mât Ton Ma Phung Kon Se Jê̆(Mathiơ 19:13-15; Luk 18:15-17)"
+    },
+    {
+     "before_verse": 17,
+     "type": "heading",
+     "text": "Ndăm Ndrŏng"
+    },
+    {
+     "before_verse": 17,
+     "type": "parallel",
+     "text": "(Mathiơ 19:16-30; Luk 18:18-30)"
+    },
+    {
+     "before_verse": 32,
+     "type": "heading",
+     "text": "Brah Yêsu Mbơh Tal Pe Nau Păng Mra Khĭt"
+    },
+    {
+     "before_verse": 32,
+     "type": "parallel",
+     "text": "(Mathiơ 20:17-19; Luk 18:31-34)"
+    },
+    {
+     "before_verse": 35,
+     "type": "heading",
+     "text": "Nau Y-Yakơ Jêh Ri Y-Yôhan Dăn"
+    },
+    {
+     "before_verse": 35,
+     "type": "parallel",
+     "text": "(Mathiơ 20:20-28)"
+    },
+    {
+     "before_verse": 46,
+     "type": "heading",
+     "text": "Brah Yêsu Ƀư Bah Măt Y-Bartimê"
+    },
+    {
+     "before_verse": 46,
+     "type": "parallel",
+     "text": "(Mathiơ 20:29-34; Luk 18:35-43)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Brah Yêsu luh ntơm bơh nây, hăn rlet ma n'gor Yuđa jêh ri găn kơh tê̆ dak krong Yurdan. Phung ƀon lan âk tâm rƀŭn ta năp păng, jêh ri Păng nti lah ma khân păng kơt kănđai ri lĕ.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Phung Pharisi hăn ma Brah Yêsu jêh ri ôp gay rlong uănh Păng: “Vay lĕ du huê bu klâu cha lơi ur păng?”"
+    },
+    {
+     "verse": 3,
+     "text": "Brah Yêsu plơ̆ sĭt lah ma khân păng: “Moh nau Y-Môis ntăm ma khân may?”"
+    },
+    {
+     "verse": 4,
+     "text": "Khân păng lah: “Y-Môis ăn bu nchih sămƀŭt nau tâm cha lơi, jêh ri cha lơi ur păng.”"
+    },
+    {
+     "verse": 5,
+     "text": "Ƀiă lah Brah Yêsu lah ma khân păng: “Yor nuih n'hâm khân may dăng nau nây yơh păng nchih nau ntăm nây ma khân may."
+    },
+    {
+     "verse": 6,
+     "text": "Ƀiă lah ntơm bơh rhăk njêng neh ntu. ‘Brah Ndu njêng khân păng bu klâu jêh ri bu ur.’"
+    },
+    {
+     "verse": 7,
+     "text": "‘Yor nau aơ du huê bu klâu mra cha lơi mê̆ mbơ̆ păng jêh ri tâm rnglăp đah ur păng,"
+    },
+    {
+     "verse": 8,
+     "text": "jêh ri bar hê nây mra jêng nguay.’ Pô nây khân păng mâu hôm jêng bar ôh, ƀiă lah knŏng nguay."
+    },
+    {
+     "verse": 9,
+     "text": "Pô nây, đơ ndơ Brah Ndu lĕ tâm rnglăp ndrel jêh, lơi ăn bunuyh tâm nkhah ôh.”"
+    },
+    {
+     "verse": 10,
+     "text": "Dôl khân păng gŭ tâm trôm ngih, phung oh mon păng ôp tay ma Brah Yêsu di ma nau nây đŏng.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Brah Yêsu lah ma khân păng: “Mbu nơm cha lơi ur păng jêh ri gŭ ur êng, jêng nau tâm dŏng tĭr đah păng yơh."
+    },
+    {
+     "verse": 12,
+     "text": "Jêh ri tơ lah bu ur nây cha lơi sai păng nơm jêh ri gŭ sai êng, bu ur nây văng tĭr yơh.”"
+    },
+    {
+     "verse": 13,
+     "text": "Bu njŭn leo kon se jê̆ ma Brah Yêsu, gay ăn păng pah ti ta phung kon se; ƀiă lah phung oh mon păng buay lơi phung njŭn kon se nây.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Ƀiă lah lah Brah Yêsu saơ nau nây păng nuih, jêh ri lah ma phung oh mon Păng: “Ăn phung kon se văch ma gâp, lơi ta buay khân ô băl ôh; yor lah bri hađăch Brah Ndu prăp ma phung nâm bu khân ô băl."
+    },
+    {
+     "verse": 15,
+     "text": "N'hêl nanê̆ gâp lah ma khân may, mbu nơm mâu sŏk dơn ƀon bri hađăch Brah Ndu nâm bu du huê kon se jê̆ mâu mra lăp ta nây ôh.”"
+    },
+    {
+     "verse": 16,
+     "text": "Brah Yêsu ut ra u khân ô băl, jêh ri păng dra ti mât ton nau ueh lăng ma khân ô băl."
+    },
+    {
+     "verse": 17,
+     "text": "Dôl Brah Yêsu ntơm hăn nsong, geh du huê bunuyh nchuăt ran chon kômâk pa năp Păng, jêh ri ôp: “Hơi Kôranh nơm nti ueh, moh gâp mra ƀư gay dơn nau rêh mro mrăng?”",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Brah Yêsu lah ma păng: “Mâm ƀư may ntơ ma gâp bunuyh ueh? Mâu geh nơm ueh ôh, knŏng êng Brah Ndu yơh."
+    },
+    {
+     "verse": 19,
+     "text": "May lĕ gĭt jêh nau vay: ‘Lơi ta nkhĭt bunuyh ôh; lơi ta văng tĭr ôh; lơi ta ntŭng ndô ndơ bu ôh; lơi ngơi nchơt ôh; lơi ta ndơm bu ôh, yơk ma mê̆ mbơ̆ may.’ ”"
+    },
+    {
+     "verse": 20,
+     "text": "Bu klâu nây lah ma păng: “Hơi Kôranh nơm nti, gâp tông jêh lĕ rngôch nau vay nây ntơm bơh gâp jê̆.”"
+    },
+    {
+     "verse": 21,
+     "text": "Brah Yêsu uănh ma păng ma nau rŏng jêh ri lah: “May hôm pah pưt du ntil nau; hăn hom, tăch lơi moh ndơ may geh jêh ri tâm pă ăn ma phung o ach, jêh ri may mra geh drăp khlay tâm trôk. Jêh ri văch hom, tĭng ndô̆ gâp.”"
+    },
+    {
+     "verse": 22,
+     "text": "Ƀiă lah bu klâu nây jâk muh măt tăng nau ngơi nây, jêh ri păng dâk hăn bêng ma nau rngot; yor lah păng geh âk drăp ndơ."
+    },
+    {
+     "verse": 23,
+     "text": "Brah Yêsu uănh văr jŭm păng, jêh ri lah ma phung oh mon: “Jêr ngăn ma phung ndrŏng lăp tâm ƀon bri hađăch Brah Ndu!”",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "Phung oh mon Păng hih rhâl ma nau Păng ngơi nây. Ƀiă lah Brah Yêsu lah đŏng ma khân păng: “Hơi phung kon gâp ơi, jêr ngăn ma phung bunuyh nsing ma nau ndrŏng lăp tâm ƀon bri hađăch Brah Ndu."
+    },
+    {
+     "verse": 25,
+     "text": "Dơh lơn ma du mlâm seh samô lăp tâm trôm nglai đŏng, đah du huê bunuyh ndrŏng lăp tâm ƀon bri hađăch Brah Ndu.”"
+    },
+    {
+     "verse": 26,
+     "text": "Phung oh mon Păng hih rhâl ngăn jêh ri tâm lah ndrăng Păng: “Pô nây, mbu nơm dơi klaih?”",
+     "para": true
+    },
+    {
+     "verse": 27,
+     "text": "Brah Yêsu uănh ma phung oh mon Păng, jêh ri lah: “Nau nây bunuyh mâu dơi ƀư ôh, ƀiă lah Brah Ndu mâu geh kơt ri ôh; yor lah Brah Ndu ƀư lĕ rngôch ndô ndơ dơi da dê.”"
+    },
+    {
+     "verse": 28,
+     "text": "Y-Pêtrôs ntơm lah ma Brah Yêsu, pô aơ: “Uănh, hên cha lơi lĕ rngôch ndô ndơ jêh ri tĭng ndô̆ may.”",
+     "para": true
+    },
+    {
+     "verse": 29,
+     "text": "Brah Yêsu plơ̆ lah: “N'hêl nanê̆, gâp lah ma khân may, ăp nơm mbu moh lĕ cha lơi jêh ngih vâl păng mâu lah phung oh nâu, oh nur, mê̆ mbơ̆ , phung kon, mâu lah neh, mir lŏ yor amoh gâp jêh ri yor nau mhe mhan ueh,"
+    },
+    {
+     "verse": 30,
+     "text": "păng mra sŏk dơn rnôk aƀaơ du rhiăng tơ̆ âk lơn ma ngih vâl, oh nâu, oh nur, mê̆ mbơ̆ , phung kon, jêh ri neh mir lŏ, ndrel ma nau bu ƀư mhĭk, jêh ri nau rêh n'ho ro tâm rô̆ pa kơi."
+    },
+    {
+     "verse": 31,
+     "text": "Ƀiă lah âk phung lor mra jêng nglĕ dŭt, jêh ri phung nglĕ dŭt mra jêng lor.”",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Brah Yêsu jêh ri oh mon Păng dôl hăn trong hăn hao rlet ƀon Yêrusalem, Păng hăn lor pa năp; phung oh mon Păng hih rhâl, jêh ri phung tĭng ndô̆ geh nau klach. Păng jă leo jât ma bar nuyh phung oh mon hăn ndrel Păng, jêh ri ntơm nkoch bri ma khân păng nau mra tât ma Păng.",
+     "para": true
+    },
+    {
+     "verse": 33,
+     "text": "Păng lah: “Aơ, he hăn hao rlet ƀon Yêrusalem, jêh ri bu mra jao Kon Bunuyh ma phung n'gâng kôranh ƀư brah jêh ri ma phung kôranh nchih sămƀŭt. Khân păng mra phat dôih ăn bu ƀư nkhĭt ô băl, jêh ri jao ô băl ma phung bu năch."
+    },
+    {
+     "verse": 34,
+     "text": "Phung nây mra njrŏ mưch ma ô băl, soh dak diu ma ô băl, dong ô băl đah mâng tak jra, jêh ri ƀư nkhĭt ô băl. Ƀiă lah tăch pe nar Păng dâk rêh đŏng.”"
+    },
+    {
+     "verse": 35,
+     "text": "Aơ, geh Y-Yakơ jêh ri Y-Yôhan, bar hê kon bu klâu Y-Sêƀêđê, hăn ma Brah Yêsu jêh ri ôp ma Păng: “Hơi Kôranh nơm nti, hên ŭch may ăn ma hên moh nau hên dăn ma may.”",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "Brah Yêsu ôp ma khân păng: “Moh nau khân may ŭch gâp ƀư ăn ma khân may?”"
+    },
+    {
+     "verse": 37,
+     "text": "Khân păng lah ma Păng: “Ăn hên gŭ du huê mpeh pa ma may jêh ri du huê mpeh pa chiau tâm nau chrêk rmah may.”"
+    },
+    {
+     "verse": 38,
+     "text": "Ƀiă lah Brah Yêsu lah ma khân păng: “Khân may mâu gĭt ôh moh nau khân may dăn. Khân may dơi lĕ nhêt kchok gâp nhêt, mâu lah dơi dơn nau ƀaptem gâp dơn?”",
+     "para": true
+    },
+    {
+     "verse": 39,
+     "text": "Khân păng lah: “Hên dơi lĕ.” Brah Yêsu lah ma khân păng: “Khân may mra nhêt kchok gâp nhêt; jêh ri khân may mra dơn nau ƀaptem bu mra ƀư ma gâp.",
+     "para": true
+    },
+    {
+     "verse": 40,
+     "text": "Ƀiă lah nau gŭ mpeh pa ma mâu lah mpeh pa chiau gâp, mâu di ôh êng gâp geh nau dơi ăn. Nau nây prăp ma mbu nơm bu nkra jêh.”"
+    },
+    {
+     "verse": 41,
+     "text": "Phung jât nuyh oh mon tăng nau nây, khân păng ntơm ji nuih ma Y-Yakơ, jêh ri ma Y-Yôhan.",
+     "para": true
+    },
+    {
+     "verse": 42,
+     "text": "Ƀiă lah Brah Yêsu kuăl khân păng jêh ri lah: “Khân may gĭt jêh ri phung bu ăn chiă uănh phung bu năch, chiă uănh phung ƀon lan, jêh ri phung kôranh toyh khân păng geh nau khưm chiă uănh khân păng."
+    },
+    {
+     "verse": 43,
+     "text": "Ƀiă lah mâu di pô nây ôh ta nklang khân may. Ma mbu nơm ŭch jêng toyh tâm phung khân may, ăn păng jêng oh mon khân may."
+    },
+    {
+     "verse": 44,
+     "text": "Jêh ri mbu nơm ŭch jêng mrô nguay tâm phung khân may; ăn păng jêng dĭk ma lĕ rngôch."
+    },
+    {
+     "verse": 45,
+     "text": "Yor lah kơt nây lĕ Kon Bunuyh văch jêh mâu di gay bu pah kan ma Păng ôh, ƀiă lah Păng ŭch pah kan ma bu, jêh ri jao nau rêh Păng jêng rnoh tâm chuai ma âk bunuyh.”"
+    },
+    {
+     "verse": 46,
+     "text": "Jêh nây, Brah Yêsu jêh ri oh mon păng hăn tât ta ƀon Yêrikô. Dôl Brah Yêsu jêh ri oh mon păng ndrel ma phung ƀon lan âk ri dâk hăn đŏng tă bơh ntŭk nây, geh du huê bunuyh chieh măt amoh păng Y-Bartimê, kon bu klâu Y-Timê, gŭ kêng meng trong, kâp dăn ndơ bu yô̆.",
+     "para": true
+    },
+    {
+     "verse": 47,
+     "text": "Yor lah păng hŏ tăng lư jêh bu nkoch, nây jêng Brah Yêsu, ƀon Nasaret, păng nter lah: “Ơ Brah Yêsu, kon hađăch Đavit, yô̆ an ma gâp ƀă.”"
+    },
+    {
+     "verse": 48,
+     "text": "Geh âk bunuyh buay păng, ăn păng gŭ răk klăk; ƀiă lah păng nter lơ hâu nteh lơn: “Ơ Kon hađăch Y-Đavit, yô̆ yach ma gâp ƀă.”"
+    },
+    {
+     "verse": 49,
+     "text": "Brah Yêsu gŭ srŭng jêh ri lah: “Kuăl păng.” Khân păng kuăl bunuyh chieh măt nây, jêh ri lah ma ô băl: “Maak hom may; dâk hom, păng kuăl may.”"
+    },
+    {
+     "verse": 50,
+     "text": "Păng doh mƀăr lơi ao jâr păng, dâk ro, jêh ri hăn ma Brah Yêsu,"
+    },
+    {
+     "verse": 51,
+     "text": "Brah Yêsu lah ma păng, “Moh nau may ŭch gâp ƀư ăn ma may mih?” Bunuyh chieh măt lah ma Brah Yêsu: “Hơi Kôranh nơm nti, ăn gâp dơi saơ ang.”"
+    },
+    {
+     "verse": 52,
+     "text": "Brah Yêsu lah ma păng: “Hăn hom may, nau may chroh ƀư bah jêh may.” Jêh ri păng lĕ saơ ang ro, jêh ri tĭng Brah Yêsu ta trong."
+    }
+   ]
+  },
+  {
+   "chapter": 11,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Ncho Seh Bri Lăp Ta Ƀon Yêrusalem"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 21:1-11; Luk 19:28-40; Yôhan 12:12-19)"
+    },
+    {
+     "before_verse": 12,
+     "type": "heading",
+     "text": "Brah Yêsu Rtăp Tơm Play Rvi"
+    },
+    {
+     "before_verse": 12,
+     "type": "parallel",
+     "text": "(Mathiơ 21:18-19)"
+    },
+    {
+     "before_verse": 15,
+     "type": "heading",
+     "text": "Brah Yêsu Hăn Ma Ngih Brah Yuđa"
+    },
+    {
+     "before_verse": 15,
+     "type": "parallel",
+     "text": "(Mathiơ 21:12-17; Luk 19:45- 48; Yôhan 2:13-22)"
+    },
+    {
+     "before_verse": 20,
+     "type": "heading",
+     "text": "Nau Nti Bơh Tơm Play Rvi"
+    },
+    {
+     "before_verse": 20,
+     "type": "parallel",
+     "text": "(Mathiơ 21:20-22)"
+    },
+    {
+     "before_verse": 27,
+     "type": "heading",
+     "text": "Nau Dơi Brah Yêsu"
+    },
+    {
+     "before_verse": 27,
+     "type": "parallel",
+     "text": "(Mathiơ 21:23-27; Luk 1:1-8)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Tơ lah khân păng dăch tât ma ƀon Yêrusalem, ta ƀon Bêtphajê, jêh ri ƀon Bêthani ta yôk Ôlivơ, Brah Yêsu prơh bar hê oh mon păng,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "jêh ri lah ma khân păng: “Hăn hom rlet ma ƀon pa năp khân may. Jêh ri khân may lăp ta nây khân may mra saơ ro du mlâm kon seh bri bu kât jêh. Ê hŏ bu prot ncho păng ôh. Doh jêh ri djôt leo păng ta aơ."
+    },
+    {
+     "verse": 3,
+     "text": "Tơ lah bu ôp khân may: ‘Moh nau khân may ƀư kơt nây?’, Ăn khân may lah: ‘Kôranh Brah ŭch ma păng, jêh ri bu mra ăn têk seh bri nây leo ta aơ gơnh.’ ”"
+    },
+    {
+     "verse": 4,
+     "text": "Phung oh mon hăn jêh ri saơ du mlâm kon seh bri bu kât jêh ma pa dih tra pa năp mpông ngih, kêng kue trong sâng; jêh ri khân păng doh seh nây.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Phung gŭ ta nây ôp khân păng: “Moh nau khân may ƀư, dĭng khân may doh seh nây?”"
+    },
+    {
+     "verse": 6,
+     "text": "Bar hê plơ̆ sĭt lah tĭng nau Brah Yêsu hŏ ntĭnh jêh; ri mơ khân păng ăn hăn djôt têk.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Khân păng têk seh kon djôt sĭt ma Brah Yêsu, jêh ri ntă ao khân păng ta klơ chor kuyh seh; jêh ri Brah Yêsu ncho păng."
+    },
+    {
+     "verse": 8,
+     "text": "Geh âk bunuyh lăk bok ao khân păng rŏ trong; jêh ri phung ƀa ƀă nđaih n'gĭng si khân păng sreh tă bơh mir.",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Phung hăn lor pa năp jêh ri phung tĭng groi pa kơi nter huy, lah: “Hôsana! Mât ton ma nơm văch tâm amoh Kôranh Brah!"
+    },
+    {
+     "verse": 10,
+     "text": "Mât ton ma ƀon bri hađăch mbơ̆ he Y-Đavit mra tât! Hôsana! Ơ Nơm ta klơ dŭt prêh!”",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Brah Yêsu lăp tâm ƀon Yêrusalem jêh ri lăp tâm ngih brah Yuđa. Jêh Păng uănh lĕ rngôch ndơ văr jŭm nây, yor lah lĕ la nar jêh, păng dâk hăn rlet ma ƀon Bêthani ndrel ma jât ma bar nuyh.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Kêng ôi taơ khân păng luh tă bơh ƀon Bêthani, Brah Yêsu ji ngot.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Uănh nđơng bơh ngai păng saơ du tơm play rvi geh âk nkâm n'ha. Pô ri păng hăn uănh ntôn lah geh play tâm tơm păng. Tơ lah păng tât jêh ta nây, Brah Yêsu saơ knŏng n'ha dơm, yor lah ê hŏ tât yan geh play rvi ôh."
+    },
+    {
+     "verse": 14,
+     "text": "Brah Yêsu lah ma tơm play rvi nây: “Bu mâu hôm mra sa play may đŏng ôh.” Jêh ri phung oh mon păng tăng da dê nau nây.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Khân păng tât ma ƀon Yêrusalem; jêh ri Brah Yêsu lăp tâm ngih brah Yuđa, jêh ri ntơm prơh phung tăch drăp tâm ngih brah. Păng nklơ̆ lơi sưng phung tâm rgâl prăk jêh ri rnơl phung tăch plŭk.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Păng mâu ăn bu leo ndô ndơ găn tâm ngih brah Yuđa."
+    },
+    {
+     "verse": 17,
+     "text": "Jêh nây Brah Yêsu ƀăp nti ma khân păng: “Mâu di ƀơh, bu nchih jêh: Ngih gâp bu mra ntơ jêng ngih prăp mbơh sơm ma lĕ rngôch mpôl băl bunuyh? Ƀiă lah khân may njêng ngih aơ ntŭk ma phung ntŭng.”"
+    },
+    {
+     "verse": 18,
+     "text": "Phung n'gâng kôranh ƀư brah jêh ri phung kôranh nchih sămƀŭt tăng nau nây, jêh ri joi trong dơi ƀư nkhĭt Brah Yêsu; yor lah khân păng klach ma Brah Yêsu, yor lah lĕ rngôch phung âk hih rhâl ma nau Păng nti."
+    },
+    {
+     "verse": 19,
+     "text": "Tơ lah trôk dăch măng jêh, Brah Yêsu jêh ri phung oh mon du luh tă bơh ƀon Yêrusalem.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Ơm ôi, dôl khân păng găn êp kêng tơm play rvi nây, ta aơ khân păng saơ lĕ kro jêh tât ta reh păng.",
+     "para": true
+    },
+    {
+     "verse": 21,
+     "text": "Y-Pêtrôs, kah gĭt ro jêh ri lah ma Brah Yêsu: “Hơi Kôranh nơm nti, uănh hom; tơm play rvi may rtăp nây lĕ kro jêh.”"
+    },
+    {
+     "verse": 22,
+     "text": "Brah Yêsu plơ̆ sĭt lah ma khân păng: “Ăn khân may geh nau chroh ma Brah Ndu."
+    },
+    {
+     "verse": 23,
+     "text": "N'hêl nanê̆ gâp lah ma khân may, mbu nơm lah ma yôk aơ: ‘Du hom may jêh ri nsăt tâm dak mƀŭt;’ jêh ri păng mâu đing ôh tâm nuih n'hâm păng, ƀiă lah rnơm ngăn nau păng lah mra tât, bu mra ăn tât ngăn ma păng."
+    },
+    {
+     "verse": 24,
+     "text": "Yor nây gâp lah ma khân may. Moh nau khân may dăn dôl mbơh sơm, ăn he rnơm ma ndơ nây lĕ sŏk dơn jêh, jêh ri khân may mra geh ngăn yơh."
+    },
+    {
+     "verse": 25,
+     "text": "Tơ lah khân may dâk mbơh sơm, lah khân may geh nau mhĭk đah bu, yô̆ an hom; gay ma Mbơ̆ khân may, Nơm gŭ tâm trôk, tâm ban lĕ yô̆ an nau tih khân may."
+    },
+    {
+     "verse": 26,
+     "text": "Ƀiă lah tơ lah khân may mâu yô̆ an ôh, Mbơ̆ khân may tâm trôk mâu mra yô̆ an lĕ nau tih khân may.”"
+    },
+    {
+     "verse": 27,
+     "text": "Khân păng hăn đŏng ma ƀon Yêrusalem. Dôl Brah Yêsu hăn tâm ngih brah Yuđa, phung n'gâng kôranh ƀư brah, phung kôranh nchih sămƀŭt, jêh ri phung kôranh ma phung bu ranh hăn ma păng.",
+     "para": true
+    },
+    {
+     "verse": 28,
+     "text": "Khân păng ôp ma Brah Yêsu: “Tă bơh nau dơi may ƀư nau aơ? Mâu lah mbu nơm ăn ma nau dơi ƀư nau aơ?”"
+    },
+    {
+     "verse": 29,
+     "text": "Brah Yêsu lah ma khân păng: “Gâp mra ôp ma khân may du nau. Plơ̆ sĭt lah hom ma gâp, jêh ri gâp mra mbơh ma khân may tă bơh nau dơi gâp ƀư nau aơ.",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "Nau Y-Yôhan ƀư ƀaptem tă luh bơh trôk lĕ mâu lah tă bơh bunuyh? Plơ̆ sĭt lah hom ma gâp.”"
+    },
+    {
+     "verse": 31,
+     "text": "Khân păng tâm dun ndrăng khân păng nơm pô aơ: “Tơ lah he lah: ‘Bơh trôk,’ păng mra lah: ‘Pô nây mâm ƀư khân may mâu chroh ma păng?’"
+    },
+    {
+     "verse": 32,
+     "text": "Ƀiă lah tơ lah he lah: ‘Bơh bunuyh,’ ” khân păng klach ma phung ƀon lan, yor lah lĕ rngôch bunuyh chroh ma Y-Yôhan jêng du huê kôranh nơm mbơh lor ngăn.”"
+    },
+    {
+     "verse": 33,
+     "text": "Pô nây, khân păng plơ̆ sĭt lah ma Brah Yêsu: “Hên mâu gĭt ôh.” Jêh ri Brah Yêsu lah ma khân păng: “Mâu gâp mra mbơh ma khân may lĕ tă bơh nau dơi gâp ƀư nau aơ.”"
+    }
+   ]
+  },
+  {
+   "chapter": 12,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Ngơi Hôr Ma Phung Kan Nkhôm Tâm Mir Play Kriăk Ƀâu"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 21:33-46; Luk 20:9-19)"
+    },
+    {
+     "before_verse": 13,
+     "type": "heading",
+     "text": "Phung Pharisi Ôp Sămƀŭt Pi"
+    },
+    {
+     "before_verse": 13,
+     "type": "parallel",
+     "text": "(Mathiơ 22:15-22; Luk 20:20-26)"
+    },
+    {
+     "before_verse": 18,
+     "type": "heading",
+     "text": "Nau Ôp Ma Nau Khĭt Dâk Rêh"
+    },
+    {
+     "before_verse": 18,
+     "type": "parallel",
+     "text": "(Mathiơ 22:23-33; Luk 20:27-41)"
+    },
+    {
+     "before_verse": 27,
+     "type": "heading",
+     "text": "Gâp jêng Brah Ndu Y-Braham, Brah Ndu"
+    },
+    {
+     "before_verse": 28,
+     "type": "heading",
+     "text": "Nau Ntĭnh Toyh"
+    },
+    {
+     "before_verse": 28,
+     "type": "parallel",
+     "text": "(Mathiơ 22:34-40; Luk 20:25-28)"
+    },
+    {
+     "before_verse": 35,
+     "type": "heading",
+     "text": "Nau Ôp Di Ma Mêsiah"
+    },
+    {
+     "before_verse": 35,
+     "type": "parallel",
+     "text": "(Mathiơ 22:41-46; Luk 20:41-44)"
+    },
+    {
+     "before_verse": 38,
+     "type": "heading",
+     "text": "Brah Yêsu Ăn Bu Njrăng Ma Phung Kôranh Nchih Sămƀŭt"
+    },
+    {
+     "before_verse": 38,
+     "type": "parallel",
+     "text": "(Mathiơ 23:1-36; Luk 20:45-47)"
+    },
+    {
+     "before_verse": 41,
+     "type": "heading",
+     "text": "Ndơ Bu Ur Ndrô Nhhơr"
+    },
+    {
+     "before_verse": 41,
+     "type": "parallel",
+     "text": "(Luk 21:1-4)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Brah Yêsu ntơm ngơi ma khân păng ma nau ngơi hôr: “Du huê bu klâu tăm du lôk mir play kriăk ƀâu. Păng bât n'gar văr jŭm păng, kuyh ntu prăp păt djet dak play kriăk ƀâu, ndâk du mlâm ngih tŭm jêh ri ăn phung êng nkhôm mir nây, jêh ri păng du hăn nkơi ma bri êng.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Tơ lah tât yan pĕ play, păng prơh hăn du huê oh mon păng, gay sŏk nchuăn tă bơh phung nkhôm ƀa ƀă play tă bơh mir nây.",
+     "para": true
+    },
+    {
+     "verse": 3,
+     "text": "Ƀiă lah phung nây nhŭp ô băl, dong ô băl, jêh ri mprơh sĭt ô băl ti dơm.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Păng prơh hăn đŏng du huê oh mon êng ma phung nây. Phung nây ƀư sôt ô băl jêh ri ƀư mhĭk ma ô băl."
+    },
+    {
+     "verse": 5,
+     "text": "Păng prơh hăn du huê êng. Jêh ri phung nây ƀư nkhĭt ô băl; jêh ri ƀư pô nây đah âk phung êng, ƀa ƀă khân păng dong, ƀa ƀă khân păng ƀư khĭt."
+    },
+    {
+     "verse": 6,
+     "text": "Bu klâu nây hôm geh du huê êng, du huê kon bu klâu păng rŏng. Dăch dŭt bu klâu nây prơh hăn kon păng nơm ma khân păng, lah: ‘Khân păng mra yơk ma kon bu klâu gâp.’"
+    },
+    {
+     "verse": 7,
+     "text": "Ƀiă lah phung nkhôm mir kriăk ƀâu nây tâm lah ndrăng khân păng: ‘Aơ yơh jêng nơm ndơn drăp. Kay lŏng he ƀư nkhĭt lơi păng, jêh ri drăp ndơn ma he.’"
+    },
+    {
+     "verse": 8,
+     "text": "Khân păng nhŭp jêh ri ƀư nkhĭt păng, jêh ri mƀăr săk jăn păng ta pa dih pĭt mir play kriăk ƀâu."
+    },
+    {
+     "verse": 9,
+     "text": "Moh nơm mir play kriăk ƀâu nây mra ƀư? Păng mra văch ƀư nkhĭt lơi phung kan nkhôm nây, jêh ri jao mir play kriăk ƀâu nây ma phung êng."
+    },
+    {
+     "verse": 10,
+     "text": "Khân may mâu mâp uănh ƀơh nau bu nchih: ‘Lŭ phung ndâk ngih mƀăr lơi, Hŏ jêng jêh lŭ njônh ngih"
+    },
+    {
+     "verse": 11,
+     "text": "Nau aơ jêng nau Kôranh Brah ƀư, jêh ri jêng khlay ngăn ngên pa năp măt he’?”"
+    },
+    {
+     "verse": 12,
+     "text": "Khân păng joi trong nhŭp chăp Brah Yêsu, ƀiă lah khân păng klach ma phung âk, yor lah khân păng gĭt jêh Brah Yêsu ngơi nau hôr di ma khân păng. Pô nây khân păng cha lơi Brah Yêsu jêh ri du hăn.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Khân păng prơh hăn bar pe nuyh phung Pharisi ndrel ma phung Hêrôt tât ma Brah Yêsu gay geh nau dơi phong tơ lah tih păng ngơi.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Khân păng văch lah ma Brah Yêsu: “Hơi Kôranh nơm nti, hên gĭt ma may jêng ngăn, jêh ri mâu chrê ma bu ôh, yor lah may mâu uănh ma bunuyh pa dih ôh, ƀiă lah nti trong Brah Ndu ma nau n'hêl nanê̆. Dơi lĕ chê̆ pi ăn ma Sêsar mâu lah mâu? Hên dơi chê̆ mâu lah mâu dơi chê̆ ?”"
+    },
+    {
+     "verse": 15,
+     "text": "Ƀiă lah Brah Yêsu gĭt jêh nau ma khân păng jan n'hi săk; pô nây păng lah: “Moh nau khân may ŭch rlong uănh gâp? Vơt ăn gâp uănh du rêl prăk đơniê.”"
+    },
+    {
+     "verse": 16,
+     "text": "Khân păng ndơ̆ ăn Brah Yêsu du rêl prăk đơniê. Jêh ri Brah Yêsu lah ma khân păng: “Mbu nơm rup aơ jêh ri nau nchih aơ?” Khân păng lah ma Brah Yêsu: “Ndơ Sêsar.”"
+    },
+    {
+     "verse": 17,
+     "text": "Brah Yêsu lah ma khân păng: “Mplơ̆ sĭt hom ma Sêsar ndơ Sêsar, jêh ri mplơ̆ hom ma Brah Ndu ndơ Brah Ndu.” Khân păng gŭ hih rhâl ma nau Brah Yêsu ngơi nây."
+    },
+    {
+     "verse": 18,
+     "text": "Geh phung Sađusê, văch ma Brah Yêsu, phung nây lah mâu geh nau khĭt dâk rêh ôh. Khân păng ôp ma Brah Yêsu pô aơ:",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "“Hơi Kôranh nơm nti, Y-Môis nchih ma he tơ lah du huê nâu khĭt bi ur păng hôm rêh mâu geh kon ôh, oh păng mra ntrok ur păng, gay ma geh noi deh oh nâu khân păng."
+    },
+    {
+     "verse": 20,
+     "text": "Pô ri, geh pơh oh nâu. Nâu bôk rah nsông ur, ƀiă lah khĭt hêng mâu geh kon ôh."
+    },
+    {
+     "verse": 21,
+     "text": "Oh năp păng ntrok noi, jêh ri khĭt mâu geh kon lĕ, nđâp ma oh rơh pe tâm ban lĕ."
+    },
+    {
+     "verse": 22,
+     "text": "Pô nây, lĕ pơh nuyh nây mâu geh kon ôh. Kêng dăch dŭt bu ur nây khĭt tâm ban lĕ."
+    },
+    {
+     "verse": 23,
+     "text": "Tâm nau khĭt dâk rêh du nar kăndơ̆ , păng jêng ur ma mbu nơm, yor lah lĕ pơh nuyh nây jêng sai păng da dê?”"
+    },
+    {
+     "verse": 24,
+     "text": "Brah Yêsu lah ma khân păng: “Mâu di aƀaơ ri, khân may lĕ vĭ jêh ƀơh, yor lah khân may mâu gĭt rbăng ôh nau nchih, kŏ khân may mâu gĭt rbăng lĕ nau brah Brah Ndu.",
+     "para": true
+    },
+    {
+     "verse": 25,
+     "text": "Yor lah tơ lah bu dâk rêh tă bơh phung khĭt, phung bu klâu mâu mra gŭ đŏng ur ôh, phung bu ur mâu lĕ mra gŭ sai đŏng; ƀiă lah khân păng mra jêng nâm bu oh mon ueh tâm trôk."
+    },
+    {
+     "verse": 26,
+     "text": "Bi ma phung khĭt mra dâk rêh, khân may mâu mâp uănh ƀơh tâm ndrom sămƀŭt Y-Môis; mâm nau Brah Ndu lah ma păng; ntŭk păng saơ, dôl hit ŭnh sa rlô lok, Brah Ndu lah ma păng: Y-Isăk, Brah Ndu Y-Yakôp?"
+    },
+    {
+     "verse": 27,
+     "text": "Păng mâu jêng ôh Brah Ndu ma phung khĭt, ƀiă lah Brah Ndu ma phung rêh. Khân may lĕ vĭ ngăn.”"
+    },
+    {
+     "verse": 28,
+     "text": "Ta aơ, geh du huê kôranh nchih sămƀŭt văch jêh ri tăng nau khân păng tâm dun, jêh ri tăng nau Brah Yêsu plơ̆ sĭt lah ma phung Sađusê lĕ di jêh. Păng ôp ma Brah Yêsu: “Moh nau vay toyh lơn jêng mrô nguay?”",
+     "para": true
+    },
+    {
+     "verse": 29,
+     "text": "Brah Yêsu plơ̆ lah: “Nau vay toyh lơn jêng, Iăt hom. ‘Hơi phung Israel: Kôranh Brah Ndu he jêng knŏng du huê,"
+    },
+    {
+     "verse": 30,
+     "text": "jêh ri ăn may rŏng ma Kôranh Brah Ndu may ma lĕ nuih n'hâm, ma lĕ huêng, ma lĕ nau mĭn, jêh ri ma lĕ n'hâm suan dăng ktang may.’"
+    },
+    {
+     "verse": 31,
+     "text": "Aơ nau vay rơh bar, ‘Ăn may rŏng ma nơm chiau meng may nâm bu may nơm lĕ.’ Mâu hôm geh nau vay toyh lơn ma nây ôh.”"
+    },
+    {
+     "verse": 32,
+     "text": "Kôranh nchih sămƀŭt nây lah ma Brah Yêsu: “Di jêh, Kôranh nơm nti. May lah di jêh ma Brah Ndu jêng knŏng du huê, jêh ri mâu hôm geh nơm êng ôh."
+    },
+    {
+     "verse": 33,
+     "text": "Jêh ri nau rŏng ma păng ma lĕ nuih n'hâm, ma lĕ nau blau, jêh ri ma lĕ n'hâm suan dăng ktang, jêh ri rŏng ma nơm chiau meng nâm bu he nơm lĕ, jêng khlay lơn ma lĕ rngôch mpa nhhơr gŭch jêh ri mpa ƀư brah.”"
+    },
+    {
+     "verse": 34,
+     "text": "Tơ lah Brah Yêsu saơ bunuyh nây plơ̆ lah ma nau blau; Brah Yêsu lah ma păng, “May mâu gŭ ngai ôh bơh ƀon bri hađăch Brah Ndu.” Jêh nau nây mâu hôm geh du huê bunuyh janh ôp ma păng du nau ôh."
+    },
+    {
+     "verse": 35,
+     "text": "Dôl Brah Yêsu gŭ nti tâm ngih brah Yuđa, păng lah: “Mâm ƀư phung kôranh nchih sămƀŭt dơi lah ma Brah Krist jêng Kon bu klâu Y-Đavit?",
+     "para": true
+    },
+    {
+     "verse": 36,
+     "text": "Y-Đavit nơm đah Brah Huêng Ueh mbơh jêh: ‘Kôranh Brah lah ma Kôranh Brah gâp, Gŭ hom mpeh pa ma gâp, tât gâp dơm phung rlăng may tâm dâng jâng may.’"
+    },
+    {
+     "verse": 37,
+     "text": "Y-Đavit nơm ntơ ma păng Kôranh Brah. Pô nây mâm Brah Krist dơi jêng kon bu klâu Y-Đavit?” Jêh ri phung âk tăng Brah Yêsu ma nau răm rhơn."
+    },
+    {
+     "verse": 38,
+     "text": "Dôl Brah Yêsu gŭ nti, păng lah pô aơ: “Njrăng hom ma Kôranh nchih sămƀŭt. Khân păng ŭch ngăn nsoh ao jâr hăn pâl, jêh ri gay ăn bu mbah ma khân păng tâm ngih tăch drăp.",
+     "para": true
+    },
+    {
+     "verse": 39,
+     "text": "Khân păng săch ntŭk gŭ ueh lơn tâm ngih tâm rƀŭn Yuđa jêh ri ntŭk bu yơk dôl nau nhêt sông."
+    },
+    {
+     "verse": 40,
+     "text": "Khân păng pit sŏk ngih phung bu ur ndrô khĭt sai, jêh ri jan lơh mbơh sơm jŏ. Khân păng mra dơn nau tâm rmal glăm lơn.”"
+    },
+    {
+     "verse": 41,
+     "text": "Brah Yêsu gŭ rle ta năp hip prăk tâm ngih brah Yuđa, jêh ri uănh ma phung âk nhhơr prăk tâm hip nây. Âk phung ndrŏng nhhơr âk prăk.",
+     "para": true
+    },
+    {
+     "verse": 42,
+     "text": "Jêh ri du huê bu ur ndrô khĭt sai o ach văch, jêh ri nhhơr bar kăk jêng du kô̆ puăn rêl."
+    },
+    {
+     "verse": 43,
+     "text": "Brah Yêsu kuăl phung oh mon păng jêh ri lah ma khân păng: “N'hêl nanê̆ gâp lah: Ma khân may, bu ur ndrô o ach aơ nhhơr jêh tâm hip prăk âk lơn ma lĕ rngôch phung êng."
+    },
+    {
+     "verse": 44,
+     "text": "Yor lah lĕ rngôch khân păng nhhơr bơh prăk khân păng rmeh; ƀiă lah bu ur ndrô nây nhhơr bơh nau păng o ach lĕ ndơ păng geh prăp ma păng gŭ rêh.”"
+    }
+   ]
+  },
+  {
+   "chapter": 13,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu Mbơh Ngih Brah Yuđa Mra Rai"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 24:1-2; Luk 21:5-6)"
+    },
+    {
+     "before_verse": 3,
+     "type": "heading",
+     "text": "Moh Nau Mra Tât Lor Lơn"
+    },
+    {
+     "before_verse": 3,
+     "type": "parallel",
+     "text": "(Mathiơ 24:3-14; Luk 21:7-19)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Nau Rêh Ni Toyh"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 24:15-28; Luk 21:20-24)"
+    },
+    {
+     "before_verse": 24,
+     "type": "heading",
+     "text": "Nau Kon Bunuyh Mra Plơ̆ Văch"
+    },
+    {
+     "before_verse": 24,
+     "type": "parallel",
+     "text": "(Mathiơ 24:32-35; Luk 21:29-33)"
+    },
+    {
+     "before_verse": 28,
+     "type": "heading",
+     "text": "Nau Nti Tă Bơh Tơm Play Rvi"
+    },
+    {
+     "before_verse": 28,
+     "type": "parallel",
+     "text": "(Mathiơ 24:29-35; Luk 21:29-33)"
+    },
+    {
+     "before_verse": 32,
+     "type": "heading",
+     "text": "Mâu Geh Nơm Gĭt Nar Mông Ôh"
+    },
+    {
+     "before_verse": 32,
+     "type": "parallel",
+     "text": "(Mathiơ 24:36-44)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Dôl Brah Yêsu luh du bơh ngih brah Yuđa, du huê tâm phung oh mon păng lah: “Uănh hom, hơi Kôranh nơm nti, âk lŭ toyh jêh ri âk ngih aơ ueh ngăn!”",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Brah Yêsu lah ma păng: “May saơ lĕ rngôch ngih toyh aơ? Bu mâu mra cha lơi ôh du mlâm lŭ gŭ ta klơ du mlâm lŭ êng ôh; lĕ rngôch rlâm da dê.”"
+    },
+    {
+     "verse": 3,
+     "text": "Păng gŭ ta yôk Ôlivơ êp ngih brah Yuđa, jêh ri Y-Pêtrôs, Y-Yakơ, Y-Yôhan, jêh ri Y-Andrê ôp êng Brah Yêsu lah:",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "“Mbơh ma hên, mdah jŏ nau nây mra tât? Jêh ri moh mra jêng ăn ma bu gĭt lĕ nau nây mra tât?”"
+    },
+    {
+     "verse": 5,
+     "text": "Brah Yêsu ntơm lah ma khân păng: “Njrăng hom, lơi ăn bu ndơm khân may ôh."
+    },
+    {
+     "verse": 6,
+     "text": "Âk bunuyh mra văch nkoch n'hi săk gâp lah: ‘Gâp aơ yơh jêng Brah Krist,’ jêh ri khân păng mra ndơm âk bunuyh.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Jêh ri tơ lah khân may tăng nteh n'găr nau tâm lơh dăch jêh ri tăng lư bu nkoch ma nau tâm lơh mra tât, lơi klach ôh. Nau nây mra tât, ƀiă lah ê hŏ tât rnôk rô̆ dăch dŭt ôh."
+    },
+    {
+     "verse": 8,
+     "text": "Yor lah du ndŭl mpôl bunuyh aơ mra tâm rdâng đah du ndŭl mpôl bunuyh êng, jêh ri du ƀon bri hađăch aơ mra tâm rdâng đah ƀon bri hađăch êng, mra geh nau n'găr neh ntu tâm âk ntŭk, jêh ri mra geh âk tơ̆ nau ât ji ngot. Nau nây jêng knŏng nau ntơm ma nau rêh ni.",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "“Bi ma phung khân may, ăn khân may njrăng; yor lah bu mra jao khân may ma phung kôranh phat dôih; jêh ri bu mra dong khân may tâm ngih tâm rƀŭn Yuđa. Khân may mra gŭ pa năp kôranh bri jêh ri hađăch yor ma gâp, gay jêng phung mbơh ta năp khân păng.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Jêh ri lor ma rnôk rô̆ dăch dŭt bu mra mbơh nau mhe mhan ueh ma lĕ rngôch ndŭl mpôl bunuyh."
+    },
+    {
+     "verse": 11,
+     "text": "Pô ri, tơ lah bu njŭn leo khân may jao ma nau phat dôih, lơi ta khân may chrê lor ôh ma moh nau khân may mra ngơi; ƀiă lah ta mông nây, ngơi hom moh nau mra mpơl ma khân may; yor lah mâu di khân may nơm ôh mra ngơi, ƀiă lah Brah Huêng Ueh yơh."
+    },
+    {
+     "verse": 12,
+     "text": "Nâu mra jao oh păng nơm ăn bu ƀư nkhĭt, jêh ri mbơ̆ mra jao kon păng nơm. Phung kon mra tâm rdâng đah mê̆ mbơ̆ khân păng, jêh ri ăn bu ƀư nkhĭt lơi khân păng."
+    },
+    {
+     "verse": 13,
+     "text": "Lĕ rngôch bunuyh mra tâm rmot ma khân may yor amoh gâp. Ƀiă lah mbu nơm srôih tât lôch mra klaih.”"
+    },
+    {
+     "verse": 14,
+     "text": "“Ƀiă lah tơ lah khân may mra saơ nau bu mưch rmot jêh ri ƀư nau chah rai ta ntŭk păng mâu vay ƀư ôh, mbu uănh sămƀŭt aơ ăn he mĭn rvê, rnôk nây phung gŭ tâm n'gor Yuđa du gŭ mpeh klơ yôk.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Mbu nơm gŭ ta klơ chor bôk pho ngih lơi ăn păng trŭnh ôh, mâu lĕ păng dơi lăp tâm ngih djôt rdu ndô ndơ păng.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Jêh ri lơi ăn nơm gŭ tâm mir sĭt sŏk ao mbâl păng ôh."
+    },
+    {
+     "verse": 17,
+     "text": "Tâm lĕ nar nây, rêh ni ngăn yơh ma phung bu ur ntreo nđâp ma bu ur pu kon!"
+    },
+    {
+     "verse": 18,
+     "text": "Ăn khân may mbơh sơm gay ma nau nây lơi tât ôh dôl yan sial puh."
+    },
+    {
+     "verse": 19,
+     "text": "Yor lah tâm nar rnôk nây mra geh nau rêh ni mâu prot geh ôh tâm ban kơt nây ntơm bơh rnôk Brah Ndu rhăk njêng lĕ rngôch mpô mpa n'ho tât ma nar aơ, mâu lĕ hôm mra geh đŏng pa kơi taơ."
+    },
+    {
+     "verse": 20,
+     "text": "Tơ lah Kôranh Brah mâu n'hŭch nar rnôk nây, mâu geh du huê bunuyh mra klaih ôh. Ƀiă lah Păng hŏ n'hŭch jêh đơ nar nây yor phung păng hŏ săch jêh."
+    },
+    {
+     "verse": 21,
+     "text": "Tâm rnôk nây tơ lah bu lah ma khân may: ‘Aơ, ta aơ Brah Krist,’ mâu lah: ‘Păng ta ri’, lơi ta iăt nau nây ôh."
+    },
+    {
+     "verse": 22,
+     "text": "Mra geh phung Brah Krist tih jêh ri phung Kôranh nơm mbơh lor tih. Khân păng mra mpôl nau tâm mbên jêh ri ƀư nau khlay ngăn, gay ndơm tơ lah dơi, nđâp ma phung Brah Ndu hŏ săch jêh."
+    },
+    {
+     "verse": 23,
+     "text": "Ƀiă lah njrăng hom. Ta aơ, gâp mbơh lor jêh nau nây ma khân may.”"
+    },
+    {
+     "verse": 24,
+     "text": "“Ƀiă lah tâm nar nây, nau rêh ni nây lĕ rlau jêh măt nar mra jêng ngo, jêh ri khay mâu hôm nchrat ang ôh.",
+     "para": true
+    },
+    {
+     "verse": 25,
+     "text": "Lĕ rngôch mănh mra tŭp tă bơh trôk, jêh ri phung geh nau brah ta klơ trôk mra mpât n'gơ.",
+     "para": true
+    },
+    {
+     "verse": 26,
+     "text": "Rnôk nây bu mra saơ Kon Bunuyh văch tâm ndâr tŭk ma nau brah toyh jêh ri nau chrêk rmah;",
+     "para": true
+    },
+    {
+     "verse": 27,
+     "text": "jêh ri Păng mra prơh hăn phung Tông mpăr ueh, jêh ri tâm rƀŭn phung Brah Ndu hŏ săch jêh tă bơh puăn njônh neh ntu ntơm bơh bôl neh ntu tât ma bôl trôk.”"
+    },
+    {
+     "verse": 28,
+     "text": "“Ăn khân may nti nau ngơi hôr bơh tơm play rvi: Tơ lah n'gĭng păng nse jêh ri ntơm chăt nkŭr, khân may gĭt yan ta vai dăch tât jêh.",
+     "para": true
+    },
+    {
+     "verse": 29,
+     "text": "Tâm ban pô nây lĕ tơ lah khân may saơ lĕ rngôch nau nây tât, khân may mra gĭt ngăn ma Kon Bunuyh dăch tât jêh, păng gŭ ta mpông sâng jêh."
+    },
+    {
+     "verse": 30,
+     "text": "N'hêl nanê̆ gâp mbơh ma khân may, phung bunuyh rnôk nây mâu mra rlau lôch ôh lor ma lĕ nau nây tât."
+    },
+    {
+     "verse": 31,
+     "text": "Trôk jêh ri neh ntu mra rlau lôch, ƀiă lah nau gâp ngơi mâu mra rlau lôch ôh.”"
+    },
+    {
+     "verse": 32,
+     "text": "“Ƀiă lah bi ma nar jêh ri mông nây, mâu geh du huê gĭt ôh, nđâp ma phung Tông mpăr ueh tâm trôk, nđâp ma Kon Bunuyh kŏ mâu gĭt lĕ, knŏng êng Mbơ̆ dơm gĭt.",
+     "para": true
+    },
+    {
+     "verse": 33,
+     "text": "Njrăng hom, gŭ kâp uănh, yor lah khân may mâu gĭt ôh ndah jŏ mông nây mra tât.",
+     "para": true
+    },
+    {
+     "verse": 34,
+     "text": "Nau nây jêng nâm bu du huê bunuyh hăn nsong. Tơ lah păng luh tă bơh ngih, păng jao kan êng êng ma ăp nơm phung oh mon păng, jêh ri ntĭnh ma nơm chiă mpông pêr gŭ kâp uănh.",
+     "para": true
+    },
+    {
+     "verse": 35,
+     "text": "Pô nây gŭ kâp uănh hom, yor lah khân may mâu gĭt ôh ndah jŏ kôranh ngih mra tât, gĭt lah kêng mhaơ, mâu lah ta n'gul măng mâu lah kêng ndrau iăr, mâu lah kêng ôi,"
+    },
+    {
+     "verse": 36,
+     "text": "klach lah păng tât ƀât lât dơm, ban khân may hăk bêch."
+    },
+    {
+     "verse": 37,
+     "text": "Nau gâp lah ma khân may, gâp lah ma lĕ rngôch đŏng: Gŭ rngeh hom!”"
+    }
+   ]
+  },
+  {
+   "chapter": 14,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Tâm Chră Ŭch Ƀư Nkhĭt Brah Yêsu"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 26:1-5; Luk 23:1-2; Yôhan 11:45-53)"
+    },
+    {
+     "before_verse": 3,
+     "type": "heading",
+     "text": "H'Mari Troch Dak Ƀâu Kah Ma Brah Yêsu Ta Ƀon Bêthani"
+    },
+    {
+     "before_verse": 3,
+     "type": "parallel",
+     "text": "(Mathiơ 26:6-13; Yôhan 17:1-8)"
+    },
+    {
+     "before_verse": 10,
+     "type": "heading",
+     "text": "Y-Yuđas Tâm Chră Rlăng Ma Brah Yêsu"
+    },
+    {
+     "before_verse": 10,
+     "type": "parallel",
+     "text": "(Mathiơ 26:14-16; Luk 22:3-6)"
+    },
+    {
+     "before_verse": 12,
+     "type": "heading",
+     "text": "Brah Yêsu Sa Nau Găn Ndrel Ma Phung Oh Mon"
+    },
+    {
+     "before_verse": 12,
+     "type": "parallel",
+     "text": "(Mathiơ 26:17-25; Luk 22:7-14; Yôhan 13:21-30)"
+    },
+    {
+     "before_verse": 22,
+     "type": "heading",
+     "text": "Nau Nhêt Sa Tâm Êp"
+    },
+    {
+     "before_verse": 22,
+     "type": "parallel",
+     "text": "(Mathiơ 26:26-30; Luk 22:15- 20; I Kôrintô 11:23-25)"
+    },
+    {
+     "before_verse": 27,
+     "type": "heading",
+     "text": "Brah Yêsu Mbơh Lor Nau Y-Pêtrôs Mra Dun Ma Păng"
+    },
+    {
+     "before_verse": 27,
+     "type": "parallel",
+     "text": "(Mathiơ 26:31-35; Luk 22:31- 34; Yôhan 13:36-38)"
+    },
+    {
+     "before_verse": 32,
+     "type": "heading",
+     "text": "N'gar Gêtsêmanê Bu Nhŭp Brah Yêsu"
+    },
+    {
+     "before_verse": 32,
+     "type": "parallel",
+     "text": "(Mathiơ 26:36-46; Luk 22:39-46)"
+    },
+    {
+     "before_verse": 43,
+     "type": "heading",
+     "text": "Bu Chăp Brah Yêsu"
+    },
+    {
+     "before_verse": 43,
+     "type": "parallel",
+     "text": "(Mathiơ 26:47-56; Luk 22:47- 53; Yôhan 18:3-12)"
+    },
+    {
+     "before_verse": 53,
+     "type": "heading",
+     "text": "Brah Yêsu Ta Năp Kôranh Phat Dôih"
+    },
+    {
+     "before_verse": 53,
+     "type": "parallel",
+     "text": "(Mathiơ 26:57-68; Luk 22:54-55, 63- 71; Yôhan 18:13-14, 19-24)"
+    },
+    {
+     "before_verse": 66,
+     "type": "heading",
+     "text": "Y-Pêtrôs Dun Ma Brah Yêsu"
+    },
+    {
+     "before_verse": 66,
+     "type": "parallel",
+     "text": "(Mathiơ 26:69-75; Luk 22:56- 62; Yôhan 18:15-18, 25-27)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Hôm bar nar ma tât nau nhêt sa Nau Găn jêh ri Kapŭng Mâu Geh Ndrui. Phung n'gâng kôranh ƀư brah jêh ri phung kôranh nchih sămƀŭt joi trong dơi nhŭp chăp Brah Yêsu ma nau ndâp, jêh ri ƀư nkhĭt Păng.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Yor lah khân păng lah: “Lơi ƀư ôh dôl nau nhêt sa, klach lah phung ƀon lan geh nau uh ah.”"
+    },
+    {
+     "verse": 3,
+     "text": "Dôl Brah Yêsu gŭ ta ƀon Bêthani tâm ngih Y-Simôn nơm geh phŭng, dôl păng gŭ sông sa, geh du huê bu ur djôt du mlâm rchŏk ƀư ma lŭ ueh geh dak ƀâu kah nar khlay ngăn. Bu ur nây nchah lơi nông jêh ri lĭng dak ƀâu kah ta klơ bôk Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Ƀiă lah geh ƀa ƀă ji nuih, lah ndrăng khân păng: “Mâm ƀư roh dak ƀâu kah tâm ban pô nây?",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Yor lah bu dơi tăch dak ƀâu kah aơ ma rnoh pe rhiăng đơniê jêh ri tâm pă ma phung o ach.” Jêh ri khân păng nduyh bu ur nây."
+    },
+    {
+     "verse": 6,
+     "text": "Ƀiă lah Brah Yêsu lah: “Lơi, kđôi păng, mâm ƀư khân may ƀư rkhŭk ô băl? Ô băl ƀư nau ueh ma gâp."
+    },
+    {
+     "verse": 7,
+     "text": "Yor lah khân may geh phung o ach ndrel ma khân may ƀa ƀơ, jêh ri tơ lah khân may ŭch, khân may dơi ƀư nau ueh ma khân păng. Ƀiă lah gâp mâu mra gŭ ndrel ma khân may ƀa ƀơ ôh."
+    },
+    {
+     "verse": 8,
+     "text": "Bu ur aơ ƀư tĭng nâm păng dơi. Păng troch dak ƀâu kah ta săk jăn gâp lor ma bu tâp gâp."
+    },
+    {
+     "verse": 9,
+     "text": "N'hêl nanê̆ gâp lah ma khân may, ta ntŭk bu nti nau mhe mhan ueh tâm lam neh ntu, bu mra nkoch bri nkah nau bu ur aơ hŏ ƀư jêh.”"
+    },
+    {
+     "verse": 10,
+     "text": "Jêh ri Y-Yuđas Iskariôt, jêng du huê tâm phung jât ma bar oh mon, hăn ma phung n'gâng kôranh ƀư brah ŭch rlăng jao Brah Yêsu ma khân păng.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Tơ lah khân păng tăng nau nây khân păng răm rhơn ngăn, jêh ri ton ăn prăk ma Y-Yuđas. Pô nây, Y-Yuđas joi nar tâm di dơi rlăng jao Păng."
+    },
+    {
+     "verse": 12,
+     "text": "Nar rơh nguay tâm nau sa Kapŭng Mâu Geh Ndrui, nar bu sreh nkhĭt kon biăp Nau Găn, phung oh mon lah ma Brah Yêsu: “Ta ntŭk may ŭch hên hăn nkra ăn may sa Nau Găn?”",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Păng prơh bar hê oh mon păng hăn jêh ri lah ma khân păng: “Hăn hom ma ƀon Yêrusalem, jêh ri khân may mra mâp đah du huê bu klâu yar du mlâm yăng dak, tĭng ndô̆ păng."
+    },
+    {
+     "verse": 14,
+     "text": "Jêh ri ntŭk ngih păng lăp, ăn khân may lah ma nơm ngih nây, Kôranh nơm nti lah, ntŭk jrô gâp mra sa Nau Găn ndrel ma phung oh mon gâp?"
+    },
+    {
+     "verse": 15,
+     "text": "Bunuyh nây mra ntĭm an ma khân may du mlâm jrô toyh tal klơ bu rơm nkra ăn jêh.”"
+    },
+    {
+     "verse": 16,
+     "text": "Phung oh mon nây hăn ma ƀon Yêrusalem, jêh ri saơ lĕ rngôch ndơ tĭng nâm Brah Yêsu lah jêh ma khân păng. Jêh ri khân păng nkra Nau Găn."
+    },
+    {
+     "verse": 17,
+     "text": "Tât kêng mhaơ, Brah Yêsu văch ndrel ma phung jât ma bar nuyh.",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Dôl khân păng gŭ sông sa Brah Yêsu lah: “Nanê̆ ngăn gâp lah ma khân may, du huê tâm phung khân may mra ƀlêp ƀlêr ma gâp, nơm nây gŭ sông sa ndrel ma gâp.”"
+    },
+    {
+     "verse": 19,
+     "text": "Khân păng ntơm rngot, jêh ri jêh du huê du huê khân păng lah ma Brah Yêsu: “Di lĕ gâp?”"
+    },
+    {
+     "verse": 20,
+     "text": "Brah Yêsu lah ma khân păng: “Nơm nây jêng du huê tâm phung jât ma bar nuyh, nơm mbŭk kapŭng tâm ngan ndrel ma gâp."
+    },
+    {
+     "verse": 21,
+     "text": "Yor lah Kon Bunuyh mra khĭt tĭng nâm bu nchih di jêh ma Păng, ƀiă lah rêh ni yơh ma nơm ƀlêp ƀlêr ma Kon Bunuyh! Ueh lơn mâu bu deh ôh ma nơm nây.”"
+    },
+    {
+     "verse": 22,
+     "text": "Dôl khân păng gŭ sông sa, Brah Yêsu sŏk kapŭng, mbơh sơm nau tâm rnê, pêch kapŭng nây, jêh ri ăn ma khân păng, jêh ri lah: “Sŏk hom; aơ jêng nglay săk gâp.”",
+     "para": true
+    },
+    {
+     "verse": 23,
+     "text": "Jêh ri păng sŏk kchok. Jêh mbơh sơm nau tâm rnê, păng ăn kchok nây ma khân păng, jêh ri lĕ rngôch khân păng nhêt."
+    },
+    {
+     "verse": 24,
+     "text": "Brah Yêsu lah ma khân păng: “Aơ jêng mham gâp, mham ma nau tâm rnglăp, nkhŭt ăn ma âk bunuyh."
+    },
+    {
+     "verse": 25,
+     "text": "N'hêl nanê̆, gâp lah ma khân may, gâp mâu mra nhêt đŏng ôh dak kriăk ƀâu aơ, kŏ tât nar gâp mra nhêt dak kriăk ƀâu mhe tâm ƀon bri hađăch Brah Ndu.”"
+    },
+    {
+     "verse": 26,
+     "text": "Jêh khân păng mprơ du nau, khân păng du luh hăn ma yôk Ôlivơ.",
+     "para": true
+    },
+    {
+     "verse": 27,
+     "text": "Brah Yêsu lah ma khân păng: “Lĕ rngôch khân may mra nchuăt du cha lơi gâp; yor lah bu nchih jêh, ‘Gâp mra dong rmăk biăp, jêh ri phung biăp mra chah rai êng êng.’",
+     "para": true
+    },
+    {
+     "verse": 28,
+     "text": "Ƀiă lah tơ lah gâp dâk rêh jêh, gâp mra tât n'gor Galilê lor pa năp khân may.”"
+    },
+    {
+     "verse": 29,
+     "text": "Y-Pêtrôs lah ma khân păng: “Nđâp tơ lah lĕ rngôch khân păng mra cha lơi may, gâp mâu mra cha lơi may ôh.”",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "Brah Yêsu lah ma păng: “Nanê̆ ngăn gâp lah may, măng aơ ro, ê lor ma iăr ndrau bar tong may mra dun ma gâp pe tơ̆ .”"
+    },
+    {
+     "verse": 31,
+     "text": "Ƀiă lah Y-Pêtrôs lah ma nau ktang lơn: “Tơ lah gâp khĭt ndrel ma may kđôi lĕ, gâp mâu mra dun ma may ôh.” Lĕ rngôch khân păng lah kơt nây da dê."
+    },
+    {
+     "verse": 32,
+     "text": "Khân păng hăn rlet ntŭk bu ntơ Gêtsêmanê, jêh ri Brah Yêsu lah ma phung oh mon păng: “Gŭ hom ta aơ dôl gâp mbơh sơm.”",
+     "para": true
+    },
+    {
+     "verse": 33,
+     "text": "Jêh nây păng jă Y-Pêtrôs, Y-Yakơ, jêh ri Y-Yôhan, pô ri păng ntơm geh nau krit mƀât jêh ri nau rngot."
+    },
+    {
+     "verse": 34,
+     "text": "Păng lah ma pe nuyh, pô aơ: “Nuih n'hâm gâp rngot ngăn bơi ŭch khĭt. Gŭ ta aơ, jêh ri njrăng hom.”"
+    },
+    {
+     "verse": 35,
+     "text": "Păng trơn ngai oi đê̆, mprah săk ta neh, jêh ri mbơh sơm lah, Păng gay tơ lah dơi, dăn mông aơ mâu tât ôh ma Păng."
+    },
+    {
+     "verse": 36,
+     "text": "Păng lah: “Aba, nâm bu ntĭt Mbơ̆ . Ơ Mbơ̆ ơi, lĕ rngôch ndô ndơ may dơi ƀư da dê. Sŏk rdu lơi kchok aơ bơh gâp; ƀiă lah mâu di tĭng nau gâp ŭch ôh, ƀiă lah tĭng nâm nau may nơm ŭch.”",
+     "para": true
+    },
+    {
+     "verse": 37,
+     "text": "Jêh nây Păng plơ̆ văch ma phung oh mon saơ khân păng lêt bêch. Păng lah ma Y-Pêtrôs, “Hơi Y-Simôn, may bêch ƀơh? Mâu ƀơh may dơi rngeh du mông?"
+    },
+    {
+     "verse": 38,
+     "text": "Ăn khân may rngeh jêh ri mbơh sơm, gay ma khân may mâu geh nau ndơm ôh. Huêng ŭch ngăn, ƀiă lah rnglay săk jêng rdja.”"
+    },
+    {
+     "verse": 39,
+     "text": "Brah Yêsu hăn mbơh sơm đŏng jêh ri nau nâm bu kơt pa năp."
+    },
+    {
+     "verse": 40,
+     "text": "Jêh ri Păng plơ̆ văch đŏng saơ phung oh mon hôm bêch, yor lah khân păng ŭch bêch ngăn. Jêh ri khân păng mâu gĭt moh nau plơ̆ sĭt lah ma Brah Yêsu."
+    },
+    {
+     "verse": 41,
+     "text": "Păng plơ̆ văch đŏng rơh pe, jêh ri lah ma khân păng: “Mâm khân may hôm bêch jêh ri gŭ rlu? Găp jêh; mông tât jêh. Bu rlăng jao Kon Bunuyh tâm ti phung tih."
+    },
+    {
+     "verse": 42,
+     "text": "Dâk hăn hom he. Ta aơ, nơm rlăng ma gâp ntơm tât jêh.”",
+     "para": true
+    },
+    {
+     "verse": 43,
+     "text": "Ƀât lât dôl Brah Yêsu hôm ngơi, Y-Yuđas, du huê tâm phung jât ma bar nuyh oh mon, văch ndrel phung âk djôt đao jêh ri mâng jra ma phung kôranh ƀư brah, phung kôranh nchih sămƀŭt, jêh ri kôranh phung bu ranh.",
+     "para": true
+    },
+    {
+     "verse": 44,
+     "text": "Nơm ƀlêp ƀlêr ăn jêh du nau tâm nal, jêh ri lah: “Nơm gâp mra chŭm, nây yơh păng chăp păng jêh ri leo hăn ăn rjăp.”"
+    },
+    {
+     "verse": 45,
+     "text": "Pô nây, tơ lah Y-Yuđas tât jêh, păng hăn dăch Brah Yêsu, jêh ri lah: “Hơi Kôranh nơm nti”, jêh ri chŭm Brah Yêsu."
+    },
+    {
+     "verse": 46,
+     "text": "Phung nây nhŭp chăp Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 47,
+     "text": "Ƀiă lah du huê gŭ dăch tăk đao păng, jêh ri sreh du huê n'gâng kôranh ƀư brah, geh ta tôr kŏ tât tăch."
+    },
+    {
+     "verse": 48,
+     "text": "Brah Yêsu lah ma phung nây: “Di lĕ khân may văch djôt đao jêh ri mâng jra gay nhŭp chăp gâp nâm bu du huê ntŭng?"
+    },
+    {
+     "verse": 49,
+     "text": "Ăp nar gâp gŭ ndrel ma khân may, nti tâm ngih brah Yuđa, ƀiă lah khân may mâu nhŭp chăp ôh gâp. Ƀiă lah ăn nanê̆ nau bu nchih jêh.”"
+    },
+    {
+     "verse": 50,
+     "text": "Jêh ri lĕ rngôch phung oh mon du cha lơi Brah Yêsu jêh ri nchuăt du lĕ ƀhiau."
+    },
+    {
+     "verse": 51,
+     "text": "Geh knŏng du huê bu klâu ndăm tĭng ndô̆ Brah Yêsu, n'gut knŏng du blah bok mhay.",
+     "para": true
+    },
+    {
+     "verse": 52,
+     "text": "Khân păng nhŭp bu klâu nây, ƀiă lah ô băl cha lơi bok mhay nây jêh ri nchuăt du săk hưl."
+    },
+    {
+     "verse": 53,
+     "text": "Khân păng njŭn leo Brah Yêsu ma n'gâng kôranh ƀư brah. Lĕ rngôch phung n'gâng kôranh ƀư brah, kôranh phung bu ranh, jêh ri phung kôranh nchih sămƀŭt tâm rƀŭn ndrel.",
+     "para": true
+    },
+    {
+     "verse": 54,
+     "text": "Y-Pêtrôs tĭng ndô̆ pa kơi gŭ ngai đê̆, lăp tâm nkual ngih n'gâng kôranh ƀư brah. Păng gŭ ndrel ta han gak jêh ri njâr ŭnh ta nây."
+    },
+    {
+     "verse": 55,
+     "text": "Phung n'gâng kôranh ƀư brah jêh ri kôranh phat dôih joi nau phong ma Brah Yêsu gay ƀư nkhĭt ô băl; ƀiă lah khân păng mâu saơ nau ôh."
+    },
+    {
+     "verse": 56,
+     "text": "Yor lah âk bunuyh phong nchơt ma Brah Yêsu, ƀiă lah nau khân păng nchơt nây mâu tâm ban ôh.",
+     "para": true
+    },
+    {
+     "verse": 57,
+     "text": "Geh ƀa ƀă dâk ro jêh ri nchơt ma Brah Yêsu lah:"
+    },
+    {
+     "verse": 58,
+     "text": "“Hên tăng jêh păng lah: ‘Gâp mra ƀư rai lơi ngih brah Yuđa aơ ti bunuyh ƀư, jêh ri tâm pe nar gâp mra ndâk tay du mlâm ngih brah êng, mâu di ti bunuyh ƀư ôh.’ ”"
+    },
+    {
+     "verse": 59,
+     "text": "Ƀiă lah nđâp ma nau khân păng mbơh mâu di du ai nau ôh."
+    },
+    {
+     "verse": 60,
+     "text": "N'gâng kôranh ƀư brah dâk ta nklang jêh ri ôp Brah Yêsu: “May mâu geh nau plơ̆ lah ƀơh? Moh nau phung aơ phong may?”",
+     "para": true
+    },
+    {
+     "verse": 61,
+     "text": "Ƀiă lah Brah Yêsu gŭ rklăk, mâu hôm plơ̆ lah ôh. Du tơ̆ đŏng n'gâng kôranh ƀư brah ôp ma Brah Yêsu: “May jêng Brah Krist lĕ, Kon Brah Ndu Nơm khư ma bu mât ton?”",
+     "para": true
+    },
+    {
+     "verse": 62,
+     "text": "Brah Yêsu lah: “Gâp yơh nây, jêh ri khân may mra saơ Kon Bunuyh gŭ mpeh pa ma Nơm Brah, jêh ri plơ̆ văch ta ndâr tŭk tâm trôk.”",
+     "para": true
+    },
+    {
+     "verse": 63,
+     "text": "N'gâng kôranh ƀư brah nkhêk ao jâr păng jêh ri lah: “Moh he hôm ŭch đŏng ma phung mbơh?",
+     "para": true
+    },
+    {
+     "verse": 64,
+     "text": "Khân may tăng jêh nau păng ngơi sưr đah Brah Ndu. Moh nau khân may mĭn?” Lĕ rngôch khân păng phat dôih Brah Yêsu jêng khư ma nau nkhĭt."
+    },
+    {
+     "verse": 65,
+     "text": "Ƀa ƀă ntơm soh dak diu ma ô băl, put muh măt ô băl, đŏl ô băl jêh ri lah: “Mbơh lor hom!” Jêh ri phung ta han gak tap bom ô băl.",
+     "para": true
+    },
+    {
+     "verse": 66,
+     "text": "Dôl Y-Pêtrôs gŭ ntŭk tâm dâng, tâm nkual ngih, du huê oh mon bu ur n'gâng kôranh ƀư brah toyh văch.",
+     "para": true
+    },
+    {
+     "verse": 67,
+     "text": "Dôl Y-Pêtrôs njâr ŭnh, bu ur nây uănh ma păng, jêh ri lah: “May tâm ban lĕ gŭ jêh ndrel ma Brah Yêsu ƀon Nasaret?”"
+    },
+    {
+     "verse": 68,
+     "text": "Ƀiă lah Y-Pêtrôs dun nau nây, jêh ri lah: “Gâp mâu gĭt ôh, mâu lĕ gĭt rbăng moh nau may lah nây.” Y-Pêtrôs du luh hăn rlet ma mpông pêr. Rnôk nây du mlâm iăr nkuăng ndrau."
+    },
+    {
+     "verse": 69,
+     "text": "Oh mon bu ur nây saơ păng jêh ri ntơm lah đŏng ma phung bunuyh gŭ dăch. “Bu klâu aơ jêng du huê tâm phung khân păng.”",
+     "para": true
+    },
+    {
+     "verse": 70,
+     "text": "Ƀiă lah Y-Pêtrôs dun đŏng nau nây. Ƀât lât ta nây phung gŭ dăch lah ma Y-Pêtrôs: “Nanê̆ ngăn may jêng du huê tâm phung nây; yor lah may jêng bunuyh n'gor Galilê ngăn.”",
+     "para": true
+    },
+    {
+     "verse": 71,
+     "text": "Ƀiă lah Y-Pêtrôs ntơm rak săk jêh ri ton: “Gâp mâu gĭt năl ôh bunuyh khân ay may lah nây.”",
+     "para": true
+    },
+    {
+     "verse": 72,
+     "text": "Ƀât lât iăr ndrau rơh bar, Y-Pêtrôs kah gĭt ma nau Brah Yêsu lah jêh ma păng: “Lor ma iăr ndrau rơh bar may dun ma gâp pe tơ̆ .” Jêh ri păng kah gĭt ƀrư̆ ma nau nây jêh ri nhĭm.",
+     "para": true
+    }
+   ]
+  },
+  {
+   "chapter": 15,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Brah Yêsu pa năp Pilat"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 27:1-2, 11-14; Luk 23:1- 5; Yôhan 18:28-36)"
+    },
+    {
+     "before_verse": 6,
+     "type": "heading",
+     "text": "Pilat Ngơi Dôih Ăn Ƀư Nkhĭt"
+    },
+    {
+     "before_verse": 6,
+     "type": "parallel",
+     "text": "(Mathiơ 27:15-26; Luk 23:13- 25; Yôhan 18:39, 19, 16)"
+    },
+    {
+     "before_verse": 16,
+     "type": "heading",
+     "text": "Phung Tahan Mưch Ma Brah Yêsu"
+    },
+    {
+     "before_verse": 16,
+     "type": "parallel",
+     "text": "(Mathiơ 27:27-31; Yôhan 19:2-3)"
+    },
+    {
+     "before_verse": 21,
+     "type": "heading",
+     "text": "Bu Pâng Brah Yêsu Ta Si Tâm Rkăng"
+    },
+    {
+     "before_verse": 21,
+     "type": "parallel",
+     "text": "(Mathiơ 27:32-44; Luk 23:26- 43; Yôhan 19:17-27)"
+    },
+    {
+     "before_verse": 33,
+     "type": "heading",
+     "text": "Brah Yêsu Khĭt"
+    },
+    {
+     "before_verse": 33,
+     "type": "parallel",
+     "text": "(Mathiơ 27:57-61; Luk 23:50- 56; Yôhan 19:38-42)"
+    },
+    {
+     "before_verse": 42,
+     "type": "heading",
+     "text": "Nau Bu Tâp Brah Yêsu"
+    },
+    {
+     "before_verse": 42,
+     "type": "parallel",
+     "text": "(Mathiơ 27:57-61; Luk 23:50- 56; Yôhan 19:38-42)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Tât kêng ôi phung n'gâng kôranh ƀư brah, kôranh phung bu ranh, kôranh nchih sămƀŭt, jêh ri lĕ rngôch phung kôranh phat dôih tâm chră. Khân păng nkông Brah Yêsu jêh ri njŭn leo jao păng ma Pilat.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Pilat ôp ma Brah Yêsu: “May jêng hađăch phung Yuđa ƀơh?” Brah Yêsu plơ̆ lah ma păng: “May lah jêh nau nây.”"
+    },
+    {
+     "verse": 3,
+     "text": "Jêh ri phung n'gâng kôranh ƀư brah phong Brah Yêsu âk ntil nau."
+    },
+    {
+     "verse": 4,
+     "text": "Pilat ôp đŏng ma Brah Yêsu: “May mâu hôm plơ̆ lah ƀơh? Uănh ri nau khân păng phong may âk ngăn.”"
+    },
+    {
+     "verse": 5,
+     "text": "Ƀiă lah Brah Yêsu mâu hôm plơ̆ lah ôh. Pô nây, tât Pilat hih rhâl.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Dôl nau nhêt sa Pilat vay mƀơk ma khân păng du huê bu nă mbu nơm khân păng dăn,",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Tâm phung tâm rdâng bu krŭng jêh, geh du huê bunuyh, amoh păng Y-Barabas ƀư nkhĭt bunuyh dôl geh nau tâm rdâng nây."
+    },
+    {
+     "verse": 8,
+     "text": "Phung âk văch ntơm dăn ma Pilat ăn păng ƀư nâm bu păng vay ƀư."
+    },
+    {
+     "verse": 9,
+     "text": "Pilat plơ̆ sĭt lah ma khân păng: “Khân may ŭch lĕ gâp mƀơk ma khân may Hađăch phung Yuđa?”"
+    },
+    {
+     "verse": 10,
+     "text": "Yor lah păng gĭt jêh ma phung n'gâng kôranh ƀư brah jao jêh Brah Yêsu yor nau nach.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Ƀiă lah phung n'gâng kôranh ƀư brah nsônh phung âk gay ma Pilat pơk Y-Barabas ma khân păng ntrok ma Brah Yêsu."
+    },
+    {
+     "verse": 12,
+     "text": "Jêh ri Pilat lah ma khân păng: “Pô nây, mâm gâp mra ƀư ma bunuyh nơm khân may ntơ Hađăch phung Yuđa?”"
+    },
+    {
+     "verse": 13,
+     "text": "Jêh ri khân păng nter, lah: “Pâng lơi păng ta si tâm rkăng!”"
+    },
+    {
+     "verse": 14,
+     "text": "Pilat lah ma khân păng: “Mâm ƀư, moh nau mhĭk păng lĕ ƀư jêh?” Ƀiă lah khân păng nter ktang lơ hâu lơn: “Pâng lơi păng ta si tâm rkăng.”"
+    },
+    {
+     "verse": 15,
+     "text": "Pô nây, yor Pilat ŭch ƀư maak ma phung âk nây, păng pơk Y-Barabas ma khân păng. Jêh ri păng ăn bu dong Brah Yêsu ma mâng, păng jao Brah Yêsu ăn bu pâng păng ta si tâm rkăng."
+    },
+    {
+     "verse": 16,
+     "text": "Phung ta han njŭn Brah Yêsu lăp tâm ngih kôranh bri nâm bu ntĭt ngih phat dôih; jêh ri khân păng kuăl rgum lĕ rngôch mpôl ta han ndrel du ai.",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Khân păng ăn nsoh ao rvanh ma Brah Yêsu, jêh ri khân păng ăn ndô klơ bôk Brah Yêsu du mlâm đon ma lok khân păng pêng;"
+    },
+    {
+     "verse": 18,
+     "text": "jêh nây mbah ma Păng: “Mbah ma may, Hơi Hađăch phung Yuđa!”"
+    },
+    {
+     "verse": 19,
+     "text": "Khân păng sŏk tơm treng mbang ta bôk ô băl, soh ô băl ma dak diu, jêh ri chon kômâk mbah ma ô băl."
+    },
+    {
+     "verse": 20,
+     "text": "Jêh khân păng mưch ma ô băl, khân păng doh lơi ao rvanh, plơ̆ nsoh ao păng nơm. Jêh ri khân păng njŭn leo ô băl gay pâng ô băl ta si tâm rkăng."
+    },
+    {
+     "verse": 21,
+     "text": "Geh du huê bunuyh, amoh păng Y-Simôn tă bơh bri Siren, mbơ̆ Y-Aleksandrơ jêh ri Y-Ruphus văch tă bơh pa dih ƀon găn ta nây. Khân păng nchâp ô băl tuy si tâm rkăng Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 22,
+     "text": "Khân păng njŭn leo Brah Yêsu rlet ma ntŭk bu ntơ Gôgôtha, (nâm bu ntĭt Ntŭk Nting Bôk.)"
+    },
+    {
+     "verse": 23,
+     "text": "Khân păng nta ma Brah Yêsu nhêt dak kriăk ƀâu tâm pot lai đah dak si tăng, ƀiă lah ô băl dun mâu nhêt ôh."
+    },
+    {
+     "verse": 24,
+     "text": "Khân păng pâng ô băl ta si tâm rkăng, jêh ri tâm pă bok ao ô băl ma nau chroh n'hôr, gay ŭch gĭt mbu nơm geh."
+    },
+    {
+     "verse": 25,
+     "text": "Ta sĭn mông ôi khân păng pâng Brah Yêsu ta si tâm rkăng."
+    },
+    {
+     "verse": 26,
+     "text": "Bu nchih nau bu phong pô aơ: “Hađăch ma phung Yuđa.”"
+    },
+    {
+     "verse": 27,
+     "text": "Khân păng pâng ta si tâm rkăng ndrel ma Brah Yêsu bar hê bunuyh ntŭng, du huê pa ma, du huê pa chiau Brah Yêsu."
+    },
+    {
+     "verse": 28,
+     "text": "Pô nây ăn nanê̆ nau bu nchih jêh pô aơ: “Bu kơp păng ndrel ma phung tih.”"
+    },
+    {
+     "verse": 29,
+     "text": "Phung brot ta nây nsŭch ma Brah Yêsu, rteh bôk jêh ri lah: “Hơ hơ! Hơi nơm ŭch rơih ngih brah Yuđa, jêh ri rdâk tay đŏng păng tâm pe nar,",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "lŏng may rklaih hom may nơm nây jêh ri jŭr tă bơh si tâm rkăng.”"
+    },
+    {
+     "verse": 31,
+     "text": "Phung n'gâng kôranh ƀư brah ndrel ma kôranh nchih sămƀŭt tâm ban lĕ tâm lah ndrăng khân păng lah: “Păng tâm rklaih jêh bu êng; ƀiă lah păng mâu dơi tâm rklaih ôh păng nơm.",
+     "para": true
+    },
+    {
+     "verse": 32,
+     "text": "Ăn Brah Krist, Hađăch Phung Israel, jŭr hom aƀaơ ri tă bơh si tâm rkăng, gay ăn he saơ jêh ri chroh ma păng!” Bar hê bu pâng ta si tâm rkăng ndrel ma Brah Yêsu suai rak ma păng tâm ban lĕ."
+    },
+    {
+     "verse": 33,
+     "text": "Tơ lah tât nklang bôk nar jêh, geh nau ngo klĕng lam neh ntu tât pe mông mhaơ.",
+     "para": true
+    },
+    {
+     "verse": 34,
+     "text": "Ta pe mông mhaơ Brah Yêsu nter ktang: “Êli, Êli, lama sabaktani?” Nâm bu ntĭt: “Ơ Brah Ndu gâp, Ơ Brah Ndu gâp, mâm ƀư may cha lơi gâp?”",
+     "para": true
+    },
+    {
+     "verse": 35,
+     "text": "Ƀa ƀă tâm phung gŭ dăch ta nây tăng nau nây, jêh ri lah: “Uănh ri, păng kuăl Y-Êli.”"
+    },
+    {
+     "verse": 36,
+     "text": "Geh du huê bunuyh nchuăt hăn sŏk mli, mbŭk tâm dak srat, kât ta chiông tơm treng, nta ăn Brah Yêsu nhêt, jêh ri lah: “Kâp ƀât, ăn he rlong nâl uănh gĭt lah Y-Êli mra văch ntrŭnh păng.”"
+    },
+    {
+     "verse": 37,
+     "text": "Jêh ri Brah Yêsu nter huy dŭt dăng jêh ri tăch n'hâm.",
+     "para": true
+    },
+    {
+     "verse": 38,
+     "text": "Jêh ri bok bu nching tâm trôm ngih brah Yuđa khêk bar buh ntơm bơh klơ njŭr tât tâm dâng.",
+     "para": true
+    },
+    {
+     "verse": 39,
+     "text": "Du huê kôranh ta han gŭ mpeh pa năp Brah Yêsu, tăng lĕ mâm Păng nter jêh ri saơ păng tăch n'hâm, păng lah: “N'hêl nanê̆ bunuyh aơ jêng Kon Brah Ndu!”"
+    },
+    {
+     "verse": 40,
+     "text": "Geh lĕ phung bu ur gŭ bơh ngai n'gơr uănh. Tâm phung nây geh H'Mari Mađala, H'Mari mê̆ Y-Yakơ jê̆, jêh ri Y-Yôsê, manh H'Salômê.",
+     "para": true
+    },
+    {
+     "verse": 41,
+     "text": "Khân păng pe nuyh hŏ tă tĭng pah kan jêh ma Brah Yêsu dôl Păng gŭ tâm N'gor Galilê. Tâm ban lĕ, geh âk phung bu ur êng văch ndrel ma Brah Yêsu rlet ma ƀon Yêrusalem."
+    },
+    {
+     "verse": 42,
+     "text": "Rnôk nây jêng nar ndrăp nkra, nâm bu ntĭt lor ma nar Saƀat; tơ lah trôk dăch kêng măng,",
+     "para": true
+    },
+    {
+     "verse": 43,
+     "text": "geh du huê amoh Y-Yôsep, gŭ ƀon Arimathê, jêng du huê nơm tâm chră tâm phung phat dôih, bu yơk ngăn, păng nơm nây lĕ jêng nơm kâp gân ma ƀon bri hađăch Brah Ndu, ƀư nau nănh hăn ma Pilat jêh ri dăn săk jăn Brah Yêsu."
+    },
+    {
+     "verse": 44,
+     "text": "Ƀiă lah Pilat hih rhâl ma Brah Yêsu khĭt gơnh kơt nây. Păng kuăl kôranh ta han rlong nâl ôp păng gĭt lah Brah Yêsu khĭt lĕ jŏ jêh."
+    },
+    {
+     "verse": 45,
+     "text": "Jêh păng lĕ gĭt nanê̆ ma Brah Yêsu lĕ khĭt tĭng nâm kôranh ta han mbơh, păng jao săk jăn Brah Yêsu ma Y-Yôsep."
+    },
+    {
+     "verse": 46,
+     "text": "Y-Yôsep rvăt du blah bok mhay, ntrŭnh săk jăn Brah Yêsu bơh si tâm rkăng, put nklâm Păng ma bok mhay nây, jêh ri njor Păng tâm môch bu lôk jêh tâm lŭ. Jêh ri bu rlă lŭ mlâm rdâl bâr môch."
+    },
+    {
+     "verse": 47,
+     "text": "Pô ri, H'Mari Mađala, n'hanh H'Mari, mê̆ Y-Yôsê hŏ saơ da dê ntŭk bu njor Brah Yêsu."
+    }
+   ]
+  },
+  {
+   "chapter": 16,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Brah Yêsu Dâk Rêh Đŏng"
+    },
+    {
+     "before_verse": 1,
+     "type": "parallel",
+     "text": "(Mathiơ 28:1-8; Luk 24:1-12; Yôhan 20:1-10)"
+    },
+    {
+     "before_verse": 9,
+     "type": "heading",
+     "text": "Brah Yêsu Tâm Mpơl Ma H'Mari Madala"
+    },
+    {
+     "before_verse": 9,
+     "type": "parallel",
+     "text": "(Mathiơ 28:9-10; Yôhan 20:11-18)"
+    },
+    {
+     "before_verse": 12,
+     "type": "heading",
+     "text": "Brah Yêsu Tâm Mpơl Ma Bar Hê Oh Mon"
+    },
+    {
+     "before_verse": 12,
+     "type": "parallel",
+     "text": "(Luk 24:13-36)"
+    },
+    {
+     "before_verse": 14,
+     "type": "heading",
+     "text": "Brah Yêsu Tâm Mpơl Ma Phung Jât Ma Nguay Nuyh"
+    },
+    {
+     "before_verse": 14,
+     "type": "parallel",
+     "text": "(Mathiơ 28:16-20; Luk 24:36-49; Yôhan 20:19-23; Kan Oh Mon 1:6-8)"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Tơ lah nar Saƀat lĕ rlau jêh, H'Mari Mađala, H'Mari mê̆ Y-Yakơ, jêh ri H'Salômê rvăt dak si ƀâu kah gay hăn mhĭng săk jăn Brah Yêsu.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Nar rơh nguay tâm du nar ver (nâm bu ntĭt ơm ôi nar pơh), ơm ôi, tô dôl luh nar, pe nuyh tât ntŭk môch."
+    },
+    {
+     "verse": 3,
+     "text": "Tâm lah ndrăng khân păng: “Mbu nơm mra sâm rlă lŭ tă bơh bâr môch ăn ma he?”"
+    },
+    {
+     "verse": 4,
+     "text": "Lah khân păng n'gơr uănh, saơ ro lŭ lĕ rlă jêh ri tă bơh bâr môch; pô ri, lŭ nây toyh ngăn."
+    },
+    {
+     "verse": 5,
+     "text": "Dôl khân păng lăp tâm trôm môch, saơ du huê bu klâu ndăm gŭ mpeh pa ma, nsoh ao jâr nglang, Brah Krist ngăn."
+    },
+    {
+     "verse": 6,
+     "text": "Ƀiă lah ô băl lah ma khân păng: “Lơi klach ôh khân ay joi Brah Yêsu ƀon Nasaret, jêng Nơm bu pâng ta si tâm rkăng; Păng lĕ dâk rêh jêh, mâu hôm ta aơ ôh; uănh hom ntŭk bu njor păng.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Ƀiă lah hăn mbơh hom ma oh mon Păng nđâp ma Y-Pêtrôs, Brah Yêsu lĕ hăn tât ta n'gor Galilê lor ma khân may. Ta nây khân may mra saơ Brah Yêsu, nâm bu Păng hŏ mbơh jêh ma khân may.”"
+    },
+    {
+     "verse": 8,
+     "text": "Jêh nây khân păng luh tă bơh trôm môch, jêh ri nchuăt du, yor lah khân păng klach nsâr săk jăn krit mƀât ngăn; mâu janh nkoch ma bu ôh, yor lah khân păng klach ngăn."
+    },
+    {
+     "verse": 9,
+     "text": "Pô ri, Brah Yêsu dâk rêh ơm ôi nar rơh nguay tâm nar ver nây (nâm bu ntĭt ơm ôi nar pơh nây), Păng tâm mpơl păng nơm lor lơn ma H'Mari Mađala. Bu ur nây, jêng nơm Brah Yêsu mprơh ngluh jêh pơh nuyh brah mhĭk.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "H'Mari Mađala hăn mbơh nau nây ma phung gŭ jêh ndrel ma Brah Yêsu, dôl khân păng klâng khĭt geh nau nhĭm nhhiăng."
+    },
+    {
+     "verse": 11,
+     "text": "Ƀiă lah lah khân păng tăng jêh ma Brah Yêsu lĕ dâk rêh, jêh ri bu ur nây saơ jêh Brah Yêsu, khân păng mâu chroh ôh ma nau nây."
+    },
+    {
+     "verse": 12,
+     "text": "Jêh ta nây, Brah Yêsu sŏk muh măt êng tâm mpơl ma bar hê tâm mpôl oh mon dôl hăn trong sĭt rlet ma ƀon.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Bar hê nây plơ̆ sĭt mbơh nau nây ma phung oh mon êng, ƀiă lah khân păng mâu chroh ôh ma nau khân păng mbơh."
+    },
+    {
+     "verse": 14,
+     "text": "Pa kơi jêh nây Brah Yêsu tâm mpơl đŏng păng nơm ma phung jât ma nguay nuyh dôl khân păng gŭ sông sa. Brah Yêsu nduyh khân păng yor nau khân păng mâu chroh ôh, jêh ri yor nuih n'hâm păng dăng; yor lah khân păng mâu chroh ôh ma phung lĕ saơ jêh Păng, jêh Păng dâk rêh tay.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Brah Yêsu lah ma khân păng: “Hăn hom lam neh ntu jêh ri nti nau mhe mhan ueh ma lĕ rngôch ndŭl mpôl bunuyh."
+    },
+    {
+     "verse": 16,
+     "text": "Mbu nơm chroh jêh ri dơn nau ƀaptem mra klaih; ƀiă lah mbu nơm mâu chroh ôh mra dơn nau tâm rmal.",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Pô nây, bu mra ăn nau tâm mbên ma phung chroh kơt aơ: Ma amoh săk gâp khân păng mra mprơh brah mhĭk; khân păng mra ngơi nau bu năch;"
+    },
+    {
+     "verse": 18,
+     "text": "khân păng mra djôt bih, jêh ri tơ lah nhêt dak kăch păng, khân păng mâu mra khêh ôh; khân păng mra dra ti ta bunuyh ji kuet, jêh ri khân păng mra bah.”"
+    },
+    {
+     "verse": 19,
+     "text": "Pô nây, jêh Brah Yêsu ngơi kơt nây jêh ma khân păng, Brah Ndu chông păng rlet klơ trôk, jêh ri păng gŭ mpeh pa ma Brah Ndu.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Jêh ri khân păng hăn nsong mbơh lam neh ntu, dôl Kôranh Brah pah kan ndrel ma khân păng jêh ri ăn nanê̆ nau păng nti ma nau tâm mbên."
+    }
+   ]
+  }
+ ],
+ "footnotes": [
+  {
+   "chapter": 1,
+   "verse": 3,
+   "verse_end": null,
+   "mark": "a",
+   "part": null,
+   "text": "Malaki 3:1; Êsai 40:3 1094"
+  },
+  {
+   "chapter": 7,
+   "verse": 10,
+   "verse_end": null,
+   "mark": "c",
+   "part": "a",
+   "text": "Êjipt 20:12; Nau Vay 5:16"
+  },
+  {
+   "chapter": 7,
+   "verse": 10,
+   "verse_end": null,
+   "mark": "d",
+   "part": "b",
+   "text": "Êjipt 21:17; Lêvi 20:9"
+  },
+  {
+   "chapter": 14,
+   "verse": 27,
+   "verse_end": null,
+   "mark": "e",
+   "part": null,
+   "text": "Sakari 13:7"
+  }
+ ],
+ "warnings": [
+  {
+   "ref": "MRK 7:2",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 7:5",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 7:11",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 10:29",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 10:30",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 12:14",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 12:23",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 14:30",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 14:36",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "MRK 14:72",
+   "issue": "space before punctuation"
+  }
+ ]
+}

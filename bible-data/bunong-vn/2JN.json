@@ -1,0 +1,107 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "2JN",
+  "order": 63,
+  "testament": "NT",
+  "name": "2 John",
+  "local_name": "II Y-Yôhan",
+  "title_block": [
+   "Sămƀŭt Rơh Bar Tĭng Nâm",
+   "Y-YÔHAN"
+  ]
+ },
+ "source": {
+  "file": "063. 632JN.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nơm Dơn Sămƀŭt Jêh Ri Nau Khâl"
+    },
+    {
+     "before_verse": 4,
+     "type": "heading",
+     "text": "Nau Rŏng Ndrăng Oh Nâu"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Gâp nơm du huê bu ranh nchih njuăl ma bu ur, nơm Brah Ndu săch jêh, jêh ri ma phung kon ay, phung gâp rŏng tâm nau nanê̆, mâu knŏng gâp dơm ôh rŏng ma khân may, ƀiă lah nđâp ma phung gĭt năl jêh nau nanê̆,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "yor nau nanê̆ gŭ tâm he jêh ri mra gŭ ndrel he n'ho ro."
+    },
+    {
+     "verse": 3,
+     "text": "Ăn nau yô̆, nau ueh, jêh ri nau đăp mpăn bơh Brah Ndu, Mbơ̆ , jêh ri bơh Yêsu Krist, Kon bơh Mbơ̆ gŭ ndrel ma khân may tâm nau nanê̆ jêh ri nau rŏng."
+    },
+    {
+     "verse": 4,
+     "text": "Gâp maak hâu ngăn ngên saơ ƀa ƀă tâm phung kon may hăn tĭng ndô̆ nau nanê̆, tĭng nâm nau ntăm he sŏk dơn jêng bơh Mbơ̆ .",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Aƀaơ aơ, hơi bu ur, gâp vơh vơl ma ay mâu di gay ntĭnh ma ay nau vay mhe ôh, ƀiă lah nau he geh jêh bơh ntơm sa ơm, ăn he tâm rŏng ndrăng he nơm."
+    },
+    {
+     "verse": 6,
+     "text": "Jêh ri pô aơ jêng nau rŏng, tơ lah he tĭng ndô̆ nau vay păng ntĭnh pô aơ jêng nau vay păng ntĭnh nâm bu khân may hŏ tăng jêh bơh sa ơm, ăn khân may tĭng ndô̆ nau nĕ. Njrăng Ma Phung Nơm Nti Tih"
+    },
+    {
+     "verse": 7,
+     "text": "Yor geh âk phung ndơm lăp jêh tâm neh ntu. Khân păng mâu nkoch Mbơh Yêsu Krist văch jêh tâm nglay săk. Nơm nâm nđĕ jêng nơm ndơm jêh ri nơm rlăng đah Brah Krist."
+    },
+    {
+     "verse": 8,
+     "text": "Njrăng hom ma khân may nơm, gay ma lơi ăn khân may roh play bơh kan khân may ƀư, ƀiă lah gay ma khân may geh nŭm nau nkhôm."
+    },
+    {
+     "verse": 9,
+     "text": "Mbu nơm rlet hăn lor jêh ri mâu gŭ nâp tâm nau nti bơh Brah Krist mâu geh Brah Ndu ôh. Mbu nơm gŭ nâp tâm nau nti aơ, geh Mbơ̆ jêh ri Kon."
+    },
+    {
+     "verse": 10,
+     "text": "Tơ lah du huê hăn ta khân may jêh ri mâu dơn nau nti aơ, lơi rom păng tâm ngih khân may ôh jêh ri lơi tâm khâl đah khân păng ôh;",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "yor lah mbu tâm khâl đah păng jêng du nuih đah păng tâm kan mhĭk."
+    },
+    {
+     "verse": 12,
+     "text": "Gâp geh âk nau ŭch nchih ma khân may, ƀiă lah mâu ŭch ƀư ma n'ha rđaih jêh ri dak ôch ôh, ƀiă lah gâp kâp gân mra hăn ta khân may, jêh ri ngơi đah khân may gay ma nau maak he jêng rah vah.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Phung kon ruh may, nơm Brah Ndu săch jêh, njuăl nau khâl đah may."
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": [
+  {
+   "ref": "2JN 1:3",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "2JN 1:4",
+   "issue": "space before punctuation"
+  }
+ ]
+}

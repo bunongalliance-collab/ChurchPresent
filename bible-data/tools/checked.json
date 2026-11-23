@@ -1,0 +1,21 @@
+{
+  "_about": "Flags checked by hand against the PDF text. report.py lists these as checked, with the note.",
+  "NUM 30": "Printed numbering: 17 verses (English Bibles 16). Text complete.",
+  "1SA 20": "Printed numbering: verse 43 is English 42b. Text complete.",
+  "1SA 23": "Printed numbering: chapter ends at 28; English 23:29 is 24:1 here. Text complete.",
+  "1SA 24": "Printed numbering, follows from 1SA 23. Text complete.",
+  "JOB 38": "Vietnamese Bible numbering for Job 38-41 (38:38 / 39:38 / 40:28 / 41:25). Text complete.",
+  "JOB 39": "See JOB 38.",
+  "JOB 40": "See JOB 38.",
+  "JOB 41": "See JOB 38.",
+  "HOS 11": "Printed numbering: 11 verses; English 11:12 is 12:1 here. Text complete.",
+  "HOS 12": "Printed numbering, follows from HOS 11. Text complete.",
+  "MIC 4": "Printed numbering: 14 verses; English 5:1 is 4:14 here. Text complete.",
+  "MIC 5": "Printed numbering, follows from MIC 4. Text complete.",
+  "2CO 13": "Printed numbering: English 13:12-13 are one verse (13:12). Ends at 13:13. Text complete.",
+  "3JN 1": "Printed numbering: English 14b is verse 15. Text complete.",
+  "REV 12": "Printed numbering: English 13:1a is 12:18. Text complete.",
+  "OBA 1:13": "Verse 12/13 boundary moved to the printed number 13. Correct.",
+  "1CH 21:3": "Printed text stops mid-sentence (\"... ăn phung\") before verse 4. Kept as printed.",
+  "1CH 21:7": "Printed text stops mid-sentence (\"... păng dong phung\") before verse 8. Kept as printed."
+}

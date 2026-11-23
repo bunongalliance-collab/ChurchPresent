@@ -1,0 +1,901 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "EST",
+  "order": 17,
+  "testament": "OT",
+  "name": "Esther",
+  "local_name": "H'Êsther",
+  "title_block": [
+   "H'ÊSTHER"
+  ]
+ },
+ "source": {
+  "file": "017. 17EST.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Hađăch Asuêrus Nkra Nau Nhêt Sông Toyh"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Nau geh tâm rnôk hađăch Asuêrus, jêng Y-Asuêrus aơ nơm chiă uănh, ntơm bơh bri KLÂNG (India) tât ma bri Êthiôpi, geh du rhiăng bar jât ma pơh n'gor,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "tâm rnôk nây tơ lah hađăch Asuêrus gŭ ta klơ sưng hađăch păng tâm ƀon Susu, ƀon tơm păng,"
+    },
+    {
+     "verse": 3,
+     "text": "tâm năm tal pe păng chiă uănh, păng nkra du nau nhêt sông toyh ma lĕ rngôch kôranh păng jêh ri phung oh mon (oh mon) păng, phung kôranh ta han n'gor bri Persơ jêh ri n'gor Mêdơ, jêh ri phung ndrŏng nđâp ma phung kôranh chiă uănh n'gor gŭ pa năp păng."
+    },
+    {
+     "verse": 4,
+     "text": "Tâm âk nar, geh du rhiăng pham jât nar, păng mpơl nau kuăng ndrŏng chrêk lơp ƀon bri hađăch păng jêh ri nau lit rnam jêh ri nau lơp rmal păng."
+    },
+    {
+     "verse": 5,
+     "text": "Tơ lah nar nây lôch jêh, hađăch nkra ăn ma lĕ rngôch phung ƀon lan gŭ ta nây tâm ƀon tơm susa, ƀon toyh nđâp ƀon jê̆, du nau nhêt sông toyh dôl tâm pơh nar, ntŭk n'gar kao nkual ngih hađăch.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Geh bok tôk nching ƀư ma dêh, jêh ri bok ĭr kât ma rse mhay rhên, bok rvanh chăng ndor prăk jêh ri n'gâng lŭ marbrơ. Geh tâm ban lĕ sưng bêch ƀư ma mah jêh ri prăk, dơm ta klơ gre ƀư ma lŭ jê̆ pôrphiri, marbrơ, nhong, jêh ri luh khlay."
+    },
+    {
+     "verse": 7,
+     "text": "Bu ndrăp ndơ nhêt ma kachok mah, kachok âk ntil êng êng, jêh ri geh dak play kriăk ƀâu hađăch âk lơn tĭng nâm nau lŏng hađăch."
+    },
+    {
+     "verse": 8,
+     "text": "Nau nhêt jêng tĭng nâm nau vay, bu mâu nchâp ôh; yor lah hađăch ntĭnh jêh ma lĕ rngôch phung kôranh tâm ngih hađăch păng ăn ƀư tĭng nâm ăp nơm ŭch."
+    },
+    {
+     "verse": 9,
+     "text": "Tâm ban lĕ Hađăch Bu ur H'Vasti nkra du nau nhêt sông toyh ma phung bu ur tâm ngih hađăch jêng ndơ hađăch Asuêrus."
+    },
+    {
+     "verse": 10,
+     "text": "Ta nar tal pơh tơ lah nuih n'hâm hađăch maak jêh ma dak play kriăk ƀâu păng ntĭnh ma Y-Mêhuman, Y-Bistha, Y-Harbôna, Y-Biktha, Y-Abaktha, Y-Sêthar, jêh ri Y-Karkas,",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "pơh nuyh oh mon bu char pah kan tâm jrô H'Vasti ta năp hađăch ma đon hađăch păng gay tâm mpơl ma phung ƀon lan jêh ri ma phung kôranh nau ueh păng; Yor lah păng jêng ueh ngăn bu uănh."
+    },
+    {
+     "verse": 12,
+     "text": "Ƀiă lah Hađăch Bu ur H'Vasti dun hăn tĭng nâm hađăch ntĭnh ma phung oh mon bu char. Yor nau nây hađăch nuih ngăn jêh ri hao ji nuih.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Hađăch lah ma phung njêh, phung gĭt năl nau vay rnôk êng êng yor lah pô aơ nau hađăch mơng vay ƀư ma lĕ rngôch phung gĭt nau vay jêh ri nau phat dôih,",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "phung bu klâu dăch ma păng geh Y-Karsêna, Y-Sêthar, Y-Atmatha, Y-Tarsis, Y-Mêres, Y-Marsêna, jêh ri Y-Mêmukan, pơh nuyh kôranh n'gor bri Persơ jêh ri Mêdơ, phung saơ muh măt hađăch jêh ri gŭ nti mrô nguay tâm ƀon bri hađăch:"
+    },
+    {
+     "verse": 15,
+     "text": "“Tĭng nâm nau vay moh nau bu mra ƀư ma Hađăch Bu ur H'Vasti, yor lah ô băl mâu ƀư ôh nau hađăch Asuêrus ntĭnh ma phung oh mon bu char?”"
+    },
+    {
+     "verse": 16,
+     "text": "Y-Mêmukan lah ta năp hađăch jêh ri phung kôranh, “Mâu geh êng knŏng ma hađăch ôh, Hađăch Bu ur H'Vasti hŏ ƀư jêh nau mâu di, ƀiă lah tâm ban lĕ nđâp mra lĕ rngôch phung kôranh, jêh ri nđâp lĕ rngôch phung ƀon lan gŭ tâm lĕ rngôch n'gor bri Hađăch Asuêrus."
+    },
+    {
+     "verse": 17,
+     "text": "Yor lah nau hađăch bu ur ƀư aơ bu mra mbơh ma lĕ rngôch phung bu ur gĭt, jêh ri mra ăn khân ô băl uănh ma sai khân ô băl ma nau tâm rmot, yor lah khân ô băl mra lah.’ Hađăch Asuêrus ntĭnh ma Hađăch Bu ur H'Vasti ăn bu njŭn ô băl ta năp păng, ƀiă lah ô băl mâu ŭch văch ôh,’"
+    },
+    {
+     "verse": 18,
+     "text": "Nar aơ, phung ur kôranh, n'gor bri Persơ jêh ri Mêdơ tăng jêh lĕ nau hađăch bu ur ƀư, mra mbơh nau nây ma sai păng, jêng phung kôranh tâm dâng hađăch, jêh ri mra geh nau mưch rmot jêh ri ji nuih."
+    },
+    {
+     "verse": 19,
+     "text": "Tơ lah di nau hađăch mĭn ueh, ăn hađăch ntrŭnh du nau ntăm, jêh ri ăn bu chih tâm ndrom sămƀŭt nau vay n'gor bri Persơ jêh ri Mêdơ gay lơi ăn bu rgâl ôh, ma H'Vasti mâu dơi văch đŏng ta năp Hađăch Asuêrus ôh; jêh ri ăn hađăch jao nau ô băl jêng hađăch bu ur ma nơm êng ueh lơn ma ô băl.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Pô ri tơ lah nau hađăch ntĭnh bu mbơh jêh lam ƀon bri hađăch păng, yor lah ƀon bri jêng toyh, lĕ rngôch bu ur mra yơk ma sai khân păng, ntơm bơh toyh lư tât ma jê̆ rhên."
+    },
+    {
+     "verse": 21,
+     "text": "Nau aơ ueh nau hađăch mĭn jêh ri nđâp phung kôranh; hađăch ƀư tĭng nâm nau Y-Mêmukan nchră,"
+    },
+    {
+     "verse": 22,
+     "text": "păng njuăl sămƀŭt ntrŭnh nau ăn ma lĕ rngôch n'gor bri hađăch, tĭng nâm rplay sămƀŭt chih jêh ri nau ngơi tâm ăp n'gor jêh ri ăp ntil mpôl bunuyh, gay ma ăp nơm phung bu klâu jêng kôranh tâm ngih vâl păng nơm, jêh ri ngơi tĭng nâm nau ngơi phung ƀon lan păng."
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Njêng H'Êsther Hađăch Bu ur"
+    },
+    {
+     "before_verse": 19,
+     "type": "heading",
+     "text": "Y-Môrdêkai Nkoch Du Nau Bu Joi Ƀư Ma Hađăch"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Jêh nau nây, tơ lah nau Hađăch Asuêrus ji nuih lĕ aih jêh, păng kah gĭt ma H'Vasti, jêh ri nau kan ô băl hŏ ƀư, jêh ri nđâp ma nau păng ntrŭnh ŭch lah ô băl.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Phung oh mon hađăch kâp kơl păng, lah: “Ăn bu joi ma hađăch bu ur druh tang tat ueh ngăn."
+    },
+    {
+     "verse": 3,
+     "text": "Jêh ri ăn hađăch prơh phung kôranh hăn lam lĕ rngôch n'gor tâm ƀon bri hađăch păng, tâm rgum lĕ rngôch phung bu ur druh tang tat, văch tât Susa, jêng ƀon tơm hađăch, njŭn leo lăp nkual ngih hađăch bu ur, jao ma Y-Hêgai, oh mon bu char ma hađăch mât uănh, nơm mât njrăng phung bu ur, jêh ri ăn bu tâm pă dak kôlônh ma khân ô băl,",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "mbu moh bu ur druh jêng nơm du nuih n'hâm hađăch ŭch ƀư jêng hađăch bu ur ntrok H'Vasti.” Nau nây maak ma hađăch, jêh ri păng ƀư pô nây."
+    },
+    {
+     "verse": 5,
+     "text": "Geh du huê tâm ƀon Susa, jêng du huê Yuđa, amoh păng Y-Môrdêkai, kon bu klâu Y-Jar, sau Y-Sêmei, se Y-Kis, du huê phung Benjamin;",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "bunuyh bu veng ndrel tă bơh ƀon Yêrusalem hăn ƀư bu nă du rơh ndrel Y-Jêkônia, hađăch Yuđa, nơm Y-Nêbukatnetsar, hađăch Babilôn, hŏ djôt leo jêh ƀư bună."
+    },
+    {
+     "verse": 7,
+     "text": "Y-Môrdêkai hŏ mât rong jêh H'Hadasa, trơn amoh H'Êsther, kon bu ur kônh păng, yor lah H'Êsther mâu geh me mbơ̆ . Bu ur druh nây ueh jêh ri ray ngăn. Pô ri, tơ lah me mbơ̆ ô băl hŏ khĭt jêh, Y-Môrdêkai mât rong jêng kon bu ur păng nơm."
+    },
+    {
+     "verse": 8,
+     "text": "Pô nây, tơ lah nau ntăm tă bơh hađăch ntrŭnh păng hŏ gĭt ngăn jêh, tơ lah geh âk bu ur druh hŏ rgum ta ƀon tơm hađăch ta Susa, jao nau dơi ma Y-Hêgai mât uănh, bu djôt leo H'Êsther tâm ban lĕ, rlet ma ngih hađăch ăn Y-Hêgai mât uănh ô băl, nơm geh kan mât uănh phung bu ur."
+    },
+    {
+     "verse": 9,
+     "text": "Bu ur druh nây di nau Y-Hêgai ŭch jêh ri geh nau yô̆ ta năp măt păng. Păng ăn gơnh ro dak kôlônh gay jut lơi nau ƀơ̆ bu ur, jêh ri ndơ sông sa ma ô băl, nđâp pơh nuyh phung bu druh ueh ngăn, săch bơh nkual ngih hađăch; jêh nây Y-Hêgai ăn ô băl ndrel phung bu druh ueh trơn lăp tâm du jrô ueh reh ngăn, bu ntơ jrô nŭng tâm ngih phung bu ur.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "H'Êsther mâu ăn bu gĭt ôh phung ƀon lan mâu lah ndŭl mpôl păng; yor lah Y-Mordêkai hŏ ntĭnh jêh ma ô băl lơi nkoch ăn bu gĭt."
+    },
+    {
+     "verse": 11,
+     "text": "Ăp nar, Y-Mordêkai hăn rsong pâl tâm nkual ngih phung bu ur, gay ŭch gĭt H'Êsther geh nau gŭ mpăn lĕ, jêh ri moh nau tât ma păng."
+    },
+    {
+     "verse": 12,
+     "text": "Tơ lah tât năng hŏ tâm nal lôch jêh ma ăp nơm phung bu ur druh hăn văch tât Hađăch Asuêrus, ƀư nau nkrơ̆ ƀư ueh ma phung bu ur gay ăn jêng kloh tâm jât ma bar khay: Prao khay dŏng dak kôlônh-mir, jêh ri prao khay dŏng dak si ƀâu kah, jêh ri ma dak kôlônh gay ƀư nau kloh ƀơ̆ phung bu ur",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "tơ lah bu ur druh lăp ta năp hađăch tĭng nâm nau vay aơ, bu ăn ma păng moh ndơ păng ŭch djôt leo ndrel ma păng tă bơh ngih phung bu ur tât ma ngih hađăch."
+    },
+    {
+     "verse": 14,
+     "text": "Ta măng păng hăn, kêng ôi păng sĭt leo ta ngih phung bu ur tal bar, geh Y-Sasgas oh mon bu char ma hađăch, nơm mât uănh ur yông. Bu ur nây mâu dơi lăp đŏng ndrel ma hađăch ôh. Knŏng tơ lah hađăch maak nau mĭn păng ŭch, jêh ri dơi hađăch kuăl amoh nơm nây.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Tơ lah tât di nal ma H'Êsther, kon bu ur Y-Abihêl, kônh păng Y-Môrdêkai, jêng bunuyh hŏ dơn mât rong păng ƀư jêng kon bu ur, hŏ tât gay hăn lăp ta năp hađăch, pô ri H'Êsther mâu dăn du ntil ndơ ôh knŏng ndơ Y-Hêgai oh mon char hađăch, jêng nơm mât uănh phung bu ur, nchră an ma păng. H'Êsther dơi geh nau yô̆ ta năp măt lĕ rngôch bunuyh saơ păng.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Nây yơh, bu dơi njŭn H'Êsther tât ta năp măt hađăch Asuêrus, tâm nkual ngih hađăch, tâm khay jât, jêng khay Têbet, tâm năm tal pơh păng chiă uănh."
+    },
+    {
+     "verse": 17,
+     "text": "Hađăch rŏng ngăn ma H'Êsther âk lơn ma lĕ rngôch phung bu ur druh êng. Pô ri bu ndô đon hađăch ta klơ bôk păng, njêng ô băl jêng hađăch bu ur ntrok H'Vasti."
+    },
+    {
+     "verse": 18,
+     "text": "Pô nây, hađăch nkra du nau nhêt sông toh ma lĕ rngôch phung kôranh păng, jêh ri ma phung oh mon păng, jêng nau nhêt sông toyh ma H'Êsther. Tâm ban lĕ hađăch ăn nar rlu ma lĕ rngôch ăp n'gor, jêh ri ăn ndơ nhhơr ma nau lŏng khư đah hađăch."
+    },
+    {
+     "verse": 19,
+     "text": "Tơ lah phung bu ur druh tang tat tâm rgum băl tal bar, pô ri Y-Môrdêkai gŭ ta mpông pêr hađăch.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "H'Êsther, mâu ăn bu gĭt, nâm bu nau Y-Môrdêkai hŏ ntĭnh păng, mâu nkoch ăn phung ƀon lan păng jêh ri ndŭl deh păng gĭt; yor lah H'Êsther tông ma Y-Môrdêkai ntĭnh păng, nâm bu rnôk păng mât rong nây lĕ."
+    },
+    {
+     "verse": 21,
+     "text": "Tâm lĕ nar nây, Y-Môrdêkai dôl gŭ ta mpông pêr hađăch, geh bar hê oh mon hađăch lĕ char, tâm phung gak njrăng mpông pêr, amoh Y-Bikthan jêh ri Y-Têres, geh nau ji nuih jêh ri joi nau ŭch ƀư ma hađăch Asuêrus."
+    },
+    {
+     "verse": 22,
+     "text": "Y-Môrdêkai gĭt nau nây jêh ri păng nti đŏng ma hađăch bu ur H'Êsther, jêh ri H'Êsther nkoch bri ma hađăch tâm amoh Y-Môrdêkai.",
+     "para": true
+    },
+    {
+     "verse": 23,
+     "text": "Tơ lah bu ôp sek nau nây jêng ngăn, jêh ta nây bu yông ko lĕ bar hê klơ tơm si; pô nây khân păng chih tâm ndrom sămƀŭt Nau Rêh Jêng Hađăch ta năp măt hađăch."
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Y-Haman Tâm Chră Ŭch Ƀư Rai Phung Yuđa"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Jêh nau nây, hađăch Asuêrus n'hao kan pah ma Y-Haman, kon bu klâu Y-Hamêdatha, jêng phung Agak, jêh ri bu n'hao păng lư n'găr,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "dơm păng klơ ma phung kôranh tâm nkual ngih hađăch."
+    },
+    {
+     "verse": 3,
+     "text": "Lĕ rngôch n'hat ma gŭ ta mpông pêr hađăch lah ma Y-Môrdêkai: “Mâm ƀư may rlau nau hađăch ntĭnh?”"
+    },
+    {
+     "verse": 4,
+     "text": "Tơ lah khân păng ngơi lah ăp nar ma ô băl, jêh ri ô băl mâu ŭch iăt ôh ma khân păng, khân păng mbơh ma Y-Haman, gay rlong nâl gĭt lah nau Y-Môrdêkai ngơi mra dơi, yor lah păng hŏ nkoch ma khân păng jêng du huê phung Yuđa."
+    },
+    {
+     "verse": 5,
+     "text": "Tơ lah Y-Haman saơ Y-Môrdêkai mâu chon mon jêh ri mâu ŭch mbah ôh ma păng, pô ri Y-Haman hao ji nuih ngăn."
+    },
+    {
+     "verse": 6,
+     "text": "Bu hŏ nkoch jêh ma Y-Haman, yor lah Y-Môrdêkai jêng du huê phung Yuđa, yor ri păng mâu ŭch lơh ôh knŏng du huê păng dơm, păng joi nau mĭn plĕch nkhĭt lĕ rngôch phung Yuđa, jêng ndŭl deh Y-Môrdêkai, gŭ tâm lam bri hađăch Asuêrus.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Ta khay tal nguay, jêng khay Nisan, năm rơh jât ma bar rnôk hađăch Asuêrus, bu nchroh Pur, nâm bu ntĭt chroh n'hôr ăp nar ăp khay, ta năp măt Y-Haman, kŏ tât khay jât ma bar, jêng khay Adar.",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "Y-Haman lah ma hađăch Asuêrus: “Geh du phung ƀon lan chah-rai, gŭ lam ta nklang phung mpôl băl tâm lĕ ƀon bri hađăch may: Nau vay khân păng êng đah nau vay phung mpôl băl êng, jêh ri khân păng mâu djôt prăp ôh nau vay hađăch, kŏ tât mâu jêng ueh ôh ma hađăch dơn khân păng ƀư pô nây."
+    },
+    {
+     "verse": 9,
+     "text": "Tơ lah nau nây di nau hađăch mĭn, ăn bu chih nau ntrŭnh ƀư rai lơi khân păng; jêh ri gâp mra nkhôm du rmưn talâng prăk tâm ti phung chiă uănh kan hađăch, gay khân păng djôt leo tâm jay prăp hađăch.”",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Pô nây hađăch tŏk rgên bơh ti păng jêh ri ăn ma Y-Haman, kon bu klâu Y-Hamêdatha, phung Agak, nơm rlăng đah phung Yuđa."
+    },
+    {
+     "verse": 11,
+     "text": "Hađăch lah ma Y-Haman, “Prăk nây bu ăn ma may, nđâp phung ƀon lan may tâm ban lĕ, gay ma ƀư đah phung khân păng tĭng nâm may ŭch.”",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Khay nguay, nar jât ma pe, pô ri bu kuăl phung chih sămƀŭt hađăch văch tât; jêh nây tĭng nâm lĕ rngôch nau Y-Haman hŏ ntĭnh jêh, bu tâm amoh hađăch Asuêrus chih nau ntrŭnh ăn ma phung kôranh oh mon hađăch tâm lĕ rngôch phung ƀon lan ma ăp n'gor, ma nau chih rplay sămƀŭt n'gor nây jêh ri ma ăp ntil mpôl bunuyh, tĭng nâm nau ngơi khân păng nơm. Pô nây khân păng sŏk rgên hađăch tâp pŏng ta nây.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Jêh nây khân păng njuăl sămƀŭt ma phung djôt leo lĕ rngôch n'gor bri hađăch, gay ŭch ƀư rai, nkhĭt lơi, jêh ri ƀư roh mi lơi lĕ rngôch phung Yuđa mâu gĭt mom ndăm, nđâp bu ranh, bu ur nđâp kon se, tâm du nar nây, jêh ri pit in lĕ ndô ndơ khân păng."
+    },
+    {
+     "verse": 14,
+     "text": "Du pŏk sămƀŭt tĭng kơt chih nau ntĭnh nây bu njuăl ma ăp n'gor jêng nau tơih mbơh ma lĕ rngôch phung ƀon lan ăn bu nkra ma nar nây."
+    },
+    {
+     "verse": 15,
+     "text": "Phung djôt leo sămƀŭt hăn ma nau ndal tĭng nâm nau hađăch ntĭnh, jêh ri nau ntĭnh nây bu ƀư tâm ƀon Sasa, ƀon tơm. Pô nây, hađăch jêh ri Y-Haman gŭ nhêt ndrănh, bi ma ƀon susa geh ndrŏt klach."
+    }
+   ]
+  },
+  {
+   "chapter": 4,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "H'Êsther Ton Kơl Mbơh Sơm Ma Phung Ƀon Lan Păng"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Tơ lah Y-Môrdêkai gĭt jêh ma lĕ nau tât nây, păng nkhêk bok ao păng jêh ri nsoh ƀau, sui buh, jêh ri luh hăn ta nklang ƀon, nter huy jêh ri nhĭm rngot ngăn.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Păng hăn tât ta ntŭk lăp mpông pêr hađăch; yor lah nsoh ƀau mâu geh huê nuyh dơi lăp mpông pêr hađăch."
+    },
+    {
+     "verse": 3,
+     "text": "Tâm ăp n'gor ta ntŭk nau hađăch ntăm jêh ri sămƀŭt ntrŭnh lĕ tât jêh, pô ri tâm phung Yuđa geh nau nhĭm nhhiăng toyh, ât sông sa, nhĭm vơl jêh ri rngot rvê, âk đŏng bunuyh phung khân păng sŏk ƀau ntâk bêch jêh ri sui buh tâm sưng khân păng."
+    },
+    {
+     "verse": 4,
+     "text": "Phung oh mon bu ur H'Êsther jêh ri phung oh mon char ndrel păng văch nkoch lĕ nau nây ma păng; hađăch bu ur rngot rvê ngăn. Păng njuăl bok ao ma Y-Môrdêkai gay ma ô băl doh lơi ƀau păng, ƀiă lah păng mâu dơn ôh ao nây.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Rnôk nây H'Êsther kuăl Y-Hathach, du huê oh mon char hađăch, nơm bu dơm jêh ăn kơl păng, jêh nây đă ô băl hăn tât Y-Môrdêkai gay gĭt moh nau geh, jêh ri mâm dĭng geh nau nây."
+    },
+    {
+     "verse": 6,
+     "text": "Y-Hathach dâk hăn tât Y-Môrdêkai ta ntŭk nkual toyh tâm ƀon ta năp mpông pêr hađăch;"
+    },
+    {
+     "verse": 7,
+     "text": "jêh ri Y-Môrdêkai nkoch tay ma păng lĕ rngôch nau tât ma ô băl, jêh ri lĕ rnoh prăk Y-Haman ton tuh tâm jay prăp hađăch gay geh nau dơi nau ŭch ƀư rai phung Yuđa."
+    },
+    {
+     "verse": 8,
+     "text": "Tâm ban lĕ Y-Môrdêkai ăn ma păng du pŏk sămƀŭt kơt chih nau ntĭnh luh tă tâm ƀon Susa gay ƀư rai lơi lĕ phung Yuđa, gay oh mon char mpơl sămƀŭt nây ma H'Êsther, jêh ri rblang sămƀŭt nây ma ô băl, jêh ri ntrôl ô băl hăn ma hađăch, vơh vơl ta năp hađăch yô̆ an jêh ri dăn ma hađăch yor phung ƀon lan păng nơm."
+    },
+    {
+     "verse": 9,
+     "text": "Y-Hathach plơ̆ sĭt nkoch đŏng ma H'Êsther lĕ rngôch nau Y-Môrdêkai lah jêh."
+    },
+    {
+     "verse": 10,
+     "text": "Rnôk nây H'Êsther ngơi ma Y-Hathach, jêh ri mprơh bunuyh hăn mbơh đŏng ma Y-Môrdêkai, pô aơ:",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "“Lĕ rngôch phung oh mon jêh ri phung ƀon lan tâm bri hađăch dơi gĭt da dê mbu nơm, mâu gĭt bu ur mâu lah bu klâu, lăp hăn ma hađăch nkual tâm trôm mâu geh ôh nau jă kuăt, geh knŏng du nau vay hŏ ntrŭnh: Bu mra nkhĭt lĕ rngôch, knŏng ma mbu nơm hađăch yơr mâng hađăch ma mah, nơm nây dơi hôm rêh; ƀiă lah hŏ geh pe jât nar ma aơ gâp mâu dơi ăn lăp tâm trôm nkual ngih hađăch.”"
+    },
+    {
+     "verse": 12,
+     "text": "Bu nkoch ma Y-Môrdêkai lĕ nau ngơi bơh H'Êsther.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Y-Môrdêkai ntĭnh ma khân păng plơ̆ sĭt lah ma H'Êsther pô aơ: “Lơi ay mĭn ôh tâm ngih hađăch ay mra klaih tâm lĕ rngôch phung Yuđa êng;"
+    },
+    {
+     "verse": 14,
+     "text": "Yor lah tơ lah ay gŭ khưm tâm dôl aơ aƀaơ ri, phung Yuđa mra dơi geh nau kơl jêh ri nau tâm rklaih tă bơh ntŭk êng, ƀiă lah ay jêh ri ngih mbơ̆ ay mra rai lôch; ƀiă lah mbu gĭt lah ay tât yor mông dôl aƀaơ aơ ay dơi jêng hađăch bu ur nây?’"
+    },
+    {
+     "verse": 15,
+     "text": "H'Êsther ăn khân păng plơ̆ sĭt lah ma Y-Môrdêkai,"
+    },
+    {
+     "verse": 16,
+     "text": "“Hăn hom, tâm rgum lĕ rngôch phung Yuđa gŭ ta ƀon Susa, jêh ri yor ma gâp tâm ban lĕ, ât sông sa pe năng pe nar, jêh ri mâu dơi sông sa, mâu lĕ dơi nhêt; gâp jêh ri phung oh mon bu ur gâp, ât sông sa nâm bu khân may lĕ. Jêh ri mơ gâp hăn ma hađăch, nđâp tơ lah rlau nau vay kđôi lĕ, jêh ri tơ lah gâp khĭt ăn gâp khĭt yơh.”"
+    },
+    {
+     "verse": 17,
+     "text": "Pô ri Y-Môrdêkai dâk hăn jêh ri ƀư lĕ nau H'Êsther ntĭnh jêh ma păng."
+    }
+   ]
+  },
+  {
+   "chapter": 5,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "H'Êsther Jă Hađăch Jêh Ri Y-Haman Sông Sa"
+    },
+    {
+     "before_verse": 9,
+     "type": "heading",
+     "text": "Nau Nkra Ntŭk Yông Ko Ma Y-Môrdêkai"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Ta nar tal pe H'Êsther nsoh ao hađăch bu ur păng jêh ri păng dâk tâm trôm nhuang ngih hađăch, tra ntŭk lăp jrô hađăch.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Tơ lah hađăch saơ Hađăch Bu ur H'Êsther dâk tâm nhuang, păng geh nau yô̆ ta năp măt hađăch; hađăch yơr ma H'Êsther mâng hađăch ma mah ta ti hađăch nơm. H'Êsther ran dăch jêh ri pah ta chiông mâng hađăch ma mah."
+    },
+    {
+     "verse": 3,
+     "text": "Hađăch ngơi ma păng: ‘Moh nau tât, Hơi Hađăch Bu ur H'Êsther? Moh nau ay ŭch dăn? Gâp mra ăn ma ay, nđâp kŏ tât du n'gul ƀon bri hađăch gâp, gâp mra ăn đŏng”."
+    },
+    {
+     "verse": 4,
+     "text": "H'Êsther lah, “Tơ lah di nau hađăch mĭn, ăn hađăch jêh ri Y-Haman văch nar aơ ma nau sông sa gâp nkra jêh ma hađăch.”"
+    },
+    {
+     "verse": 5,
+     "text": "Hađăch lah, “Njŭn leo Y-Haman gơnh, gay ma hên dơi ƀư tĭng nâm nau H'Êsther ŭch.” Pô ri hađăch jêh ri Y-Haman hăn ma nau sông sa H'Êsther nkra jêh."
+    },
+    {
+     "verse": 6,
+     "text": "Dôl khân păng nhêt dak kriăk ƀâu, hađăch lah ma H'Êsther, “Moh ndơ ay ŭch dăn? Gâp mra ăn ma ay. Jêh ri moh nau ay ŭch? Nđâp du n'gul ƀon bri hađăch gâp, gâp mra ăn đŏng.”"
+    },
+    {
+     "verse": 7,
+     "text": "Ƀiă lah H'Êsther lah, “Ndơ gâp dăn ri nau gâp ŭch jêng aơ;"
+    },
+    {
+     "verse": 8,
+     "text": "Tơ lah gâp geh jêh nau yô̆ ta năp măt hađăch, jêh ri tơ lah hađăch mĭn nau nây jêng ueh ŭch ăn ndơ gâp dăn jêh ri ăn tât ngăn ndơ gâp ŭch, ăn hađăch jêh ri Y-Haman văch ôi taơ ma nau nhêt sông gâp mra nkra, jêh ri ôi taơ gâp mra ƀư tĭng nâm hađăch lah.”"
+    },
+    {
+     "verse": 9,
+     "text": "Y-Haman luh du tâm nar nây, hâk maak jêh ri rhơn răm ngăn. Ƀiă lah tơ lah Y-Haman saơ Y-Môrdêkai gŭ tâm mpông pêr hađăch mâu ŭch dâk, mâu lĕ ŭch râm nsâr ta năp păng, păng bêng ma nau ji nuih ma Y-Môrdêkai.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Ƀiă lah Y-Haman nkân êng săk păng, jêh ri hăn sĭt ta ngih păng nơm, prơh bunuyh kuăl phung mĭt jiăng jêh ri H'Êsther ur păng."
+    },
+    {
+     "verse": 11,
+     "text": "Y-Haman nkoch bri đŏng ma khân ô băl nau geh jêng ndrŏng kuăng păng, nkoch âk kon bu klâu păng, jêh ri lĕ rngôch nau hađăch n'hao ăn păng dơi geh bu yơk, jêh ri hađăch n'hao păng hao lơn ma phung kôranh jêh ri phung oh mon hađăch."
+    },
+    {
+     "verse": 12,
+     "text": "Y-Haman lah đŏng, ‘Nđâp ma Hađăch Bu ur H'Êsther mâu ăn ôh du huê ndrel ma hađăch ma nau nhêt sa păng hŏ nkra jêh, knŏng êng gâp dơm yơh. Jêh ri ôi taơ gâp dơi jă văch râng ta ntŭk ngih păng ndrel hađăch."
+    },
+    {
+     "verse": 13,
+     "text": "Ƀiă lah lĕ rngôch nau nây mâu geh khlay ăn gâp ôh, lah nklân saơ Y-Môrdêkai, du huê phung Yuđa, gŭ ta mpông pêr hađăch.”"
+    },
+    {
+     "verse": 14,
+     "text": "H'Sêres, ur păng, jêh ri phung mĭt jiăng păng lah ma păng, “Ăn bu ƀư ntŭk yông ko prêh prăm jât hăt, jêh ri ôi taơ ngơi ma hađăch ăn yông ko lơi Y-Môrdêkai ta nây; ri mơ may răm maak hăn râng nhêt sa ndrel hađăch.” Nau nchră nây ƀư maak ma Y-Haman, jêh ri păng ăn bu ƀư ntŭk yông trô ko."
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Nchâp Y-Haman Yơk Ma Y-Môrdêkai"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Măng nây, hađăch mâu hăk bêch ôh, jêh ri păng ntĭnh bu njŭn ndrom sămƀŭt chih prăp kan khlay bu gay ŭch kah gĭt, Nau Rêh Jêng ma Phung Hađăch, jêh ri rŏ ta năp măt hađăch.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Bu saơ nau chih jêh mâm Y-Môrdêkai nkoch jêh ma nau Y-Bikthana jêh ri Y-Têres, bar hê oh mon char hađăch, phung gak mpông pêr, phung joi ŭch lơh ma Hađăch Asuêrus."
+    },
+    {
+     "verse": 3,
+     "text": "Hađăch lah, “Yor nau kan nây, Y-Môrdêkai dơi geh nau chrêk rmah jêh ri dơi n'hao păng lĕ?” Phung răk rong hađăch plơ̆ lah: “Bu mâu mâp ƀư ma ô băl du ntil nau ôh.”"
+    },
+    {
+     "verse": 4,
+     "text": "Hađăch lah, “Mbu nơm gŭ tâm nkual nhuang?” Rnôk nây, Y-Haman lăp tâm nkual pa dih ngih hađăch ŭch ngơi đah hađăch ma nau ŭch yông ko Y-Môrdêkai ta ntŭk yông ko păng nkra jêh ma ô băl."
+    },
+    {
+     "verse": 5,
+     "text": "Pô ri phung răk rong hađăch mbơh: “Ri, Y-Haman dâk ta nkual nây.” Hađăch lah: “Ăn păng lăp.”"
+    },
+    {
+     "verse": 6,
+     "text": "Pô ri, Y-Haman lăp, jêh ri hađăch lah ma păng, “Mâm bu mra ƀư ma bunuyh nơm hađăch ŭch yơh?” Y-Haman lah êng tâm nuih n'hâm păng, “Ma mbu nơm hađăch ŭch yơk, rlau lơn ma gâp lĕ?”",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Y-Haman lah ma hađăch, “Ma bunuyh nơm hađăch ŭch yơk,"
+    },
+    {
+     "verse": 8,
+     "text": "ăn bu njŭn ao hađăch, ao hađăch nsoh, seh hađăch ncho, jêh ri đon hađăch ndô ta klơ bôk bunuyh nây;"
+    },
+    {
+     "verse": 9,
+     "text": "ao hađăch jêh ri seh jao hom tâm ti du huê tâm phung kôranh toyh lơn, jêh ri ăn kôranh nây njŭn leo bunuyh nơm hađăch ŭch yơk ncho seh hăn pâl rlưn rŏ trong ƀon toyh, jêh ri mbơh ta năp păng: ‘Pô aơ bu mra ƀư ma bunuyh hađăch ŭch yơk.’ ”"
+    },
+    {
+     "verse": 10,
+     "text": "Hađăch lah ma Y-Haman: Gơnh ndal hom djôt leo ao hađăch jêh ri seh, nâm bu nau may lah jêh, jêh ri ƀư pô nây ma Y-Môrdêkai, phung Yuđa, dôl gŭ ta mpông pêr hađăch. Lơi ta cha lơi du ntil lĕ rngôch nau may hŏ lah."
+    },
+    {
+     "verse": 11,
+     "text": "Y-Haman sŏk ao hađăch jêh ri nsoh an ma Y-Môrdêkai, jêh ri leo păng ncho seh hăn pâl rlưn rŏ trong sâng ƀon toyh, jêh ri mbơh, “Pô aơ bu mra ƀư ma bunuyh hađăch ŭch yơk.”",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Pô nây, Y-Môrdêkai plơ̆ sĭt tay ta ntŭk mpông pêr hađăch. Bi ma Y-Haman hăn sĭt ndal leo ta ngih păng nơm, rngot rvê jêh ri nkŭm bôk păng.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Y-Haman nkoch bri ma ur păng H'Sêres jêh ri ma lĕ rngôch phung mĭt jiăng păng ăp ntil nau tât jêh ma păng. Pô ri phung blau mĭn păng jêh ri ur păng H'Sêres lah ma păng, “Tơ lah Y-Môrdêkai, ta năp păng may ntơm tŭp jêh, tơ lah păng jêng tâm mpôl phung Yuđa, pô ri may mâu mra dơi ôh, ƀiă lah n'hêl nanê̆ mra cha lôt ta năp păng.”"
+    },
+    {
+     "verse": 14,
+     "text": "Tơ lah khân păng hôm e dôl nkoch bri đah păng, phung oh moh char hađăch tât, jêh ri leo Y-Haman ma nau ndal hăn ma nau nhêt sa H'Êsther nkra jêh.",
+     "para": true
+    }
+   ]
+  },
+  {
+   "chapter": 7,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Y-Haman Ŭch Mâu Geh Tât"
+    },
+    {
+     "before_verse": 1,
+     "type": "title",
+     "text": "Ôh. Nau Bu Yông Ko Y-Haman"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Pô ri, hađăch jêh ri Y-Haman tât nhêt dak kriăk ƀâu ndrel hađăch bu ur H'Êsther.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Nar tal bar, dôl nhêt dak kriăk ƀâu, hađăch lah đŏng ma H'Êsther, “Moh nau ay ŭch dăn, Hơi Hađăch Bu ur H'Êsther? Gâp mra ăn nau nây ma ay. Jêh ri moh nau ay ŭch” Nđâp kŏ tât n'gul ƀon bri hađăch gâp, gâp mra ăn đŏng.”"
+    },
+    {
+     "verse": 3,
+     "text": "Hađăch Bu lah: “Tơ lah gâp geh nau yô̆ ta năp may, Hơi hađăch, jêh ri tơ lah di nau ur H'Êsther plơ̆ hađăch mĭn, ăn gâp gŭ rêh, nây jêng nau gâp ŭch."
+    },
+    {
+     "verse": 4,
+     "text": "Yor lah bu tăch jêh hên, gâp jêh ri phung ƀon lan gâp, ŭch ƀư rai lơi, nkhĭt lơi, jêh ri ƀư rai lôch lơi. Tơ lah tăch hên gay ăn ƀư dĭk, bu ur jêh ri bu klâu, gâp hŏ gŭ klêm jêh, yor lah nau rêh ni hên mâu dơi tâm ntĭl ôh nau uh ah hađăch.”"
+    },
+    {
+     "verse": 5,
+     "text": "Hađăch Asuêrus ngơi đah Hađăch Bu ur H'Êsther, “Mbu moh nây, jêh ri ta ntŭk păng gŭ, nơm janh ƀư nau aơ?”"
+    },
+    {
+     "verse": 6,
+     "text": "H'Êsther plơ̆ lah, “Du huê rlăng jêh ri mhĭk! Nây kêng Y-Haman djơh aơ yơh!” Rnôk nây Y-Haman klach ngăn ta năp hađăch jêh ri hađăch bu ur."
+    },
+    {
+     "verse": 7,
+     "text": "Hađăch dâk tă bơh ntŭk nhêt sa ma nau ji nuih ngăn, jêh ri păng lăp tâm n'gar kao ngih hađăch. Ƀiă lah Y-Haman gŭ gay vơh vơl ma nau rêh păng tă bơh Hađăch Bu ur H'Êsther, yor lah păng saơ jêh nau mhĭk hađăch mĭn mra ƀư ma păng.",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "Hađăch plơ̆ sĭt tă bơh n'gar kao ngih hađăch ma ntŭk khân păng gŭ nhêt dak kriăk ƀâu dôl Y-Haman ntơm lâng bêch ta sưng bêch ntŭk H'Êsther gŭ. Hađăch lah, Nđâp păng ŭch tom hađăch bu ur ta năp gâp tâm ngih nơm lĕ?” Dôl hađăch ngơi bu nkŭm muh măt Y-Haman."
+    },
+    {
+     "verse": 9,
+     "text": "Rnôk nây Y-Harbôna du huê tâm phung oh mon char pah kan ma hađăch lah, “Ri, tơm si yông ko, prêh prăm jât hăt, “Y-Haman hŏ rơm ndrăp ndâk tâm ngih păng nơm gay yông Y-Môrdêkai, jêng bunuyh hŏ răp jăp dơi rklaih hađăch."
+    },
+    {
+     "verse": 10,
+     "text": "Hađăch lah, “Yông ko păng ta nây!” Pô ri bu yông ko Y-Haman ta ntŭk yông ko păng nơm nkra jêh ma Y-Môrdêkai. Jêh ri nau hađăch ji nuih aih jêh.",
+     "para": true
+    }
+   ]
+  },
+  {
+   "chapter": 8,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Bu Ăn Nau Dơi Ma Phung Yuđa King N'gang Khân Păng Nơm"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Nar nây, hađăch Asuêrus ăn ma Hađăch bu ur H'Êsther ngih Y-Haman, jêng nơm rlăng đah phung Yuđa. Bi ma Y-Môrdêkai văch ta năp hađăch, yor lah H'Êsther mbơh păng jêng dăch deh đah păng nơm.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Hađăch doh lơi rgên păng tâp pŏng sŏk sĭt jêh bơh Y-Haman jêh ri ăn ma Y-Môrdêkai. Jêh ri H'Êsther dơm Y-Môrdêkai chăm ngih vâl Y-Haman."
+    },
+    {
+     "verse": 3,
+     "text": "H'Êsther ngơi đŏng ma hađăch. Păng chon mon ta jâng hađăch jêh ri vơh vơl ma păng ma dak măt ŭch nkân lơi nau mhĭk Y-Haman phung Agak, nau păng hŏ ŭch mĭn gay ƀư mhĭk ma phung Yuđa.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Hađăch yơr mâng jra hađăch ma mah ma H'Êsther. Pô ri H'Êsther dâk jêh ri dâk pa năp hađăch,"
+    },
+    {
+     "verse": 5,
+     "text": "păng lah, “Tơ lah di nau hađăch mĭn, jêh ri tơ lah gâp geh jêh nau yô̆ ta năp măt hađăch, jêh ri nau aơ ƀư kan di ta năp hađăch, gâp ƀư maak ma măt hađăch uănh ăn bu chih du nau ntrŭnh jêh ri ntĭnh mplơ̆ sĭt lơi sămƀŭt Y-Haman, phung Agak, kon bu klâu Y-Hamadatha hŏ chih njuăl jêh gay ƀư rai lơi phung Yuđa gŭ tâm lĕ rngôch n'gor bri hađăch."
+    },
+    {
+     "verse": 6,
+     "text": "Yor lah mâm gâp dơi dơn saơ nau rêh ni tât ma phung ƀon lan gâp? Mâu lah mâm gâp dơi dơn saơ nau ƀư rai phung ndŭl mpôl gâp?”"
+    },
+    {
+     "verse": 7,
+     "text": "Hađăch Asuêrus lah ma Hađăch Bu ur H'Êsther jêh ri ma Y-Môrdêkai, phung Yuđa, “Aơ, gâp ăn jêh ma H'Êsther ngih Y-Haman, jêh ri bu yông ko jêh păng ta ntŭk bu yông ko, yor lah păng hŏ ŭch ƀư ŭch ƀư mhĭk ma phung Yuđa."
+    },
+    {
+     "verse": 8,
+     "text": "Pô ri, bar hê tâm ban lĕ ma amoh hađăch dơi chih sămƀŭt ma phung Yuđa jêh ri ay may chih tĭng nau ay may ŭch, jêh ri tâp pŏng sămƀŭt nây ma rgên hađăch bu mâu dơi mplơ̆ ôh."
+    },
+    {
+     "verse": 9,
+     "text": "Rnôk nây, bu kuăl phung kôranh chih sămƀŭt ma hađăch, tâm khay pe, jêng khay Sivan, ta nar bar jât ma pe. Bu chih nau vay tĭng nâm lĕ rngôch nau Y-Môrdêkai ntĭnh jêh ma phung Yuđa, njuăl ma phung kôranh nkual bri, kôranh n'gor, kôranh nkual, ntơm bơh bri Klâng (india) tât ma bri Êthiôpi, du rhiăng bar jât ma pơh bri, ma ăp bri tĭng nâm rplay sămƀŭt khân păng nơm, jêh ri ma ăp ntil mpôl bunuyh tĭng nâm nau khân păng ngơi, jêh ri nđâp ma phung Yuđa tĭng nâm rplay sămƀŭt jêh ri nau ngơi khân păng.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Bu chih nau nây ma amoh Hađăch Asuêrus, jêh ri tâp pŏng ma rgên hađăch, jêh ri bu njuăl sămƀŭt prơh ta han rmlak njŭn sămƀŭt hăn ncho seh prăl bu prăp tâm kan hađăch, jêh ri noi seh bơh seh hađăch."
+    },
+    {
+     "verse": 11,
+     "text": "Ma sămƀŭt nây hađăch ăn nau dơi ma phung Yuđa gŭ tâm ăp bri, ăp n'gor, ăp nkual, ăp mƀon du bri Asuêrus,"
+    },
+    {
+     "verse": 12,
+     "text": "tâm rgum tâm du nar, jêng nar jât ma pe khay jât ma bar, jêng khay Adar, gay king n'gang êng nau rêh khân păng nơm, bơh nau ƀư rai, nau nkhĭt, jêh ri nau rai lôch, nau dơi bơh phung rlăng, ŭch mĭn ƀư mhĭk khân păng, ur jêh ri kon khân păng, jêh ri pit in drăp ndơ khân păng."
+    },
+    {
+     "verse": 13,
+     "text": "Du pŏk sămƀŭt ntrŭnh kơt chih nau ntĭnh bu mra ăn du luh jêng du nau vay tâm ăp n'gor, jêh ri tơih mbơh ma lĕ rngôch phung ƀon lan, jêh ri phung Yuđa dơi nkra ta nar nây gay plơng bôk khân păng nơm ma phung rlăng khân păng.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Pô ri phung njŭn sămƀŭt ncho seh prăl bu prăp tâm kan hađăch dâk hăn ma nau ndal, geh nau nsĭch tă bơh nau hađăch ntĭnh. Pô nây nau ntrŭnh nây luh tă bơh ƀon Susa ƀon tơm."
+    },
+    {
+     "verse": 15,
+     "text": "Y-Môrdêkai luh bơh ta năp hađăch ma ao hađăch ĭr jêh ri nglang, ndô du mlâm đon hađăch toyh ma mah, jêh ri du blah ao jong ma brai mhay rhên rvanh chăng krăk, dôl phung ƀon lan ƀon Susa nter troh jêh ri răm rhơn.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Phung Yuđa geh nau ang, răm maak, nau hâk răm jêh ri nau yơk."
+    },
+    {
+     "verse": 17,
+     "text": "Tâm ăp n'gor bri jêh ri tâm ăp rplay ƀon, ta ntŭk geh jêh nau ntăm jêh ri sămƀŭt ntrŭnh bơh hađăch lĕ tât, pô ri geh nau răm maak jêh ri rhơn răm ngăn ta nklang phung Yuđa, du nau nhêt sông jêh ri du năng du nar. Geh âk bunuyh phung ntil mpôl bunuyh lam bri êng mbơh khân păng jêng phung Yuđa; yor lah khân păng klach ngăn ma phung Yuđa lơh khân păng."
+    }
+   ]
+  },
+  {
+   "chapter": 9,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Phung Yuđa Ƀư Rai Phung Rlăng Khân Păng"
+    },
+    {
+     "before_verse": 16,
+     "type": "heading",
+     "text": "Nau Nhêt Sông Purim"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Khay jât ma bar jêng khay Ađar, ta nar jât ma pe khay nây, tơ lah dăch tât nar năng jêh dơi ƀư di nanê̆ nau ntăm jêh ri sămƀŭt ntrŭnh bơh hađăch, tâm nar nây jêng nar phung rlăng ƀon lan Yuđa ŭch kơnh tŭn gay dơi chiă uănh khân păng, ƀiă lah nau nây jêng tih tâm rgâl lơi jêng du nar ma phung Yuđa geh nau dơi chiă uănh phung rlăng khân păng,",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "phung Yuđa tâm rgum tâm ƀon khân păng lam lĕ rngôch di bri hađăch Asuêrus, gay ŭch lơh ma phung ƀư mhĭk ma khân păng; mâu geh bunuyh dơi plơ̆ rdâng khân păng yor lah lĕ ntil mpôl bunuyh klach ngăn ma phung Yuđa."
+    },
+    {
+     "verse": 3,
+     "text": "Lĕ rngôch phung kôranh n'gor, kôranh nkual bri, kôranh oh mon răk rong hađăch, kâp kơl phung Yuđa da dê, yor lah khân păng klach yơk Y-Môrdêkai."
+    },
+    {
+     "verse": 4,
+     "text": "Yor lah Y-Môrdêkai jêng toyh tâm ngih hađăch, jêh ri nau lư n'găr păng hăn lam lĕ rngôch n'gor bri; yor lah Y-Môrdêkai nây lơ nar lơ hao toyh ƀa ƀơ."
+    },
+    {
+     "verse": 5,
+     "text": "Phung ƀon lan Yuđa hăn lơh nkhĭt phung rlăng khân păng ma đao, nkhĭt lơi, jêh ri ƀư rai lơi khân păng; mbu nơm rmot khân păng, pô ri khân păng sĭt rlơt lơh tĭng khân păng ŭch."
+    },
+    {
+     "verse": 6,
+     "text": "Ta ƀon tơm Susa, phung Yuđa lơh nkhĭt prăm rhiăng nuyh,",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "jêh ri khân păng lơh nkhĭt tâm ban lĕ Y-Parsandatha, Y-Dalphôn, Y-Aspatha,"
+    },
+    {
+     "verse": 8,
+     "text": "Y-Pôratha, Y-Adalia, Y-Aridatha,"
+    },
+    {
+     "verse": 9,
+     "text": "Y-Parmasta, Y-Arisai, Y-Aridai, jêh ri Y-Waisatha,"
+    },
+    {
+     "verse": 10,
+     "text": "jêng phung jât nuyh kon bu klâu Y-Haman, sau Y-Hamadatha, nơm rlăng đah phung Yuđa. Ƀiă lah khân păng mâu pit in drăp ndơ ôh."
+    },
+    {
+     "verse": 11,
+     "text": "Tâm nar nây, bu djôt leo ma hađăch gĭt rnoh bu nkhĭt tâm ƀon tơm Susa.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Hađăch ngơi lah ma Hađăch Bu ur H'Êsther pô aơ: Phung Yuđa hŏ lơh nkhĭt tâm ƀon tơm Susa prăm rhiăng nuyh, jêh ri jât nuyh kon bu klâu Y-Haman; lah pô ri mâm khân păng hôm dơi ƀư đŏng tâm lĕ rngôch n'gor du bri hađăch! Aƀaơ moh ay ŭch dăn? Gâp mra ăn tât ngăn nau nây.”"
+    },
+    {
+     "verse": 13,
+     "text": "H'Êsther lah, “Tơ lah di nau hađăch mĭn, tâm nar ôi taơ ăn hom ma phung Yuđa gŭ tâm ƀon susa dơi ƀư tâm ban lĕ tĭng nâm nau ntrŭnh nar aơ; jêh ri dơi ăn yông ko jât nuyh kon bu klâu Y-Haman.”",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Hađăch ăn bu ƀư nau nây; bu ăn du nau ntĭnh tâm ƀon susa, jêh ri bu yông ko lơi phung jât nuyh kon bu klâu Y-Haman.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Phung Yuđa gŭ tâm ƀon susa tâm rgum tâm ban lĕ ta nar jât ma puăn, khay Adar, jêh ri lơh nkhĭt pe rhiăng nuyh bu klâu tâm ƀon susa; ƀiă lah khân păng mâu pit in ôh drăp ndơ.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Phung Yuđa êng gŭ tâm lĕ du bri hađăch tâm rgum tâm ban lĕ ŭch king n'gang nau rêh khân păng, tâm lơh đah phung rlăng khân păng, jêh ri nkhĭt pơh rmưn prăm rbăn nuyh phung tâm rmot ma khân păng. Ƀiă lah khân păng mâu pit in ôh drăp ndơ.",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Bu ƀư nau nây ta nar jât ma pe khay Adar, jêh ri nar jât ma puăn, khân păng rlu jêh ri nkra nhêt sông răm maak du nar."
+    },
+    {
+     "verse": 18,
+     "text": "Ƀiă lah phung Yuđa gŭ ta ƀon susa tâm rgum tâm nar jât ma pe jêh ri jât ma puăn khân nây, khân păng gŭ rlu nhêt sông răm maak."
+    },
+    {
+     "verse": 19,
+     "text": "Yor nây, phung Yuđa, gŭ tâm lĕ rngôch ƀon jê̆, mâu geh mpêr kah gĭt prăp nar jât ma puăn, khay Adar jêng du nar răm maak, jêh ri nhêt sông, du năng nar tâm njŭn ndơ ueh lơn ndrăng khân păng."
+    },
+    {
+     "verse": 20,
+     "text": "Y-Môrdêkai chih prăp lĕ nau nây jêh ri njuăl sămƀŭt ma lĕ rngôch phung Yuđa gŭ tâm lĕ rngôch n'gor bri tâm du bri Hađăch Asuêrus, dăch mâu lah ngai,",
+     "para": true
+    },
+    {
+     "verse": 21,
+     "text": "gay ăn khân păng tâm ăp nơm kah gĭt prăp nar jât ma puăn jêh ri nar jât ma prăm, khay Adar,"
+    },
+    {
+     "verse": 22,
+     "text": "yor lah tâm nar jêh ri khay nây phung Yuđa hŏ klaih jêh tă bơh phung rlăng khân păng jêh ri dơi đăp mpăn, tă tâm nau rngot rvê tâm rlơ̆ jêng nau răm rhơn, jêh ri tă bơh nau klâng rvê rlơ̆ jêng nar rlu mpăn; gay khân păng njêng nar nây nar năng nhêt jêh ri hâk răm, nar tâm njŭn ndơ ueh lơn ndrăng khân păng, jêh ri nhơr kơl ma phung o ach."
+    },
+    {
+     "verse": 23,
+     "text": "Pô nây phung Yuđa n'ho ƀư tĭng nâm khân păng ntơm ƀư jêh, tĭng nâm nau Y-Môrdêkai chih jêh ma khân păng.",
+     "para": true
+    },
+    {
+     "verse": 24,
+     "text": "Yor lah Y-Haman, phung Agak, kon bu klâu Y-Hamadatha, nơm rlăng ma lĕ rngôch phung Yuđa, hŏ tâm chră jêh ŭch ƀư rai phung Yuđa jêh ri ƀư nau nchroh Pur, nâm bu ntĭt chroh n'hôr, gay ƀư rai jêh ri ƀon rai lôch khân păng."
+    },
+    {
+     "verse": 25,
+     "text": "Ƀiă lah tơ lah H'Êsther văch ta năp hađăch, gay mbơh mpơl nau nây, pô ri hađăch ntrŭnh nau chih ma sămƀŭt ntĭnh, mbơh lĕ nau mĭn plĕch bơh Y-Haman, mĭn ŭch ƀư ma phung Yuđa mra mplơ̆ sĭt ma bôk păng nơm, jêh ri gay ma păng jêh ri phung kon bu klâu păng bu mra yông ko ntŭk bu yông."
+    },
+    {
+     "verse": 26,
+     "text": "Yor ri bu ntơ nar nây Purim tĭng nâm nau ngơi Pur. Pô nây yor lĕ rngôch nau chih jêh tâm ndrom sămƀŭt nây, jêh ri yor tă lĕ nau khân păng saơ tâm nau nây, jêh ri lĕ nau tât jêh ma khân păng,"
+    },
+    {
+     "verse": 27,
+     "text": "nây yơh phung Yuđa ntĭnh, sŏk dơn ma khân păng nơm, ma phung kon sau khân păng, jêh ri ma lĕ rngôch mbu phung tâm rnglăp ndrel ma khân păng, ăp năm dơi kah gĭt bar nar nây tĭng nâm nau chih jêh, jêh ri tĭng nâm yan hŏ nal jêh ăp năm, mâu geh ôh bunuyh cha lơi hêng;"
+    },
+    {
+     "verse": 28,
+     "text": "gay ma bu kah gĭt prăp nar nây tâm lĕ rngôch rô̆ ; mâu dơi ôh cha lơi hêng nar Purim aơ bơh ta nklang phung Yuđa; jêh ri mâu lĕ dơi roh nau kah gĭt aơ bơh noi deh khân păng."
+    },
+    {
+     "verse": 29,
+     "text": "Hađăch Bu ur H'Êsther, kon bu ur Y-Abihêl jêh ri Y-Môrdêkai, phung Yuđa chih ma lĕ nau dơi nanê̆ ngăn sămƀŭt rơh bar gay ntĭm phung Yuđa djôt mray nar năng Purim,",
+     "para": true
+    },
+    {
+     "verse": 30,
+     "text": "păng sŏk nau ngơi đăp mpăn jêh ri nau ngăn bu njuăl sămƀŭt ma lĕ rngôch phung Yuđa, ma du rhiăng bar jât ma pơh n'gor tâm ƀon bri hađăch Asuêrus,"
+    },
+    {
+     "verse": 31,
+     "text": "gay ma nar Purim nây bu mra kah gĭt prăp ta yan tâm nal jêh, tĭng nâm Y-Môrdêkai, phung Yuđa, jêh ri Hađăch Bu ur H'Êsther ntĭnh jêh ma phung Yuđa, jêh ri tĭng nâm khân păng ntĭnh ma khân păng nơm, jêh ri ma phung kon sau khân păng, ma nau ât sông sa jêh ri nau nhĭm vơl."
+    },
+    {
+     "verse": 32,
+     "text": "Nau Hađăch Bu ur H'Êsther ntăm ăn nâp nau vay nây ma Purim, jêh ri bu chih prăp nau nây."
+    }
+   ]
+  },
+  {
+   "chapter": 10,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Tâm Rnê Y-Môrdêkai"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Hađăch Asuêrus riu pi tâm n'gor bri jêh ri tâm bri kơh dak mƀŭt.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Jêh ri lĕ rngôch kan nau dơi jêh ri nau ktang păng, jêh ri lĕ nau nkoch bri ma nau yơk toyh ma Y-Môrdêkai, hađăch n'hao jêh păng, mâm nau ăn hao, lĕ rngôch nau geh chih tâm ndrom sămƀŭt Nau Rêh Jêng ma Kan Phung Hađăch bri Mêdơ jêh ri Persơ?"
+    },
+    {
+     "verse": 3,
+     "text": "Yor lah Y-Môrdêkai, phung Yuđa, ƀư kôranh toyh mrô nguay tâm dâng hađăch Asuêrus, jêh ri păng jêng toyh ta nklang phung Yuđa, jêh ri phung âk tâm phung oh nâu păng rŏng ma păng, yor lah păng joi nau ueh ma phung ƀon lan păng jêh ri ngơi nau đăp mpăn ma lĕ rngôch phung ƀon lan păng.’"
+    }
+   ]
+  }
+ ],
+ "footnotes": [
+  {
+   "chapter": 2,
+   "verse": 2,
+   "verse_end": null,
+   "mark": "a",
+   "part": null,
+   "text": "Oh mon, phung răk rong hađăch, mâu lah ntuh bâr hađăch. 2:3 dak kôlônh, dak ƀâu kah hĭng sŏk. Prăng ntơ: Eua de cologne. 2:9 jrô nŭng: Jrô prăp êng ma bu ur druh ma hađăch."
+  }
+ ],
+ "warnings": [
+  {
+   "ref": "EST 2:7",
+   "issue": "space before punctuation"
+  },
+  {
+   "ref": "EST 9:28",
+   "issue": "space before punctuation"
+  }
+ ]
+}

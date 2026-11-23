@@ -1,0 +1,150 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "OBA",
+  "order": 31,
+  "testament": "OT",
+  "name": "Obadiah",
+  "local_name": "Y-Apdia",
+  "title_block": [
+   "Ndrom Sămƀŭt Bơh",
+   "Y-APDIA"
+  ]
+ },
+ "source": {
+  "file": "031. 31OBA.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Mbơh Lor Ma Nau Êđôm Roh Rai"
+    },
+    {
+     "before_verse": 17,
+     "type": "heading",
+     "text": "Nau Ƀư Bah N'gor Bri Israel"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Nau Y-Apdia tâm saơ, Kôranh Brah Yêhôva lah ma bri Êđôm: He lĕ tăng nau mbơh tă bơh Yêhôva, jêh ri bu prơh hăn du huê nơm mbơh ta nklang phung mpôl băl bunuyh: Dâk hom khân may! He dâk hom rdâng tâm lơh đah păng!",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Aơ, gâp mra ăn may jêng jê̆ ta nklang phung mpôl băl bunuyh. May, bu tâm rmot hâu ngăn.",
+     "para": true
+    },
+    {
+     "verse": 3,
+     "text": "Hơi nơm gŭ tâm trôm lŭ, nơm gŭ tâm ntŭk prêh, bunuyh lah tâm nuih n'hâm păng nơm, Mbu dơi nklơ̆ gâp tŭp ta neh? Nau sưr tă bơh nuih n'hâm may hŏ ndơm may nơm.",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Nđâp lah may mpăr ta klơ nâm bu klang, nđâp tơ lah may ƀư rsuăn may ta nklang phung mănh, gâp mra nklơ̆ may tă bơh ntŭk nây, Yêhôva Brah Ndu lah.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Bunuyh ƀư rai yot mâm păng jêng! Tơ lah phung ntŭng mâu lah bunuyh pit ndô ndơ dôl măng văch ta may, mâu di hĕ khân păng mra ntŭng knŏng man tŏng ăp ma khân păng nơm? Tơ lah phung pĕ play kriăk ƀâu văch ma may, mâu di hĕ khân păng om bar pe rkŭm ma phung dônh?",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Ndơ Y-Êsau lĕ bu joi sek pit in jêh drăp păng!",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Lĕ rngôch phung tâm rnglăp đah may ndơm may nơm, mprơh may tât ta n'har bri; phung băl may dơi jêh đah may, phung mĭt jiăng may nsing lĕ sân jêh dăk tâm dâng may. Jêh ri may mâu gĭt vât ôh ma nau nây.",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "Yêhôva lah: Mâu di hĕ tâm nar nây gâp mra ƀư rai phung blau mĭn bơh bri Êđôm, jêh ri nau blau mĭn tă bơh yôk Êsau?",
+     "para": true
+    },
+    {
+     "verse": 9,
+     "text": "Phung janh ktang may mra uh ah, hơi bri Têman, phung ta han tâm lơh bu mra ƀư rai tă bơh yôk Êsau ma nau nkhĭt.",
+     "para": true
+    },
+    {
+     "verse": 10,
+     "text": "Yor ma nau djơh, nau mhĭk may hŏ ƀư jêh ma oh may Y-Yakôb, nau prêng mra nkŭm may, jêh ri bu mra ƀư rai may ƀa ƀơ n'ho ro!",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Ta nar may hŏ ƀư jêh nau mâu chrê ôh, ta nar phung bu năch pit in drăp ndơ păng, jêh ri phung bu năch lăp tâm mpông pêr păng jêh ri ƀư nau tâm nchroh ma ƀon Yêrusalem, may jêng nâm bu du huê tâm phung khân păng.",
+     "para": true
+    },
+    {
+     "verse": 12,
+     "text": "Ƀiă lah lĕ tih jêh nau may n'hơm trôm măt may tâm nar oh may geh nau rêh ri; tih jêh may sưr tâm nar khân păng uh ah.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Tih jêh nau may lăp tâm mpông pêr ƀon lan gâp tâm nar khân păng rai lôch; tih jêh may sưr yor nau rêh ni khân păng, tâm nar khân păng rêh ni;"
+    },
+    {
+     "verse": 14,
+     "text": "tih nau may gŭ ta rdjŭm nglah trong ŭch nkhĭt phung khân păng nchuăt du; tih jêh nau may jao phung păng klaih tâm nar nau uh ah."
+    },
+    {
+     "verse": 15,
+     "text": "Yor lah nar Yêhôva dăch tât jêh ma lĕ rngôch mpôl băl bunuyh. Bu mra ƀư ma may nâm bu may hŏ ƀư jêh ma bu, kan may hŏ ƀư jêh mra mplơ̆ sĭt ta klơ bôk may nơm.",
+     "para": true
+    },
+    {
+     "verse": 16,
+     "text": "Yor lah nâm bu may hŏ nhêt jêh ta klơ yôk kloh ueh gâp, tâm ban nây lĕ rngôch mpôl băl bunuyh gŭ jŭm may mra nhêt. Khân păng mra nhêt jêh ri plơ̆ nhêt đŏng, jêh ri mra jêng nâm bu khân păng ê hŏ mâp jêng ôh.",
+     "para": true
+    },
+    {
+     "verse": 17,
+     "text": "Ƀiă lah mra geh phung klaih gŭ ta yôk Siôn, yôk nây mra jêng kloh ueh; jêh ri ngih Yakôb mra geh bri ma khân păng nơm đŏng.",
+     "para": true
+    },
+    {
+     "verse": 18,
+     "text": "Ngih Yakôb mra jêng ŭnh, jêh ri ngih Yôsep mpiăt ŭnh, ngih Êsau mra jêng rhe; khân păng mra su jêh ri ŭnh sa ngih Êsau, jêh ri mâu mra hôm klen du huê hôm e rêh ôh tâm ngih Êsau, yor lah Yêhôva ngơi jêh nau nây.",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "Phung tă bơh bri rđŭng mra sŏk ndơn yôk Êsau, jêh ri phung tă bơh neh lâng mra sŏk ndơn bri Philistin; khân păng mra sŏk ndơn bri Êphraim jêh ri bri Samari, jêh ri phung Benjamin mra sŏk ndơn bri Galaat.",
+     "para": true
+    },
+    {
+     "verse": 20,
+     "text": "Phung Israel hŏ hăn jêh jêng bună tă bơh ƀon Yêrusalem gŭ tâm bri Sarepta; jêh ri phung hăn jêng bună tă bơh ƀon Yêrusalem gŭ tâm bri Sêpharat mra sŏk ndơn ƀon tâm bri rđŭng.",
+     "para": true
+    },
+    {
+     "verse": 21,
+     "text": "Phung tâm rklaih mra hao yôk Siôn gay chiă uănh yôk Êsau. Jêh ri ƀon bri hađăch mra jêng ndơ Yêhôva.",
+     "para": true
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": [
+  {
+   "ref": "OBA 1:13",
+   "issue": "verse start moved to the inline number (check)"
+  }
+ ]
+}

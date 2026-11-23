@@ -1,0 +1,118 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "3JN",
+  "order": 64,
+  "testament": "NT",
+  "name": "3 John",
+  "local_name": "III Y-Yôhan",
+  "title_block": [
+   "Sămƀŭt Rơh Pe Tĭng Nâm",
+   "Y-YÔHAN"
+  ]
+ },
+ "source": {
+  "file": "064. 643JN.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nơm Dơn Sămƀŭt Jêh Ri Nau Khâl"
+    },
+    {
+     "before_verse": 2,
+     "type": "heading",
+     "text": "Nau Tâm Rnê Ma Y-Gaius"
+    },
+    {
+     "before_verse": 13,
+     "type": "heading",
+     "text": "Nau Khâl"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Nơm bu ranh nchih sămƀŭt njuăl ma Y-Gaius, nơm bu rŏng, nơm gâp rŏng tâm nau nanê̆.",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Hơi nơm gâp rŏng, gâp mbơh sơm gay ma may geh nau ueh tâm lĕ rngôch ndơ, jêh ri gay ma săk jăn may ngăch prăl tâm ban ma huêng may lĕ.",
+     "para": true
+    },
+    {
+     "verse": 3,
+     "text": "Gâp răm ngăn ngên tơ lah ƀa ƀă phung oh nâu tât jêh ri mbơh nkoch bri ma nau nanê̆ tâm nau rêh may jêh ri ma nau may hăn tĭng ndô̆ nau nanê̆."
+    },
+    {
+     "verse": 4,
+     "text": "Gâp mâu geh ôh nau maak lơn ma nau gâp gĭt ma phung kon gâp hăn tĭng ndô̆ nau nanê̆.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Hơi nơm gâp rŏng, may ƀư ma nau răp jăp ma nau may kơl ma phung oh nâu, jêh ri play nanê̆ ngăn ma phung bu năch.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Phung nĕ nkoch bri mbơh jêh ma nau may rŏng ta năp phung ngih Brah Ndu. May mra ƀư ueh tơ lah may ăn ndơ kơl ma nau khân păng nsong khư ma kan Brah Ndu."
+    },
+    {
+     "verse": 7,
+     "text": "Yor lah ma amoh Yêsu Krist yơh khân păng hăn jêh, mâu sŏk dơn du ntil ndơ bơh phung bu năch ôh."
+    },
+    {
+     "verse": 8,
+     "text": "Pô ri ăn he rom phung bunuyh nâm nđĕ, gay ma he jêng phung pah kan ma nau nanê̆ ndrel ma khân păng. Nau Phong Ma Y-Điôtrep Jêh Ri Tâm Rnê Ma Y-Đêmêtrius"
+    },
+    {
+     "verse": 9,
+     "text": "Gâp nchih jêh bar pe rplay sămƀŭt njuăl ma phung ngih Brah Ndu, ƀiă lah Y-Điôtrep, nơm ŭch rŏng jêng mrô nguay tâm phung khân păng, mâu rom hên ôh."
+    },
+    {
+     "verse": 10,
+     "text": "Yor nây, tơ lah gâp hăn, gâp mra kah gĭt nau mhĭk păng ƀư, jêh ri nau păng ngơi mhĭk ma hên. Tơ lah ê tŏng nâm nđĕ, nđâp păng nơm mâu rom ôh phung oh nâu, jêh ri mbu nơm ŭch rom, păng buay bu jêh ri mprơh lơi bơh phung ngih Brah Ndu."
+    },
+    {
+     "verse": 11,
+     "text": "Hơi nơm gâp rŏng, lơi kơt nau mhĭk ôh, ƀiă lah nau ueh. Mbu nơm ƀư nau ueh, luh bơh Brah Ndu; mbu nơm ƀư nau mhĭk, mâu mâp saơ Brah Ndu ôh."
+    },
+    {
+     "verse": 12,
+     "text": "Lĕ rngôch mbơh nau ueh Y-Đêmêtrius, nđâp nau nanê̆ nơm lĕ. Hên tâm ban lĕ mbơh nau ueh ma păng, jêh ri may gĭt nau hên mbơh jêng nau ngăn.",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Gâp geh âk nau ŭch nchih ma may, ƀiă lah gâp mâu ŭch ƀư nau nĕ ma dak ôch jêh ri ma mâng nchih ôh.",
+     "para": true
+    },
+    {
+     "verse": 14,
+     "text": "Gâp kâp gân mra saơ may gơnh, jêh ri ngơi đah may."
+    },
+    {
+     "verse": 15,
+     "text": "Ăn nau đăp mpăn gŭ ndrel ma may. Phung mĭt jiăng njuăl nau khâl đah may. Ăn may njuăl nau khâl ma phung mĭt jiăng ma ăp nơm êng êng."
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": [
+  {
+   "ref": "3JN 1",
+   "issue": "has 15 verses, standard 14"
+  }
+ ]
+}

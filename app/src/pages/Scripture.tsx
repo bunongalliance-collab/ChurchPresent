@@ -13,6 +13,7 @@ import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
 import { breakRow } from "../lib/pptx";
 import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, markerToVisible, NO_FMT, tokenLenAt, visibleToMarker } from "../lib/richeditor";
+import { DB_BIBLES, fetchDbBooks, fetchDbPassage, isDbBible } from "../lib/bible";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
 interface BibleVersion { id: string; name: string }
@@ -312,13 +313,22 @@ export default function Scripture() {
   const user = session?.user ?? null;
   const selected = slides.find((s) => s.id === selectedId) ?? null;
 
-  // The books this Bible version has (from YouVersion), so the Book list only offers real choices
-  const bibleForBooks = selected ? (selected.bible || bibles[0]?.id) : undefined;
+  // Versions to choose from: the Bibles in our own database first, then the YouVersion list (editable)
+  const versions = [...DB_BIBLES, ...bibles];
+  // A passage with no version picked yet uses the first one (Bunong, Vietnam)
+  const defaultBible = versions[0]?.id;
+  // The books this Bible version has (from YouVersion, or from our database), so the Book list only offers real choices
+  const bibleForBooks = selected ? (selected.bible || defaultBible) : undefined;
   useEffect(() => {
     if (!bibleForBooks || bibleForBooks in bookCodes) return;
     let cancelled = false;
     (async () => {
       try {
+        if (isDbBible(bibleForBooks)) {
+          const books = await fetchDbBooks(bibleForBooks);
+          if (!cancelled) setBookCodes((cur) => ({ ...cur, [bibleForBooks]: books.length ? books : null }));
+          return;
+        }
         const path = `v1/bibles/${encodeURIComponent(bibleForBooks)}/books`;
         const r = await fetch(`/api/yv?path=${encodeURIComponent(path)}`);
         if (!r.ok) throw new Error(String(r.status));
@@ -539,15 +549,23 @@ export default function Scripture() {
       : null;
     const ref = picked && picked.v2 >= picked.v1 && picked.ch > 0 ? picked : parseTyped(selected.title);
     if (!ref) { say("Choose a book, chapter and verse first.", true); return; }
-    const bible = selected.bible || bibles[0]?.id;
+    const bible = selected.bible || defaultBible;
     if (!bible) { say("Add a Bible version first.", true); return; }
     setBusy(true);
     say("Fetching…");
     try {
       const lines: string[] = [];
-      for (let v = ref.v1; v <= ref.v2; v++) {
-        const verse = await fetchVerse(bible, ref.code, ref.ch, v);
-        lines.push(look.verseNumbers ? `${v} ${verse}` : verse);
+      if (isDbBible(bible)) {
+        // Our own database: the whole range in one request; a verse printed as "14-15" keeps that number
+        for (const r of await fetchDbPassage(bible, ref.code, ref.ch, ref.v1, ref.v2)) {
+          const num = r.verseEnd ? `${r.verse}-${r.verseEnd}` : String(r.verse);
+          lines.push(look.verseNumbers ? `${num} ${r.text}` : r.text);
+        }
+      } else {
+        for (let v = ref.v1; v <= ref.v2; v++) {
+          const verse = await fetchVerse(bible, ref.code, ref.ch, v);
+          lines.push(look.verseNumbers ? `${v} ${verse}` : verse);
+        }
       }
       // The label uses the book's name in this version's language (English if YouVersion's list is not loaded)
       const bookLabel = bookCodes[bible]?.find((b) => b.code === ref.code)?.title || bookName(ref.code);
@@ -716,11 +734,11 @@ export default function Scripture() {
             {selected?.kind === "passage" && (
               <>
                 <details className="sc-version">
-                  <summary>Bible version <span className="sc-version-now">{bibles.find((b) => b.id === (selected.bible || bibles[0]?.id))?.name ?? ""}</span></summary>
+                  <summary>Bible version <span className="sc-version-now">{versions.find((b) => b.id === (selected.bible || defaultBible))?.name ?? ""}</span></summary>
                   <div className="sc-radios" role="radiogroup" aria-label="Bible version">
-                    {bibles.map((b) => (
+                    {versions.map((b) => (
                       <label key={b.id} className="sc-radio">
-                        <input type="radio" name="bible" value={b.id} checked={(selected.bible || bibles[0]?.id) === b.id} onChange={() => update(selected.id, { bible: b.id })} />
+                        <input type="radio" name="bible" value={b.id} checked={(selected.bible || defaultBible) === b.id} onChange={() => update(selected.id, { bible: b.id })} />
                         {b.name}
                       </label>
                     ))}

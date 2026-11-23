@@ -1,0 +1,224 @@
+{
+ "translation": {
+  "id": "bunong-vn",
+  "name": "Bunong Bible (Vietnam dialect)",
+  "language": "Bunong"
+ },
+ "book": {
+  "code": "HAG",
+  "order": 37,
+  "testament": "OT",
+  "name": "Haggai",
+  "local_name": "Y-Agê",
+  "title_block": [
+   "Ndrom Sămƀŭt Bơh",
+   "Y-AGÊ"
+  ]
+ },
+ "source": {
+  "file": "037. 37HAG.pdf"
+ },
+ "chapters": [
+  {
+   "chapter": 1,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Ntrôl Ndâk Ngih Brah"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Năm rơh bar rnôk hađăch Darius, chiă uănh, ta nar sa ơm, khay prao, Yêhôva ngơi ma kôranh nơm mbơh lor Y-Agê lah ma Y-Sôrôbabel, kon bu klâu Y-Sêaltiêl kôranh chiă uănh n'gor Yuđa, jêh ri ma Y-Yôsuê, kon bu klâu Y-Jêhôsadak, kôranh ƀư brah toyh, lah:",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Pô aơ Yêhôva phung ta han lah, Phung ƀon lan aơ lah, Mông nar ê hŏ tât, jêng mông ndâk đŏng ngih Yêhôva."
+    },
+    {
+     "verse": 3,
+     "text": "Yor nây dơi geh nau Yêhôva ngơi ma kôranh nơm mbơh lor Y-Agê:",
+     "para": true
+    },
+    {
+     "verse": 4,
+     "text": "Aƀaơ di mông ma khân may lĕ, tâm trôm ngih ndop dơm ma kađar si, tơ lah ngih aơ jêng rngol?"
+    },
+    {
+     "verse": 5,
+     "text": "Pô ri aƀaơ, Yêhôva phung ta han lah pô aơ: Khân may mêt uănh hom nau khân may ŭch ƀư.",
+     "para": true
+    },
+    {
+     "verse": 6,
+     "text": "Khân may srih âk ƀiă lah rek djê̆ dơm; sa mâu hơm, nhêt mâu mpay; nsoh n'gut mâu răm ntơh; jêh ri bunuyh pah kan nkhôm, geh rnoh bu nkhôm, ăn tâm trôm dŭng bluh."
+    },
+    {
+     "verse": 7,
+     "text": "Yêhôva phung ta han lah: Ăn khân may mêt uănh hom nau khân may ŭch ƀư.",
+     "para": true
+    },
+    {
+     "verse": 8,
+     "text": "Hao hom klơ yôk, djôt nsĭt tơm si, jêh ri ndâk ngih aơ, ri mơ gâp geh nau maak, jêh ri lư n'găr amoh gâp geh nau chrêk rmah, Yêhôva lah nau nây."
+    },
+    {
+     "verse": 9,
+     "text": "Khân may joi ŭch geh âk, ƀiă lah aơ, geh djê̆; jêh ri tơ lah khân may djôt lao ta ngih, gâp khôm mpruh lơi ăn păng du. Yêhôva phung ta han lah: Mbah tă yor nau nây? Nây jêng yor tă ngih gâp lĕ rai, ƀiă lah ăp nơm khân may ŭch mĭn ndâk ngih gâp."
+    },
+    {
+     "verse": 10,
+     "text": "Yor ri, yor tă khân may, trôk ta klơ mâu truh dak ngom, jêh ri neh ntu mâu hôm hon play đo.",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Gâp hŏ kuăl ăn trôk prăng phang tât tâm neh, tât ta klơ phung yôk, tât ma ntil gar, tât ma dak play kriăk ƀâu mhe, tât ma dak play Ôlivơ, tât ma ndơ chăt hon tă bơh neh, tât ma bunuyh, jêh ri ma ndrôk biăp, jêh ri ma lĕ rngôch kan khân may."
+    },
+    {
+     "verse": 12,
+     "text": "Pô nây Y-Sôrôbabel, kon bu klâu Y-Sêatiêl, jêh ri Y-Yôsuê, kon bu klâu Y-Jêhôsadak, kôranh ƀư brah toyh ndrel ma lĕ rngôch phung ƀon lan hôm klen tông bâr ma Yêhôva Brah Ndu khân păng jêh ri ma phung kôranh nơm mbơh lor Y-Agê ngơi, nơm Yêhôva Brah Ndu khân păng prơh ô băl hăn, jêh ri phung ƀon lan klach yơk ma Yêhôva,",
+     "para": true
+    },
+    {
+     "verse": 13,
+     "text": "Rnôk nây Y-Agê, ntuh bâr bơh Yêhôva, ngơi ma phung ƀon lan nau Yêhôva mbơh: Gâp gŭ ndrel ma khân may, Yêhôva lah."
+    },
+    {
+     "verse": 14,
+     "text": "Pô nây, Yêhôva ntrôl nuih n'hâm Y-Sôrôbabel, kon bu klâu Y-Sêaltiêl, kôranh chiă, uănh n'gor Yuđa, jêh ri nuih n'hâm Y-Yôsuê, kon bu klâu Y-Jêhôsadak, kôranh ƀư brah toyh, jêh ri nuih n'hâm lĕ rngôch phung ƀon lan hôm e klen. Khân ô băl văch jêh ri ntơm pah kan ntŭk ngih Yêhôva phung ta han, jêng Brah Ndu khân păng."
+    },
+    {
+     "verse": 15,
+     "text": "Nây jêng nar năng bar jât ma puăn, khay prao, tâm năm rơh bar rnôk hađăch Darius, chiă uănh."
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "headings": [
+    {
+     "before_verse": 1,
+     "type": "heading",
+     "text": "Nau Chrêk Rmah Ngih Brah Yuđa Mhe"
+    },
+    {
+     "before_verse": 10,
+     "type": "heading",
+     "text": "Nau Nduyh Ma Phung Ƀon Lan Mâu Gŭ Răp Jăp"
+    },
+    {
+     "before_verse": 20,
+     "type": "heading",
+     "text": "Nau Yêhôva Ton Ma Y-Sôrôbabel"
+    }
+   ],
+   "verses": [
+    {
+     "verse": 1,
+     "text": "Tâm nar năng bar jât ma nguay, khay pơh, Yêhôva ngơi ma kôranh nơm mbơh lor Y-Agê, lah:",
+     "para": true
+    },
+    {
+     "verse": 2,
+     "text": "Aƀaơ ngơi hom ma Y-Sôrôbabel, kon bu klâu Y-Sêaltiêl, kôranh chiă uănh n'gor Yuđa, jêh ri ma Y-Yôsuê, kon bu klâu Y-Jêhôsadak, kôranh ƀư brah toyh, jêh ri lĕ rngôch phung ƀon lan hôm e klen, lah,"
+    },
+    {
+     "verse": 3,
+     "text": "Tâm phung khân may, mbu nơm hôm e klen, nơm hŏ saơ ngih aơ tâm nau chrêk rmah păng ntơm sa ơm? Jêh ri aƀaơ mâm khân may uănh păng? Păng gŭ pa năp măt khân may, mâu hĕ di păng jêng dơm dam?"
+    },
+    {
+     "verse": 4,
+     "text": "Pô ri aƀaơ, Yêhôva lah: Hơi Y-Sôrôbabel, ăn may nănh nuih n'hâm; bi ma may, Y-Yôsuê, kon bu klâu Y-Jêhôsadak, kôranh ƀư brah toyh, ăn may nănh tâm ban lĕ; Yêhôva lah đŏng: Lĕ rngôch phung ƀon lan gŭ tâm n'gor, khân may nănh nuih n'hâm tâm ban đŏng, jêh ri pah kan hom; yor lah gâp mra gŭ ndrel ma khân may. Yêhôva phung ta han lah.",
+     "para": true
+    },
+    {
+     "verse": 5,
+     "text": "Nau tâm rnglăp gâp hŏ ton jêh đah khân may dôl khân may du lah tă bơh n'gor bri Êjipt, Brah Huêng ueh gâp gŭ ta nklang khân may; lơi klach ôh!"
+    },
+    {
+     "verse": 6,
+     "text": "Yor lah Yêhôva phung ta han lah: Du tơ̆ đŏng, lăn djê̆ jêh ta nây, gâp mra ƀư n'găr trôk jêh ri neh ntu, dak mƀŭt, jêh ri neh sơh.",
+     "para": true
+    },
+    {
+     "verse": 7,
+     "text": "Gâp mra rgu lĕ rngôch bri dak jêh ri drăp ndơ lĕ rngôch bri dak ŭch nau tât; jêh ta nây gâp ƀư ăn nau chrêk rmah bêng ngih aơ, Yêhôva phung ta han lah:"
+    },
+    {
+     "verse": 8,
+     "text": "Prăk jêng ndơ gâp, jêh ri mah jêng ndơ gâp. Yêhôva phung ta han lah."
+    },
+    {
+     "verse": 9,
+     "text": "Nau chrêk rmah rơh aƀaơ mra jêng toyh lơn ma nau chrêk rmah ngih ntơm sa ơm. Yêhôva phung ta han lah nau nây; jêh ri gâp mra ăn nau đăp mpăn tâm ntŭk aơ, Yêhôva phung ta han lah."
+    },
+    {
+     "verse": 10,
+     "text": "Nar bar jât ma puăn, khay sĭn, năm rơh bar Y-Darius, nau Yêhôva ngơi ma kôranh nơm mbơh lor, Y-Agê lah:",
+     "para": true
+    },
+    {
+     "verse": 11,
+     "text": "Pô aơ Yêhôva phung ta han lah: Aƀaơ ri ôp hom ma phung kôranh ƀư brah ma nau vay pô aơ:"
+    },
+    {
+     "verse": 12,
+     "text": "Tơ lah geh du huê bunuyh klâm puăch kloh ueh tâm dŭng ao, jêh ri dŭng ao krêp piăng let mâu lah por, dak play kriăk ƀâu, đak play ôlivơ, mâu lah ndơ sông sa êng, pô ri ndơ nây jêng kloh ueh lĕ? Phung kôranh ƀư brah plơ̆ lah, pô aơ: Mâu ôh."
+    },
+    {
+     "verse": 13,
+     "text": "Jêh ri Y-Agê lah, Tơ lah du huê jêng ƀơ̆ ƀơch yor brot rđĭl đah săk jăn bunuyh khĭt, pô ri lĕ ndơ nây geh tưp nau ƀơ̆ ƀơch lĕ? Phung kôranh ƀư brah plơ̆ lah: Lĕ ndơ nây jêng ƀơ̆ yơh."
+    },
+    {
+     "verse": 14,
+     "text": "Jêh ri Y-Agê plơ̆ lah: Yêhôva lah: Tâm ban lĕ phung ƀon lan aơ, jêh ri phung bri dak aơ gŭ pa năp măt gâp. Lĕ rngôch kan ti khân păng ƀư jêng ƀơ̆ ƀơch tâm ban lĕ; jêh ri ndơ khân păng nhhơr ta aơ ăt ƀơ̆ tâm ban lĕ.",
+     "para": true
+    },
+    {
+     "verse": 15,
+     "text": "Pô ri aƀaơ, ăn khân may mĭn rvê hom, ntơm bơh aƀaơ rlet lor sa ơm moh nau lĕ tât jêh ma khân may, tơ lah ê hŏ dơm lŭ aơ ta klơ lŭ ri ntŭk ngih brah Yêhôva."
+    },
+    {
+     "verse": 16,
+     "text": "Du bông rnôk nây, tơ lah bu tât ta du mbŭch tâm di bar jât ndơ rnhueh, knŏng geh jât dơm; jêh ri tơ lah bu văch tât ta drŏng đak play kriăk ƀâu gâp ŭch bâk prăm jât ndơ rnhuch, geh knŏng bar jât."
+    },
+    {
+     "verse": 17,
+     "text": "Gâp hŏ dŏng jêh lĕ nau prăng phang, ek găm, mih tŭp pler toyh tâm rmal phung khân may, tâm lĕ rngôch kan ti khân may ƀư, ƀiă lah khân may mâu hôm plơ̆ sĭt ma gâp ôh. Yêhôva lah."
+    },
+    {
+     "verse": 18,
+     "text": "Aƀaơ ri mĭn rvê hom; ntơm bơh aƀaơ rlet lor sa ơm, nâm bu ntĭt ntơm bơh nar bar jât ma puăn, khay sĭn. Ntơm bơh nar bu ƀư jêh mbon ngih brah Yêhôva; mĭn rvê hom ăn nanê̆ nau nây!",
+     "para": true
+    },
+    {
+     "verse": 19,
+     "text": "Khân may hôm e lĕ ntil tâm jay prăp? Tơm play pom gra nat, jêh ri tơm play Ôlivơ, tâm ban lĕ mâu geh ôh du tơm dơi geh play. Ƀiă lah ntơm bơh nar aơ, gâp mra ăn nau ueh uĭn ma khân may."
+    },
+    {
+     "verse": 20,
+     "text": "Yêhôva ngơi rơh bar ma Y-Agê, nar bar jât ma puăn khay nây, pô aơ:",
+     "para": true
+    },
+    {
+     "verse": 21,
+     "text": "Ngơi hom ma Y-Sôrôbabel, kôranh chiă uănh n'gor Yuđa, lah: Gâp mra rgu trôk jêh ri neh ntu."
+    },
+    {
+     "verse": 22,
+     "text": "Gâp nklơ̆ lơi sưng hađăch lĕ rngôch ƀon bri hađăch, jêh ri ƀư roh lơi nau ktang lĕ rngôch ƀon bri hađăch phung ntil mpôl bunuyh; jêh ri ƀư rai lơi ndeh seh jêh ri phung ncho klơ, ăp nơm bu lơh nkhĭt ma đao oh nâu khân păng nơm."
+    },
+    {
+     "verse": 23,
+     "text": "Yêhôva phung ta han lah: Hơi Y-Sôrôbabel, kon bu klâu Y-Sêaltiêl, tâm nar nây, gâp mra sŏk may, ƀư oh mon gâp! Yêhôva lah: Gâp mra dơm may nâm bu ndơ tâp pŏng, yor lah gâp hŏ săch may, Yêhôva phung ta han lah nây."
+    }
+   ]
+  }
+ ],
+ "footnotes": [],
+ "warnings": []
+}
