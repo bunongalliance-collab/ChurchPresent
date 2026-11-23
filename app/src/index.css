@@ -2806,3 +2806,38 @@ button.tm-link { background: none; border: 0; padding: 0; color: var(--accent); 
 .tm-more { margin-top: 16px; }
 .tm-more summary { cursor: pointer; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
 @media (max-width: 520px) { .tm-p { grid-template-columns: 36px minmax(0, 1fr) auto; } .tm-p select { grid-column: 2 / 3; justify-self: start; } }
+
+/* ===== Program bar: which Sunday's program, shared with the team (components/ProgramBar.tsx) ===== */
+.pgb { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--panel); border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; position: relative; }
+.pgb-pick { display: flex; align-items: center; gap: 4px; }
+.pgb button:not(#pgb-x) { color: var(--text); font-size: 0.9rem; line-height: 1.25; }
+.pgb .pgb-arrow { width: 36px; height: 36px; padding: 0; border: 0; border-radius: 8px; background: var(--sunken); display: grid; place-items: center; }
+.pgb .pgb-arrow:disabled { opacity: 0.35; cursor: default; }
+.pgb svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pgb .pgb-cur { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--bg); font-weight: 600; }
+.pgb-cur small { font-weight: 400; color: var(--muted); }
+.pgb-tag { border-radius: 999px; padding: 1px 8px; font-size: 12px; font-weight: 700; background: var(--sunken); color: var(--text); }
+.pgb-tag.pub { background: var(--accent); color: var(--on-accent); }
+.pgb-saved { flex: 1 1 220px; min-width: 0; color: var(--muted); font-size: 0.88rem; }
+.pgb-saved b { color: var(--text); font-weight: 600; }
+.pgb-saved.err { color: var(--danger); }
+.pgb button.pgb-new:not(#pgb-x) { min-height: 36px; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-weight: 600; }
+.pgb-menu { position: absolute; left: 12px; top: calc(100% + 6px); z-index: 30; min-width: 300px; max-width: calc(100vw - 32px); max-height: 60vh; overflow: auto; background: var(--panel); border: 1px solid var(--ctrl); border-radius: 12px; padding: 6px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); display: flex; flex-direction: column; }
+.pgb-menu small { color: var(--muted); padding: 6px 8px 2px; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+.pgb .pgb-menu button { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; border-radius: 8px; padding: 8px; text-align: left; }
+.pgb .pgb-menu button:hover { background: var(--sunken); }
+.pgb .pgb-menu button[aria-checked="true"]:not(#pgb-x) { background: var(--accent-soft); color: var(--on-soft); font-weight: 600; }
+.pgb-d { min-width: 110px; }
+.pgb-t { flex: 1; color: var(--muted); }
+.pgb .pgb-newmenu { left: auto; right: 12px; min-width: 260px; }
+.pgb .pgb-newmenu button { flex-direction: column; align-items: flex-start; gap: 0; }
+.pgb-newmenu button span { color: var(--muted); font-size: 0.85rem; }
+.pgb-notice { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--accent-soft); color: var(--on-soft); border-radius: 10px; padding: 10px 12px; margin: 0 0 12px; }
+.pgb-notice > span { flex: 1 1 260px; }
+.pgb-notice button:not(#pgb-x) { border: 1.5px solid currentColor; background: transparent; color: inherit; border-radius: 999px; padding: 5px 14px; font-weight: 600; }
+.pgb-notice button.pri:not(#pgb-x) { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+@media (max-width: 640px) { .pgb-menu, .pgb .pgb-newmenu { left: 0; right: 0; min-width: 0; } }
+.pgb, .pgb button:not(#pgb-x), .pgb-notice, .pgb-notice button:not(#pgb-x) { font-family: var(--font-ui); }
+.pgb .pgb-cur > span, .pgb-d { white-space: nowrap; }
+.pgb .pgb-newmenu b { font-weight: 700; }
+@media (max-width: 520px) { .pgb-cur small { display: none; } }

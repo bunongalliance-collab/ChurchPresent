@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { canEdit, saveChurchId, useChurch } from "../lib/church";
 import NavBar from "../components/NavBar";
@@ -10,6 +10,8 @@ import { loadReadingOptions, recentStudyIds, useSongOptions, type ReadingOption 
 import type { SetStateAction } from "react";
 import { publishService } from "../lib/publishedService";
 import { toast } from "../lib/toast";
+import { useSharedProgram } from "../lib/programs";
+import ProgramBar from "../components/ProgramBar";
 
 // Service program: the editor for the two-page half-fold brochure (the Word sample's layout).
 // Every field is typed on the page. Download PDF makes a PDF of the brochure only.
@@ -109,6 +111,12 @@ DEFAULT.rows = DEFAULT.rows.map((r) => ({ ...r, stage: STAGE_OF[r.item] ?? 0 }))
 export function loadDraft(): Draft {
   let saved: Partial<Draft> = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || "null") ?? {}; } catch { saved = {}; }
+  return normalizeDraft(saved);
+}
+
+// A full draft from saved data (this browser, or the church's program), filling in what older saves lack
+export function normalizeDraft(data: unknown): Draft {
+  const saved = (data && typeof data === "object" ? data : {}) as Partial<Draft>;
   const d: Draft = { ...DEFAULT, ...saved };
   d.rows = d.rows.map((r) => ({ ...r, text: r.text ?? "", names: r.names ?? [], stage: r.stage ?? STAGE_OF[r.item] ?? 0 }));
   const old = saved as Partial<Draft> & { prayers?: string[]; prayerTitle?: string };
@@ -171,6 +179,15 @@ export default function Program() {
   const setStatus = (m: string) => toast(m, /^(Could not|Sign in|Set the)/.test(m));
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* storage blocked */ } }, [d]);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
+  // The church's program for this date, shared with the team (lib/programs.ts). Its own copy stays in this browser
+  // as the draft, so Service Slides and the offline case keep working.
+  const replaceDraft = useCallback((next: Draft) => setD(next), []);
+  const shared = useSharedProgram(d, replaceDraft, normalizeDraft);
+  // A blank program: the church's own text kept (welcome, contact, prayer lists), the service itself emptied
+  const blankFor = useCallback((date: string): Draft => normalizeDraft({
+    ...d, date, rows: DEFAULT.rows.map((r) => ({ ...r, id: uid() })), lines: undefined,
+    scriptureRef: "", scriptureText: "", scriptureCite: "", announcements: [""], leader: "",
+  }), [d]);
 
   // The Order of Worship lines. Services saved in the older format are converted once, on first edit.
   const orderLines: Lines = d.lines ?? rowsToLines(d.rows);
@@ -338,6 +355,14 @@ export default function Program() {
           <button className="pg-btn primary" onClick={generatePdf}>Download PDF</button>
         </div>
       </div>
+
+      {shared.active && (
+        <ProgramBar state={shared.state} message={shared.message} list={shared.list} current={shared.current} published={shared.published}
+          notice={shared.notice} me={shared.me}
+          onOpen={(p) => void shared.open(p)}
+          onNew={async (from) => { const made = await shared.startNew(from, blankFor); if (made) setStatus(from === "copy" ? `New program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}, copied from the last one.` : `Blank program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}.`); }}
+          onTheirs={() => void shared.showTheirs()} onMine={() => void shared.keepMine()} />
+      )}
 
       <datalist id="pg-people">{people.map((p) => <option key={p.id} value={capitaliseName(p.name)} />)}</datalist>
       {/* Suggestions for the Order of Worship: saved songs, passages (their text fills Today's Scripture and the cover) and names */}

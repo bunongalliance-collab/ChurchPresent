@@ -1,0 +1,170 @@
+<title>Shared Programs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&display=swap">
+<style>
+/* Sample: shared programs on the existing Program page. Colours are the app's tokens (index.css).
+   Layout: navbar, title row, then the new program bar; the brochure below stays as it is. */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --text:#243028; --muted:#4F5D54; --ctrl:#9AAA9F;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A; --burgundy:#7A1F2B; --paper:#FFFFFF;
+  --font:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif; --serif:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-bottom:40px}
+.navbar{display:flex;gap:10px;align-items:center;padding:10px 0;overflow-x:auto;scrollbar-width:none}
+.navbar .brand{color:var(--accent);white-space:nowrap}
+.navbar .ch{background:var(--sunken);border-radius:8px;padding:5px 10px;font-weight:600;white-space:nowrap}
+.navbar a{color:var(--text);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.navbar a.active{background:var(--accent);color:var(--on-accent)}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 10px}
+h1{margin:0;font:600 1.6rem/1.2 var(--font)}
+.acts{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.acts .lnk{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0}
+.acts .pri{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:6px 12px}
+
+/* The new program bar */
+.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border-radius:12px;padding:10px 12px;margin-bottom:12px;position:relative}
+.pick{display:flex;align-items:center;gap:4px}
+.arrow{width:36px;height:36px;border-radius:8px;border:0;background:var(--sunken);display:grid;place-items:center}
+.arrow:disabled{opacity:.35;cursor:default}
+.arrow svg,.cur svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cur{display:flex;align-items:center;gap:8px;border:1px solid var(--ctrl);background:var(--bg);border-radius:8px;padding:6px 12px;min-height:36px;font-weight:600}
+.cur small{font-weight:400;color:var(--muted)}
+.tag{border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+.tag.pub{background:var(--accent);color:var(--on-accent)}
+.tag.draft{background:var(--sunken);color:var(--text)}
+.saved{color:var(--muted);font-size:.9rem;flex:1 1 200px;min-width:0}
+.saved b{color:var(--text);font-weight:600}
+.new{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:8px;padding:6px 12px;min-height:36px;font-weight:600}
+
+.menu{position:absolute;left:12px;top:calc(100% + 6px);z-index:5;background:var(--panel);border:1px solid var(--ctrl);border-radius:12px;padding:6px;min-width:300px;max-width:calc(100vw - 32px);box-shadow:0 8px 24px rgb(0 0 0/.18);display:flex;flex-direction:column}
+.menu small{color:var(--muted);padding:6px 8px 2px;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.menu button{display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:8px;padding:8px;text-align:left}
+.menu button:hover{background:var(--sunken)}
+.menu button[aria-current="true"]{background:var(--accent-soft);color:var(--on-soft);font-weight:600}
+.menu .d{min-width:110px}
+.menu .t{color:var(--muted);flex:1}
+.newmenu{left:auto;right:12px;min-width:260px}
+.newmenu button{flex-direction:column;align-items:flex-start;gap:0}
+.newmenu button span{color:var(--muted);font-size:.88rem}
+
+/* Someone else changed it while you were editing */
+.notice{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);color:var(--on-soft);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.notice span{flex:1 1 260px}
+.notice button{border:1.5px solid currentColor;background:transparent;border-radius:999px;padding:5px 14px;font-weight:600}
+.notice button.p{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* The brochure (unchanged, simplified here) */
+.label{color:var(--muted);font-size:.85rem;margin:0 0 6px}
+.sheet{background:var(--paper);color:#2A2A2A;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;min-height:320px;font-family:var(--serif)}
+.sheet>div{padding:28px}
+.sheet>div+div{border-left:1px dashed #D8D2C8}
+.sheet h3{color:var(--burgundy);font-size:.8rem;letter-spacing:.08em;margin:0 0 10px}
+.sheet p{margin:0 0 8px;font-size:.95rem}
+.sheet .c{text-align:center}
+@media (max-width:640px){.sheet{grid-template-columns:1fr}.sheet>div+div{border-left:0;border-top:1px dashed #D8D2C8}}
+.side{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.side div{background:var(--panel);border-radius:12px;padding:12px 14px}
+.side b{display:block;margin-bottom:4px}
+.side p{margin:0;color:var(--muted);font-size:.92rem}
+.demo{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.9rem}
+.demo button{border:1px dashed var(--muted);background:transparent;border-radius:8px;padding:6px 12px}
+.toast{position:fixed;right:16px;top:70px;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:9}
+</style>
+
+<div class="wrap">
+  <nav class="navbar" aria-label="Pages"><span class="brand">Church Tools</span><span class="ch">Montagnard Bunong Alliance Church</span>
+    <a href="#">Hymn/Nau Mpro</a><a href="#">Readings</a><a href="#">Scripture</a><a href="#" class="active">Program</a><a href="#">Service Slides</a><a href="#">Presentations</a><a href="#">Team</a></nav>
+
+  <div class="top">
+    <h1>Service program</h1>
+    <div class="acts"><button class="lnk">Print</button><button class="lnk">Publish to Nau Mpro App</button><button class="pri">Download PDF</button></div>
+  </div>
+
+  <div class="pbar">
+    <div class="pick">
+      <button class="arrow" id="prev" aria-label="Previous program"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="cur" id="cur" aria-haspopup="true" aria-expanded="false"><span id="curD"></span><small id="curT"></small><span class="tag" id="curTag"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      <button class="arrow" id="next" aria-label="Next program"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <span class="saved" id="saved" role="status"></span>
+    <button class="new" id="newBtn" aria-haspopup="true" aria-expanded="false">New program</button>
+    <div class="menu" id="menu" hidden></div>
+    <div class="menu newmenu" id="newMenu" hidden>
+      <button data-new="copy"><b>Copy the last program</b><span>Same order, then change the songs and passage</span></button>
+      <button data-new="blank"><b>Start blank</b><span>The usual order of worship, nothing filled in</span></button>
+    </div>
+  </div>
+
+  <div class="notice" id="notice" hidden>
+    <span><b>Pastor (example)</b> changed this program a moment ago.</span>
+    <button class="p" id="loadNew">Show their changes</button>
+    <button id="keepMine">Keep mine</button>
+  </div>
+
+  <p class="label">Page 1 · Outside: back panel (left) and front cover (right)</p>
+  <div class="sheet">
+    <div><h3>A PLACE TO BELONG</h3><p>Welcome to Montagnard Bunong Alliance Church</p><p>We are glad you are here.</p></div>
+    <div class="c"><h3 id="sheetDate"></h3><p><b>MONTAGNARD BUNONG ALLIANCE CHURCH</b></p><p>Sunday Service</p><p id="sheetPassage"></p></div>
+  </div>
+
+  <div class="side">
+    <div><b>One program per Sunday</b><p>Saved for the whole team as you type. Open it on any computer or phone.</p></div>
+    <div><b>Service Slides and Publish</b><p>Use the program shown here, so Sunday's presenter always has the latest.</p></div>
+    <div><b>Who</b><p>Admins and editors edit. Only admins publish. Others don't see programs.</p></div>
+  </div>
+
+  <div class="demo">Sample controls: <button id="other">Someone else edits it</button></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let progs=[
+  {d:"2026-11-15",t:"Sunday Service",p:"Psalm 23",pub:true,by:"You",ago:"8 days ago"},
+  {d:"2026-11-22",t:"Sunday Service",p:"John 3:16",pub:true,by:"Pastor (example)",ago:"yesterday"},
+  {d:"2026-11-29",t:"Sunday Service",p:"Isaiah 9:6",pub:false,by:"Worship leader (example)",ago:"2 minutes ago"},
+];
+let at=2;
+const fmt=d=>new Date(d+"T12:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const long=d=>new Date(d+"T12:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}).toUpperCase();
+function toast(m){$("toast").textContent=m;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").hidden=true,2600)}
+const today="2026-11-23";
+function draw(){
+  const p=progs[at];
+  $("curD").textContent=fmt(p.d);$("curT").textContent=p.t;
+  $("curTag").textContent=p.pub?"Published":"Draft";$("curTag").className="tag "+(p.pub?"pub":"draft");
+  $("saved").innerHTML=`Saved · last changed by <b>${p.by}</b>, ${p.ago}`;
+  $("prev").disabled=at===0;$("next").disabled=at===progs.length-1;
+  $("sheetDate").textContent=long(p.d);$("sheetPassage").textContent="Today's scripture: "+p.p;
+  const up=progs.map((x,i)=>[x,i]).filter(([x])=>x.d>=today), past=progs.map((x,i)=>[x,i]).filter(([x])=>x.d<today).reverse();
+  const row=([x,i])=>`<button data-i="${i}" aria-current="${i===at}"><span class="d">${fmt(x.d)}</span><span class="t">${x.t}</span><span class="tag ${x.pub?"pub":"draft"}">${x.pub?"Published":"Draft"}</span></button>`;
+  $("menu").innerHTML=(up.length?`<small>Coming up</small>${up.map(row).join("")}`:"")+(past.length?`<small>Past</small>${past.map(row).join("")}`:"");
+}
+function closeMenus(){$("menu").hidden=$("newMenu").hidden=true;$("cur").setAttribute("aria-expanded","false");$("newBtn").setAttribute("aria-expanded","false")}
+$("prev").onclick=()=>{at--;$("notice").hidden=true;draw()};$("next").onclick=()=>{at++;$("notice").hidden=true;draw()};
+$("cur").onclick=e=>{e.stopPropagation();const o=$("menu").hidden;closeMenus();$("menu").hidden=!o;$("cur").setAttribute("aria-expanded",o)};
+$("newBtn").onclick=e=>{e.stopPropagation();const o=$("newMenu").hidden;closeMenus();$("newMenu").hidden=!o;$("newBtn").setAttribute("aria-expanded",o)};
+$("menu").onclick=e=>{const b=e.target.closest("button");if(!b)return;at=+b.dataset.i;closeMenus();$("notice").hidden=true;draw()};
+$("newMenu").onclick=e=>{const b=e.target.closest("button");if(!b)return;const last=progs[progs.length-1];
+  const nd=new Date(last.d+"T12:00");nd.setDate(nd.getDate()+7);const d=nd.toISOString().slice(0,10);
+  progs.push({d,t:"Sunday Service",p:b.dataset.new==="copy"?last.p:"(not chosen yet)",pub:false,by:"You",ago:"just now"});
+  at=progs.length-1;closeMenus();draw();toast(b.dataset.new==="copy"?`Program for ${fmt(d)} made from ${fmt(last.d)}`:`Blank program for ${fmt(d)}`)};
+document.addEventListener("click",e=>{if(!e.target.closest(".pbar"))closeMenus()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenus()});
+$("other").onclick=()=>{$("notice").hidden=false};
+$("loadNew").onclick=()=>{progs[at].by="Pastor (example)";progs[at].ago="a moment ago";progs[at].p="Isaiah 9:6-7";$("notice").hidden=true;draw();toast("Showing Pastor's changes")};
+$("keepMine").onclick=()=>{progs[at].by="You";progs[at].ago="just now";$("notice").hidden=true;draw();toast("Your version is saved")};
+draw();
+</script>
