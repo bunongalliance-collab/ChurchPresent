@@ -15,6 +15,7 @@ import Builder from "./pages/Builder";
 import Scripture from "./pages/Scripture";
 import Presentations from "./pages/Presentations";
 import Notes from "./pages/Notes";
+import Team from "./pages/Team";
 import Readings from "./pages/Readings";
 import Toasts from "./components/Toasts";
 
@@ -41,6 +42,7 @@ function renderPage(page: string) {
   if (page === "#scripture") return <Scripture />;
   if (page === "#presentations") return <Presentations />;
   if (page === "#notes") return <Notes />;
+  if (page === "#team") return <Team />;
   if (page === "#readings") return <Readings />;
   if (page === "#lyrics-v2") return <LyricsV2 />;
   if (page === "#readings-v2") return <ReadingsV2 />;

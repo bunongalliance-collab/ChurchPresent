@@ -1,0 +1,319 @@
+<title>Church Teams and Roles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Sample of a new "Team" page in the church app. Colours are the app's tokens (index.css).
+   Layout: navbar, page title, waiting requests first, then the team list, then what each role can do. */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --line:#D5DDD0; --text:#243028; --muted:#4F5D54;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A;
+  --warn-soft:#F6E7C8; --on-warn:#6B4A0F; --danger:#A23B2C; --danger-soft:#F4DAD5;
+  --font:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --line:#323B41; --text:#E5EAEC; --muted:#9BA7AD;
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8;
+  --warn-soft:#3A3020; --on-warn:#F0D49A; --danger:#E08878; --danger-soft:#3A2422; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --line:#323B41; --text:#E5EAEC; --muted:#9BA7AD;
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8;
+  --warn-soft:#3A3020; --on-warn:#F0D49A; --danger:#E08878; --danger-soft:#3A2422; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-bottom:48px}
+
+.navbar{display:flex;gap:4px;overflow-x:auto;padding:10px 0;margin-bottom:6px;scrollbar-width:none;align-items:center}
+.navbar a{color:var(--text);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap;font-size:.95rem}
+.navbar a:hover{background:var(--sunken)}
+.navbar a.active{background:var(--accent);color:var(--on-accent)}
+.navbar .me{margin-left:auto;display:flex;gap:6px;align-items:center;white-space:nowrap;color:var(--muted);font-size:.9rem}
+.navbar .me .role{background:var(--accent-soft);color:var(--on-soft);border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+.navbar .dot{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:999px;
+  background:var(--on-accent);color:var(--accent);font-size:11px;font-weight:700;vertical-align:1px}
+
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:8px 0 16px}
+h1{font-size:1.9rem;margin:0;letter-spacing:-.01em}
+.head p{margin:2px 0 0;color:var(--muted)}
+.view{display:flex;gap:4px;background:var(--sunken);border-radius:999px;padding:3px}
+.view button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:.9rem}
+.view button[aria-pressed="true"]{background:var(--panel);font-weight:600;box-shadow:0 1px 2px rgb(0 0 0/.12)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{background:var(--panel);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.col h2{font-size:1.15rem;margin:0;display:flex;align-items:center;gap:8px}
+.col h2 .n{background:var(--sunken);border-radius:999px;font-size:12px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.hint{margin:0;color:var(--muted);font-size:.9rem}
+
+/* Waiting requests: someone signed up and asked to join the team */
+.wait{background:var(--warn-soft);color:var(--on-warn);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.wait h2 .n{background:var(--on-warn);color:var(--warn-soft)}
+.req{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.req .who{flex:1 1 200px;min-width:0}
+.req .who b{display:block}
+.req .who small{opacity:1}
+
+.b{border-radius:999px;padding:6px 14px;min-height:36px;border:1.5px solid currentColor;background:transparent;font-weight:600}
+.b.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.b.dan{color:var(--danger)}
+.b.dan.solid{background:var(--danger);border-color:var(--danger);color:var(--bg)}
+.b.quiet{border-color:transparent}
+.b.quiet:hover{background:var(--sunken)}
+
+/* Team list */
+.people{display:flex;flex-direction:column;gap:6px}
+.p{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--sunken);border-radius:10px;padding:8px 10px}
+.p.you{outline:1.5px solid var(--accent-soft)}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px}
+.p .who{min-width:0}
+.p .who b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p .who small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p select{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 8px;min-height:36px}
+.p select:disabled{opacity:.7}
+.p .rm{width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--muted);display:grid;place-items:center}
+.p .rm:hover{background:var(--danger-soft);color:var(--danger)}
+.p .rm svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.p .rm:disabled{visibility:hidden}
+.p .confirm{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--danger-soft);border-radius:8px;padding:8px 10px}
+.p .confirm span{flex:1 1 200px}
+@media (max-width:520px){.p{grid-template-columns:36px minmax(0,1fr) auto}.p select{grid-column:2/4;justify-self:start}}
+
+.add{display:flex;gap:8px;flex-wrap:wrap}
+.add input{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;min-height:36px}
+.add select{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 10px;min-height:36px}
+
+/* What each role can do */
+.roles{display:flex;flex-direction:column;gap:10px}
+.r{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.r h3{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.tag{border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+.tag.admin{background:var(--accent);color:var(--on-accent)}
+.tag.editor{background:var(--accent-soft);color:var(--on-soft)}
+.tag.member{background:var(--sunken);color:var(--text)}
+.r ul{margin:0;padding-left:18px;color:var(--text)}
+.r li{margin:2px 0}
+.r .no{color:var(--muted)}
+
+/* The editor's view of a song they can now edit */
+.peek{background:var(--panel);border-radius:14px;padding:16px;margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.peek h2{font-size:1.15rem;margin:0}
+.song{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--sunken);border-radius:10px;padding:10px 12px}
+.song .who{flex:1 1 220px;min-width:0}
+.song small{color:var(--muted)}
+.hist{border-left:2px solid var(--line);margin-left:6px;padding-left:12px;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.hist div span{color:var(--muted)}
+
+.member-msg{background:var(--panel);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;max-width:560px}
+.member-msg h2{margin:0;font-size:1.25rem}
+.member-msg p{margin:0;color:var(--muted)}
+.pending{background:var(--warn-soft);color:var(--on-warn);border-radius:10px;padding:10px 12px;font-weight:600}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:9}
+.church{position:relative;flex:none;margin-right:6px}
+.church-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:4px 8px 4px 4px;max-width:260px}
+.church-btn span:not(.cmark){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.92rem}
+.church-btn svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2}
+.cmark{flex:none;width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:11px;font-weight:700}
+.church-menu{position:fixed;z-index:8;margin-top:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:280px;box-shadow:0 8px 24px rgb(0 0 0/.18);display:flex;flex-direction:column}
+.church-menu small{color:var(--muted);padding:4px 8px}
+.church-menu button{display:flex;align-items:center;gap:8px;border:0;background:transparent;border-radius:8px;padding:8px;text-align:left}
+.church-menu button:hover{background:var(--sunken)}
+.church-menu em{margin-left:auto;font-style:normal;color:var(--muted);font-size:.85rem}
+.church-menu hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
+@media (max-width:640px){.church-btn span:not(.cmark){max-width:120px}}
+.code{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.code>div{flex:1 1 220px;min-width:0}.code small{display:block;color:var(--muted)}
+.codev{font:700 1.05rem/1 ui-monospace,Menlo,monospace;letter-spacing:.06em;background:var(--sunken);border-radius:8px;padding:8px 10px}
+.or{margin:0;color:var(--muted);text-align:center}
+.note{margin-top:20px;color:var(--muted);font-size:.85rem}
+</style>
+
+<div class="wrap">
+  <nav class="navbar" aria-label="Pages">
+    <div class="church">
+      <button class="church-btn" id="churchBtn" aria-haspopup="true" aria-expanded="false"><span class="cmark" id="cMark">MB</span><span id="cName">Montagnard Bunong Alliance Church</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      <div class="church-menu" id="churchMenu" hidden>
+        <small>Your churches</small>
+        <button data-church="0"><span class="cmark">MB</span>Montagnard Bunong Alliance Church<em>Admin</em></button>
+        <button data-church="1"><span class="cmark">B</span>Example Church B<em>Editor</em></button>
+        <hr>
+        <button data-join>Join a church with a code</button>
+        <button data-start>Start a new church</button>
+      </div>
+    </div>
+    <a href="#">Lyric</a><a href="#">Readings</a><a href="#">Program</a><a href="#">Scripture</a>
+    <a href="#">Presentation Builder</a><a href="#">Presentations</a><a href="#">Projector</a><a href="#">Notes</a><a href="#">Thumbnail</a>
+    <a href="#" class="active" id="navTeam">Team<span class="dot" id="navDot">2</span></a>
+    <span class="me"><span id="meName">Signed in as Pastor (example)</span><span class="role" id="meRole">Admin</span></span>
+  </nav>
+
+  <div class="head">
+    <div>
+      <h1>Team</h1>
+      <p>Who can change <b id="hChurch">Montagnard Bunong Alliance Church</b>'s songs, readings and Sunday slides.</p>
+    </div>
+    <div class="view" role="group" aria-label="See this page as">
+      <button id="asAdmin" aria-pressed="true">Admin view</button>
+      <button id="asEditor" aria-pressed="false">Editor view</button>
+      <button id="asMember" aria-pressed="false">New sign-up</button>
+    </div>
+  </div>
+
+  <!-- Admin view -->
+  <div id="adminView" class="grid">
+    <section class="col" aria-labelledby="teamHd">
+      <div class="wait" id="wait" aria-labelledby="waitHd">
+        <h2 id="waitHd">Asking to join <span class="n" id="waitN">2</span></h2>
+        <div id="reqs"></div>
+      </div>
+
+      <div class="code">
+        <div><b>Join code</b><small>Give it to people from this church. They enter it after signing up, and you accept them here.</small></div>
+        <span class="codev" id="codeV">MBAC-4821</span>
+        <button class="b quiet" id="copyCode">Copy</button><button class="b quiet" id="newCode">New code</button>
+      </div>
+      <h2 id="teamHd">Team <span class="n" id="teamN">0</span></h2>
+      <div class="people" id="people"></div>
+
+      <form class="add" id="addForm" autocomplete="off">
+        <input id="addEmail" type="email" placeholder="Add by email, e.g. someone@example.com" aria-label="Email of the person to add" required>
+        <select id="addRole" aria-label="Role"><option value="editor">Editor</option><option value="admin">Admin</option></select>
+        <button class="b pri" type="submit">Add</button>
+      </form>
+      <p class="hint">They sign in with this email. Until then they show as invited.</p>
+    </section>
+
+    <aside class="col" aria-labelledby="rolesHd">
+      <h2 id="rolesHd">What each role can do</h2>
+      <div class="roles">
+        <div class="r"><h3><span class="tag admin">Admin</span></h3>
+          <ul><li>Everything an editor can do</li><li>Add, remove and change people on this page</li><li>Publish this church's Today's service to the Nau Mpro App</li><li>Rename the church and change the join code</li><li>See app visits and installs</li></ul></div>
+        <div class="r"><h3><span class="tag editor">Editor</span></h3>
+          <ul><li>Edit any song, reading and program, not only their own</li><li>Build Scripture slides and presentations for the team</li><li>Undo a change from the history</li></ul></div>
+        <div class="r"><h3><span class="tag member">Anyone else</span></h3>
+          <ul><li>Read songs, readings and the Bible</li><li>Use the Projector and Present</li><li>Keep their own notes and drafts</li><li class="no">Can't change the team's songs or readings</li></ul></div>
+      </div>
+      <div class="r"><h3>Shared by all churches</h3><ul><li>The Bunong Bible</li><li class="no">Songs, readings, programs and slides belong to one church</li></ul></div>
+      <p class="hint">Roles are per church: someone can be an admin here and an editor elsewhere. There must always be at least one admin. You can't remove yourself or lower your own role.</p>
+    </aside>
+  </div>
+
+  <!-- Editor view: what changes for them -->
+  <div id="editorView" hidden>
+    <div class="peek">
+      <h2>On the Lyric page, as an editor</h2>
+      <div class="song">
+        <div class="who"><b>Song 112 (example)</b><br><small>Added by Worship leader · you can edit it too</small></div>
+        <button class="b quiet">History</button>
+        <button class="b pri">Edit</button>
+      </div>
+      <div class="hist" aria-label="Change history">
+        <div><b>You</b> fixed a typo in verse 2 <span>· today 9:14</span> <button class="b quiet">Undo</button></div>
+        <div><b>Worship leader</b> added the chorus <span>· Sunday</span></div>
+        <div><b>Worship leader</b> created the song <span>· 3 Nov</span></div>
+      </div>
+      <p class="hint">Editors don't see the Team page. Their role shows next to their name in the navbar.</p>
+    </div>
+  </div>
+
+  <!-- New sign-up view -->
+  <div id="memberView" hidden>
+    <div class="member-msg">
+      <h2>Welcome. Which church are you with?</h2>
+      <p>Your church's admin can give you a join code. Each church sees only its own songs, readings and programs. The Bunong Bible is shared by every church.</p>
+      <form class="add" id="joinForm" autocomplete="off">
+        <input id="joinCode" placeholder="Join code, e.g. MBAC-4821" aria-label="Join code" required>
+        <button class="b pri" type="submit">Join</button>
+      </form>
+      <div class="pending" id="pendingMsg" hidden>Request sent to Montagnard Bunong Alliance Church. You'll be able to edit once an admin accepts it.</div>
+      <p class="or">or</p>
+      <form class="add" id="startForm" autocomplete="off">
+        <input id="startName" placeholder="Church name" aria-label="New church name" required>
+        <button class="b" type="submit">Start a new church</button>
+      </form>
+      <p class="hint">Starting a church makes you its admin. You can invite your team after.</p>
+    </div>
+  </div>
+
+  <p class="note">Sample only. Names and emails are examples. Nothing is saved.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ROLE={admin:"Admin",editor:"Editor"};
+let people=[
+  {id:1,name:"Pastor (example)",email:"pastor@example.com",role:"admin",you:true,note:"You"},
+  {id:2,name:"Worship leader (example)",email:"worship@example.com",role:"editor",note:"Last active today"},
+  {id:3,name:"Reader (example)",email:"reader@example.com",role:"editor",note:"Last active 2 weeks ago"},
+  {id:4,name:"youth@example.com",email:"youth@example.com",role:"editor",note:"Invited, hasn't signed in yet"},
+];
+let reqs=[
+  {id:11,name:"Slide helper (example)",email:"slides@example.com",when:"Signed up yesterday"},
+  {id:12,name:"New member (example)",email:"member@example.com",when:"Signed up 3 days ago"},
+];
+let confirming=null,next=20;
+const initials=n=>n.replace(/\(.*\)/,"").trim().split(/[\s@.]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){$("toast").textContent=m;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").hidden=true,2600)}
+const admins=()=>people.filter(p=>p.role==="admin").length;
+
+function draw(){
+  $("teamN").textContent=people.length;
+  $("waitN").textContent=reqs.length;$("wait").hidden=!reqs.length;
+  $("navDot").textContent=reqs.length;$("navDot").hidden=!reqs.length;
+  $("reqs").innerHTML=reqs.map(r=>`<div class="req"><div class="who"><b>${esc(r.name)}</b><small>${esc(r.email)} · ${r.when}</small></div>
+    <button class="b quiet" data-decline="${r.id}">Decline</button><button class="b pri" data-accept="${r.id}">Make editor</button></div>`).join("");
+  $("people").innerHTML=people.map(p=>{
+    const lock=p.you||(p.role==="admin"&&admins()===1);
+    return `<div class="p${p.you?" you":""}"><span class="av" aria-hidden="true">${initials(p.name)}</span>
+      <div class="who"><b>${esc(p.name)}</b><small>${esc(p.email)} · ${p.note}</small></div>
+      <select data-role="${p.id}" aria-label="Role for ${esc(p.name)}" ${lock?"disabled":""}>${Object.entries(ROLE).map(([k,v])=>`<option value="${k}"${p.role===k?" selected":""}>${v}</option>`).join("")}</select>
+      <button class="rm" data-rm="${p.id}" aria-label="Remove ${esc(p.name)}" ${lock?"disabled":""}><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      ${confirming===p.id?`<div class="confirm"><span>Remove ${esc(p.name)}? Their songs and readings stay. They just can't edit any more.</span>
+        <button class="b quiet" data-cancel>Keep</button><button class="b dan solid" data-yes="${p.id}">Remove</button></div>`:""}</div>`}).join("");
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  const d=t.dataset;
+  if(d.accept){const r=reqs.find(x=>x.id==d.accept);reqs=reqs.filter(x=>x!==r);people.push({id:next++,name:r.name,email:r.email,role:"editor",note:"Added just now"});toast(`${r.name} is now an editor`);draw()}
+  else if(d.decline){const r=reqs.find(x=>x.id==d.decline);reqs=reqs.filter(x=>x!==r);toast(`Declined. ${r.name} can still read and present`);draw()}
+  else if(d.rm){confirming=+d.rm;draw()}
+  else if("cancel" in d){confirming=null;draw()}
+  else if(d.yes){const p=people.find(x=>x.id==d.yes);people=people.filter(x=>x!==p);confirming=null;toast(`Removed ${p.name}`);draw()}
+});
+document.addEventListener("change",e=>{
+  const s=e.target;if(!s.dataset.role)return;
+  const p=people.find(x=>x.id==s.dataset.role);p.role=s.value;toast(`${p.name} is now ${ROLE[s.value].toLowerCase()==="admin"?"an admin":"an editor"}`);draw();
+});
+$("addForm").addEventListener("submit",e=>{
+  e.preventDefault();const em=$("addEmail").value.trim();
+  if(people.some(p=>p.email===em)){toast("That email is already on the team");return}
+  people.push({id:next++,name:em,email:em,role:$("addRole").value,note:"Invited, hasn't signed in yet"});
+  $("addEmail").value="";toast(`Invited ${em}`);draw();
+});
+const CH=[{n:"Montagnard Bunong Alliance Church",m:"MB",r:"admin"},{n:"Example Church B",m:"B",r:"editor"}];
+const menu=$("churchMenu");
+$("churchBtn").onclick=()=>{const o=menu.hidden;if(o){const r=$("churchBtn").getBoundingClientRect();menu.style.top=r.bottom+"px";menu.style.left=Math.max(8,Math.min(r.left,innerWidth-296))+"px"}menu.hidden=!o;$("churchBtn").setAttribute("aria-expanded",o)};
+document.addEventListener("click",e=>{if(!e.target.closest(".church"))menu.hidden=true});
+menu.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;menu.hidden=true;
+  if(b.dataset.church){const c=CH[+b.dataset.church];$("cName").textContent=c.n;$("cMark").textContent=c.m;$("hChurch").textContent=c.n;view(c.r);toast(`Switched to ${c.n}. You see its songs, readings and programs`)}
+  else view("member")});
+$("joinForm").addEventListener("submit",e=>{e.preventDefault();$("pendingMsg").hidden=false;$("joinForm").hidden=true});
+$("startForm").addEventListener("submit",e=>{e.preventDefault();const n=$("startName").value.trim();$("cName").textContent=n;$("cMark").textContent=n.split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join("");$("hChurch").textContent=n;people=[people[0]];reqs=[];draw();view("admin");toast(`${n} is ready. You're its admin`)});
+$("copyCode").onclick=()=>{navigator.clipboard?.writeText($("codeV").textContent).then(()=>toast("Join code copied"),()=>toast("Select the code to copy it"))};
+$("newCode").onclick=()=>{$("codeV").textContent="MBAC-"+(1000+Math.floor(Math.random()*9000));toast("New code made. The old one no longer works")};
+function view(v){
+  for(const [b,k] of [["asAdmin","admin"],["asEditor","editor"],["asMember","member"]]) $(b).setAttribute("aria-pressed",v===k);
+  $("adminView").hidden=v!=="admin";$("editorView").hidden=v!=="editor";$("memberView").hidden=v!=="member";
+  $("navTeam").hidden=v!=="admin";
+  $("meName").textContent=v==="admin"?"Signed in as Pastor (example)":v==="editor"?"Signed in as Reader (example)":"Signed in as New member (example)";
+  $("meRole").textContent=v==="admin"?"Admin":v==="editor"?"Editor":"Member";
+}
+$("asAdmin").onclick=()=>view("admin");$("asEditor").onclick=()=>view("editor");$("asMember").onclick=()=>view("member");
+draw();
+</script>

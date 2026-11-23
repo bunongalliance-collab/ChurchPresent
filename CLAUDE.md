@@ -13,7 +13,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 
 ## Design rules
 - Show a sample page first when the user asks for a design change. Publish samples as artifacts.
-- Navbar: Lyric, Readings, Program, Scripture, Presentation Builder, Presentations, Projector, Notes, Thumbnail. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins), except Lyric, Readings and Scripture, which use the full window width (16px side margins).
+- Navbar: Lyric, Readings, Program, Scripture, Presentation Builder, Presentations, Projector, Notes, Thumbnail, Team. A church switcher sits next to the brand when the signed-in account belongs to a church. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins), except Lyric, Readings and Scripture, which use the full window width (16px side margins).
 - Light mode is the default. Use the colour tokens in `index.css`. Don't hard-code colours in UI components. Dark mode must still work.
 - The brochure PDF is set in serif throughout, with burgundy only for headings and small accents. The PDF and the on-screen program use the same type scale.
 - Capitalise names in the program (each word starts with a capital).
@@ -61,6 +61,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - `#presentations`: Saved presentations list. `pages/Presentations.tsx`
 - `#projector`: Projector output. `pages/Projector.tsx`
 - `#notes`: Notes. `pages/Notes.tsx`
+- `#team`: Team. Churches, roles (admin, editor) per church, join codes, invites, new churches accepted by a site admin (`app_admins`). `pages/Team.tsx`, `lib/church.ts`, `supabase/churches.sql`. Stage 1 of several churches: songs, readings, programs and services don't belong to a church yet.
 - `#thumbnail`: Sermon thumbnail maker. `pages/Thumbnail.tsx`, `lib/thumbnail.ts`
 - `/bible/` (its own installable page, like `/scripture/` and `/nau-mpro/`): Bunong Bible reader. Reads `bible_verses` and `bible_headings` (translation `bunong-vn`), saves each opened book in IndexedDB for offline reading. Highlights, saved verses and notes stay on the device. `app/bible/index.html`, `src/bible/`. Own styles in `src/bible/bible.css` (design approved from `bible-pwa/sample/index.html`).
 - Old `pages/Lyrics.tsx` and `pages/Readings.tsx` still exist in code but are not linked in the navbar.

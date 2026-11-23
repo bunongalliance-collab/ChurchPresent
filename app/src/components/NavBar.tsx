@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { currentTheme, setTheme, type Theme } from "../lib/theme";
 import { readForSlides, watchForSlides } from "../lib/forSlides";
+import { useChurch, switchChurch } from "../lib/church";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
@@ -20,6 +21,7 @@ const PAGES: { href: string; label: string; newTab?: boolean }[] = [
   { href: "#presentations", label: "Presentations" },
   { href: "#projector", label: "Projector" },
   { href: "#notes", label: "Notes" },
+  { href: "#team", label: "Team" },
 ];
 
 export default function NavBar() {
@@ -34,6 +36,27 @@ export default function NavBar() {
   // Passages sent from the Bible reader and not yet added: a small count on the Scripture link
   const [waiting, setWaiting] = useState(() => readForSlides().length);
   useEffect(() => watchForSlides((list) => setWaiting(list.length)), []);
+  // The current church, and people asking to join it (a count on Team, for its admins)
+  const church = useChurch();
+  const cur = church.current;
+  const [asks, setAsks] = useState(0);
+  const [churchOpen, setChurchOpen] = useState(false);
+  useEffect(() => {
+    if (!supabase || !cur || cur.role !== "admin") { setAsks(0); return; }
+    let live = true;
+    supabase.from("church_requests").select("user_id", { count: "exact", head: true }).eq("church_id", cur.id)
+      .then(({ count }) => { if (live) setAsks(count ?? 0); });
+    return () => { live = false; };
+  }, [cur, hash]);
+  useEffect(() => {
+    if (!churchOpen) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !(e.target as Element).closest(".nav-church")) setChurchOpen(false);
+    };
+    document.addEventListener("click", close);
+    document.addEventListener("keydown", close);
+    return () => { document.removeEventListener("click", close); document.removeEventListener("keydown", close); };
+  }, [churchOpen]);
   function toggleTheme() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -60,6 +83,27 @@ export default function NavBar() {
   return (
     <nav className={`navbar${menuOpen ? " menu-open" : ""}`} aria-label="Main">
       <span className="brand">Church Tools</span>
+      {cur && (
+        <div className="nav-church">
+          <button type="button" className="nav-church-btn" aria-haspopup="menu" aria-expanded={churchOpen} onClick={() => setChurchOpen((v) => !v)}
+            title={church.churches.length > 1 ? "Switch church" : cur.name}>
+            <span className="nav-church-name">{cur.name}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" /></svg>
+          </button>
+          {churchOpen && (
+            <div className="nav-church-menu" role="menu">
+              <small>Your churches</small>
+              {church.churches.map((c) => (
+                <button type="button" role="menuitemradio" aria-checked={c.id === cur.id} key={c.id}
+                  onClick={() => { switchChurch(c.id); setChurchOpen(false); }}>
+                  <span>{c.name}</span><em>{c.status === "waiting" ? "Waiting" : c.role === "admin" ? "Admin" : "Editor"}</em>
+                </button>
+              ))}
+              <a href="#team" role="menuitem" onClick={() => setChurchOpen(false)}>Join or start a church</a>
+            </div>
+          )}
+        </div>
+      )}
       <button className="nav-toggle" type="button" aria-expanded={menuOpen} aria-controls="nav-links" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((v) => !v)}>
         <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
       </button>
@@ -75,6 +119,7 @@ export default function NavBar() {
               ) : (
                 <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
                   {p.label}
+                  {p.href === "#team" && asks > 0 && <span className="nav-count" aria-label={`, ${asks} ${asks === 1 ? "person" : "people"} asking to join`}>{asks}</span>}
                   {p.href === "#scripture" && waiting > 0 && <span className="nav-count" aria-label={`, ${waiting} passage${waiting === 1 ? "" : "s"} from the Bible waiting`}>{waiting}</span>}
                 </a>
               )}

@@ -38,13 +38,13 @@ export function addForSlides(add: SlidePass[]): { list: SlidePass[]; saved: bool
   return { list: next, saved: writeForSlides(next) };
 }
 
-// The Scripture page address with the passages in it. The passages travel in the link as well as in storage, because
+// The Scripture page in the main app (with the navbar) with the passages in it. The passages travel in the link as well as in storage, because
 // an iPhone home-screen app keeps its own storage and may not share the list with Safari or another home-screen app.
 export function scriptureLink(list: SlidePass[]): string {
   const byT = new Map<string, string[]>();
   for (const p of list) byT.set(p.t, [...(byT.get(p.t) ?? []), `${p.b}.${p.c}.${p.v1}${p.v2 > p.v1 ? `-${p.v2}` : ""}`]);
   const first = [...byT.entries()][0];   // one translation per link (the Bunong Bible today)
-  return first ? `/scripture/?add=${first[0]}:${first[1].slice(0, 50).join(",")}` : "/scripture/";
+  return first ? `/?add=${first[0]}:${first[1].slice(0, 50).join(",")}#scripture` : "/#scripture";
 }
 
 // Two Scripture tabs open with empty studies: only the first to claim the list adds it, so slides are not doubled
