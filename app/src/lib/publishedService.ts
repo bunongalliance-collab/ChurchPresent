@@ -3,7 +3,8 @@ import { subKind, type Lines } from "./orderLines";
 import { parseItems } from "./servicePresentation";
 
 // "Today's service" for the Nau Mpro App: the Program's order of worship, published by the team
-// (Program page → Publish to Nau Mpro App) and read by the congregation without signing in.
+// (Program page → Publish to Nau Mpro App) and read by the congregation without signing in. Each service belongs to a
+// church; the app asks once which church (readerChurch) and shows that church's service.
 // Table: published_services (supabase/published-services.sql).
 
 export interface PubSub { text: string; songId?: string; kind: "song" | "scripture" | "reading" | "text"; body?: string } // body: the passage or reading text
@@ -11,6 +12,27 @@ export interface PubItem { name: string; subs: PubSub[] }
 export interface PublishedService { serviceDate: string; title: string; dateLabel: string; items: PubItem[]; updated: string }
 
 const CACHE_KEY = "readerTodayService";
+
+// The church whose service the Nau Mpro App shows, chosen once on this device. "none" = the person chose "Not now".
+const CHURCH_KEY = "readerChurch";
+export interface ReaderChurch { id: string; name: string }
+export function readerChurch(): ReaderChurch | "none" | null {
+  try { const s = localStorage.getItem(CHURCH_KEY); return s === "none" ? "none" : s ? (JSON.parse(s) as ReaderChurch) : null; } catch { return null; }
+}
+export function setReaderChurch(c: ReaderChurch | "none" | null) {
+  try {
+    if (c === null) localStorage.removeItem(CHURCH_KEY);
+    else localStorage.setItem(CHURCH_KEY, c === "none" ? "none" : JSON.stringify(c));
+    localStorage.removeItem(CACHE_KEY);
+  } catch { /* storage blocked: asked again next time */ }
+}
+// The churches to choose from (accepted churches, readable without signing in)
+export async function loadChurchList(): Promise<ReaderChurch[] | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("church_names");
+  if (error) return null;
+  return ((data ?? []) as ReaderChurch[]).sort((a, b) => a.name.localeCompare(b.name));
+}
 
 // The order of worship as the congregation sees it: item names and their songs, passages and readings.
 // People's names are left out; the reader is public.
@@ -63,17 +85,18 @@ export function pickService<T extends { serviceDate: string }>(rows: T[], today 
 
 // Publish (or update) the service for its date. Needs a signed-in team member.
 // passages: scripture text by reference, from the saved studies
-export async function publishService(p: { ownerId: string; serviceDate: string; title: string; dateLabel: string; lines: Lines; passages: Record<string, string> }): Promise<string | null> {
+export async function publishService(p: { ownerId: string; churchId: string | null; serviceDate: string; title: string; dateLabel: string; lines: Lines; passages: Record<string, string> }): Promise<string | null> {
   if (!supabase) return "No database settings.";
+  if (!p.churchId) return "Publishing is for a church. Join or start one on the Team page, then publish again.";
   const readings = await readingBodies(p.lines);
   const { error } = await supabase.from("published_services").upsert({
-    owner_id: p.ownerId, service_date: p.serviceDate, title: p.title, date_label: p.dateLabel,
+    owner_id: p.ownerId, church_id: p.churchId, service_date: p.serviceDate, title: p.title, date_label: p.dateLabel,
     items: toPublishedItems(p.lines, (kind, text) => (kind === "scripture" ? p.passages[text] : readings[text])), updated_at: new Date().toISOString(),
-  }, { onConflict: "owner_id,service_date" });
+  }, { onConflict: "church_id,service_date" });
   if (!error) return null;
   if (/published_services/.test(error.message) && /exist|schema cache/i.test(error.message)) return "The published services table is not set up yet. Run supabase/published-services.sql in the Supabase SQL editor.";
-  // Only accounts in service_publishers may publish (supabase/service-publishers.sql)
-  if (/row-level security/i.test(error.message)) return "This account is not allowed to publish to the Nau Mpro App. Ask the person who manages the app to add it to the publisher list.";
+  // Only the church's admins may publish (supabase/churches-services.sql)
+  if (/row-level security/i.test(error.message)) return "Only this church's admins can publish to the Nau Mpro App. Ask an admin to publish it, or to make you an admin on the Team page.";
   return error.message;
 }
 
@@ -82,7 +105,8 @@ function readCache(): PublishedService | null {
 }
 
 // The service for the reader: the latest from the database, kept on the device so it opens offline
-export async function loadTodayService(): Promise<PublishedService | null> {
+export async function loadTodayService(churchId: string | null): Promise<PublishedService | null> {
+  if (!churchId) return null;
   const cached = readCache();
   const fromCache = cached ? pickService([cached]) : null;
   if (!supabase) return fromCache;
@@ -90,7 +114,7 @@ export async function loadTodayService(): Promise<PublishedService | null> {
     const since = new Date(); since.setDate(since.getDate() - 6);
     const { data, error } = await supabase.from("published_services")
       .select("service_date, title, date_label, items, updated_at")
-      .gte("service_date", isoDay(since)).order("service_date").limit(20);
+      .eq("church_id", churchId).gte("service_date", isoDay(since)).order("service_date").limit(20);
     if (error) return fromCache;
     const rows: PublishedService[] = (data ?? []).map((r) => ({
       serviceDate: r.service_date, title: r.title ?? "", dateLabel: r.date_label ?? "",

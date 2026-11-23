@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import { saveChurchId } from "../lib/church";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
@@ -489,7 +490,7 @@ export default function Scripture() {
     const id = currentId || newId();
     const r = currentId
       ? await saveRow({ table: "scripture_studies", op: "update", id, data: row })
-      : await saveRow({ table: "scripture_studies", op: "insert", id, data: { ...row, owner_id: user.id } });
+      : await saveRow({ table: "scripture_studies", op: "insert", id, data: { ...row, owner_id: user.id, church_id: saveChurchId() } });
     setBusy(false);
     if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
     setCurrentId(id);

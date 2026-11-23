@@ -1,0 +1,113 @@
+<title>Nau Mpro Service Access</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Sample: the simplest Today's service in the Nau Mpro App. No sign-in: the phone asks once which church,
+   remembers it, and shows that church's service. Colours are the reader's own tokens (reader.css). */
+:root{
+  --nm-paper:#fbf9f4; --nm-panel:#f5f2ea; --nm-ink:#23221d; --nm-muted:#5c5a50; --nm-rule:#e3dfd3;
+  --nm-green:#1F5F4A; --nm-green-soft:#E3EEE8; --nm-on-green:#fbf9f4; --page:#ece8de;
+  --nm-serif:"Alegreya","Noto Serif",Georgia,serif; --nm-sans:"Alegreya Sans","Gill Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --nm-paper:#1b1c19; --nm-panel:#222420; --nm-ink:#e8e5da; --nm-muted:#b3b0a2; --nm-rule:#353731;
+  --nm-green:#7FC4A8; --nm-green-soft:#263329; --nm-on-green:#1b1c19; --page:#121310; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --nm-paper:#1b1c19; --nm-panel:#222420; --nm-ink:#e8e5da; --nm-muted:#b3b0a2; --nm-rule:#353731;
+  --nm-green:#7FC4A8; --nm-green-soft:#263329; --nm-on-green:#1b1c19; --page:#121310; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--nm-ink);font:16px/1.45 var(--nm-sans);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+:focus-visible{outline:3px solid var(--nm-green);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding-block:20px 40px;display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:760px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+.side h1{font:700 1.6rem/1.2 var(--nm-serif);margin:0 0 6px}
+.side p{margin:0 0 12px;color:var(--nm-muted)}
+.states{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.states button{text-align:left;border:1px solid var(--nm-rule);background:var(--nm-paper);border-radius:10px;padding:10px 12px}
+.states button[aria-pressed="true"]{border-color:var(--nm-green);box-shadow:inset 3px 0 0 var(--nm-green)}
+.states b{display:block}.states small{color:var(--nm-muted)}
+.side ul{margin:0;padding-left:18px}.side li{margin:4px 0}
+
+.phone{position:relative;background:var(--nm-paper);border-radius:28px;border:1px solid var(--nm-rule);overflow:hidden;box-shadow:0 10px 30px rgb(0 0 0/.12);max-width:380px;width:100%;justify-self:center;min-height:660px;display:flex;flex-direction:column}
+.bar{padding:14px 16px 10px;background:var(--nm-panel);border-bottom:1px solid var(--nm-rule)}
+.bar .name{font:700 1.2rem var(--nm-serif);color:var(--nm-green)}
+.search{margin:10px 12px;border:1px solid var(--nm-rule);background:var(--nm-paper);border-radius:999px;padding:9px 16px;color:var(--nm-muted);font-size:1.05rem}
+
+/* First open: one question, big buttons */
+.ask{flex:1;display:flex;flex-direction:column;gap:14px;padding:28px 18px}
+.ask h2{margin:0;font:700 1.7rem/1.2 var(--nm-serif);text-wrap:balance}
+.ask p{margin:0;font-size:1.1rem;color:var(--nm-muted)}
+.church{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--nm-green-soft);border:2px solid transparent;border-radius:16px;padding:18px 16px;min-height:72px;font:700 1.25rem/1.25 var(--nm-serif)}
+.church:active,.church:hover{border-color:var(--nm-green)}
+.church svg{flex:none;width:28px;height:28px;fill:none;stroke:var(--nm-green);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-left:auto}
+.later{align-self:center;margin-top:6px;font-size:1.05rem;color:var(--nm-green);text-decoration:underline;padding:10px}
+
+/* Every day after: the service on top, large */
+.today{margin:4px 12px 8px;border:2px solid var(--nm-green-soft);border-radius:16px;background:var(--nm-paper)}
+.today .hd{padding:12px 16px 8px}
+.today .h{display:block;font:700 1.35rem var(--nm-serif);color:var(--nm-green)}
+.today .d{font-size:1rem;color:var(--nm-muted)}
+.today ol{list-style:none;margin:0;padding:0 0 6px;border-top:1px solid var(--nm-rule)}
+.today li{padding:8px 0 2px}
+.part{display:block;padding:0 16px;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--nm-muted)}
+.song{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;padding:8px 16px;min-height:48px;font-size:1.2rem}
+.song .num{width:2.4em;text-align:right;color:var(--nm-green);font-weight:700;font-variant-numeric:tabular-nums}
+.list{flex:1}
+.list .song{border-top:1px solid var(--nm-rule);font-family:var(--nm-serif)}
+.foot{padding:10px 16px 18px;border-top:1px solid var(--nm-rule);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.95rem;color:var(--nm-muted)}
+.foot button{color:var(--nm-green);text-decoration:underline;padding:8px 0;font-size:1rem}
+.none{margin:0;padding:12px 16px 14px;font-size:1.05rem}
+.note{grid-column:1/-1;color:var(--nm-muted);font-size:.85rem;margin:0}
+</style>
+
+<div class="wrap">
+  <section class="side" aria-labelledby="sideH">
+    <h1 id="sideH">The simplest Today's service</h1>
+    <p>No account, no password, no code. The phone asks once which church, then just shows that church's service.</p>
+    <div class="states" role="group" aria-label="Show the app">
+      <button data-s="ask" aria-pressed="true"><b>The first time it opens</b><small>One question, one tap</small></button>
+      <button data-s="service" aria-pressed="false"><b>Every time after</b><small>Today's service is at the top</small></button>
+      <button data-s="noservice" aria-pressed="false"><b>No service published yet</b><small>A short, plain line</small></button>
+      <button data-s="skipped" aria-pressed="false"><b>Chose "Not now"</b><small>Just the hymn book, as today</small></button>
+    </div>
+    <ul>
+      <li>Bigger text and buttons for the question and the service.</li>
+      <li>"Change church" sits quietly at the bottom.</li>
+      <li>The hymn book works exactly as it does today.</li>
+    </ul>
+  </section>
+
+  <div class="phone" aria-label="Nau Mpro App">
+    <div class="bar"><span class="name">Nau Mpro</span></div>
+    <div id="screen" style="display:flex;flex-direction:column;flex:1"></div>
+  </div>
+  <p class="note">Sample only. Song titles after the first two, "Example Church B" and the service are examples. Nothing is saved.</p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ARROW='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+const HYMNS=`<div class="search">Search 520 hymns</div><div class="list">
+  <button class="song"><span class="num">1</span><span>Mât ton nau Brah Amoh Yê-su</span></button>
+  <button class="song"><span class="num">2</span><span>Gâp tâm rnê Păng</span></button>
+  <button class="song"><span class="num">3</span><span>Hymn 3 (example)</span></button></div>`;
+const FOOT=(c)=>`<div class="foot"><span>${c?`Your church: ${c}`:"No church chosen"}</span><button onclick="show('ask')">${c?"Change church":"Choose church"}</button></div>`;
+const V={
+  ask:`<div class="ask"><h2>Which church do you go to?</h2><p>We'll show your church's service each Sunday.</p>
+    <button class="church" onclick="show('service')">Montagnard Bunong Alliance Church${ARROW}</button>
+    <button class="church" onclick="show('service')">Example Church B${ARROW}</button>
+    <button class="later" onclick="show('skipped')">Not now</button></div>`,
+  service:`<div class="today"><div class="hd"><span class="h">Today’s service</span><span class="d">Sunday · 29 November</span></div>
+    <ol><li><span class="part">Call to worship</span><button class="song"><span class="num">1</span><span>Mât ton nau Brah Amoh Yê-su</span></button></li>
+    <li><span class="part">Scripture</span><button class="song"><span class="num">¶</span><span>Example passage</span></button></li>
+    <li><span class="part">Response</span><button class="song"><span class="num">2</span><span>Gâp tâm rnê Păng</span></button></li></ol></div>`+HYMNS+FOOT("Montagnard Bunong Alliance Church"),
+  noservice:`<div class="today"><div class="hd"><span class="h">Today’s service</span></div><p class="none">Not ready yet. Check again on Sunday.</p></div>`+HYMNS+FOOT("Montagnard Bunong Alliance Church"),
+  skipped:HYMNS+FOOT(""),
+};
+function show(s){$("screen").innerHTML=V[s];document.querySelectorAll(".states button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===s))}
+document.querySelectorAll(".states button").forEach(b=>b.onclick=()=>show(b.dataset.s));
+show("ask");
+</script>

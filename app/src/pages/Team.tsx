@@ -259,13 +259,13 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
           </div>
         )}
         <div className="tm-r"><span className="tm-tag admin">Admin</span>
-          <ul><li>Everything an editor can do</li><li>Add, remove and change people on this page</li><li>Rename the church and change the join code</li></ul></div>
+          <ul><li>Everything an editor can do</li><li>Add, remove and change people on this page</li><li>Rename the church and change the join code</li><li>Publish Today's service to the Nau Mpro App</li></ul></div>
         <div className="tm-r"><span className="tm-tag editor">Editor</span>
           <ul><li>Edit the church's songs, readings and programs</li><li>Build Scripture slides and presentations for the team</li></ul></div>
         <div className="tm-r"><span className="tm-tag member">Anyone else</span>
           <ul><li>Read songs, readings and the Bible</li><li>Use the Projector and Present</li><li className="no">Can't change the team's songs or readings</li></ul></div>
         <p className="hint">Roles are per church: someone can be an admin here and an editor elsewhere. A church always keeps at least one admin. The Bunong Bible is shared by every church.</p>
-        <p className="hint">Songs, readings and programs move to churches in the next stage. Until then they keep working as before.</p>
+        <p className="hint">Songs and readings belong to a church: anyone can read them, and the church's team edits them. The Nau Mpro hymn book is shared. Programs and presentations move to churches next.</p>
       </aside>
     </div>
   );

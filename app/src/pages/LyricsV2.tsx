@@ -14,6 +14,7 @@ import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from ".
 import { recordAddedSong } from "../lib/recentSongs";
 import { parseRows, songRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import { canEdit, saveChurchId, useChurch, useChurchNames } from "../lib/church";
 
 // Lyric V2: the Lyrics page in the find | edit | check layout.
 // It reads and writes the same songs, drafts and browser storage as the Lyrics page, so the two stay in step.
@@ -24,6 +25,7 @@ interface SavedSong {
   number: string;
   lyrics?: string;   // undefined until the song is opened (the list loads without lyrics)
   owner?: string;
+  church?: string;
   category?: string;
   language?: string;
 }
@@ -103,6 +105,10 @@ export default function LyricsV2() {
   const [confirmDel, setConfirmDel] = useState(false); // Delete asks first, in the page
   const [libOpen, setLibOpen] = useState(false); // phone only: the song list is folded away until chosen
   const [session, setSession] = useState<Session | null>(null);
+  // Who may edit each song depends on the account's churches; names label songs from other churches
+  const church = useChurch();
+  const churchNames = useChurchNames();
+  const fromOtherChurch = (s: { church?: string }) => (s.church && s.church !== church.current?.id ? churchNames[s.church] ?? "" : "");
   const [, setStatus] = useState("");
   const [, setStatusIsError] = useState(false);
 
@@ -189,7 +195,7 @@ export default function LyricsV2() {
       // Reading is public: everyone sees the shared songs, signed in or not. Lyrics are not loaded here.
       // Gives up after 12 seconds (a stalled phone connection) and falls back to the copy saved on this device
       const { data, error } = await withTimeout(
-        selectAll((from, to) => supabase!.from("lyric_songs").select("id, title, song_number, owner_id, look, category, language").order("updated_at", { ascending: false }).order("id").range(from, to)),
+        selectAll((from, to) => supabase!.from("lyric_songs").select("id, title, song_number, owner_id, church_id, look, category, language").order("updated_at", { ascending: false }).order("id").range(from, to)),
         12000,
         { data: null, error: { message: "The connection is slow. Try again in a moment." } } as never,
       );
@@ -197,7 +203,7 @@ export default function LyricsV2() {
         // Offline: show the song list saved on this device
         const saved = await loadCachedSongs();
         if (saved.length) {
-          setSongs(saved.map((r) => withCached({ id: r.id, title: r.title, number: r.number, owner: r.owner, look: (r.look ?? {}) as Partial<SongLook>, category: r.category ?? "", language: r.language ?? "" })));
+          setSongs(saved.map((r) => withCached({ id: r.id, title: r.title, number: r.number, owner: r.owner, church: r.church, look: (r.look ?? {}) as Partial<SongLook>, category: r.category ?? "", language: r.language ?? "" })));
           say("Offline: showing the songs saved on this device.");
         } else {
           say("Could not load songs: " + error.message, true);
@@ -207,7 +213,7 @@ export default function LyricsV2() {
         return;
       }
       const { rows: valid, dropped } = parseRows(songRowSchema, data ?? []);
-      const list = valid.map((r) => ({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, look: r.look as Partial<SongLook>, category: r.category, language: r.language }));
+      const list = valid.map((r) => ({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, church: r.church_id, look: r.look as Partial<SongLook>, category: r.category, language: r.language }));
       setSongs(list.map(withCached));
       void cacheSongList(list);
       if (dropped) say(`${dropped} song${dropped === 1 ? "" : "s"} could not be read and ${dropped === 1 ? "was" : "were"} skipped.`, true);
@@ -284,7 +290,7 @@ export default function LyricsV2() {
   async function setSongMeta(field: "category" | "language", value: string) {
     if (field === "category") setSongCategory(value); else setSongLanguage(value);
     const song = songs.find((x) => x.id === selectedId);
-    if (!song || (supabase && song.owner !== user?.id)) return; // not saved yet, or someone else's: saved with the next Save
+    if (!song || (supabase && !canEdit(song))) return; // not saved yet, or someone else's: saved with the next Save
     if (supabase && user) {
       const r = await saveRow({ table: "lyric_songs", op: "update", id: song.id, data: { [field]: value } });
       if (r.status === "error") { say("Could not save " + field + ": " + r.message, true); return; }
@@ -301,7 +307,7 @@ export default function LyricsV2() {
     if (supabase && !user) { say("Sign in to save songs. Everyone can view them without signing in.", true); return null; }
     let existing = songs.find((s) => s.id === selectedId) ?? null;
     // A song someone else saved can't be changed: saving makes your own copy
-    if (supabase && existing && existing.owner !== user?.id) existing = null;
+    if (supabase && existing && !canEdit(existing)) existing = null;
     const look = currentLook();
     const row = { title: songTitle.trim(), song_number: songNumber.trim(), lyrics, look, category: songCategory, language: songLanguage };
     if (supabase && user) {
@@ -309,10 +315,11 @@ export default function LyricsV2() {
       const id = existing ? existing.id : newId();
       const r = existing
         ? await saveRow({ table: "lyric_songs", op: "update", id, data: row })
-        : await saveRow({ table: "lyric_songs", op: "insert", id, data: { ...row, owner_id: user.id } });
+        : await saveRow({ table: "lyric_songs", op: "insert", id, data: { ...row, owner_id: user.id, church_id: saveChurchId() } });
       if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
       if (r.status === "queued") say(QUEUED_NOTE);
-      const saved: SavedSong = { id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language, owner: user.id };
+      const saved: SavedSong = { id, title: row.title, number: row.song_number, lyrics, look, category: row.category, language: row.language,
+        owner: existing ? existing.owner : user.id, church: existing ? existing.church : (saveChurchId() ?? undefined) };
       // Update just this song in the list (no reload of the whole list)
       lyricsCache.current.set(saved.id, lyrics);
       setSongs((cur) => (cur.some((x) => x.id === saved.id) ? cur.map((x) => (x.id === saved.id ? saved : x)) : [saved, ...cur]));
@@ -333,7 +340,7 @@ export default function LyricsV2() {
   // A saved song that has been edited (and that you may change): offer to approve the update or not
   const pendingUpdate = (() => {
     const saved = songs.find((s) => s.id === selectedId);
-    if (!saved || saved.lyrics === undefined || (supabase && saved.owner !== user?.id)) return null;
+    if (!saved || saved.lyrics === undefined || (supabase && !canEdit(saved))) return null;
     const changed = saved.lyrics !== lyrics || saved.title !== songTitle.trim() || saved.number !== songNumber.trim();
     return changed ? saved : null;
   })();
@@ -382,7 +389,7 @@ export default function LyricsV2() {
     setConfirmDel(false);
     if (supabase && user) {
       const mine = songs.find((s) => s.id === selectedId);
-      if (mine && mine.owner !== user.id) { say("You can only delete songs you saved.", true); return; }
+      if (mine && !canEdit(mine)) { say(mine.church ? "Only that church's team can delete this song." : "You can only delete songs you saved.", true); return; }
       const r = await saveRow({ table: "lyric_songs", op: "delete", id: selectedId });
       if (r.status === "error") { say("Could not delete: " + r.message, true); return; }
       if (r.status === "queued") say(QUEUED_NOTE);
@@ -406,12 +413,12 @@ export default function LyricsV2() {
       if (!supabase) return;
       const { data, error } = await supabase
         .from("lyric_songs")
-        .select("id, title, song_number, owner_id, look, category, language")
+        .select("id, title, song_number, owner_id, church_id, look, category, language")
         .or(`title.ilike.%${safe}%,song_number.ilike.%${safe}%,lyrics.ilike.%${safe}%`)
         .order("updated_at", { ascending: false })
         .limit(200);
       if (error) { say("Search failed: " + error.message, true); return; }
-      setServerHits((data ?? []).map((r) => withCached({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, look: r.look ?? {}, category: r.category ?? "", language: r.language ?? "" })));
+      setServerHits((data ?? []).map((r) => withCached({ id: r.id, title: r.title, number: r.song_number, owner: r.owner_id, church: r.church_id, look: r.look ?? {}, category: r.category ?? "", language: r.language ?? "" })));
     }, 300);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -504,7 +511,7 @@ export default function LyricsV2() {
   const bestOf = new Map<string, SavedSong>();
   for (const s of shown) {
     const cur = bestOf.get(songKey(s));
-    if (!cur || s.id === selectedId || (cur.id !== selectedId && user && s.owner === user.id && cur.owner !== user.id)) bestOf.set(songKey(s), s);
+    if (!cur || s.id === selectedId || (cur.id !== selectedId && user && canEdit(s) && !canEdit(cur))) bestOf.set(songKey(s), s);
   }
   const allDefault = shown.filter((s) => bestOf.get(songKey(s))?.id === s.id);
   const favSongs = shown.filter((s) => favorites.includes(s.id));
@@ -538,7 +545,7 @@ export default function LyricsV2() {
           {inPresentation.has(s.id) && <span className="lv2-tick" title="In presentation" aria-label="In presentation">✓ </span>}
           {songLabel(s)}
         </span>
-        <span className="lv2-song-meta">{[s.category || "No category", s.language || "No language"].join(" · ")}</span>
+        <span className="lv2-song-meta">{[s.category || "No category", s.language || "No language", fromOtherChurch(s)].filter(Boolean).join(" · ")}</span>
       </button>
     </li>
   );

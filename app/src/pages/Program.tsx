@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { canEdit, saveChurchId, useChurch } from "../lib/church";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
 import { buildProgramPdf, todayScripture } from "../lib/programPdf";
@@ -148,14 +149,15 @@ function studyParagraphs(data: unknown): string {
 export default function Program() {
   const [d, setD] = useState<Draft>(() => loadDraft());
   // Saved people are shared: everyone reads the list, and each person removes only the names they added
-  const [people, setPeople] = useState<{ id: string; name: string; owner: string; created: string }[]>([]);
+  const [people, setPeople] = useState<{ id: string; name: string; owner: string; church: string | null; created: string }[]>([]);
+  useChurch(); // redraw when the account's churches load (who may remove a name)
   const [userId, setUserId] = useState<string | null>(null);
   const [newPerson, setNewPerson] = useState("");
   const loadPeopleList = async () => {
     if (!supabase) return;
-    const { data, error } = await supabase.from("saved_people").select("id, name, owner_id, created_at").order("name");
+    const { data, error } = await supabase.from("saved_people").select("id, name, owner_id, church_id, created_at").order("name");
     if (error) { setStatus(`Could not load saved people: ${error.message}`); return; }
-    setPeople((data ?? []).map((x) => ({ id: x.id, name: x.name, owner: x.owner_id, created: x.created_at ?? "" })));
+    setPeople((data ?? []).map((x) => ({ id: x.id, name: x.name, owner: x.owner_id, church: x.church_id ?? null, created: x.created_at ?? "" })));
   };
   useEffect(() => {
     if (!supabase) return;
@@ -270,7 +272,7 @@ export default function Program() {
     if (!n || !supabase) return;
     if (!userId) { setStatus("Sign in to add a name. Everyone can see the list without signing in."); return; }
     if (people.some((p) => p.name.toLowerCase() === n.toLowerCase())) { setNewPerson(""); return; }
-    const { error } = await supabase.from("saved_people").insert({ owner_id: userId, name: n });
+    const { error } = await supabase.from("saved_people").insert({ owner_id: userId, church_id: saveChurchId(), name: n });
     if (error) { setStatus(`Could not save the name: ${error.message}`); return; }
     setNewPerson("");
     await loadPeopleList();
@@ -317,7 +319,7 @@ export default function Program() {
     setPublishing(true);
     const title = d.coverKind.toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase());
     const dateLabel = new Date(`${d.date}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-    const err = await publishService({ ownerId: userId, serviceDate: d.date, title, dateLabel, lines: orderLines, passages: passageText });
+    const err = await publishService({ ownerId: userId, churchId: saveChurchId(), serviceDate: d.date, title, dateLabel, lines: orderLines, passages: passageText });
     setPublishing(false);
     setStatus(err ? `Could not publish: ${err}` : `Published. The Nau Mpro App now shows this order for ${dateLabel}. Publish again after changes.`);
   }
@@ -472,7 +474,7 @@ export default function Program() {
         </div>
         <ul className="pg-people-list">
           {people.map((p) => (
-            <li key={p.id}>{capitaliseName(p.name)}{userId && p.owner === userId && <button className="pg-x" onClick={() => removePerson(p.id)} aria-label={`Remove ${p.name}`}>×</button>}</li>
+            <li key={p.id}>{capitaliseName(p.name)}{userId && canEdit({ owner: p.owner, church: p.church }) && <button className="pg-x" onClick={() => removePerson(p.id)} aria-label={`Remove ${p.name}`}>×</button>}</li>
           ))}
           {!people.length && <li className="pg-muted">No saved people yet.</li>}
         </ul>

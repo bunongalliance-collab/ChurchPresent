@@ -9,6 +9,7 @@ export interface CachedSong {
   title: string;
   number: string;
   owner?: string;
+  church?: string;
   category?: string;
   language?: string;
   look?: unknown;
@@ -30,6 +31,7 @@ export interface CachedReading {
   content: string;
   look?: unknown;
   owner?: string;
+  church?: string;
   savedAt: number;
 }
 

@@ -117,3 +117,43 @@ export const cancelRequest = async (cid: string) => {
 export const startChurch = (name: string) => call("start_church", { church_name: name });
 export const acceptChurch = (cid: string) => call("accept_church", { cid });
 export const declineChurch = (cid: string) => call("decline_church", { cid });
+
+// ---------- Songs and readings (supabase/churches-songs-readings.sql) ----------
+// The church new songs and readings are saved to: the current church once it is accepted, otherwise none (your own)
+export const saveChurchId = (): string | null => (state.current?.status === "active" ? state.current.id : null);
+
+// Whether the signed-in account may change a song or reading. Matches can_edit_row in the database:
+// a church's rows: anyone on that church's team; rows with no church: whoever saved them; the shared hymn book
+// (no church, no owner): site admins.
+export function canEdit(row: { owner?: string | null; church?: string | null }): boolean {
+  const uid = state.session?.user.id;
+  if (!uid) return false;
+  if (row.church) return state.churches.some((c) => c.id === row.church && c.status === "active");
+  if (row.owner) return row.owner === uid;
+  return state.siteAdmin;
+}
+
+// Names of accepted churches, for small labels ("from Example Church B"). Loaded once, readable without signing in.
+let names: Record<string, string> | null = null;
+let namesLoading: Promise<void> | null = null;
+export function useChurchNames(): Record<string, string> {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (names || !supabase) return;
+    const sb = supabase;
+    namesLoading ??= (async () => {
+      const { data } = await sb.rpc("church_names");
+      names = Object.fromEntries(((data ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name]));
+    })();
+    void namesLoading.then(() => tick((n) => n + 1));
+  }, []);
+  return names ?? {};
+}
+
+// Wait for the first load of the account's churches (so a page doesn't act before it knows the church)
+export async function churchReady(): Promise<ChurchState> {
+  start();
+  while (!state.ready) await (loading ?? reloadChurches());
+  return state;
+}
+export const currentChurchId = (): string | null => state.current?.id ?? null;

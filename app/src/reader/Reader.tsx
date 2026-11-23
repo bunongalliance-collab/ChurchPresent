@@ -7,7 +7,7 @@ import { PULL_THRESHOLD, usePullToRefresh } from "./usePullToRefresh";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
 import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
-import { followAlong, loadTodayService, type PublishedService, type PubSub } from "../lib/publishedService";
+import { followAlong, loadChurchList, loadTodayService, readerChurch, setReaderChurch, type PublishedService, type PubSub, type ReaderChurch } from "../lib/publishedService";
 
 // Nau Mpro: the read-only hymn book for the congregation. No sign-in, works offline.
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
@@ -78,14 +78,34 @@ export default function Reader() {
   }, [load]);
   // Today's service: the order of worship the team published from the Program, with its songs
   const [service, setService] = useState<PublishedService | null>(null);
-  useEffect(() => { loadTodayService().then(setService); }, []);
+  // Whose service: the church chosen once on this phone (no sign-in). With only one church it is chosen for them.
+  const [church, setChurch] = useState(() => readerChurch());
+  const churchId = church && church !== "none" ? church.id : null;
+  const [asking, setAsking] = useState(false);       // "Change church" pressed
+  const [churchList, setChurchList] = useState<ReaderChurch[] | null>(null);
+  useEffect(() => {
+    if (church !== null && !asking) return;
+    let live = true;
+    loadChurchList().then((list) => {
+      if (!live || !list) return;              // offline: ask next time
+      if (church === null && list.length === 1) { pickChurch(list[0]); return; }
+      setChurchList(list);
+    });
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [church, asking]);
+  const pickChurch = (c: ReaderChurch | "none") => { setReaderChurch(c); setChurch(c); setAsking(false); setService(null); };
+  const showAsk = (church === null || asking) && !!churchList?.length;
+  const churchIdRef = useRef(churchId);
+  churchIdRef.current = churchId;
+  useEffect(() => { loadTodayService(churchId).then(setService); }, [churchId]);
   // Phones keep the app open in the background for days, so the page would keep last week's service.
   // Coming back to the app (or back online) quietly reloads Today's service and the songs, at most every 30 s.
   const lastLoad = useRef(Date.now());
   // Reload Today's service and the songs; true when the library answered (false when offline)
   const reload = async (): Promise<boolean> => {
     lastLoad.current = Date.now();
-    const [svc, r] = await Promise.all([loadTodayService(), loadSongs()]);
+    const [svc, r] = await Promise.all([loadTodayService(churchIdRef.current), loadSongs()]);
     setService(svc);
     setLoad((cur) => (r.source === "none" && cur?.songs.length ? { ...cur, error: r.error } : r));
     return r.source !== "none" && !r.error;
@@ -117,6 +137,8 @@ export default function Reader() {
     setNote(ok ? "Updated" : "Offline. Showing the saved copy.");
     noteTimer.current = window.setTimeout(() => setNote(""), 1800);
   });
+  // The church question starts at the top of the list, even if it was scrolled down to "Change church"
+  useEffect(() => { if (showAsk) sideRef.current?.scrollTo({ top: 0 }); }, [showAsk]);
   // Only what the congregation follows along with: songs, choirs, readings and scripture that are filled in
   const todayItems = useMemo(() => followAlong(service?.items ?? []), [service]);
   // Passages and readings open in the lyrics view like a song (they have no number or music sheet)
@@ -308,7 +330,7 @@ export default function Reader() {
       )}
 
       <div className="nm-panes">
-        <aside ref={sideRef} className={`nm-side${pull ? " pulled" : ""}${pullState === "idle" ? "" : " pulling"}`} id="nm-side" aria-label="Songs"
+        <aside ref={sideRef} className={`nm-side${pull ? " pulled" : ""}${pullState === "idle" ? "" : " pulling"}${showAsk ? " asking" : ""}`} id="nm-side" aria-label="Songs"
           style={pull ? ({ "--nm-pull": `${pull}px` } as CSSProperties) : undefined}>
           {pullState !== "idle" && (
             <div className={`nm-ptr${pullState === "refreshing" ? " spin" : ""}`} aria-hidden="true">
@@ -319,6 +341,19 @@ export default function Reader() {
             </div>
           )}
           {pullState === "ready" && <div className="nm-ptr-label" aria-hidden="true">Release to refresh</div>}
+          {showAsk && (
+            <section className="nm-ask" aria-labelledby="nm-ask-h">
+              <h2 id="nm-ask-h">Which church do you go to?</h2>
+              <p>We'll show your church's service each Sunday.</p>
+              {churchList!.map((c) => (
+                <button key={c.id} className={`nm-church${churchId === c.id ? " on" : ""}`} onClick={() => pickChurch(c)}>
+                  <span>{c.name}</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+                </button>
+              ))}
+              <button className="nm-later" onClick={() => (asking && church !== null ? setAsking(false) : pickChurch("none"))}>{asking && church !== null ? "Cancel" : "Not now"}</button>
+            </section>
+          )}
           {categories.length > 1 && (
             <div className="nm-chips" role="group" aria-label="Category">
               <button className={`nm-chip${!cat ? " on" : ""}`} aria-pressed={!cat} onClick={() => setCat("")}>All</button>
@@ -329,6 +364,12 @@ export default function Reader() {
             <div className="nm-chips" role="group" aria-label="Language">
               <button className={`nm-chip${!lang ? " on" : ""}`} aria-pressed={!lang} onClick={() => setLang("")}>All languages</button>
               {languages.map((l) => <button key={l} className={`nm-chip${lang === l ? " on" : ""}`} aria-pressed={lang === l} onClick={() => setLang(lang === l ? "" : l)}>{l}</button>)}
+            </div>
+          )}
+          {churchId && !(service && todayItems.length > 0) && !q && !cat && !lang && (
+            <div className="nm-today nm-today-none">
+              <span className="nm-today-h">Today’s service</span>
+              <p>Not ready yet. Check again on Sunday.</p>
             </div>
           )}
           {service && todayItems.length > 0 && !q && !cat && !lang && (
@@ -388,6 +429,12 @@ export default function Reader() {
             ))}
             {load && all.length > 0 && !shown.length && <li className="nm-empty">No songs match. Try a number, a title or a line of the words.</li>}
           </ul>
+          {churchList !== null || church !== null ? (
+            <div className="nm-church-foot">
+              <span>{churchId && church !== "none" && church ? `Your church: ${church.name}` : "No church chosen"}</span>
+              <button onClick={() => setAsking(true)}>{churchId ? "Change church" : "Choose church"}</button>
+            </div>
+          ) : null}
         </aside>
 
         <main className="nm-lyrics" id="nm-lyrics" ref={lyricsRef} aria-label="Lyrics" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>

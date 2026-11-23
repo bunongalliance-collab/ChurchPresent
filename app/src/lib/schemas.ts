@@ -11,6 +11,7 @@ export const songRowSchema = z.object({
   title: text,
   song_number: text,
   owner_id: text,
+  church_id: text,
   look: object,
   category: text,
   language: text,
@@ -25,6 +26,7 @@ export const readingRowSchema = z.object({
   content: text,
   look: object,
   owner_id: text,
+  church_id: text,
 });
 
 export const readingCategoryRowSchema = z.object({

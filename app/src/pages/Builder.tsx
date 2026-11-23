@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { selectAll, supabase } from "../lib/supabase";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import { saveChurchId } from "../lib/church";
 import NavBar from "../components/NavBar";
 import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
@@ -434,7 +435,7 @@ export default function Builder() {
       const id = currentId || newId();
       const r = currentId
         ? await saveRow({ table: "presentations", op: "update", id, data: { title, data } })
-        : await saveRow({ table: "presentations", op: "insert", id, data: { title, data, owner_id: userId } });
+        : await saveRow({ table: "presentations", op: "insert", id, data: { title, data, owner_id: userId, church_id: saveChurchId() } });
       if (r.status === "error") { say("Could not save: " + r.message); return; }
       setCurrentId(id);
       if (r.status === "queued") { say(QUEUED_NOTE); return; }

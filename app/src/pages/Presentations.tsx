@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { saveChurchId } from "../lib/church";
 import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
@@ -135,7 +136,7 @@ export default function Presentations() {
     copy.serviceDate = dupDate || undefined;
     const { error: err } = await supabase
       .from("presentations")
-      .insert({ title: dupTitle.trim(), data: copy, owner_id: userId });
+      .insert({ title: dupTitle.trim(), data: copy, owner_id: userId, church_id: saveChurchId() });
     setBusyId("");
     if (err) { say("Could not duplicate: " + err.message, true); return; }
     say(`Copied "${dupFor.title}" as "${dupTitle.trim()}".`);

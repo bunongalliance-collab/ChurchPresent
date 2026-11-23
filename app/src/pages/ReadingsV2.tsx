@@ -4,6 +4,7 @@ import { onAuthChange, supabase } from "../lib/supabase";
 import { cacheReadingCategories, cacheReadings, loadCachedReadingCategories, loadCachedReadings } from "../lib/offlineCache";
 import { parseRows, readingCategoryRowSchema, readingRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import { canEdit, churchReady, currentChurchId, saveChurchId, useChurch } from "../lib/church";
 import SlideshowStrip from "../components/SlideshowStrip";
 import { queueReading, recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
@@ -20,7 +21,7 @@ import type { ProjDeck, ProjSlide } from "./Projector";
 // Signed in: stored in Supabase (readings, reading_categories). Otherwise: this browser only.
 
 export interface ReadingLook { font: string; perSlide: number; customSize: number; bg: string; fg: string }
-export interface Reading { id: string; number: string; title: string; subtitle: string; categoryId: string | null; content: string; look: Partial<ReadingLook>; owner?: string }
+export interface Reading { id: string; number: string; title: string; subtitle: string; categoryId: string | null; content: string; look: Partial<ReadingLook>; owner?: string; church?: string }
 export interface Category { id: string; name: string; sort: number }
 
 const SEED_CATEGORIES = ["Scripture", "Responsive Reading", "Prayer", "Declaration", "Church Orders", "Special Occasions", "Other"];
@@ -91,6 +92,9 @@ export default function ReadingsV2() {
   const [newCat, setNewCat] = useState("");
   const [sel, setSel] = useState({ start: 0, end: 0 });
   const seedingFor = useRef<string | null>(null);
+  // The current church decides which categories show and who may edit; switching church reloads them
+  const church = useChurch();
+  const churchKey = church.ready ? church.current?.id ?? "" : null;
   const user = session?.user ?? null;
 
   const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); toast(msg, error); };
@@ -102,16 +106,19 @@ export default function ReadingsV2() {
   // ----- Loading (Supabase when configured, otherwise this browser) -----
   const refresh = async (u: Session["user"] | null) => {
     if (supabase) {
+      // Categories belong to the current church (or are your own without one), so know the church first
+      if (u) await churchReady();
+      const catChurch = u ? currentChurchId() : null;
       const [r, c] = await Promise.all([
-        supabase.from("readings").select("id, number, title, subtitle, category_id, content, look, owner_id").order("updated_at", { ascending: false }),
-        u ? supabase.from("reading_categories").select("id, name, sort_order").order("sort_order") : Promise.resolve({ data: [], error: null }),
+        supabase.from("readings").select("id, number, title, subtitle, category_id, content, look, owner_id, church_id").order("updated_at", { ascending: false }),
+        u ? (catChurch ? supabase.from("reading_categories").select("id, name, sort_order").eq("church_id", catChurch) : supabase.from("reading_categories").select("id, name, sort_order").is("church_id", null)).order("sort_order") : Promise.resolve({ data: [], error: null }),
       ]);
       if (r.error) {
         // Offline: show the readings saved on this device
         const savedReadings = await loadCachedReadings();
         const savedCats = await loadCachedReadingCategories();
         if (savedReadings.length) {
-          setReadings(savedReadings.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.categoryId, content: x.content, look: (x.look ?? {}) as Reading["look"], owner: x.owner ?? "" })));
+          setReadings(savedReadings.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.categoryId, content: x.content, look: (x.look ?? {}) as Reading["look"], owner: x.owner ?? "", church: x.church })));
           setCategories(savedCats.map((x) => ({ id: x.id, name: x.name, sort: x.sort })));
           say("Offline: showing the readings saved on this device.");
         } else {
@@ -120,7 +127,7 @@ export default function ReadingsV2() {
         return;
       }
       const parsedReadings = parseRows(readingRowSchema, r.data ?? []);
-      const rows = parsedReadings.rows.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.category_id, content: x.content, look: x.look as Reading["look"], owner: x.owner_id }));
+      const rows = parsedReadings.rows.map((x) => ({ id: x.id, number: x.number, title: x.title, subtitle: x.subtitle, categoryId: x.category_id, content: x.content, look: x.look as Reading["look"], owner: x.owner_id, church: x.church_id }));
       setReadings(rows);
       void cacheReadings(rows);
       if (parsedReadings.dropped) say(`${parsedReadings.dropped} reading${parsedReadings.dropped === 1 ? "" : "s"} could not be read and ${parsedReadings.dropped === 1 ? "was" : "were"} skipped.`, true);
@@ -128,9 +135,9 @@ export default function ReadingsV2() {
       let cats: Category[] = parsedCats.rows.map((x) => ({ id: x.id, name: x.name, sort: x.sort_order }));
       if (u && !cats.length) {
         // Seed once per user: two loads can run at the same time (session check and auth event)
-        if (seedingFor.current === u.id) return;
-        seedingFor.current = u.id;
-        const rows = SEED_CATEGORIES.map((name, i) => ({ owner_id: u.id, name, sort_order: i }));
+        if (seedingFor.current === `${u.id}/${catChurch}`) return;
+        seedingFor.current = `${u.id}/${catChurch}`;
+        const rows = SEED_CATEGORIES.map((name, i) => ({ owner_id: u.id, church_id: catChurch, name, sort_order: i }));
         const { data: seeded } = await supabase.from("reading_categories").insert(rows).select("id, name, sort_order");
         cats = (seeded ?? []).map((x) => ({ id: x.id, name: x.name, sort: x.sort_order }));
       }
@@ -151,6 +158,14 @@ export default function ReadingsV2() {
     return unsubAuth;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Switching church shows that church's categories
+  const lastChurch = useRef<string | null>(null);
+  useEffect(() => {
+    if (churchKey === null) return;
+    if (lastChurch.current !== null && lastChurch.current !== churchKey && user) void refresh(user);
+    lastChurch.current = churchKey;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [churchKey]);
 
   useEffect(() => store(FAV_KEY, favorites), [favorites]);
   useEffect(() => store(RECENT_KEY, recent), [recent]);
@@ -191,7 +206,7 @@ export default function ReadingsV2() {
   function newReading() { fillForm(null); setTitle(""); setNumber(""); setSubtitle(""); setContent(""); }
 
   const selected = readings.find((r) => r.id === selectedId) ?? null;
-  const owned = !supabase || !selected || selected.owner === user?.id;
+  const owned = !supabase || !selected || canEdit(selected);
   // An edited saved reading: offer to approve the update or not
   const pendingUpdate = selected && owned && (selected.content !== content || selected.title !== title.trim() || (selected.categoryId ?? "") !== categoryId || selected.number !== number.trim() || selected.subtitle !== subtitle.trim()) ? selected : null;
 
@@ -205,9 +220,10 @@ export default function ReadingsV2() {
       const id = existing ? existing.id : newId();
       const r = existing
         ? await saveRow({ table: "readings", op: "update", id, data: row })
-        : await saveRow({ table: "readings", op: "insert", id, data: { ...row, owner_id: user.id } });
+        : await saveRow({ table: "readings", op: "insert", id, data: { ...row, owner_id: user.id, church_id: saveChurchId() } });
       if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
-      const saved: Reading = { id, number: row.number, title: row.title, subtitle: row.subtitle, categoryId: row.category_id, content, look, owner: user.id };
+      const saved: Reading = { id, number: row.number, title: row.title, subtitle: row.subtitle, categoryId: row.category_id, content, look,
+        owner: existing ? existing.owner : user.id, church: existing ? existing.church : (saveChurchId() ?? undefined) };
       if (r.status === "queued") {
         // No connection: show the reading now; it uploads when the device is back online
         setReadings((cur) => (cur.some((x) => x.id === saved.id) ? cur.map((x) => (x.id === saved.id ? saved : x)) : [saved, ...cur]));
@@ -251,7 +267,7 @@ export default function ReadingsV2() {
     if (!name) return;
     if (supabase && user) {
       const id = newId();
-      const r = await saveRow({ table: "reading_categories", op: "insert", id, data: { owner_id: user.id, name, sort_order: categories.length } });
+      const r = await saveRow({ table: "reading_categories", op: "insert", id, data: { owner_id: user.id, church_id: currentChurchId(), name, sort_order: categories.length } });
       if (r.status === "error") { say("Could not add category: " + r.message, true); return; }
       setCategories((cur) => [...cur, { id, name, sort: categories.length }]);
       if (r.status === "queued") say(QUEUED_NOTE);
