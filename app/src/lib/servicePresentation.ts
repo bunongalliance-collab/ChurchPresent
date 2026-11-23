@@ -1,7 +1,7 @@
 // The service presentation: slides built from the Program's order of worship, in the Program's order.
 // It reads the Program, songs, readings and scriptures; it stores nothing of its own, so the Program stays the one source.
 // Pure functions (no storage or network), so they are easy to test. The page loads the data and passes it in.
-import { buildDeck, CHAR_W, LYRIC_PAD, LYRIC_PAD_CSS, SLIDE_H_PT, SLIDE_PAD, SLIDE_W_PT, plainText, visLen, type Measure } from "./slides";
+import { buildDeck, CHAR_W, LYRIC_BOX_H, LYRIC_BOX_W, LYRIC_PAD_CSS, SLIDE_PAD, plainText, visLen, type Measure } from "./slides";
 import { STAGES } from "./programPdf";
 import { subKind, type Line, type Lines } from "./orderLines";
 import type { ProjSlide } from "../pages/Projector";
@@ -63,8 +63,8 @@ function mix(a: string, b: string, t: number): string {
 // comfortable size, the detail and name rows continue on more slides, and each keeps the title.
 export function textSlides(rows: Row[], o: BuildOptions): ProjSlide[] {
   const measure = o.measureFor?.(o.font);
-  const W = SLIDE_W_PT * (1 - 2 * LYRIC_PAD) * 0.985;
-  const H = SLIDE_H_PT * (1 - 2 * LYRIC_PAD);
+  const W = LYRIC_BOX_W * 0.985;
+  const H = LYRIC_BOX_H;
   const widthOf = (t: string, s: number) => (measure ? measure(plainText(t), s) : visLen(t) * (CHAR_W[o.font] ?? 0.5) * 1.05 * s);
   const rowsAt = (t: string, s: number) => {
     let n = 0;
@@ -124,7 +124,7 @@ function lyricSlides(song: SongData, o: BuildOptions): ProjSlide[] {
   return deck.slides.map((s) => ({
     label: s.label ?? "", rows: [...s], size: s.size, lineH: s.lineH,
     pad: s.left ? LYRIC_PAD_CSS : SLIDE_PAD,
-    ...(s.left ? { align: "left" as const, top: !s.vcenter, lyric: true } : {}),
+    ...(s.left ? { align: "left" as const, top: true, lyric: true } : {}),
     ...(look.bg ? { bg: look.bg } : {}), ...(look.fg ? { fg: look.fg } : {}), ...(look.font ? { font: look.font } : {}),
   }));
 }

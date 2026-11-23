@@ -35,7 +35,7 @@ export interface Slide extends Array<string> {
   size?: number;  // a font size for this slide only (singing slides use one size for all, so this is unused there)
   lineH?: number; // line spacing for this slide (singing slides tighten it to fit the height)
   left?: boolean; // a lyric slide: left-aligned inside the padded area
-  vcenter?: boolean; // a lyric slide whose text uses less than half the padded height: centred vertically
+  vcenter?: boolean; // no longer used: lyric slides always start at the top (kept false for saved decks)
   rows?: number;     // a lyric slide: how many wrapped rows of text it holds
 }
 
@@ -305,28 +305,38 @@ export function packSection(sec: Slide, font: string, size: number, perSlide: nu
   return slides.map((sl) => Object.assign(sl, { label: sec.label }) as Slide);
 }
 
-// Lyric slides: a fixed font size (70 pt), left-aligned inside a padded area (4% of the slide width and height on
-// every side). The lyric lines of a verse flow together as one paragraph: words wrap naturally across the full width and
-// a line break is never added when the next word fits. Breaks are kept only between verses and sections (each has its
-// own slides). A block that uses less than half the padded height is centred vertically; a longer one starts at the
-// top. When the text would pass the bottom of the padded area it continues on a new slide, at the same size and
+// Lyric slides: a fixed font size (70 pt), left-aligned inside a padded area: 10 px (8 pt) on every side, like the
+// Scripture slides, plus a band at the bottom for the section label. The lyric lines of a verse flow together as one
+// paragraph: words wrap naturally across the full width and a line break is never added when the next word fits.
+// Breaks are kept only between verses and sections (each has its own slides). The text always starts at the top.
+// When the next row would pass the bottom of the padded area it continues on a new slide, at the same size and
 // padding, preferably at the end of a lyric line, otherwise at a word boundary. Words are never split or dropped.
 export const LYRIC_PT = 70;
 export const LYRIC_LH = 1.15; // tight enough to fill the slide; fits every Vietnamese mark in Arial and Times New Roman
 // Fonts whose tallest accent plus deepest descender is taller than 1.15 em get more room (measured with the real fonts)
 export const LYRIC_LH_BY_FONT: Record<string, number> = { Verdana: 1.22, Georgia: 1.3, Calibri: 1.3 };
 export const lyricLineHeight = (font: string) => LYRIC_LH_BY_FONT[font] ?? LYRIC_LH;
-export const LYRIC_LABEL_PT = 16;                    // section label (V1, C): small, inside the bottom padding
-export const LYRIC_PAD = 0.04;                       // share of the slide width and of the slide height
-export const LYRIC_PAD_CSS = "2.25% 4%";             // 4% of the height is 2.25% of the width, which CSS padding uses
+export const LYRIC_LABEL_PT = 16;                    // section label (V1, C): small, in the band below the text
 export const SLIDE_H_PT = SLIDE_W_PT * (SLIDE_H_IN / SLIDE_W_IN);
+export const LYRIC_PAD_PT = 8;                       // 10 px on the 1219 px projector, the same as SLIDE_PAD
+export const LYRIC_LABEL_BAND_PT = 24;               // room for the 16 pt label under the text
+export const LYRIC_BOX_W = SLIDE_W_PT - 2 * LYRIC_PAD_PT;
+export const LYRIC_BOX_H = SLIDE_H_PT - 2 * LYRIC_PAD_PT - LYRIC_LABEL_BAND_PT;
+// The same space as shares of the slide, for PowerPoint (x of the width, y of the height)
+export const LYRIC_PAD_X = LYRIC_PAD_PT / SLIDE_W_PT;
+export const LYRIC_PAD_TOP = LYRIC_PAD_PT / SLIDE_H_PT;
+export const LYRIC_PAD_BOTTOM = (LYRIC_PAD_PT + LYRIC_LABEL_BAND_PT) / SLIDE_H_PT;
+// CSS padding is a share of the width on every side
+export const LYRIC_PAD_CSS = `${(LYRIC_PAD_PT / SLIDE_W_PT) * 100}% ${(LYRIC_PAD_PT / SLIDE_W_PT) * 100}% ${((LYRIC_PAD_PT + LYRIC_LABEL_BAND_PT) / SLIDE_W_PT) * 100}%`;
+// Where the label sits: inside the band, 10 px from the right and bottom edges (in cqw of the slide)
+export const LYRIC_LABEL_INSET = `${(LYRIC_PAD_PT / SLIDE_W_PT) * 100}cqw`;
 // Natural line height of each font in PowerPoint, so one line spacing looks the same everywhere
 export const NATURAL_LH: Record<string, number> = { Arial: 1.149, Verdana: 1.215, Calibri: 1.22, Georgia: 1.136, "Times New Roman": 1.149 };
 
 // paras: each paragraph is a list of lyric lines that flow together (a verse), or one line on its own (a title)
 export function lyricSlides(paras: string[][], font: string, size: number, measure?: Measure): { slides: Slide[]; tooWide: boolean } {
-  const W = SLIDE_W_PT * (1 - 2 * LYRIC_PAD);
-  const H = SLIDE_H_PT * (1 - 2 * LYRIC_PAD);
+  const W = LYRIC_BOX_W;
+  const H = LYRIC_BOX_H;
   const limit = W * 0.99; // the browser draws text a little wider than the measure
   const widthOf = (t: string) => (measure ? measure(plainText(t), size) : visLen(t) * CHAR_W[font] * 1.05 * size);
   let tooWide = false;
@@ -347,7 +357,7 @@ export function lyricSlides(paras: string[][], font: string, size: number, measu
     if (cur) rows.push({ text: cur, para: pi, endsPhrase: true });
   });
   const lh = lyricLineHeight(font);
-  const cap = Math.max(1, Math.floor(H / (size * lh)));
+  const cap = Math.max(1, Math.floor((H + 0.01) / (size * lh)));
   const out: Slide[] = [];
   let i = 0;
   const MIN_TAIL = 2; // the last slide of a verse never holds a single row
@@ -368,7 +378,7 @@ export function lyricSlides(paras: string[][], font: string, size: number, measu
       byPara[byPara.length - 1].push(r.text);
     }
     const content = byPara.map((a) => a.join(" "));
-    out.push(Object.assign(content, { size, lineH: lh, left: true, vcenter: slice.length * size * lh < H / 2, rows: slice.length }) as Slide);
+    out.push(Object.assign(content, { size, lineH: lh, left: true, vcenter: false, rows: slice.length }) as Slide);
   }
   return { slides: out, tooWide };
 }
@@ -533,6 +543,8 @@ export const SCRIPTURE_PAD_PT = 8;
 export const SCRIPTURE_REF_BAND_PT = 60;
 export const SCRIPTURE_BOX_W = SLIDE_W_PT - 2 * SCRIPTURE_PAD_PT;
 export const SCRIPTURE_BOX_H = SLIDE_W_PT * (SLIDE_H_IN / SLIDE_W_IN) - 2 * SCRIPTURE_PAD_PT - SCRIPTURE_REF_BAND_PT;
+// Readings slides have no reference band: the text fills from 10 px below the top to 10 px above the bottom
+export const READING_BOX_H = SLIDE_W_PT * (SLIDE_H_IN / SLIDE_W_IN) - 2 * SCRIPTURE_PAD_PT;
 
 // How many lines the text takes when whole words wrap at the box width (Infinity if a word is too wide)
 export function wrappedLineCount(text: string, font: string, size: number, boxW: number): number {
@@ -588,7 +600,9 @@ export function layoutPassage(words: string[], font: string, size: number, boxW:
   // A little extra room per line for the superscript verse numbers, so the last line never runs off the slide
   // Keep a 3% margin: the browser draws text a little wider than the measure, so a line that is exactly full would wrap early
   const limit = boxW * 0.97;
-  const capacity = Math.max(1, Math.floor(boxH / (size * LINE_H * 1.06)));
+  // As many whole lines as the height holds. Verse numbers do not make a line taller (their line-height is 0),
+  // so the slide fills from 10 px below the top edge down to the reference band.
+  const capacity = Math.max(1, Math.floor((boxH + 0.01) / (size * LINE_H)));
   const lines: string[] = [];
   const tooWide: string[] = [];
   let cur = "";
@@ -611,6 +625,9 @@ export function layoutPassage(words: string[], font: string, size: number, boxW:
 // Padding inside every slide's text area: 10 px on the 1219 px wide projector, written as a share of the
 // width so the projector and the previews show the same space around the text.
 export const SLIDE_PAD = "0.82%"; // exactly 10 px on the 1219 px wide projector
+// Scripture passage slides: the text starts SLIDE_PAD below the top and ends SLIDE_PAD above the reference band.
+// The same bottom padding everywhere (preview, cards, projector), as a share of the slide width like SLIDE_PAD.
+export const SCRIPTURE_PAD_BOTTOM = `calc(${SLIDE_PAD} + ${(SCRIPTURE_REF_BAND_PT / SLIDE_W_PT) * 100}%)`;
 
 // The browser measures text with the same font the slide uses, so line breaks match what is shown
 export function browserMeasure(font: string): Measure | undefined {

@@ -7,7 +7,7 @@ import { recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
 import { toast as showToast } from "../lib/toast";
 import {
-  browserMeasure, buildDeck, COLOR_PRESETS, expandShortcuts, fitLyricSize, FONTS, LYRIC_LABEL_PT, LYRIC_LH, LYRIC_PAD, LYRIC_PAD_CSS, LYRIC_PT, NATURAL_LH, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, takeMetaLines, type Slide,
+  browserMeasure, buildDeck, COLOR_PRESETS, expandShortcuts, fitLyricSize, FONTS, LYRIC_LABEL_INSET, LYRIC_LABEL_PT, LYRIC_LH, LYRIC_PAD_BOTTOM, LYRIC_PAD_CSS, LYRIC_PAD_TOP, LYRIC_PAD_X, LYRIC_PT, NATURAL_LH, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, SLIDE_W_PT, takeMetaLines, type Slide,
 } from "../lib/slides";
 import { SONG_CATEGORIES, SONG_LANGUAGES, type SongLook } from "./Lyrics";
 import { cacheLyrics, cacheSongList, loadCachedLyrics, loadCachedSongs } from "../lib/offlineCache";
@@ -445,7 +445,7 @@ export default function LyricsV2() {
       if (lines.label && showLabels) {
         // The label sits small inside the bottom padding, so it never touches the lyrics
         sl.addText(lines.label, {
-          x: SLIDE_W_IN * (1 - LYRIC_PAD) - 1.5, y: SLIDE_H_IN * (1 - LYRIC_PAD) + 0.02, w: 1.5, h: SLIDE_H_IN * LYRIC_PAD - 0.04,
+          x: SLIDE_W_IN * (1 - LYRIC_PAD_X) - 1.5, y: SLIDE_H_IN * (1 - LYRIC_PAD_BOTTOM), w: 1.5, h: SLIDE_H_IN * (LYRIC_PAD_BOTTOM - LYRIC_PAD_TOP),
           fontFace: font, fontSize: LYRIC_LABEL_PT, bold: true, color: fg,
           transparency: lines.label.startsWith("V") ? 35 : 0,
           align: "right", valign: "middle", margin: 0,
@@ -453,9 +453,9 @@ export default function LyricsV2() {
       }
       // Lyric slides: left-aligned in the padded area (4% of the width and of the height); centred vertically when short
       sl.addText(lines.join("\n"), {
-        x: SLIDE_W_IN * LYRIC_PAD, y: SLIDE_H_IN * LYRIC_PAD, w: SLIDE_W_IN * (1 - 2 * LYRIC_PAD), h: SLIDE_H_IN * (1 - 2 * LYRIC_PAD),
+        x: SLIDE_W_IN * LYRIC_PAD_X, y: SLIDE_H_IN * LYRIC_PAD_TOP, w: SLIDE_W_IN * (1 - 2 * LYRIC_PAD_X), h: SLIDE_H_IN * (1 - LYRIC_PAD_TOP - LYRIC_PAD_BOTTOM),
         fontFace: font, fontSize: lines.size || deck.size, bold: true, color: fg,
-        align: "left", valign: lines.vcenter ? "middle" : "top", margin: 0,
+        align: "left", valign: "top", margin: 0,
         lineSpacingMultiple: Math.round(((lines.lineH || LYRIC_LH) / (NATURAL_LH[font] || 1.15)) * 100) / 100, fit: "none",
       });
     }
@@ -471,7 +471,7 @@ export default function LyricsV2() {
       fg: colorText,
       showLabels,
       // size: a slide's own font size (a long chorus line is smaller), so the projector keeps it on the slide
-      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s], size: s.size, lineH: s.lineH, pad: s.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(s.left ? { align: "left", top: !s.vcenter, lyric: true } : {}) })),
+      slides: slides.map((s: Slide) => ({ label: s.label || "", rows: [...s], size: s.size, lineH: s.lineH, pad: s.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(s.left ? { align: "left", top: true, lyric: true } : {}) })),
     };
     try { localStorage.setItem(PROJECTOR_KEY, JSON.stringify(payload)); } catch { /* storage blocked */ }
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
@@ -812,9 +812,9 @@ export default function LyricsV2() {
             <p className="lf-sub">Generated from the current lyrics</p>
             <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
               {current ? (
-                <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(current.left ? { padding: 0, alignItems: current.vcenter ? "center" : "flex-start", justifyContent: "flex-start" } : {}) }}>
+                <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(current.left ? { padding: 0, alignItems: "flex-start", justifyContent: "flex-start" } : {}) }}>
                   <div className="lv2-stage-text" style={{ fontSize: `${((current.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: current.lineH || 1.3, padding: current.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(current.left ? { textAlign: "left" as const } : {}) }}>{current.join("\n")}</div>
-                  {current.label && showLabels && <div className="lv2-stage-tag" style={current.left ? { right: "4%", bottom: "0.3cqw", fontSize: `${(LYRIC_LABEL_PT / SLIDE_W_PT) * 100}cqw`, lineHeight: 1 } : undefined}>{current.label}</div>}
+                  {current.label && showLabels && <div className="lv2-stage-tag" style={current.left ? { right: LYRIC_LABEL_INSET, bottom: LYRIC_LABEL_INSET, fontSize: `${(LYRIC_LABEL_PT / SLIDE_W_PT) * 100}cqw`, lineHeight: 1 } : undefined}>{current.label}</div>}
                 </div>
               ) : (
                 <div className="lv2-stage lv2-guide" aria-label="How to start">
@@ -845,7 +845,7 @@ export default function LyricsV2() {
               {slides.length > 0 && (
                 <div className="lv2-thumbs" role="list">
                   {slides.map((sl, i) => (
-                    <button key={i} role="listitem" className={`lv2-thumb${i === shownIdx ? " current" : ""}`} onClick={() => setPreviewIdx(i)} style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(sl.left ? { padding: 0, alignItems: sl.vcenter ? "center" : "flex-start", justifyContent: "flex-start", textAlign: "left" as const } : {}) }} aria-label={`Slide ${i + 1}`} aria-current={i === shownIdx ? "true" : undefined}>
+                    <button key={i} role="listitem" className={`lv2-thumb${i === shownIdx ? " current" : ""}`} onClick={() => setPreviewIdx(i)} style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(sl.left ? { padding: 0, alignItems: "flex-start", justifyContent: "flex-start", textAlign: "left" as const } : {}) }} aria-label={`Slide ${i + 1}`} aria-current={i === shownIdx ? "true" : undefined}>
                       <span className="lv2-thumb-num">{i + 1}</span>
                       <span className="lv2-thumb-text" style={{ fontSize: `${((sl.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: sl.lineH || 1.3, ...(sl.left ? { padding: LYRIC_PAD_CSS, width: "100%", whiteSpace: "pre-line" as const } : {}) }}>{sl.left ? sl.join("\n") : sl.join(" ")}</span>
                       {sl.label && showLabels && <span className="lv2-thumb-tag">{sl.label}</span>}

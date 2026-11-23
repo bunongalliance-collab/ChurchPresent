@@ -8,7 +8,7 @@ import { onAuthChange, supabase } from "../lib/supabase";
 import SlideshowStrip from "../components/SlideshowStrip";
 import { recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
-import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
+import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SCRIPTURE_PAD_BOTTOM, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
 import { breakRow } from "../lib/pptx";
 import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
@@ -924,8 +924,8 @@ export default function Scripture() {
                 {(() => {
                   const cur = shown[Math.min(previewIndex, shown.length - 1)];
                   return (
-                    <div className={`sc-big${look.aspect === "4:3" ? " ratio-43" : ""}`} style={{ background: cur.bg ?? look.bg, color: cur.fg ?? look.fg, fontFamily: `${cur.font ?? look.font}, sans-serif` }}>
-                      <div className="sc-big-text" style={{ textAlign: look.align, padding: SLIDE_PAD, fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
+                    <div className={`sc-big${look.aspect === "4:3" ? " ratio-43" : ""}${cur.ref ? " sc-passage" : ""}`} style={{ background: cur.bg ?? look.bg, color: cur.fg ?? look.fg, fontFamily: `${cur.font ?? look.font}, sans-serif` }}>
+                      <div className="sc-big-text" style={{ textAlign: look.align, padding: SLIDE_PAD, ...(cur.ref ? { paddingBottom: SCRIPTURE_PAD_BOTTOM } : {}), fontSize: `${((cur.size ?? output.size) / 960) * 100}cqw` }}>
                         {renderRows(cur.segs ?? cur.rows.map((r) => parseRich(r)), cur.numColor ?? look.numColor, "sc-big-vnum", look.align)}
                       </div>
                       {cur.label && look.showLabels && <div className="sc-big-tag" style={{ color: look.labelColor }}>{cur.label}</div>}
@@ -938,13 +938,13 @@ export default function Scripture() {
                     <button
                       key={i}
                       type="button"
-                      className={`sc-card${Math.min(previewIndex, shown.length - 1) === i ? " current" : ""}${look.aspect === "4:3" ? " ratio-43" : ""}`}
+                      className={`sc-card${Math.min(previewIndex, shown.length - 1) === i ? " current" : ""}${look.aspect === "4:3" ? " ratio-43" : ""}${sl.ref ? " sc-passage" : ""}`}
                       style={{ background: sl.bg ?? look.bg, color: sl.fg ?? look.fg, fontFamily: `${sl.font ?? look.font}, sans-serif` }}
                       onClick={() => setPreviewIndex(i)}
                       aria-label={`Slide ${i + 1}`}
                     >
                       <span className="sc-card-num">{i + 1}</span>
-                      <span className="sc-card-text" style={{ alignItems: alignItemsOf(look.align), textAlign: look.align, fontSize: `${((sl.size ?? output.size) / 960) * 100}cqw` }}>
+                      <span className="sc-card-text" style={{ alignItems: alignItemsOf(look.align), textAlign: look.align, ...(sl.ref ? { padding: SLIDE_PAD, paddingBottom: SCRIPTURE_PAD_BOTTOM } : {}), fontSize: `${((sl.size ?? output.size) / 960) * 100}cqw` }}>
                         {renderRows(sl.segs ?? sl.rows.map((r) => parseRich(r)), sl.numColor ?? look.numColor, "sc-card-vnum", look.align)}
                       </span>
                       {sl.label && <span className="sc-card-tag" style={{ color: look.labelColor }}>{sl.label}</span>}

@@ -8,7 +8,7 @@ import SlideshowStrip from "../components/SlideshowStrip";
 import { queueReading, recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
-import { COLOR_PRESETS, FONTS, RECOMMENDED_PT, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
+import { COLOR_PRESETS, FONTS, READING_BOX_H, RECOMMENDED_PT, SCRIPTURE_BOX_W, SLIDE_PAD, browserMeasure, layoutPassage, passageAutoSize } from "../lib/slides";
 import { carryLines, contrastText, HIGHLIGHT_OPTIONS, parseRich, setColors, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, tokenLenAt } from "../lib/richeditor";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
@@ -46,7 +46,7 @@ export function readingSlides(content: string, look: ReadingLook): { rows: strin
   const size = look.customSize > 0 ? look.customSize : passageAutoSize(all.join(" ").split(/\s+/).filter(Boolean), look.font, RECOMMENDED_PT, measure);
   return paragraphs.flatMap((p) => {
     const words = p.join(" ").split(/\s+/).filter(Boolean);
-    const { slides: laid, tooWide } = layoutPassage(words, look.font, size, SCRIPTURE_BOX_W, SCRIPTURE_BOX_H, measure);
+    const { slides: laid, tooWide } = layoutPassage(words, look.font, size, SCRIPTURE_BOX_W, READING_BOX_H, measure);
     return laid.map((rows, k) => ({ rows, size, tooWide: k === 0 ? tooWide : [] }));
   });
 }
@@ -349,7 +349,7 @@ export default function ReadingsV2() {
   function buildDeck(): ProjDeck {
     return {
       font: look.font, size, bg: look.bg, fg: look.fg, showLabels: false,
-      slides: slides.map((s) => ({ rows: s.rows, pad: SLIDE_PAD, segs: segsOf(s.rows).map((line) => line.map((seg) => ({ text: seg.text, f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null }))), size } as ProjSlide)),
+      slides: slides.map((s) => ({ rows: s.rows, pad: SLIDE_PAD, top: true, segs: segsOf(s.rows).map((line) => line.map((seg) => ({ text: seg.text, f: seg.bold || seg.italic || seg.underline || seg.color || seg.highlight ? { bold: seg.bold, italic: seg.italic, underline: seg.underline, color: seg.color, highlight: seg.highlight } : null }))), size } as ProjSlide)),
     };
   }
   function present() {
@@ -584,9 +584,9 @@ export default function ReadingsV2() {
           </div><span className="lv2-sub">Generated from the current text</span></div>
           {slides.length ? (
             <>
-              <div className="lv2-stage" style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }}>
+              <div className="lv2-stage" style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif`, padding: 0, alignItems: "flex-start" }}>
                 <span className="lv2-stage-num">{cur + 1}</span>
-                <div className="lv2-stage-text" style={{ fontSize: `${(size / 960) * 100}cqw` }}><RowText rows={slides[cur].rows} /></div>
+                <div className="lv2-stage-text" style={{ fontSize: `${(size / 960) * 100}cqw`, padding: SLIDE_PAD }}><RowText rows={slides[cur].rows} /></div>
               </div>
               <div className="lv2-preview-actions">
                 <button className="primary small" onClick={present} disabled={!slides.length}>Present</button>
@@ -599,9 +599,9 @@ export default function ReadingsV2() {
               </div>
               <div className="lv2-thumbs" role="list">
                 {slides.map((s, i) => (
-                  <button key={i} type="button" role="listitem" className={`lv2-thumb${cur === i ? " current" : ""}`} style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif` }} onClick={() => setIndex(i)} aria-label={`Slide ${i + 1}`} aria-current={cur === i ? "true" : undefined}>
+                  <button key={i} type="button" role="listitem" className={`lv2-thumb${cur === i ? " current" : ""}`} style={{ background: look.bg, color: look.fg, fontFamily: `${look.font}, sans-serif`, padding: 0, alignItems: "flex-start" }} onClick={() => setIndex(i)} aria-label={`Slide ${i + 1}`} aria-current={cur === i ? "true" : undefined}>
                     <span className="lv2-thumb-num">{i + 1}</span>
-                    <span className="lv2-thumb-text" style={{ fontSize: `${(s.size / 960) * 100}cqw` }}><RowText rows={s.rows} /></span>
+                    <span className="lv2-thumb-text" style={{ fontSize: `${(s.size / 960) * 100}cqw`, padding: SLIDE_PAD, width: "100%", lineHeight: 1.3 }}><RowText rows={s.rows} /></span>
                   </button>
                 ))}
               </div>

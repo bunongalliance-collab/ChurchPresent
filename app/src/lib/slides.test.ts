@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LYRIC_LH, LYRIC_PT, SLIDE_H_PT, buildDeck, fitLyricSize, lyricLineHeight, lyricSlides } from "./slides";
+import { LYRIC_BOX_H, LYRIC_LH, LYRIC_PT, buildDeck, fitLyricSize, lyricLineHeight, lyricSlides } from "./slides";
 
 const VERSE = [
   "Mâu dơi he chuêl ôh nau Păng rŏng, mâu dơi chuêl nau Păng yỗ.",
@@ -7,7 +7,7 @@ const VERSE = [
   "Kah gĭt ƀa-ƀơ tâm rnê lah ueh, Yor lah Păng Brah toyh Ngăn.",
 ];
 const words = (t: string[]) => t.join(" ").split(/\s+/).filter(Boolean);
-const H = SLIDE_H_PT * 0.92;
+const H = LYRIC_BOX_H; // 10 px padding on every side plus the label band
 const cap = Math.floor(H / (LYRIC_PT * LYRIC_LH));
 
 describe("lyric slides", () => {
@@ -39,11 +39,18 @@ describe("lyric slides", () => {
     expect([...slides[0]]).toEqual(["Brah Yê-su kơ lơm ia"]);
   });
 
-  it("centres a short block vertically and starts a long one at the top", () => {
+  it("starts every block at the top, short or long", () => {
     const short = lyricSlides([["Brah Yê-su"]], "Arial", LYRIC_PT).slides[0];
-    expect(short.vcenter).toBe(true);
+    expect(short.vcenter).toBe(false);
     const long = lyricSlides([[...VERSE, ...VERSE]], "Arial", LYRIC_PT).slides[0];
     expect(long.vcenter).toBe(false);
+  });
+
+  it("fills the height inside 10 px padding and the label band before starting a new slide", () => {
+    // 70 pt at 1.15 line spacing: (540 - 16 - 24) / 80.5 = 6 rows per slide
+    const { slides } = lyricSlides([[...VERSE, ...VERSE, ...VERSE, ...VERSE]], "Arial", LYRIC_PT);
+    expect(slides.length).toBeGreaterThan(1);
+    expect(Math.max(...slides.map((s) => (s as unknown as { rows: number }).rows))).toBe(Math.floor(LYRIC_BOX_H / (LYRIC_PT * 1.15)));
   });
 
   it("never leaves a single row alone on the last slide of a verse", () => {

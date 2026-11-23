@@ -1,4 +1,4 @@
-import { LYRIC_LABEL_PT, SLIDE_PAD } from "../lib/slides";
+import { LYRIC_LABEL_INSET, LYRIC_LABEL_PT, SCRIPTURE_PAD_BOTTOM, SLIDE_PAD } from "../lib/slides";
 import { groupParagraphs, paragraphEnds, VERSE_SPLIT } from "../lib/richtext";
 import { useEffect, useRef, useState } from "react";
 import Presenter from "./Presenter";
@@ -133,7 +133,12 @@ export function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", o
       style={{ background: slide.bg ?? deck.bg, color: slide.fg ?? deck.fg, fontFamily: `${slide.font ?? deck.font}, Arial, sans-serif` }}
       onClick={onClick}
     >
-      <div className="text" style={{ ...textStyle, ...(slide.top ? { alignItems: "flex-start" } : {}), paddingBottom: slide.ref ? `calc(${SLIDE_PAD} + 9%)` : deck.padBottomPct ? `${deck.padBottomPct}%` : undefined }}>
+      <div className="text" style={{
+        ...textStyle, ...(slide.top ? { alignItems: "flex-start" } : {}),
+        paddingBottom: slide.ref ? SCRIPTURE_PAD_BOTTOM : deck.padBottomPct ? `${deck.padBottomPct}%` : undefined,
+        // Scripture passage (has a reference): starts 10 px below the top and fills down to the reference band
+        ...(slide.ref ? { alignItems: "flex-start", paddingTop: SLIDE_PAD, paddingLeft: SLIDE_PAD, paddingRight: SLIDE_PAD } : {}),
+      }}>
         <div style={{ width: "100%", textAlign: slide.align === "justify" ? "justify" : slide.align ?? "center", ...fmtStyle(slide.fmt) }}>
           {slide.align === "justify" && !slide.wrap
             // Justified: each paragraph (verse) is one block, so the browser wraps it and fills the full width
@@ -154,7 +159,7 @@ export function renderStage(slide: ProjSlide, deck: ProjDeck, extraClass = "", o
             color: deck.labelColor || undefined,
             fontSize: deck.tagPt ? `calc(${deck.tagPt} / 960 * 100cqw)` : slide.lyric ? `calc(${LYRIC_LABEL_PT} / 960 * 100cqw)` : undefined,
             textTransform: deck.tagPt ? "uppercase" : undefined,
-            ...(slide.lyric ? { right: "4%", bottom: "0.3cqw", lineHeight: 1 } : {}),
+            ...(slide.lyric ? { right: LYRIC_LABEL_INSET, bottom: LYRIC_LABEL_INSET, lineHeight: 1 } : {}),
           }}
         >
           {slide.label}

@@ -727,8 +727,16 @@ button:disabled { opacity: 0.4; cursor: default; }
 .sc .sc-big-ref { font-size: 2.2cqw; }
 .sc .sc-card-ref { font-size: 2.6cqw; }
 .sc .sc-card:has(.sc-card-ref) .sc-card-text, .sc .sc-big:has(.sc-big-ref) .sc-big-text { padding-bottom: 8%; }
+/* Scripture passage slides: no outer padding; the text starts 10 px below the top and fills down to the reference band
+   (the padding is set on the text from SLIDE_PAD and SCRIPTURE_PAD_BOTTOM). Verse numbers never make a line taller. */
+.sc .sc-big.sc-passage { padding: 0; align-items: stretch; }
+.sc .sc-card.sc-passage { padding: 0; }
+.sc .sc-card.sc-passage .sc-card-text { justify-content: flex-start; }
+.sc .sc-passage .sc-big-vnum, .sc .sc-passage .sc-card-vnum { line-height: 0; }
+.pv-card:has(.pv-ref) { padding: 0; }
+.pv-card:has(.pv-ref) .pv-text { justify-content: flex-start; padding: 0.82% 0.82% calc(0.82% + 6.25%); }
+.pv-card:has(.pv-ref) .pv-vnum { line-height: 0; }
 .pv-ref { position: absolute; right: 6%; bottom: 3%; font-size: 2.8cqw; font-weight: 600; opacity: 0.75; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.7); line-height: 1.2; }
-.pv-card:has(.pv-ref) .pv-text { padding-bottom: 8%; }
 
 /* Slide Appearance: open by default, one tidy card with three sections (Typography, Colours, Display) */
 .ly-appearance { margin-top: 10px; border: 1px solid var(--ly-line); border-radius: 10px; padding: 8px 12px 12px; background: var(--ly-panel); }
