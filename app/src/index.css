@@ -2828,3 +2828,62 @@ html body .ct-app .ot input.ot-item { font-weight: 600; }
 .pg-po-empty { margin: 8px 0; font-style: italic; color: #666; font-size: 9pt; }
 .pgb button.pgb-pub:not(#pgb-x) { min-height: 36px; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--on-accent); font-weight: 600; }
 .pgb button.pgb-pub:disabled:not(#pgb-x) { opacity: 0.5; cursor: default; }
+
+/* ===== Home page (the main address; pages/Home.tsx). Approved sample: bible-pwa/sample/home.html =====
+   Three apps, each with a small picture of itself. Team colours from the tokens; each picture uses its app's own palette. */
+html body .ct-app .hm { max-width: 1180px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); color: var(--text); font: 1rem/1.55 var(--font-ui); }
+.hm a { color: inherit; }
+.hm :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+.hm-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; }
+.hm a.hm-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--accent); text-decoration: none; }
+.hm-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font: 700 15px Georgia, serif; }
+.hm a.hm-signin { color: var(--accent); font-weight: 600; text-decoration: none; padding: 8px 2px; }
+.hm-hero { padding: 36px 0 30px; max-width: 720px; }
+.hm-eyebrow { margin: 0 0 8px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+html body .ct-app .hm h1:not(#hm-x) { margin: 0; font: 700 clamp(2rem, 4.6vw, 3rem)/1.1 "Source Serif 4", Georgia, serif; letter-spacing: -0.01em; text-wrap: balance; }
+.hm-lede { margin: 14px 0 0; font-size: 1.15rem; color: var(--muted); max-width: 56ch; }
+.hm-group { margin: 28px 0 10px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.hm-group h2 { margin: 0; font: 600 1.2rem var(--font-ui); }
+.hm-group span { color: var(--muted); font-size: 0.95rem; }
+.hm-apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 20px; }
+.hm a.hm-app { display: flex; flex-direction: column; background: var(--panel); border-radius: 18px; overflow: hidden; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.hm a.hm-app:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgb(0 0 0 / 0.10); }
+.hm-thumb { aspect-ratio: 16 / 9; position: relative; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; padding: 18px 18px 0; }
+.hm-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.hm-body h3 { margin: 0; font: 700 1.3rem/1.2 "Source Serif 4", Georgia, serif; }
+.hm-body p { margin: 0; color: var(--muted); }
+.hm-who { align-self: flex-start; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--on-soft); background: var(--accent-soft); border-radius: 999px; padding: 2px 10px; }
+.hm-foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hm-open { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 12px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.hm-note { font-size: 0.88rem; color: var(--muted); }
+.hm-wide { grid-column: 1 / -1; }
+@media (min-width: 900px) { .hm a.hm-app.hm-wide { flex-direction: row; } .hm-wide .hm-thumb { flex: 0 0 52%; aspect-ratio: auto; min-height: 280px; } .hm-wide .hm-body { justify-content: center; padding: 28px 32px; } }
+.hm-more { margin: 40px 0 0; padding: 22px 0; border-top: 1px solid var(--sunken); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 0.92rem; }
+.hm-more a { color: var(--accent); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .hm a.hm-app { transition: none; } .hm a.hm-app:hover { transform: none; } }
+/* The pictures: drawings of each app in its own colours (decorative, hidden from screen readers) */
+.hm-t-nm { background: #efe9dc; }
+.hm-phone { width: 66%; max-width: 300px; background: #fbf9f4; border-radius: 18px 18px 0 0; box-shadow: 0 -2px 18px rgb(0 0 0 / 0.12); padding: 12px 12px 0; font-family: "Alegreya", Georgia, serif; color: #23221d; }
+.hm-phone-bar { font-weight: 700; color: #1F5F4A; font-size: 13px; margin-bottom: 6px; }
+.hm-phone-card { border: 1.5px solid #E3EEE8; border-radius: 10px; padding: 6px 8px; margin-bottom: 6px; font-size: 10.5px; }
+.hm-phone-card b { color: #1F5F4A; display: block; font-size: 12px; }
+.hm-phone-row { display: flex; gap: 6px; font-size: 11px; padding: 4px 0; border-top: 1px solid #e3dfd3; }
+.hm-phone-row i { font-style: normal; color: #1F5F4A; font-weight: 700; width: 18px; text-align: right; }
+.hm-t-bible { background: #2B2826; }
+.hm-page { width: 72%; max-width: 340px; background: #211F1E; border-radius: 14px 14px 0 0; padding: 14px 16px 0; color: #F2EEE9; font-family: "Source Serif 4", Georgia, serif; box-shadow: 0 -2px 18px rgb(0 0 0 / 0.3); }
+.hm-page-t { font: 600 8px var(--font-ui); letter-spacing: 0.3em; text-align: center; color: #C2BBB4; margin-bottom: 8px; }
+.hm-page-ref { font: 700 8px var(--font-ui); letter-spacing: 0.08em; color: #D0A091; margin-bottom: 4px; }
+.hm-page p { margin: 0 0 6px; font-size: 10px; line-height: 1.55; color: #F2EEE9; }
+.hm-page sup { color: #C9A85A; font-size: 7px; font-weight: 700; }
+.hm-page mark { background: rgb(168 184 159 / 0.28); color: inherit; }
+.hm-t-tools { background: linear-gradient(160deg, #D3E7DB, #E6ECE2); }
+.hm-screen { align-items: start; width: 88%; background: #F9FBF7; border-radius: 12px 12px 0 0; box-shadow: 0 -2px 18px rgb(0 0 0 / 0.12); padding: 10px 12px 0; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 10px; font-family: var(--font-ui); color: #243028; }
+.hm-screen-nav { grid-column: 1 / -1; display: flex; gap: 5px; flex-wrap: wrap; }
+.hm-screen-nav span { font-size: 8px; padding: 2px 6px; border-radius: 5px; background: #E6ECE2; }
+.hm-screen-nav span.on { background: #1F5F4A; color: #fff; }
+.hm-screen-list div { font-size: 8.5px; padding: 4px 6px; border-radius: 5px; margin-bottom: 3px; background: #E6ECE2; }
+.hm-screen-list div.on { background: #D3E7DB; box-shadow: inset 2px 0 0 #1F5F4A; font-weight: 700; }
+.hm-slide { aspect-ratio: 16 / 9; background: #5A1D1D; color: #fff; border-radius: 6px; padding: 6px 8px; font: 700 9px/1.25 Arial, sans-serif; overflow: hidden; }
+.hm-slide small { display: block; text-align: right; font-size: 6px; opacity: 0.7; margin-top: 4px; }
+.hm-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 5px; }
+.hm-mini span { aspect-ratio: 16 / 9; background: #5A1D1D; border-radius: 3px; opacity: 0.85; }

@@ -15,12 +15,13 @@ import Scripture from "./pages/Scripture";
 import Presentations from "./pages/Presentations";
 import Notes from "./pages/Notes";
 import Team from "./pages/Team";
+import Home from "./pages/Home";
 import Readings from "./pages/Readings";
 import Toasts from "./components/Toasts";
 
 // Pages in one app, chosen by the address hash:
 // "#projector" = projector view, "#builder" = presentation builder, "#scripture" = scripture slides,
-// anything else = lyrics page.
+// no hash = the home page, anything unknown = the Lyric page.
 export default function App() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -35,6 +36,9 @@ export default function App() {
 }
 
 function renderPage(page: string) {
+  // The main address is the home page; Church Tools starts at Lyric (#lyrics-v2)
+  if (page === "" || page === "#" || page === "#home") return <Home />;
+  if (page === "#lyrics") return <LyricsV2 />;
   if (page === "#projector") return <Projector />;
   if (page === "#remote") return <Remote />;
   if (page === "#builder") return <Builder />;

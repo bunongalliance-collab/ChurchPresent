@@ -1,4 +1,4 @@
-// Bunong Bible reader (/bible/). Design approved from the sample in bible-pwa/sample/index.html.
+// Bunong Bible reader (/nau-brah-ndu-ngoi/). Design approved from the sample in bible-pwa/sample/index.html.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { addForSlides, readForSlides, scriptureLink, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
 import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
@@ -260,7 +260,7 @@ export default function Bible() {
       </header>
 
       <div className="wrap">
-        <p className="title">Scripture</p>
+        <p className="title">Nau Brah Ndu Ngơi</p>
         <main>
           <p className="ref">{book.local} &middot; Chapter {s.chap}</p>
           {chapter ? <Passage book={s.book} chap={s.chap} ch={chapter} s={s} picked={picked} onSelect={tap} />

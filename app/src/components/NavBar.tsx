@@ -9,8 +9,9 @@ import { useChurch, switchChurch } from "../lib/church";
 // Sign in and sign out live here, so they are the same on every page.
 // newTab: a separate page (the congregation's reader), opened in a new tab so the team app stays open
 const PAGES: { href: string; label: string; newTab?: boolean }[] = [
-  { href: "#", label: "Hymn/Nau Mpro" },
+  { href: "#lyrics-v2", label: "Hymn/Nau Mpro" },
   { href: "/nau-mpro/", label: "Nau Mpro App ↗", newTab: true },
+  { href: "/nau-brah-ndu-ngoi/", label: "Nau Brah Ndu Ngơi ↗", newTab: true },
   { href: "#readings-v2", label: "Readings" },
   { href: "#scripture", label: "Scripture/Brah Ndu Ngoi" },
   { href: "#builder", label: "Presentation Builder" },
@@ -81,7 +82,7 @@ export default function NavBar() {
 
   return (
     <nav className={`navbar${menuOpen ? " menu-open" : ""}`} aria-label="Main">
-      <span className="brand">Church Tools</span>
+      <a className="brand" href="#" title="Church Tools home">Church Tools</a>
       {cur && (
         <div className="nav-church">
           <button type="button" className="nav-church-btn" aria-haspopup="menu" aria-expanded={churchOpen} onClick={() => setChurchOpen((v) => !v)}
@@ -108,7 +109,7 @@ export default function NavBar() {
       </button>
       <ul id="nav-links" onClick={() => setMenuOpen(false)}>
         {PAGES.map((p) => {
-          const current = p.href === hash || (p.href === "#" && hash === "");
+          const current = p.href === hash || (p.href === "#lyrics-v2" && hash === "#lyrics");
           return (
             <li key={p.href}>
               {p.newTab ? (

@@ -10,7 +10,7 @@ import "./bible.css";
 import Bible from "./Bible";
 import { startVisitLogging } from "../lib/visits";
 
-// Bunong Bible reader: its own installable page (/bible/), separate from the team app
+// Bunong Bible reader: its own installable page (/nau-brah-ndu-ngoi/), separate from the team app
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Bible />

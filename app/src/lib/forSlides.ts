@@ -1,4 +1,4 @@
-// Passages waiting to become Scripture slides ("For slides"), shared by the Bible reader (/bible/) and the Scripture page.
+// Passages waiting to become Scripture slides ("For slides"), shared by the Bible reader (/nau-brah-ndu-ngoi/) and the Scripture page.
 // Both pages run on the same site, so they share this browser storage: the Bible reader adds passages, and the Scripture
 // page picks them up whenever it is opened (from the Bible reader, the navbar or a new tab) and clears them once added.
 

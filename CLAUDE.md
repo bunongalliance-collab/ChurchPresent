@@ -52,7 +52,8 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 "The church app" means this project: a church presentation tool for Montagnard Bunong Alliance Church.
 
 ### Pages and routes (hash routes in `app/src/App.tsx`)
-- `#` (default) and `#lyrics-v2`: Lyric. Songs, slides, projector deck. `pages/LyricsV2.tsx`
+- `/` (no hash, or `#home`): Home page listing the apps (Nau Mpro, Nau Brah Ndu Ngơi, Church Tools). `pages/Home.tsx`. "Church Tools" in the navbar links here.
+- `#lyrics-v2` (and `#lyrics:<songId>` from the Builder; unknown hashes): Lyric. Songs, slides, projector deck. `pages/LyricsV2.tsx`. The installed team app starts here.
 - `#readings-v2`: Readings. `pages/ReadingsV2.tsx`
 - `#program`: Service program editor and PDF. `pages/Program.tsx`, `lib/programPdf.ts`. The Order of Worship is edited in a table above the brochure (`components/OrderTable.tsx`), and the brochure shows it as it prints.
 - `#scripture`: Scripture slides. `pages/Scripture.tsx`
@@ -63,7 +64,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - `#notes`: Notes. `pages/Notes.tsx`
 - `#team`: Team. Churches, roles (admin, editor) per church, join codes, invites, new churches accepted by a site admin (`app_admins`). `pages/Team.tsx`, `lib/church.ts`, `supabase/churches.sql`. Stage 2: songs, readings and reading categories have a `church_id` (`supabase/churches-songs-readings.sql`); the church's team edits them (`canEdit` in `lib/church.ts`, `can_edit_row` in SQL), reading stays public, the hymn book (no owner) is shared. Stage 3: presentations, scripture studies and saved people have a `church_id` (`supabase/churches-team-work.sql`), readable and editable by the church team; saved people are no longer public. Programs are shared: one per church per date in `programs` (`supabase/programs.sql`); the Program page's program bar (`components/ProgramBar.tsx`, `useSharedProgram` in `lib/programs.ts`) loads it into the local draft (which Service Slides reads) and saves 1.5 s after typing, with a notice when someone else changed it. Stage 4: published services have a `church_id` (`supabase/churches-services.sql`), one per church per date, published by the church's admins only. The Nau Mpro App has no sign-in: it asks once which church (`readerChurch` in `lib/publishedService.ts`; picked automatically when there is only one) and shows that church's service to anyone.
 - `#thumbnail`: Sermon thumbnail maker. `pages/Thumbnail.tsx`, `lib/thumbnail.ts`
-- `/bible/` (its own installable page, like `/scripture/` and `/nau-mpro/`): Bunong Bible reader. Reads `bible_verses` and `bible_headings` (translation `bunong-vn`), saves each opened book in IndexedDB for offline reading. Highlights, saved verses and notes stay on the device. `app/bible/index.html`, `src/bible/`. Own styles in `src/bible/bible.css` (design approved from `bible-pwa/sample/index.html`).
+- `/nau-brah-ndu-ngoi/` (its own installable page, like `/scripture/` and `/nau-mpro/`; linked in the navbar as "Nau Brah Ndu Ngơi ↗"; the old `/bible/` only redirects here): Bunong Bible reader. Reads `bible_verses` and `bible_headings` (translation `bunong-vn`), saves each opened book in IndexedDB for offline reading. Highlights, saved verses and notes stay on the device. `app/nau-brah-ndu-ngoi/index.html`, `public/nau-brah-ndu-ngoi/` (manifest and icons), `src/bible/`. Own styles in `src/bible/bible.css` (design approved from `bible-pwa/sample/index.html`).
 - Old `pages/Lyrics.tsx` and `pages/Readings.tsx` still exist in code but are not linked in the navbar.
 
 ### Database (Supabase)

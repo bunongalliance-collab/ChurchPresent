@@ -113,7 +113,7 @@ function newSlide(kind: Kind): StudySlide {
   };
 }
 
-// Passages sent from the Bunong Bible reader (/bible/), e.g. /scripture/?add=bunong-vn:EXO.3.1-3,EXO.3.6
+// Passages sent from the Bunong Bible reader (/nau-brah-ndu-ngoi/), e.g. /scripture/?add=bunong-vn:EXO.3.1-3,EXO.3.6
 // The translation is one of our database Bibles; the text is fetched from the database when they are added.
 interface Incoming { bible: string; code: string; ch: number; v1: number; v2: number }
 function readIncoming(): Incoming[] {
