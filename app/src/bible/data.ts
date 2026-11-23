@@ -65,6 +65,8 @@ async function idb<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRe
     });
   } catch { return undefined; } // private window or storage blocked: read from the network each time
 }
+// A book saved on this device, or undefined (never fetches). The Scripture page uses it when offline.
+export const savedBook = (code: string) => idb<BookText>("readonly", (s) => s.get(code));
 export const savedBookCodes = async () => ((await idb<IDBValidKey[]>("readonly", (s) => s.getAllKeys())) ?? []).map(String);
 export const clearSavedBooks = () => idb("readwrite", (s) => s.clear());
 

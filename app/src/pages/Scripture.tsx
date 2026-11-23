@@ -14,7 +14,8 @@ import { breakRow } from "../lib/pptx";
 import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, markerToVisible, NO_FMT, tokenLenAt, visibleToMarker } from "../lib/richeditor";
 import { DB_BIBLES, fetchDbBooks, fetchDbPassage, isDbBible } from "../lib/bible";
-import { addForSlides, passCode, readForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
+import { addForSlides, claimForSlides, passCode, readForSlides, releaseForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
+import { savedBook } from "../bible/data";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
 interface BibleVersion { id: string; name: string }
@@ -271,9 +272,11 @@ export default function Scripture() {
   // Passages from the Bible reader wait in a list shared with it (lib/forSlides), so they show here however this page is
   // opened. A link with ?add= puts its passages in that list too, and is then removed from the address.
   const [incoming, setIncoming] = useState<Incoming[]>(() => {
+    // From the link and from storage, without doubles. Where storage is not shared or not saved (an iPhone home-screen
+    // app, private browsing), the link alone still brings them.
     const fromLink = readIncoming();
-    if (fromLink.length) addForSlides(fromLink.map(toShared));
-    return readForSlides().map(fromShared);
+    const { list } = addForSlides(fromLink.map(toShared));
+    return list.map(fromShared);
   });
   const [laterIncoming, setLaterIncoming] = useState(false);   // "Later": hide the banner; the passages keep waiting
   useEffect(() => {
@@ -298,7 +301,7 @@ export default function Scripture() {
   const addingRef = useRef(false);
   const autoAdd = (list: Incoming[]) => {
     if (!list.length || addingRef.current) return;
-    if (slidesRef.current.every((x) => !x.text.trim())) addIncoming(false, list);
+    if (slidesRef.current.every((x) => !x.text.trim()) && claimForSlides()) addIncoming(false, list);
   };
   useEffect(() => {
     autoAdd(incoming);
@@ -551,6 +554,17 @@ export default function Scripture() {
     say(`Opened "${s.title}".`);
   }
 
+  // A passage's verses: from the database, or when that fails (offline) from the Bunong Bible reader's saved copy of the book
+  async function passageRows(r: Incoming) {
+    try { return await fetchDbPassage(r.bible, r.code, r.ch, r.v1, r.v2); }
+    catch (e) {
+      const book = r.bible === "db:bunong-vn" ? await savedBook(r.code) : undefined;
+      const vs = (book?.chapters[r.ch]?.verses ?? []).filter((v) => (v.end ?? v.v) >= r.v1 && v.v <= r.v2);
+      if (!vs.length) throw e;
+      return vs.map((v) => ({ verse: v.v, verseEnd: v.end, text: v.text }));
+    }
+  }
+
   // Add the passages from the Bible reader as passage slides, with their text fetched from the database
   async function addIncoming(fresh: boolean, list: Incoming[] = incoming) {
     if (addingRef.current) return;
@@ -564,7 +578,7 @@ export default function Scripture() {
     for (const r of list) {
       try {
         if (!(r.bible in names)) names[r.bible] = bookCodes[r.bible] ?? await fetchDbBooks(r.bible).catch(() => null);
-        const rows = await fetchDbPassage(r.bible, r.code, r.ch, r.v1, r.v2);
+        const rows = await passageRows(r);
         const lines = rows.map((x) => { const num = x.verseEnd ? `${x.verse}-${x.verseEnd}` : String(x.verse); return look.verseNumbers ? `${num} ${x.text}` : x.text; });
         const bookLabel = names[r.bible]?.find((b) => b.code === r.code)?.title || bookName(r.code);
         made.push({
@@ -579,6 +593,7 @@ export default function Scripture() {
     writeForSlides(readForSlides().filter((p) => !added.has(passCode(p))));
     setIncoming(readForSlides().map(fromShared));
     addingRef.current = false;
+    releaseForSlides();
     setBusy(false);
     if (fresh) { setCurrentId(""); setTitle("Scripture study"); setPreviewIndex(0); }
     // An empty passage slide (the one a new study starts with) is replaced

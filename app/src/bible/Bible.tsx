@@ -1,6 +1,6 @@
 // Bunong Bible reader (/bible/). Design approved from the sample in bible-pwa/sample/index.html.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { addForSlides, readForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
+import { addForSlides, readForSlides, scriptureLink, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
 import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
 
 // ---------- Stored on this device ----------
@@ -164,9 +164,13 @@ export default function Bible() {
   // The slides icon: add the passages to the slide list in one tap. The message offers to open the Scripture page now;
   // otherwise keep reading and collecting, and open the list later from Saved.
   const addToSlides = (ps: Pass[]) => {
-    setForSlides(ownList(addForSlides(ps.map(toShared))));
+    const { list, saved } = addForSlides(ps.map(toShared));
+    // Storage blocked: keep them for this visit only, and say so; the Open Scripture link still carries them
+    if (saved) setForSlides(ownList(list));
+    else setForSlides((cur) => { const have = new Set(cur.map((x) => `${x.b}.${x.c}.${x.v1}.${x.v2}`)); return [...cur, ...ps.filter((x) => !have.has(`${x.b}.${x.c}.${x.v1}.${x.v2}`))]; });
     setPicked([]);
-    say(`Added ${ps.length} passage${ps.length === 1 ? "" : "s"} to slides`, true);
+    if (saved) say(`Added ${ps.length} passage${ps.length === 1 ? "" : "s"} to slides`, true);
+    else say("This browser won’t save them. Open Scripture now to use them.", true);
   };
   const removeForSlides = (i: number) => { const next = forSlides.filter((_, j) => j !== i); writeForSlides([...readForSlides().filter((p) => p.t !== TRANSLATION), ...next.map(toShared)]); setForSlides(next); };
   const clearForSlides = () => { writeForSlides(readForSlides().filter((p) => p.t !== TRANSLATION)); setForSlides([]); };
@@ -247,7 +251,7 @@ export default function Bible() {
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}
-          <button className="go" onClick={openScripture} aria-label={forSlides.length ? `Go to Scripture, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : "Go to Scripture"} title="Go to Scripture">
+          <button className="go" onClick={() => openScripture(forSlides)} aria-label={forSlides.length ? `Go to Scripture, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : "Go to Scripture"} title="Go to Scripture">
             <Icon n="open" />{forSlides.length > 0 && <span className="badge" aria-hidden="true">{forSlides.length}</span>}
           </button>
         </div>
@@ -255,7 +259,7 @@ export default function Bible() {
 
       {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
         passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} />}
-      {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(); }}>Open Scripture</button>}</div>}
+      {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(forSlides); }}>Open Scripture</button>}</div>}
     </>
   );
 }
@@ -415,7 +419,7 @@ function VersesPanel({ p, books, setPanel, close, go }: PanelProps & { close: ()
 
 // Open the Scripture page with these passages (it asks whether to add them to the study)
 // The Scripture page picks up the waiting passages itself, however it is opened
-function openScripture() { window.location.href = "/scripture/"; }
+function openScripture(list: Pass[]) { window.location.href = scriptureLink(list.map(toShared)); }
 
 function SavedPanel({ s, update, go, close, passLabel, passesOf, addToSlides, forSlides, removeForSlides, clearForSlides }: PanelProps & { close: () => void }) {
   const keys = Object.keys(s.saved).sort((a, b) => s.saved[b].at - s.saved[a].at);
@@ -432,7 +436,7 @@ function SavedPanel({ s, update, go, close, passLabel, passesOf, addToSlides, fo
           </div>))}
         <div className="btns">
           <button className="btn" onClick={clearForSlides}>Clear list</button>
-          <button className="btn pri" onClick={openScripture}>Open in Scripture</button>
+          <button className="btn pri" onClick={() => openScripture(list)}>Open in Scripture</button>
         </div>
       </>}
       {keys.length > 0 && list.length > 0 && <p className="testament">Saved verses</p>}
