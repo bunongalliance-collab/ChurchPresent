@@ -62,6 +62,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - `#projector`: Projector output. `pages/Projector.tsx`
 - `#notes`: Notes. `pages/Notes.tsx`
 - `#thumbnail`: Sermon thumbnail maker. `pages/Thumbnail.tsx`, `lib/thumbnail.ts`
+- `/bible/` (its own installable page, like `/scripture/` and `/nau-mpro/`): Bunong Bible reader. Reads `bible_verses` and `bible_headings` (translation `bunong-vn`), saves each opened book in IndexedDB for offline reading. Highlights, saved verses and notes stay on the device. `app/bible/index.html`, `src/bible/`. Own styles in `src/bible/bible.css` (design approved from `bible-pwa/sample/index.html`).
 - Old `pages/Lyrics.tsx` and `pages/Readings.tsx` still exist in code but are not linked in the navbar.
 
 ### Database (Supabase)

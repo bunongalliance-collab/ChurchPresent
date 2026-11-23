@@ -12,6 +12,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "5180", "--bind", "127.0.0.1", "--directory", "../bible-data/review"],
       "port": 5180
+    },
+    {
+      "name": "bible-sample",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5181", "--bind", "127.0.0.1", "--directory", "../bible-pwa/sample"],
+      "port": 5181
     }
   ]
 }

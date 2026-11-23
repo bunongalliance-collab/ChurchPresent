@@ -80,7 +80,7 @@ function readerOwnManifest(): Plugin {
     transformIndexHtml: {
       order: 'post',
       handler(html, ctx) {
-        if (!ctx.path.startsWith('/nau-mpro/') && !ctx.path.startsWith('/scripture/')) return html
+        if (!ctx.path.startsWith('/nau-mpro/') && !ctx.path.startsWith('/scripture/') && !ctx.path.startsWith('/bible/')) return html
         return html.replace(/\s*<link rel="manifest" href="\/manifest\.webmanifest"\s*\/?>/g, '')
       },
     },
@@ -117,12 +117,12 @@ export default defineConfig(({ mode }) => {
           // The main bundle is about 2.3 MB; the default 2 MB limit left it out of the offline cache
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           // The Nau Mpro reader's manifest and lyric fonts are saved too, so the reader opens offline
-          globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'nau-mpro/*.webmanifest', 'scripture/*.webmanifest', 'fonts/NotoSerif-*.ttf'],
+          globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'nau-mpro/*.webmanifest', 'scripture/*.webmanifest', 'bible/*.webmanifest', 'fonts/NotoSerif-*.ttf'],
           // Reader fonts: only the Latin and Vietnamese letter sets are needed
           globIgnores: ['**/*-cyrillic-*.woff2', '**/*-cyrillic-ext-*.woff2', '**/*-greek-*.woff2', '**/*-greek-ext-*.woff2'],
           navigateFallback: 'index.html',
           // The reader is its own page: never answer it with the team app's page
-          navigateFallbackDenylist: [/^\/nau-mpro/, /^\/scripture/],
+          navigateFallbackDenylist: [/^\/nau-mpro/, /^\/scripture/, /^\/bible/],
           runtimeCaching: [
             {
               // Songs, presentations and scripture studies: the last copy is used when offline
@@ -170,13 +170,14 @@ export default defineConfig(({ mode }) => {
       }),
       readerOwnManifest(),
     ],
-    // Two pages: the team app, and the Nau Mpro reader at /nau-mpro/
+    // Pages: the team app, the Nau Mpro reader at /nau-mpro/, Scripture at /scripture/ and the Bunong Bible at /bible/
     build: {
       rollupOptions: {
         input: {
           main: fileURLToPath(new URL('./index.html', import.meta.url)),
           reader: fileURLToPath(new URL('./nau-mpro/index.html', import.meta.url)),
           scripture: fileURLToPath(new URL('./scripture/index.html', import.meta.url)),
+          bible: fileURLToPath(new URL('./bible/index.html', import.meta.url)),
         },
       },
     },

@@ -1,0 +1,376 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scripture Reader</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: one centred reading column (max 680px text), header aligned to it; panels are bottom sheets on phones, centred dialogs on desktop. */
+:root{
+  --bg:#faf8f3; --surface:#ffffff; --fg:#26241f; --muted:#6b665c; --line:#e6e1d6;
+  --sage:#5f7a63; --sage-soft:#e7eee6; --clay:#a8603f; --gold:#b08a2e; --hl:#f4e7b8;
+  --scrim:rgba(38,36,31,.32);
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --text-size:1.25rem; --leading:1.75;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#211F1E; --surface:#2B2826; --fg:#F2EEE9; --muted:#C2BBB4; --line:#48423E;
+  --sage:#A8B89F; --sage-soft:#38332F; --clay:#D0A091; --gold:#D9BC74; --hl:#574F35; --scrim:rgba(10,12,10,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#211F1E; --surface:#2B2826; --fg:#F2EEE9; --muted:#C2BBB4; --line:#48423E;
+  --sage:#A8B89F; --sage-soft:#38332F; --clay:#D0A091; --gold:#D9BC74; --hl:#574F35; --scrim:rgba(10,12,10,.6); color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+@media (min-width:900px){.actions:not(.off){right:max(16px,calc(50% - 360px - 88px))}}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.wrap{max-width:720px;margin:0 auto}
+header{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px}
+.sel{display:flex;gap:4px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:8px 10px;min-height:44px;border-radius:8px;font-weight:600;font-size:15px}
+.pill:hover{background:var(--sage-soft)}
+.pill svg{width:14px;height:14px;color:var(--muted)}
+.icons{display:flex}
+.ib{width:44px;height:44px;display:grid;place-items:center;border-radius:10px;color:var(--muted)}
+.ib:hover{background:var(--sage-soft);color:var(--fg)}
+.ib[aria-pressed="true"]{color:var(--sage)}
+.ib .n{position:absolute}
+
+.title{text-align:center;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.32em;color:var(--muted);margin:28px 0 0;text-transform:uppercase}
+main{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px))}
+.ref{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);margin:0 0 14px}
+.passage{font-family:var(--serif);font-size:var(--text-size);line-height:var(--leading);max-width:34em;margin:0;text-wrap:pretty}
+.v{border-radius:3px;cursor:pointer;transition:background .15s}
+.v:hover{background:var(--sage-soft)}
+.v.hl{background:var(--hl)}
+.v.sel-on{background:var(--sage-soft);outline:1.5px solid var(--sage);outline-offset:1px}
+.v.hl.sel-on{background:var(--hl)}
+.v:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.v sup{font-family:var(--sans);font-size:.55em;font-weight:600;color:var(--muted);margin-right:.2em;vertical-align:.55em;line-height:0}
+.v.hl sup{color:var(--fg)}
+.v .mk{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:3px;vertical-align:.35em}
+.mk.note{background:var(--clay)} .mk.save{background:var(--gold)}
+.empty{font-family:var(--serif);color:var(--muted);font-size:1.05rem;line-height:1.6;border-top:1px solid var(--line);padding-top:18px}
+.empty b{color:var(--fg);font-weight:600}
+.pager{display:flex;justify-content:space-between;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+.pager button{color:var(--muted);font-size:14px;padding:10px 4px;min-height:44px;display:inline-flex;align-items:center;gap:4px}
+.pager button:hover{color:var(--fg)} .pager button:disabled{opacity:.35;cursor:default}
+
+/* ---------- Desktop: bar on top, drawers on the right ---------- */
+@media (min-width:900px){
+  header{position:sticky;top:env(safe-area-inset-top,0px);bottom:auto;border-top:0;border-bottom:1px solid var(--line);padding:0;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+  header .bar{min-height:60px}
+  main{padding-bottom:72px}
+  .toast{top:76px}
+  body{transition:padding-right .2s ease-out}
+  body.drawer-open{padding-right:416px}
+  body.drawer-open .actions{display:none}
+  .panel.drawer{top:0;bottom:0;right:0;left:auto;width:400px;height:100dvh;max-height:none;transform:none;border-radius:0;border:0;
+    border-left:1px solid var(--line);box-shadow:-16px 0 40px rgba(0,0,0,.06);animation:slide .2s ease-out;padding-top:env(safe-area-inset-top,0px)}
+  .panel.drawer .ph{min-height:61px}
+  @keyframes slide{from{transform:translateX(24px);opacity:.4}}
+  .hint.keys{display:block}
+}
+.hint.keys{display:none}
+kbd{font:600 11px var(--sans);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--fg)}
+
+/* verse action bar */
+/* vertical toolbar on the right edge; the top button hides or shows it */
+.actions{animation:pop .16s ease-out;position:fixed;right:max(12px,calc(env(safe-area-inset-right,0px) + 8px));top:50%;transform:translateY(-50%);z-index:25;
+  display:flex;flex-direction:column;align-items:center;gap:10px}
+.actions .lab{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.actions button{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--muted);
+  border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.14);transition:transform .15s,opacity .15s}
+.actions button span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.actions button:hover:not(:disabled){color:var(--fg);transform:scale(1.06)}
+.actions button:disabled{opacity:.45;box-shadow:none;cursor:default}
+.actions button[aria-pressed="true"]{background:var(--sage);border-color:var(--sage);color:var(--surface)}
+.actions .tg{width:40px;height:40px;background:var(--bg);box-shadow:none}
+.actions .tg svg{transition:transform .2s}
+.actions.off > :not(.tg){display:none}
+.actions.off .tg{width:48px;height:48px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.actions.off .tg svg{transform:rotate(180deg)}
+
+/* panels */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40}
+.panel{position:fixed;z-index:50;background:var(--surface);color:var(--fg);display:flex;flex-direction:column;
+  left:0;right:0;bottom:0;max-height:min(86dvh,720px);border-radius:16px 16px 0 0;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);animation:up .22s ease-out}
+@keyframes pop{from{opacity:0;translate:8px 0}}
+@keyframes up{from{transform:translateY(24px);opacity:.6}}
+@media (min-width:760px){
+  .panel{left:50%;right:auto;top:12vh;bottom:auto;width:520px;transform:translateX(-50%);max-height:76vh;border-radius:14px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.18);animation:fade .18s ease-out}
+  @keyframes fade{from{opacity:0}}
+  .panel.wide{width:640px}
+  .title{margin-top:44px} main{padding-top:36px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:14px 12px 10px 20px;border-bottom:1px solid var(--line)}
+.ph h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0}
+.ph .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.pb{overflow-y:auto;padding:12px 20px 20px;overscroll-behavior:contain}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:8px 14px;min-height:40px;border-radius:7px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--sage-soft);color:var(--fg);font-weight:600}
+.testament{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px}
+.books{display:grid;grid-template-columns:1fr;gap:0}
+@media (min-width:760px){.books{grid-template-columns:1fr 1fr;column-gap:16px}}
+.book{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:10px 8px;min-height:44px;border-bottom:1px solid var(--line);font-size:15px}
+.book:hover{background:var(--sage-soft)}
+.book small{color:var(--muted);font-size:12px}
+.book[aria-current="true"]{color:var(--sage);font-weight:600}
+.book[aria-current="true"] small{color:var(--sage)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px;margin-top:8px}
+.grid button{min-height:48px;border:1px solid var(--line);border-radius:8px;font-variant-numeric:tabular-nums;font-size:15px}
+.grid button:hover{border-color:var(--sage)}
+.grid button[aria-current="true"]{background:var(--sage);border-color:var(--sage);color:var(--surface);font-weight:600}
+.grid button.na{color:var(--muted);border-style:dashed}
+.hint{font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.item{border-bottom:1px solid var(--line);padding:14px 0}
+.item .r{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.item .r b{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--clay)}
+.item p{font-family:var(--serif);font-size:16px;line-height:1.6;margin:6px 0 0}
+.item .note{font-family:var(--sans);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;white-space:pre-wrap}
+.lnk{font-size:13px;color:var(--muted);padding:8px;min-height:40px;border-radius:6px}
+.lnk:hover{color:var(--clay);background:var(--sage-soft)}
+.none{color:var(--muted);text-align:center;padding:32px 8px;line-height:1.6;font-size:14px}
+textarea{width:100%;min-height:110px;font:15px/1.5 var(--sans);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;resize:vertical}
+.btns{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.btn{padding:10px 16px;min-height:44px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid var(--line)}
+.btn.pri{background:var(--sage);border-color:var(--sage);color:var(--surface)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row .k{font-weight:600} .row .d{font-size:13px;color:var(--muted)}
+.preview{font-family:var(--serif);font-size:var(--text-size);line-height:var(--leading);margin:16px 0 0;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(16px + env(safe-area-inset-top,0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:60}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h4"/></symbol>
+  <symbol id="i-set" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-hl" viewBox="0 0 24 24"><path d="m14 4 6 6-9 9H5v-6z"/><path d="M4 21h16"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+</svg>
+
+<header><div class="wrap bar">
+  <div class="sel">
+    <button class="pill" id="bookBtn" aria-haspopup="dialog"><span id="bookLbl">Exodus</span><svg><use href="#i-down"/></svg></button>
+    <button class="pill" id="chapBtn" aria-haspopup="dialog"><span id="chapLbl">3</span><svg><use href="#i-down"/></svg></button>
+  </div>
+  <nav class="icons" aria-label="Reader tools">
+    <button class="ib" id="homeBtn" aria-label="Home: back to the passage"><svg><use href="#i-home"/></svg></button>
+    <button class="ib" id="savedBtn" aria-label="Saved verses" aria-haspopup="dialog"><svg><use href="#i-save"/></svg></button>
+    <button class="ib" id="notesBtn" aria-label="Notes" aria-haspopup="dialog"><svg><use href="#i-note"/></svg></button>
+    <button class="ib" id="setBtn" aria-label="Settings" aria-haspopup="dialog"><svg><use href="#i-set"/></svg></button>
+  </nav>
+</div></header>
+
+<div class="wrap reading" id="reading">
+  <p class="title">Scripture</p>
+  <main id="reader" aria-live="polite"></main>
+</div>
+
+<div class="actions" id="actions" role="toolbar" aria-label="Verse actions" aria-orientation="vertical" hidden>
+  <span class="lab" id="actLab">Verse</span>
+  <button id="aHl" aria-pressed="false" title="Highlight"><svg><use href="#i-hl"/></svg><span>Highlight</span></button>
+  <button id="aNote" title="Note"><svg><use href="#i-note"/></svg><span>Note</span></button>
+  <button id="aSave" aria-pressed="false" title="Save"><svg><use href="#i-save"/></svg><span>Save</span></button>
+  <button id="aCopy" title="Copy"><svg><use href="#i-copy"/></svg><span>Copy</span></button>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle" hidden>
+  <div class="ph"><div><h2 id="pTitle"></h2><div class="sub" id="pSub"></div></div>
+    <button class="ib" id="pClose" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+  <div class="pb" id="pBody"></div>
+</section>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* ---------- Data (sample only) ---------- */
+const BOOKS=[["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],
+["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
+const OT=39;
+// KJV, Exodus 3:1-8. The only text in this sample.
+const TEXT={"Exodus 3":[
+"Now Moses kept the flock of Jethro his father in law, the priest of Midian: and he led the flock to the backside of the desert, and came to the mountain of God, even to Horeb.",
+"And the angel of the LORD appeared unto him in a flame of fire out of the midst of a bush: and he looked, and, behold, the bush burned with fire, and the bush was not consumed.",
+"And Moses said, I will now turn aside, and see this great sight, why the bush is not burnt.",
+"And when the LORD saw that he turned aside to see, God called unto him out of the midst of the bush, and said, Moses, Moses. And he said, Here am I.",
+"And he said, Draw not nigh hither: put off thy shoes from off thy feet, for the place whereon thou standest is holy ground.",
+"Moreover he said, I am the God of thy father, the God of Abraham, the God of Isaac, and the God of Jacob. And Moses hid his face; for he was afraid to look upon God.",
+"And the LORD said, I have surely seen the affliction of my people which are in Egypt, and have heard their cry by reason of their taskmasters; for I know their sorrows;",
+"And I am come down to deliver them out of the hand of the Egyptians, and to bring them up out of that land unto a good land and a large, unto a land flowing with milk and honey; unto the place of the Canaanites, and the Hittites, and the Amorites, and the Perizzites, and the Hivites, and the Jebusites."]};
+
+/* ---------- Storage ---------- */
+const KEY="scriptureReader.v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+const S=Object.assign({book:"Exodus",chap:3,hl:{},saved:{},notes:{},size:"m",leading:"normal",theme:null},load());
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const SIZES={s:"1.0625rem",m:"1.25rem",l:"1.5rem"}, LEAD={compact:1.55,normal:1.75,relaxed:2};
+function applyPrefs(){const r=document.documentElement;r.style.setProperty("--text-size",SIZES[S.size]);r.style.setProperty("--leading",LEAD[S.leading]);
+  if(S.theme)r.dataset.theme=S.theme;else delete r.dataset.theme}
+
+/* ---------- Helpers ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ref=(k)=>{const [b,c,v]=k.split("|");return `${b} ${c}:${v}`};
+const vtext=k=>{const [b,c,v]=k.split("|");return (TEXT[`${b} ${c}`]||[])[v-1]||""};
+const chapters=b=>BOOKS.find(x=>x[0]===b)[1];
+let sel=null;
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1800)}
+
+/* ---------- Reader ---------- */
+function render(scrollTo){
+  $("bookLbl").textContent=S.book;$("chapLbl").textContent=S.chap;
+  const verses=TEXT[`${S.book} ${S.chap}`];
+  let h=`<p class="ref">${esc(S.book)} &middot; Chapter ${S.chap}</p>`;
+  if(verses){
+    h+=`<p class="passage">`+verses.map((t,i)=>{const k=`${S.book}|${S.chap}|${i+1}`;
+      return `<span class="v${S.hl[k]?" hl":""}${sel===k?" sel-on":""}" id="v${i+1}" data-k="${k}" tabindex="0" role="button" aria-label="Verse ${i+1}${S.saved[k]?", saved":""}${S.notes[k]?", has note":""}"><sup>${i+1}</sup>${esc(t)}${S.notes[k]?'<span class="mk note" aria-hidden="true"></span>':""}${S.saved[k]?'<span class="mk save" aria-hidden="true"></span>':""}</span> `}).join("")+`</p>`;
+    if(S.book==="Exodus"&&S.chap===3)h+=`<p class="hint">This sample includes verses 1&ndash;8 of Exodus 3.</p>`;
+  }else{
+    h+=`<p class="empty"><b>${esc(S.book)} ${S.chap} isn&rsquo;t included in this sample.</b><br>Only Exodus 3:1&ndash;8 (KJV) is available for review. Use the book list to go back.</p>`;
+  }
+  const n=chapters(S.book);
+  h+=`<div class="pager"><button id="prev" ${S.chap<=1?"disabled":""}><svg><use href="#i-l"/></svg>Chapter ${Math.max(1,S.chap-1)}</button><button id="next" ${S.chap>=n?"disabled":""}>Chapter ${Math.min(n,S.chap+1)}<svg><use href="#i-r"/></svg></button></div>`;
+  h+=`<p class="hint keys">Use <kbd>←</kbd> <kbd>→</kbd> to change chapter.</p>`;
+  $("reader").innerHTML=h;
+  $("prev").onclick=()=>go(S.book,S.chap-1);$("next").onclick=()=>go(S.book,S.chap+1);
+  if(scrollTo){const el=$("v"+scrollTo);if(el){el.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"});el.focus({preventScroll:true});selectVerse(el.dataset.k)}}
+}
+function go(b,c,v){S.book=b;S.chap=c;persist();clearSel();render(v);if(!v)window.scrollTo(0,0)}
+
+$("reader").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)selectVerse(sel===v.dataset.k?null:v.dataset.k)});
+$("reader").addEventListener("keydown",e=>{const v=e.target.closest(".v");if(v&&(e.key==="Enter"||e.key===" ")){e.preventDefault();selectVerse(sel===v.dataset.k?null:v.dataset.k)}});
+
+function selectVerse(k){sel=k;document.querySelectorAll(".v").forEach(x=>x.classList.toggle("sel-on",x.dataset.k===k));
+  $("actions").hidden=!k||!$("panel").hidden;if(!k)return;
+  $("actLab").textContent="v"+k.split("|")[2];
+  $("aHl").setAttribute("aria-pressed",!!S.hl[k]);$("aSave").setAttribute("aria-pressed",!!S.saved[k]);
+  $("aSave").lastChild.textContent=S.saved[k]?"Saved":"Save"}
+function clearSel(){selectVerse(null)}
+function refresh(){const k=sel;render();if(k)selectVerse(k)}
+
+$("aHl").onclick=()=>{S.hl[sel]?delete S.hl[sel]:S.hl[sel]=1;persist();refresh();toast(S.hl[sel]?"Highlighted":"Highlight removed")};
+$("aSave").onclick=()=>{if(S.saved[sel])delete S.saved[sel];else S.saved[sel]=Date.now();persist();refresh();toast(S.saved[sel]?"Saved":"Removed from Saved")};
+$("aNote").onclick=()=>openNotes(sel);
+$("aCopy").onclick=async()=>{const s=`${vtext(sel)} (${ref(sel)} KJV)`;
+  try{await navigator.clipboard.writeText(s);toast("Copied")}catch(e){const t=document.createElement("textarea");t.value=s;document.body.append(t);t.select();try{document.execCommand("copy");toast("Copied")}catch(_){toast("Copy isn't available here")}t.remove()}};
+document.addEventListener("click",e=>{if(sel&&!e.target.closest(".v,.actions,.panel,.scrim"))clearSel()});
+
+/* ---------- Panels ---------- */
+let lastFocus=null,onClose=null;
+/* Saved, Notes and Settings open as a drawer on the right on desktop (the passage stays visible and scrolls);
+   on phones every panel is a bottom sheet over a dimmed reader. */
+const desk=()=>matchMedia("(min-width:900px)").matches;
+let drawer=false;
+// Crossing the desktop width while a panel is open: close it, so a drawer never turns into a sheet without its dimmer
+matchMedia("(min-width:900px)").addEventListener("change",()=>{onClose=null;closePanel()});
+function openPanel(title,sub,html,wide,asDrawer){lastFocus=document.activeElement;$("pTitle").textContent=title;$("pSub").textContent=sub||"";$("pBody").innerHTML=html;
+  drawer=!!asDrawer&&desk();
+  $("panel").classList.toggle("wide",!!wide);$("panel").classList.toggle("drawer",drawer);$("panel").setAttribute("aria-modal",!drawer);
+  document.body.classList.toggle("drawer-open",drawer);
+  $("panel").hidden=false;$("scrim").hidden=drawer;$("actions").hidden=true;
+  document.body.style.overflow=drawer?"":"hidden";($("panel").querySelector("[autofocus]")||$("pClose")).focus()}
+function closePanel(){if($("panel").hidden)return;$("panel").hidden=true;$("scrim").hidden=true;document.body.style.overflow="";$("actions").hidden=!sel;
+  document.body.classList.remove("drawer-open");drawer=false;
+  if(onClose){const f=onClose;onClose=null;f()}else if(lastFocus)lastFocus.focus()}
+$("pClose").onclick=closePanel;$("scrim").onclick=closePanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){if(!$("panel").hidden)closePanel();else if(sel)clearSel()}
+  // Left and right arrows change chapter on desktop when nothing else has the keys
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&(!$("panel").hidden?drawer:true)&&!e.target.closest("textarea,input,.panel")&&!e.altKey&&!e.metaKey&&!e.ctrlKey){
+    const b=$(e.key==="ArrowLeft"?"prev":"next");if(b&&!b.disabled){e.preventDefault();b.click()}}
+  if(e.key==="Tab"&&!$("panel").hidden&&!drawer){const f=[...$("panel").querySelectorAll("button,textarea,[tabindex='0']")].filter(x=>!x.disabled);
+    if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+
+/* Book picker */
+let order="canon";
+function openBooks(){
+  const list=(arr)=>arr.map(([b,n])=>`<button class="book" data-b="${esc(b)}" ${b===S.book?'aria-current="true"':""}><span>${esc(b)}</span><small>${n} ch</small></button>`).join("");
+  const body=()=>{let h=`<div class="seg" role="group" aria-label="Book order"><button data-o="canon" aria-pressed="${order==="canon"}">Canonical</button><button data-o="alpha" aria-pressed="${order==="alpha"}">Alphabetical</button></div>`;
+    if(order==="canon")h+=`<p class="testament">Old Testament</p><div class="books">${list(BOOKS.slice(0,OT))}</div><p class="testament">New Testament</p><div class="books">${list(BOOKS.slice(OT))}</div>`;
+    else h+=`<p class="testament">All books</p><div class="books">${list([...BOOKS].sort((a,b)=>a[0].replace(/^\d /,"").localeCompare(b[0].replace(/^\d /,""))||a[0].localeCompare(b[0])))}</div>`;return h};
+  openPanel("Books","66 books · only Exodus 3:1–8 has text in this sample",body(),true);
+  const wire=()=>{$("pBody").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{order=b.dataset.o;$("pBody").innerHTML=body();wire();$("pBody").querySelector(`[data-o="${order}"]`).focus()});
+    $("pBody").querySelectorAll(".book").forEach(b=>b.onclick=()=>openChapters(b.dataset.b));
+    const cur=$("pBody").querySelector('[aria-current="true"]');if(cur)cur.scrollIntoView({block:"center"})};
+  wire();
+}
+/* Chapter + verse picker */
+function openChapters(book){
+  book=book||S.book;const n=chapters(book);
+  let h=`<div class="grid" role="group" aria-label="Chapters">`;for(let c=1;c<=n;c++){const has=TEXT[`${book} ${c}`];
+    h+=`<button data-c="${c}" class="${has?"":"na"}" ${book===S.book&&c===S.chap?'aria-current="true"':""} aria-label="Chapter ${c}${has?"":", not in sample"}">${c}</button>`}
+  h+=`</div><p class="hint">Dashed chapters aren&rsquo;t included in this sample.</p>`;
+  openPanel(book,"Choose a chapter",h);
+  $("pBody").querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{const c=+b.dataset.c;if(TEXT[`${book} ${c}`])openVerses(book,c);else{onClose=()=>go(book,c);closePanel()}});
+}
+function openVerses(book,c){const vs=TEXT[`${book} ${c}`];
+  let h=`<div class="grid" role="group" aria-label="Verses">`+vs.map((_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join("")+`</div><p class="hint">Verses 1&ndash;${vs.length} are available in this sample.</p><div class="btns"><button class="btn" id="backCh">Chapters</button><button class="btn pri" id="readCh">Read from start</button></div>`;
+  openPanel(`${book} ${c}`,"Jump to a verse",h);
+  $("pBody").querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{onClose=()=>go(book,c,+b.dataset.v);closePanel()});
+  $("backCh").onclick=()=>openChapters(book);$("readCh").onclick=()=>{onClose=()=>go(book,c);closePanel()};
+}
+
+/* Saved */
+function openSaved(){const keys=Object.keys(S.saved).sort((a,b)=>S.saved[b]-S.saved[a]);
+  const h=keys.length?keys.map(k=>`<div class="item"><div class="r"><b>${esc(ref(k))}</b><span><button class="lnk" data-go="${k}">Read</button><button class="lnk" data-rm="${k}" aria-label="Remove ${esc(ref(k))} from Saved">Remove</button></span></div><p>${esc(vtext(k))}</p></div>`).join("")
+    :`<div class="none">No saved verses yet.<br>Tap a verse, then choose Save.</div>`;
+  openPanel("Saved",`${keys.length} saved verse${keys.length===1?"":"s"}`,h,false,true);
+  $("pBody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{delete S.saved[b.dataset.rm];persist();refresh();openSaved()});
+  $("pBody").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const [bk,c,v]=b.dataset.go.split("|");onClose=()=>go(bk,+c,+v);closePanel()});
+}
+/* Notes */
+function openNotes(editKey){const keys=Object.keys(S.notes).filter(k=>k!==editKey);
+  let h="";
+  if(editKey){h+=`<div class="item"><div class="r"><b>${esc(ref(editKey))}</b></div><p>${esc(vtext(editKey))}</p>
+    <label class="sr" for="noteText">Note for ${esc(ref(editKey))}</label><textarea id="noteText" autofocus placeholder="Write a note">${esc(S.notes[editKey]?.text||"")}</textarea>
+    <div class="btns">${S.notes[editKey]?`<button class="btn" id="noteDel">Remove note</button>`:""}<button class="btn pri" id="noteSave">Save note</button></div></div>`}
+  h+=keys.map(k=>`<div class="item"><div class="r"><b>${esc(ref(k))}</b><span><button class="lnk" data-ed="${k}">Edit</button><button class="lnk" data-rm="${k}" aria-label="Remove note on ${esc(ref(k))}">Remove</button></span></div><p>${esc(vtext(k))}</p><div class="note">${esc(S.notes[k].text)}</div></div>`).join("");
+  if(!editKey&&!keys.length)h=`<div class="none">No notes yet.<br>Tap a verse, then choose Note.</div>`;
+  const total=Object.keys(S.notes).length;
+  openPanel("Notes",`${total} note${total===1?"":"s"}`,h,false,true);
+  if(editKey){$("noteSave").onclick=()=>{const t=$("noteText").value.trim();if(t)S.notes[editKey]={text:t,at:Date.now()};else delete S.notes[editKey];persist();refresh();openNotes();toast(t?"Note saved":"Note removed")};
+    if($("noteDel"))$("noteDel").onclick=()=>{delete S.notes[editKey];persist();refresh();openNotes()}}
+  $("pBody").querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>openNotes(b.dataset.ed));
+  $("pBody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{delete S.notes[b.dataset.rm];persist();refresh();openNotes()});
+}
+/* Settings */
+function openSettings(){
+  const isDark=()=>S.theme?S.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  const seg=(name,opts,cur)=>`<div class="seg" role="group" aria-label="${name}">`+opts.map(([v,l])=>`<button data-${name}="${v}" aria-pressed="${cur===v}">${l}</button>`).join("")+`</div>`;
+  const body=()=>`<div class="row"><div><div class="k">Appearance</div><div class="d">${S.theme?"Set here":"Following your device"}</div></div>${seg("theme",[["light","Light"],["dark","Dark"]],isDark()?"dark":"light")}</div>
+    <div class="row"><div><div class="k">Text size</div></div>${seg("size",[["s","Small"],["m","Medium"],["l","Large"]],S.size)}</div>
+    <div class="row"><div><div class="k">Line spacing</div></div>${seg("leading",[["compact","Compact"],["normal","Normal"],["relaxed","Relaxed"]],S.leading)}</div>
+    <p class="preview">And Moses said, I will now turn aside, and see this great sight, why the bush is not burnt.</p>`;
+  openPanel("Settings","",body(),false,true);
+  const wire=()=>$("pBody").querySelectorAll("[data-theme],[data-size],[data-leading]").forEach(b=>b.onclick=()=>{const d=b.dataset;
+    if(d.theme)S.theme=d.theme;if(d.size)S.size=d.size;if(d.leading)S.leading=d.leading;persist();applyPrefs();
+    const sel2=Object.keys(d)[0];$("pBody").innerHTML=body();wire();$("pBody").querySelector(`[data-${sel2}="${d[sel2]}"]`).focus()});
+  wire();
+}
+
+$("bookBtn").onclick=openBooks;$("chapBtn").onclick=()=>openChapters();
+$("savedBtn").onclick=openSaved;$("notesBtn").onclick=()=>openNotes();$("setBtn").onclick=openSettings;
+$("homeBtn").onclick=()=>{closePanel();clearSel();if(!TEXT[`${S.book} ${S.chap}`])go("Exodus",3);else window.scrollTo({top:0})};
+
+applyPrefs();render();clearSel();
+</script>
