@@ -25,6 +25,9 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 @media (min-width:900px){.actions:not(.off){right:max(16px,calc(50% - 360px - 88px))}}
+/* Beside the selected verses (tablet and desktop); top and left are set by placeTools() */
+.actions.near{right:auto;bottom:auto;transform:none;transition:top .18s ease-out,left .18s ease-out}
+@media (prefers-reduced-motion:reduce){.actions.near{transition:none}}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
@@ -314,7 +317,28 @@ function updateTools(){const n=picked.length;
   $("aNote").disabled=n>1;$("aNote").title=n>1?"Note (one verse at a time)":"Note";
   const allHl=picked.every(k=>S.hl[k]),allSaved=picked.every(k=>S.saved[k]);
   $("aHl").setAttribute("aria-pressed",allHl);$("aSave").setAttribute("aria-pressed",allSaved);
-  $("aSave").lastChild.textContent=allSaved?"Saved":"Save"}
+  $("aSave").lastChild.textContent=allSaved?"Saved":"Save";
+  placeTools()}
+
+/* Tablet and desktop: the tools sit right beside the selected verses, level with the first one, just right of the text.
+   They follow while scrolling and stay on screen. Phones keep them at the right edge. */
+const NEAR=matchMedia("(min-width:768px)");
+function placeTools(){
+  const a=$("actions");
+  if(!NEAR.matches||a.hidden||!picked.length){a.classList.remove("near");a.style.top=a.style.left="";return}
+  const first=document.querySelector(`.v[data-k="${picked[0]}"]`),text=document.querySelector(".passage");
+  if(!first||!text)return;
+  const r=first.getClientRects()[0]||first.getBoundingClientRect(),col=text.getBoundingClientRect();
+  const head=document.querySelector("header").getBoundingClientRect();
+  const topLimit=(head.top<innerHeight/2?head.bottom:0)+12, bottomLimit=(head.top>=innerHeight/2?head.top:innerHeight)-12;
+  const h=a.offsetHeight,w=a.offsetWidth;
+  // Level with the first selected line, a little above so the verse number lines up with the first button
+  const top=Math.min(Math.max(r.top-28,topLimit),bottomLimit-h);
+  // Just right of the text; if the window is too narrow for that, at the right edge
+  const left=Math.min(col.right+16,innerWidth-w-12);
+  a.classList.add("near");a.style.top=Math.round(top)+"px";a.style.left=Math.round(left)+"px";
+}
+addEventListener("scroll",placeTools,{passive:true});addEventListener("resize",placeTools);NEAR.addEventListener("change",placeTools);
 $("reader").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)tapVerse(v.dataset.k)});
 $("reader").addEventListener("keydown",e=>{const v=e.target.closest(".v");if(v&&(e.key==="Enter"||e.key===" ")){e.preventDefault();tapVerse(v.dataset.k)}});
 

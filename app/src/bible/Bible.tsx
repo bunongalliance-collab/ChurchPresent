@@ -1,5 +1,5 @@
 // Bunong Bible reader (/bible/). Design approved from the sample in bible-pwa/sample/index.html.
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { addForSlides, readForSlides, scriptureLink, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
 import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
 
@@ -195,6 +195,34 @@ export default function Bible() {
     return () => document.removeEventListener("keydown", key);
   }, []);
 
+  // Tablet and desktop: the verse tools sit right beside the selected verses, level with the first one, just right of the
+  // text. They follow while scrolling and stay on screen (clear of the bar). Phones keep them at the right edge.
+  const [near, setNear] = useState(() => matchMedia(NEAR_MQ).matches);
+  useEffect(() => { const mq = matchMedia(NEAR_MQ); const f = () => setNear(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
+  const toolsRef = useRef<HTMLDivElement>(null);
+  const placeTools = useCallback(() => {
+    const el = toolsRef.current;
+    if (!el || !picked.length) return;
+    const first = document.querySelector(`.v[data-k="${picked[0]}"]`), text = document.querySelector(".passage"), head = document.querySelector("header");
+    if (!first || !text || !head) return;
+    const r = first.getClientRects()[0] ?? first.getBoundingClientRect(), col = text.getBoundingClientRect(), hb = head.getBoundingClientRect();
+    const barOnTop = hb.top < innerHeight / 2;
+    const topLimit = (barOnTop ? hb.bottom : 0) + 12, bottomLimit = (barOnTop ? innerHeight : hb.top) - 12;
+    // Level with the first selected line (a little above, so the verse label lines up with it); just right of the text,
+    // or at the right edge when the window is too narrow for that
+    const top = Math.min(Math.max(r.top - 28, topLimit), bottomLimit - el.offsetHeight);
+    const left = Math.min(col.right + 16, innerWidth - el.offsetWidth - 12);
+    el.style.top = `${Math.round(top)}px`;
+    el.style.left = `${Math.round(left)}px`;
+  }, [picked]);
+  useLayoutEffect(() => {
+    if (!near) return;
+    placeTools();
+    window.addEventListener("scroll", placeTools, { passive: true });
+    window.addEventListener("resize", placeTools);
+    return () => { window.removeEventListener("scroll", placeTools); window.removeEventListener("resize", placeTools); };
+  }, [near, placeTools, panel, s.size, s.leading]);
+
   // Clear the selection on a click outside the passage, or with Escape
   useEffect(() => {
     const click = (e: MouseEvent) => { if (picked.length && !(e.target as Element).closest(".v,.actions,.panel,.scrim")) setPicked([]); };
@@ -240,10 +268,21 @@ export default function Bible() {
         </main>
       </div>
 
-      {/* Floating buttons on the right: verse tools while verses are selected, and always a button to the Scripture page */}
+      {/* Floating buttons. Phones: the verse tools stack above Go to Scripture at the right edge. Tablet and desktop: the
+          verse tools sit beside the selected verses (placed by placeTools), and Go to Scripture stays in its corner. */}
+      {!panel && picked.length > 0 && near && (
+        <div ref={toolsRef} className="actions near" role="toolbar" aria-label="Verse actions" aria-orientation="vertical">
+            <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
+            <button onClick={toggleHl} aria-pressed={allHl} aria-label="Highlight" title="Highlight"><Icon n="hl" /></button>
+            <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
+            <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
+            <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
+        </div>
+      )}
       {!panel && (
-        <div className="actions" role="toolbar" aria-label={picked.length ? "Verse actions" : "Scripture slides"} aria-orientation="vertical">
-          {picked.length > 0 && <>
+        <div className="actions" role="toolbar" aria-label={picked.length && !near ? "Verse actions" : "Scripture slides"} aria-orientation="vertical">
+          {picked.length > 0 && !near && <>
             <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
             <button onClick={toggleHl} aria-pressed={allHl} aria-label="Highlight" title="Highlight"><Icon n="hl" /></button>
             <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
@@ -326,6 +365,7 @@ function Panels(props: PanelProps) {
 // Saved, Notes and Settings (drawer) open on the right on desktop, beside the passage, which stays visible and scrolls.
 // On phones every panel is a bottom sheet over a dimmed reader.
 const DESK = "(min-width: 900px)";
+const NEAR_MQ = "(min-width: 768px)";
 function Panel({ title, sub, wide, drawer: asDrawer, close, children }: { title: string; sub?: string; wide?: boolean; drawer?: boolean; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   const [drawer] = useState(() => !!asDrawer && matchMedia(DESK).matches);
