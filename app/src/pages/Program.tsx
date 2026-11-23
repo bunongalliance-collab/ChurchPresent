@@ -3,8 +3,8 @@ import { supabase } from "../lib/supabase";
 import { canEdit, saveChurchId, useChurch } from "../lib/church";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
-import { buildProgramPdf, todayScripture } from "../lib/programPdf";
-import OrderEditor from "../components/OrderEditor";
+import { STAGES, buildProgramPdf, todayScripture } from "../lib/programPdf";
+import OrderTable from "../components/OrderTable";
 import { PROGRAM_DRAFT_KEY, linkOf, rowsToLines, toRows, type Lines } from "../lib/orderLines";
 import { loadReadingOptions, recentStudyIds, useSongOptions, type ReadingOption } from "../lib/recentSongs";
 import type { SetStateAction } from "react";
@@ -195,6 +195,10 @@ export default function Program() {
     const now = cur.lines ?? rowsToLines(cur.rows);
     return { ...cur, lines: typeof u === "function" ? (u as (c: Lines) => Lines)(now) : u };
   });
+  // Each word capitalised, as the PDF prints sub-items and names (programPdf.ts titleCase)
+  const printCase = (t: string) => t.split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w)).join(" ");
+  // The order as the brochure prints it (the same rows the PDF builder uses)
+  const printedOrder = useMemo(() => toRows(orderLines, {}), [orderLines]);
   // Scripture text for the PDF comes from the saved studies, as in the Program Builder
   const [passages, setPassages] = useState<Record<string, string>>({});
   // The same passages with each slide's text on its own paragraph, for the Nau Mpro App
@@ -351,7 +355,8 @@ export default function Program() {
         </div>
         <div className="pg-actions">
           <button className="pg-btn link" onClick={printBrochure} title="Opens the brochure PDF in a new tab, ready to print">Print</button>
-          <button className="pg-btn link" onClick={publishToReader} disabled={publishing} title="Shows this order of worship and its songs at the top of the Nau Mpro App">{publishing ? "Publishing…" : "Publish to Nau Mpro App"}</button>
+          {/* With the program bar, Publish sits next to New program; signed out (no bar) it stays here */}
+          {!shared.active && <button className="pg-btn link" onClick={publishToReader} disabled={publishing} title="Shows this order of worship and its songs at the top of the Nau Mpro App">{publishing ? "Publishing…" : "Publish to Nau Mpro App"}</button>}
           <button className="pg-btn primary" onClick={generatePdf}>Download PDF</button>
         </div>
       </div>
@@ -361,8 +366,24 @@ export default function Program() {
           notice={shared.notice} me={shared.me}
           onOpen={(p) => void shared.open(p)}
           onNew={async (from) => { const made = await shared.startNew(from, blankFor); if (made) setStatus(from === "copy" ? `New program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}, copied from the last one.` : `Blank program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}.`); }}
-          onTheirs={() => void shared.showTheirs()} onMine={() => void shared.keepMine()} />
+          onTheirs={() => void shared.showTheirs()} onMine={() => void shared.keepMine()}
+          onPublish={() => void publishToReader()} publishing={publishing} />
       )}
+
+      <section className="pg-ordersec" aria-labelledby="pg-order-h">
+        <div className="pg-ordersec-head">
+          <h2 id="pg-order-h">Order of worship</h2>
+          <p>Songs, passages and readings come from your saved lists, and names from Saved people. The brochure below shows it as it prints.</p>
+        </div>
+        <OrderTable
+          lines={orderLines}
+          setLines={setOrderLines}
+          songOptions={songOptions}
+          passageOptions={passageOptions}
+          readingOptions={readingOptions}
+          personOptions={people.map((p) => ({ value: capitaliseName(p.name), date: p.created }))}
+        />
+      </section>
 
       <datalist id="pg-people">{people.map((p) => <option key={p.id} value={capitaliseName(p.name)} />)}</datalist>
       {/* Suggestions for the Order of Worship: saved songs, passages (their text fills Today's Scripture and the cover) and names */}
@@ -429,14 +450,23 @@ export default function Program() {
             <p className="pg-led">Led by <input className="pg-in pg-led-in" list="pg-people" value={d.leader} onChange={(e) => set("leader", e.target.value)} aria-label="Led by" placeholder="Name" /></p>
           </div>
           <h2 className="pg-h2"><input className="pg-in" value={d.orderTitle} onChange={(e) => set("orderTitle", e.target.value)} aria-label="Order of worship heading" /></h2>
-          <OrderEditor
-            lines={orderLines}
-            setLines={setOrderLines}
-            songOptions={songOptions}
-            passageOptions={passageOptions}
-            readingOptions={readingOptions}
-            personOptions={people.map((p) => ({ value: capitaliseName(p.name), date: p.created }))}
-          />
+          {/* The order as it prints; it is edited in the table above the brochure */}
+          <div className="pg-printorder" aria-label="Order of worship as printed">
+            {printedOrder.length ? STAGES.map((stage, si) => {
+              const items = printedOrder.filter((r) => r.stage === si);
+              return items.length ? (
+                <div key={stage} className="pg-po-stage">
+                  <p className="pg-po-stagename"><span aria-hidden="true">• • •</span> {stage}</p>
+                  {items.map((r) => (
+                    <div key={r.id} className="pg-po-row">
+                      <p className="pg-po-item">{r.item}</p>
+                      {(r.lines ?? []).map((ln, k) => <p key={k} className="pg-po-line" style={{ paddingLeft: `${0.45 + (Math.max(1, ln.level) - 1) * 0.22}in` }}>{printCase(ln.text)}</p>)}
+                    </div>
+                  ))}
+                </div>
+              ) : null;
+            }) : <p className="pg-po-empty">Add items in the Order of worship table above.</p>}
+          </div>
           <textarea className="pg-in pg-muted pg-note" value={d.orderNote} onChange={(e) => set("orderNote", e.target.value)} aria-label="Note under the order" />
           <div className="pg-scripture">
             <p className="pg-eyebrow">TODAY’S SCRIPTURE</p>

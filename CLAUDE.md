@@ -54,7 +54,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 ### Pages and routes (hash routes in `app/src/App.tsx`)
 - `#` (default) and `#lyrics-v2`: Lyric. Songs, slides, projector deck. `pages/LyricsV2.tsx`
 - `#readings-v2`: Readings. `pages/ReadingsV2.tsx`
-- `#program`: Service program editor and PDF. `pages/Program.tsx`, `lib/programPdf.ts`
+- `#program`: Service program editor and PDF. `pages/Program.tsx`, `lib/programPdf.ts`. The Order of Worship is edited in a table above the brochure (`components/OrderTable.tsx`; Program Builder still uses `OrderEditor.tsx`), and the brochure shows it as it prints.
 - `#scripture`: Scripture slides. `pages/Scripture.tsx`
 - `#service`: Service presentation. Slides for the whole service, built live from the Program's order (it stores nothing of its own). Preview, Present (uses the projector view), Print. `pages/ServicePresentation.tsx`, `lib/servicePresentation.ts`
 - `#builder`: Presentation Builder. `pages/Builder.tsx`

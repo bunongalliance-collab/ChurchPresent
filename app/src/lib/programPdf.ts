@@ -96,6 +96,20 @@ const heightOf = (text: string, font: PDFFont, size: number, width: number, lead
   return (lines + (cur ? 1 : 0)) * lead;
 };
 
+// A long passage is cut at a word and ends with "…", so its wrapped height stays within maxH (at least one line)
+export const clipToHeight = (text: string, font: PDFFont, size: number, width: number, lead: number, maxH: number): string => {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (!clean || heightOf(clean, font, size, width, lead) <= maxH) return clean;
+  const words = clean.split(" ");
+  let lo = 1, hi = words.length - 1, best = 1;
+  while (lo <= hi) {   // the most words that still fit with the "…"
+    const mid = (lo + hi) >> 1;
+    const t = words.slice(0, mid).join(" ").replace(/[\s,;:.!?—–-]+$/, "") + "…";
+    if (heightOf(t, font, size, width, lead) <= Math.max(maxH, lead)) { best = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return words.slice(0, best).join(" ").replace(/[\s,;:.!?—–-]+$/, "") + "…";
+};
+
 export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: string): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
@@ -165,12 +179,16 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
   const cText = scripture.ref ? scripture.text : (scripture.text || d.verse);
   const cRef = scripture.ref || d.verseRef;
   const bp = 12, boxW = cw * 0.82, bx = cx + (cw - boxW) / 2, inW = boxW - 2 * bp;
-  const hBox = bp + T.eyebrow * LEAD + T.h3 * LEAD + heightOf(cText, fonts.serifItalic, T.body, inW, T.body * LEAD) + (scripture.cite ? T.eyebrow * LEAD : 0) + (scripture.reader ? T.eyebrow * LEAD : 0) + bp;
+  // Room for the passage: from the box's top to 14 pt above the time and place line, less the box's other lines
+  const coverFoot = H - M - PAD - T.body * LEAD - 14;
+  const boxFixed = bp + T.eyebrow * LEAD + 1 + T.h3 * LEAD + 1 + 1 + (scripture.cite ? T.eyebrow * LEAD : 0) + (scripture.reader ? T.eyebrow * LEAD : 0) + bp;
+  const cTextFit = clipToHeight(cText, fonts.serifItalic, T.body, inW, T.body * LEAD, coverFoot - cy - boxFixed);
+  const hBox = bp + T.eyebrow * LEAD + T.h3 * LEAD + heightOf(cTextFit, fonts.serifItalic, T.body, inW, T.body * LEAD) + (scripture.cite ? T.eyebrow * LEAD : 0) + (scripture.reader ? T.eyebrow * LEAD : 0) + bp;
   p1.drawRectangle({ x: bx, y: H - cy - hBox, width: boxW, height: hBox, color: rgb(0xfa / 255, 0xf6 / 255, 0xf3 / 255) });
   let iy = cy + bp;
   iy = line(p1, upper("Today’s scripture"), { x: bx + bp, y: iy, width: inW, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY }) + 1;
   iy = line(p1, cRef, { x: bx + bp, y: iy, width: inW, font: fonts.serifBold, size: T.h3 }) + 1;
-  iy = line(p1, cText, { x: bx + bp, y: iy, width: inW, font: fonts.serifItalic, size: T.body, color: CHARCOAL }) + 1;
+  iy = line(p1, cTextFit, { x: bx + bp, y: iy, width: inW, font: fonts.serifItalic, size: T.body, color: CHARCOAL }) + 1;
   if (scripture.cite) iy = line(p1, scripture.cite, { x: bx + bp, y: iy, width: inW, font: fonts.sansBold, size: T.eyebrow, color: BURGUNDY });
   if (scripture.reader) line(p1, `Read by ${titleCase(scripture.reader)}`, { x: bx + bp, y: iy, width: inW, font: fonts.sans, size: T.body, color: GREY });
   cy += hBox + 10;
@@ -185,7 +203,7 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
   const dry = { drawText() {}, drawRectangle() {}, drawLine() {}, drawCircle() {}, drawEllipse() {}, drawImage() {} } as unknown as PDFPage;
   const prayerCols = (n: number) => (n > 7 ? 2 : 1);
 
-  const drawLeftPanel = (page: PDFPage, K: number): number => {
+  const drawLeftPanel = (page: PDFPage, K: number, clip = true): number => {
     const B = T.body * K, E = T.eyebrow * K, SC = T.h3 * K;
     let y = topY;
     // Main heading: 20 pt bold serif, charcoal, on the text edge
@@ -241,13 +259,16 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
       }
     });
     if (d.orderNote.trim()) y = line(page, d.orderNote, { x: xl2, y: y + 2, width: INNER, font: fonts.sansItalic, size: 8 * K, color: DET }) + 8 * K;
-    // Today's scripture (from the Scripture Reading item), in a light tinted box
-    const boxH = 16 * K + E * LEAD + SC * LEAD + heightOf(scripture.text, fonts.serifItalic, B, INNER - 14, B * LEAD) + E * LEAD + (scripture.reader ? B * LEAD : 0);
+    // Today's scripture (from the Scripture Reading item), in a light tinted box. A long passage is cut with "…" so the
+    // box ends above the bottom of the page and the order keeps its size (the panel only shrinks for a long order).
+    const fixedH = 7 * K + E * LEAD + 1 + SC * LEAD + 1 + 1 + E * LEAD + (scripture.reader ? B * LEAD : 0) + 9 * K;
+    const sText = clip ? clipToHeight(scripture.text, fonts.serifItalic, B, INNER, B * LEAD, bottomLimit - y - fixedH) : scripture.text;
+    const boxH = 16 * K + E * LEAD + SC * LEAD + heightOf(sText, fonts.serifItalic, B, INNER - 14, B * LEAD) + E * LEAD + (scripture.reader ? B * LEAD : 0);
     page.drawRectangle({ x: xl2 - 7, y: H - y - boxH + 2, width: INNER + 14, height: boxH, color: rgb(0xfa / 255, 0xf6 / 255, 0xf3 / 255) });
     y += 7 * K;
     y = line(page, upper("Today’s scripture"), { x: xl2, y, width: INNER, font: fonts.sansBold, size: E, color: BURGUNDY }) + 1;
     y = line(page, scripture.ref, { x: xl2, y, width: INNER, font: fonts.serifBold, size: SC }) + 1;
-    y = line(page, scripture.text, { x: xl2, y, width: INNER, font: fonts.serifItalic, size: B, color: CHARCOAL }) + 1;
+    y = line(page, sText, { x: xl2, y, width: INNER, font: fonts.serifItalic, size: B, color: CHARCOAL }) + 1;
     y = line(page, scripture.cite, { x: xl2, y, width: INNER, font: fonts.sansBold, size: E, color: BURGUNDY });
     if (scripture.reader) y = line(page, `Read by ${titleCase(scripture.reader)}`, { x: xl2, y, width: INNER, font: fonts.sans, size: B, color: GREY });
     return y;
@@ -290,10 +311,15 @@ export async function buildProgramPdf(d: Draft, logoUrl: string, coverDate: stri
     return vy;
   };
 
+  // First the whole passage, letting the panels shrink a little (to 90%). If it still does not fit, the passage is cut
+  // with "…" to the room left, and the panels shrink only as much as the order and the right panel need (to 70%).
+  const fitsWhole = (K: number) => drawLeftPanel(dry, K, false) <= bottomLimit && drawRightPanel(dry, K) <= bottomLimit;
   const fits = (K: number) => drawLeftPanel(dry, K) <= bottomLimit && drawRightPanel(dry, K) <= bottomLimit;
   let K = 1;
-  while (K > 0.7 && !fits(K)) K -= 0.02;
-  drawLeftPanel(p2, K);
+  while (K > 0.9 && !fitsWhole(K)) K -= 0.02;
+  const whole = fitsWhole(K);
+  if (!whole) { K = 1; while (K > 0.7 && !fits(K)) K -= 0.02; }
+  drawLeftPanel(p2, K, !whole);
   drawRightPanel(p2, K);
 
   return pdf.save();

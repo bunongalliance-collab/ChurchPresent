@@ -1,0 +1,275 @@
+<title>Program Editor Redesign</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Sample: the Program page organised around the weekly job. Editor on the left (what changes each week first,
+   church details folded away), the printed brochure on the right as a live preview. Colours are the app's tokens;
+   the brochure keeps its serif and burgundy (CLAUDE.md). Phones: Edit and Preview tabs. */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --text:#243028; --muted:#4F5D54; --ctrl:#9AAA9F;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A; --danger:#B42318;
+  --paper:#FFFFFF; --ink:#2A2A2A; --ink-muted:#5E5A54; --burgundy:#7A1F2B; --rule:#E2DCD2;
+  --ui:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif; --serif:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --danger:#E8836F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --danger:#E8836F; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-bottom:48px}
+.navbar{display:flex;gap:10px;align-items:center;padding:10px 0;overflow-x:auto;scrollbar-width:none}
+.navbar .brand{color:var(--accent);white-space:nowrap}.navbar .ch{background:var(--sunken);border-radius:8px;padding:5px 10px;font-weight:600;white-space:nowrap}
+.navbar a{color:var(--text);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.navbar a.active{background:var(--accent);color:var(--on-accent)}
+
+/* 1. Header: which program, its state, and the two kinds of output */
+.head{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;padding:14px 0 16px;border-bottom:1px solid var(--sunken);margin-bottom:20px}
+.head h1{margin:0;font:600 1.6rem/1.2 var(--ui)}
+.prog{display:flex;align-items:center;gap:4px}
+.arrow{width:36px;height:36px;border-radius:8px;border:0;background:var(--sunken);display:grid;place-items:center}
+.arrow svg,.cur svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cur{display:flex;align-items:center;gap:8px;border:1px solid var(--ctrl);background:var(--panel);border-radius:8px;padding:6px 12px;min-height:36px;font-weight:600}
+.state{color:var(--muted);font-size:.9rem}
+.state b{color:var(--text);font-weight:600}
+.grow{flex:1}
+.out{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{min-height:38px;padding:7px 14px;border-radius:8px;border:1px solid var(--ctrl);background:var(--panel);font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}
+.sep{width:1px;height:28px;background:var(--sunken)}
+.pubnote{font-size:.85rem;color:var(--muted)}
+.pubnote.warn{color:var(--on-soft);background:var(--accent-soft);border-radius:999px;padding:2px 10px}
+
+/* 2. Layout: editor | preview */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:28px;align-items:start}
+.tabs{display:none}
+@media (max-width:1000px){
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .tabs{display:flex;gap:4px;background:var(--sunken);border-radius:10px;padding:4px;margin-bottom:16px;position:sticky;top:0;z-index:5}
+  .tabs button{flex:1;border:0;background:transparent;border-radius:8px;min-height:40px;font-weight:600}
+  .tabs button[aria-selected="true"]{background:var(--panel);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+  .cols[data-tab="edit"] .preview,.cols[data-tab="preview"] .editor{display:none}
+}
+
+/* Editor: sections separated by space and a heading, not cards */
+.editor{display:flex;flex-direction:column;gap:28px;min-width:0}
+.sec h2{margin:0 0 4px;font:600 1.1rem/1.3 var(--ui)}
+.sec .why{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label,.lbl{font-size:.85rem;font-weight:600}
+.in{width:100%;min-height:40px;padding:8px 10px;border:1px solid var(--ctrl);border-radius:8px;background:var(--panel)}
+textarea.in{min-height:84px;resize:vertical}
+
+/* Order of worship: a calm list. Stages are quiet labels; row actions live in one menu */
+.order{background:var(--panel);border-radius:12px;padding:6px 0}
+.stage{padding:12px 16px 4px;font-size:.75rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.row{display:grid;grid-template-columns:20px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.8fr) 36px;gap:8px;align-items:center;padding:6px 12px 6px 8px;border-radius:8px}
+.row:hover{background:var(--sunken)}
+.row.sub{grid-template-columns:20px 20px minmax(0,1.1fr) minmax(0,.8fr) 36px}
+.grip{color:var(--muted);cursor:grab;text-align:center;user-select:none}
+.name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell{min-height:36px;padding:6px 10px;border:1px solid transparent;border-radius:8px;background:transparent;width:100%}
+.cell:hover,.cell:focus{border-color:var(--ctrl);background:var(--bg)}
+.cell::placeholder{color:var(--muted);opacity:1}
+.more{width:36px;height:36px;border:0;background:transparent;border-radius:8px;color:var(--muted);font-size:1.2rem;line-height:1}
+.more:hover{background:var(--bg)}
+.menu{position:absolute;right:0;top:38px;z-index:6;background:var(--panel);border:1px solid var(--ctrl);border-radius:10px;padding:4px;min-width:200px;box-shadow:0 8px 24px rgb(0 0 0/.16);display:flex;flex-direction:column}
+.menu button{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:6px}
+.menu button:hover{background:var(--sunken)}
+.menu .dan{color:var(--danger)}
+.rel{position:relative}
+.addrow{display:flex;gap:8px;padding:8px 16px 10px}
+.link{border:0;background:transparent;color:var(--accent);font-weight:600;padding:6px 0}
+.cols-head{display:grid;grid-template-columns:20px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.8fr) 36px;gap:8px;padding:6px 12px 2px 8px;font-size:.78rem;color:var(--muted);font-weight:600}
+@media (max-width:640px){
+  .cols-head{display:none}
+  .row,.row.sub{grid-template-columns:20px minmax(0,1fr) 36px;row-gap:2px}
+  .row .cell{grid-column:2}
+}
+
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;gap:8px;align-items:center}
+.li .in{flex:1}
+.x{width:36px;height:36px;border:0;background:transparent;border-radius:8px;color:var(--muted)}
+.x:hover{background:var(--sunken);color:var(--danger)}
+
+details.rare{border-top:1px solid var(--sunken);padding-top:16px}
+details.rare>summary{cursor:pointer;font-weight:600;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.rare>summary::-webkit-details-marker{display:none}
+details.rare>summary::after{content:"Show";color:var(--accent);font-size:.9rem}
+details.rare[open]>summary::after{content:"Hide"}
+details.rare .why{margin:4px 0 14px;color:var(--muted);font-size:.9rem}
+.rare-body{display:flex;flex-direction:column;gap:20px}
+
+/* Preview: the brochure as it prints (read-only). Serif, burgundy accents only. */
+.preview{position:sticky;top:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pv-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pv-head h2{margin:0;font:600 1.05rem var(--ui)}
+.seg{display:flex;background:var(--sunken);border-radius:8px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:6px;padding:5px 12px;font-weight:600;font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+.sheet{background:var(--paper);color:var(--ink);font-family:var(--serif);aspect-ratio:11/8.5;border-radius:4px;box-shadow:0 2px 12px rgb(0 0 0/.12);display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.sheet>div{padding:5% 6%;font-size:clamp(7px,1.05vw,10.5px);line-height:1.45;overflow:hidden}
+@media (max-width:1000px){.sheet>div{font-size:clamp(6px,2.1vw,11px)}}
+.sheet>div+div{border-left:1px dashed var(--rule)}
+.sheet h3{color:var(--burgundy);font-size:1.05em;letter-spacing:.08em;margin:0 0 .7em;font-weight:700}
+.sheet p{margin:0 0 .5em}
+.sheet .c{text-align:center}
+.sheet .big{font-size:1.6em;font-weight:700;margin:.2em 0}
+.sheet .ord{display:flex;justify-content:space-between;gap:1em;border-bottom:1px dotted var(--rule);padding:.25em 0}
+.sheet .ord span:last-child{color:var(--ink-muted)}
+.sheet .sc{background:#FAF5EF;padding:.8em;margin-top:.8em}
+.sheet .sc i{color:var(--ink-muted)}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+.toast{position:fixed;right:16px;top:16px;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:9}
+</style>
+
+<div class="wrap">
+  <nav class="navbar" aria-label="Pages"><span class="brand">Church Tools</span><span class="ch">Montagnard Bunong Alliance Church</span>
+    <a href="#">Hymn/Nau Mpro</a><a href="#">Readings</a><a href="#">Scripture</a><a href="#" class="active">Program</a><a href="#">Service Slides</a><a href="#">Presentations</a><a href="#">Team</a></nav>
+
+  <header class="head">
+    <h1>Program</h1>
+    <div class="prog">
+      <button class="arrow" aria-label="Previous program"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="cur" aria-haspopup="menu">Sun, Nov 29 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      <button class="arrow" aria-label="Next program"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button class="btn ghost" id="newBtn">New program</button>
+    </div>
+    <span class="state" role="status">✓ Saved · <b>you</b>, just now</span>
+    <span class="grow"></span>
+    <div class="out">
+      <button class="btn" id="printBtn">Print</button>
+      <button class="btn" id="pdfBtn">Download PDF</button>
+      <span class="sep" aria-hidden="true"></span>
+      <span class="pubnote warn" id="pubNote">Changed since publishing</span>
+      <button class="btn pri" id="pubBtn">Publish to Nau Mpro App</button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button role="tab" aria-selected="true" data-t="edit">Edit</button>
+    <button role="tab" aria-selected="false" data-t="preview">Preview</button>
+  </div>
+
+  <div class="cols" id="cols" data-tab="edit">
+    <div class="editor">
+      <section class="sec" aria-labelledby="s1">
+        <h2 id="s1">Service</h2>
+        <div class="grid">
+          <div class="f"><label for="d">Date</label><input id="d" class="in" type="date" value="2026-11-29"></div>
+          <div class="f"><label for="t">Service name</label><input id="t" class="in" value="Sunday Service"></div>
+          <div class="f"><label for="tm">Time</label><input id="tm" class="in" value="10:00 AM"></div>
+          <div class="f"><label for="ld">Led by</label><input id="ld" class="in" placeholder="Name" list="ppl"></div>
+        </div>
+      </section>
+
+      <section class="sec" aria-labelledby="s2">
+        <h2 id="s2">Order of worship</h2>
+        <p class="why">Songs, passages and readings come from your saved lists. Names come from Saved people.</p>
+        <div class="order" id="order">
+          <div class="cols-head" aria-hidden="true"><span></span><span>Item</span><span>Song, passage or reading</span><span>Who</span><span></span></div>
+          <div class="stage">Opening</div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Prelude</span><input class="cell" aria-label="Prelude details" placeholder="Add details"><input class="cell" aria-label="Prelude, who" placeholder="Who" list="ppl"><span class="rel"><button class="more" aria-label="More for Prelude" aria-haspopup="menu">⋯</button></span></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Opening Song</span><input class="cell" aria-label="Opening Song" value="1. Mât ton nau Brah Amoh Yê-su"><input class="cell" aria-label="Opening Song, who" placeholder="Who" list="ppl"><span class="rel"><button class="more" aria-label="More for Opening Song" aria-haspopup="menu">⋯</button></span></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Opening Prayer</span><input class="cell" aria-label="Opening Prayer details" placeholder="Add details"><input class="cell" aria-label="Opening Prayer, who" value="Cassy" list="ppl"><span class="rel"><button class="more" aria-label="More for Opening Prayer" aria-haspopup="menu">⋯</button></span></div>
+          <div class="stage">Sharing the Word</div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Scripture Reading</span><input class="cell" aria-label="Scripture Reading" value="Isaiah 9:6-7"><input class="cell" aria-label="Scripture Reading, who" value="Jim" list="ppl"><span class="rel"><button class="more" aria-label="More for Scripture Reading" aria-haspopup="menu">⋯</button></span></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Message</span><input class="cell" aria-label="Message title" placeholder="Sermon title"><input class="cell" aria-label="Message, who" value="Lee" list="ppl"><span class="rel"><button class="more" aria-label="More for Message" aria-haspopup="menu">⋯</button></span></div>
+          <div class="stage">Closing</div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">Closing Song</span><input class="cell" aria-label="Closing Song" value="2. Gâp tâm rnê Păng"><input class="cell" aria-label="Closing Song, who" placeholder="Who" list="ppl"><span class="rel"><button class="more" aria-label="More for Closing Song" aria-haspopup="menu">⋯</button></span></div>
+          <div class="addrow"><button class="link">+ Add an item</button></div>
+        </div>
+        <datalist id="ppl"><option value="Cassy"><option value="Jim"><option value="Lee"><option value="Rick"></datalist>
+      </section>
+
+      <section class="sec" aria-labelledby="s3">
+        <h2 id="s3">Today's scripture</h2>
+        <p class="why">Filled from the Scripture Reading above. Change it here if the cover should show another passage.</p>
+        <div class="grid"><div class="f"><label for="sr">Reference</label><input id="sr" class="in" value="Isaiah 9:6-7"></div></div>
+      </section>
+
+      <section class="sec" aria-labelledby="s4">
+        <h2 id="s4">Announcements</h2>
+        <div class="list" id="ann">
+          <div class="li"><input class="in" aria-label="Announcement 1" value="Thanksgiving potluck after the service"><button class="x" aria-label="Remove announcement 1">✕</button></div>
+          <div class="li"><input class="in" aria-label="Announcement 2" placeholder="Another announcement"><button class="x" aria-label="Remove announcement 2">✕</button></div>
+        </div>
+        <button class="link">+ Add an announcement</button>
+      </section>
+
+      <section class="sec" aria-labelledby="s5">
+        <h2 id="s5">Prayer requests</h2>
+        <p class="why">Three lists, kept from week to week. Open one to change it.</p>
+        <details class="rare" style="border:0;padding:0"><summary style="font-size:1rem">Church prayer (7)</summary></details>
+        <details class="rare" style="border:0;padding:0;margin-top:10px"><summary style="font-size:1rem">People to pray for (24)</summary></details>
+        <details class="rare" style="border:0;padding:0;margin-top:10px"><summary style="font-size:1rem">Outside the church (2)</summary></details>
+      </section>
+
+      <details class="rare">
+        <summary>Church details and saved people</summary>
+        <p class="why">These rarely change: the welcome, next steps, contact details, and the names you pick from.</p>
+        <div class="rare-body">
+          <div class="grid"><div class="f"><label>Welcome heading</label><input class="in" value="A PLACE TO BELONG"></div><div class="f"><label>Church name</label><input class="in" value="Montagnard Bunong Alliance Church"></div></div>
+          <div class="f"><label>Welcome text</label><textarea class="in">We are glad you are here. Whether this is your first Sunday or you have been with us for years, you are part of today's worshiping community.</textarea></div>
+          <div class="grid"><div class="f"><label>Address</label><input class="in" value="4116 Freedom Dr. · Charlotte, NC 28208"></div><div class="f"><label>Website</label><input class="in" placeholder="example.org"></div></div>
+          <div class="f"><span class="lbl">Saved people</span><p class="hint">Only your church team can see these names.</p></div>
+        </div>
+      </details>
+    </div>
+
+    <aside class="preview" aria-labelledby="pvh">
+      <div class="pv-head">
+        <h2 id="pvh">Printed brochure</h2>
+        <div class="seg" role="group" aria-label="Which side">
+          <button aria-pressed="true" data-p="out">Outside</button><button aria-pressed="false" data-p="in">Inside</button>
+        </div>
+      </div>
+      <div class="sheet" id="sheetOut">
+        <div><h3>A PLACE TO BELONG</h3><p><b>Welcome to Montagnard Bunong Alliance Church</b></p><p>We are glad you are here. Whether this is your first Sunday or you have been with us for years, you are part of today's worshiping community.</p><h3 style="margin-top:1.2em">THIS WEEK</h3><p>Thanksgiving potluck after the service</p></div>
+        <div class="c"><p><b>NOVEMBER 29, 2026</b></p><p class="big" style="color:var(--burgundy)">✝</p><p><b>MONTAGNARD</b></p><p><b>BUNONG ALLIANCE CHURCH</b></p><p>SUNDAY SERVICE</p><div class="sc" style="text-align:left"><h3>TODAY'S SCRIPTURE</h3><p class="big">Isaiah 9:6-7</p><i>For to us a child is born, to us a son is given…</i></div><p style="margin-top:.8em">10:00 AM · 4116 Freedom Dr.</p></div>
+      </div>
+      <div class="sheet" id="sheetIn" hidden>
+        <div><h3>TODAY'S GATHERING</h3>
+          <div class="ord"><span>Prelude</span><span></span></div>
+          <div class="ord"><span>Opening Song · 1. Mât ton nau…</span><span></span></div>
+          <div class="ord"><span>Opening Prayer</span><span>Cassy</span></div>
+          <div class="ord"><span>Scripture · Isaiah 9:6-7</span><span>Jim</span></div>
+          <div class="ord"><span>Message</span><span>Lee</span></div>
+          <div class="ord"><span>Closing Song · 2. Gâp tâm rnê Păng</span><span></span></div></div>
+        <div><h3>ANNOUNCEMENTS</h3><p>Thanksgiving potluck after the service</p><h3 style="margin-top:1.2em">PRAYER</h3><p>Church prayer · People to pray for · Outside the church</p><h3 style="margin-top:1.2em">STAY IN TOUCH</h3><p>4116 Freedom Dr. · Charlotte, NC 28208</p></div>
+      </div>
+      <p class="hint">Updates as you type. It prints exactly like this on two pages.</p>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+function toast(m){$("toast").textContent=m;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").hidden=true,2400)}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));$("cols").dataset.tab=b.dataset.t});
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("sheetOut").hidden=b.dataset.p!=="out";$("sheetIn").hidden=b.dataset.p!=="in"});
+let open=null;
+document.addEventListener("click",e=>{
+  const m=e.target.closest(".more");
+  if(open&&!e.target.closest(".menu")){open.remove();open=null}
+  if(m){const d=document.createElement("div");d.className="menu";d.setAttribute("role","menu");
+    d.innerHTML='<button role="menuitem">Add a sub-item</button><button role="menuitem">Add who leads</button><button role="menuitem">Move up</button><button role="menuitem">Move down</button><button role="menuitem" class="dan">Remove</button>';
+    m.parentElement.appendChild(d);open=d;e.stopPropagation();
+    d.onclick=ev=>{const b=ev.target.closest("button");if(b){toast(b.textContent+" (sample)");d.remove();open=null}}}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&open){open.remove();open=null}});
+$("pubBtn").onclick=()=>{$("pubNote").textContent="Published just now";$("pubNote").classList.remove("warn");toast("Published to the Nau Mpro App (sample)")};
+$("printBtn").onclick=()=>toast("Opens the brochure ready to print (sample)");
+$("pdfBtn").onclick=()=>toast("Downloads the two-page PDF (sample)");
+$("newBtn").onclick=()=>toast("Copy the last program, or start blank (sample)");
+</script>

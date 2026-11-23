@@ -9,6 +9,7 @@ interface Props {
   notice: ProgramInfo | null; me: string | null;
   onOpen: (p: ProgramInfo) => void; onNew: (from: "copy" | "blank") => void;
   onTheirs: () => void; onMine: () => void;
+  onPublish: () => void; publishing: boolean;
 }
 
 const short = (iso: string) => new Date(iso + "T12:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
@@ -67,6 +68,7 @@ export default function ProgramBar(p: Props) {
         </div>
         <span className={`pgb-saved${p.state === "error" ? " err" : ""}`} role="status">{status}</span>
         <button className="pgb-new" aria-haspopup="menu" aria-expanded={menu === "new"} disabled={!p.current} onClick={() => setMenu(menu === "new" ? "" : "new")}>New program</button>
+        <button className="pgb-pub" onClick={p.onPublish} disabled={p.publishing || !p.current} title="Shows this order of worship and its songs at the top of the Nau Mpro App">{p.publishing ? "Publishing…" : "Publish to Nau Mpro App"}</button>
         {menu === "list" && (
           <div className="pgb-menu" role="menu">
             {coming.length > 0 && <small>Coming up</small>}{coming.map(row)}
