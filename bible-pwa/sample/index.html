@@ -84,6 +84,32 @@ main{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px))}
 .hint.keys{display:none}
 kbd{font:600 11px var(--sans);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--fg)}
 
+/* Make slides */
+.actions .mk-slides{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.actions .mk-slides:hover:not(:disabled){color:var(--bg)}
+.actions button:disabled{opacity:.4;box-shadow:none;cursor:default}
+.item .cnt{color:var(--muted);font-size:12px}
+.item p.clip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.btn svg{width:16px;height:16px;vertical-align:-3px;margin-right:6px}
+/* Scripture page preview */
+.sc{position:fixed;inset:0;z-index:70;background:var(--bg);overflow-y:auto;padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+.sc-wrap{max-width:820px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.sc-top{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.sc-top .sc-wrap{display:flex;align-items:center;gap:10px;min-height:60px;flex-wrap:wrap}
+.sc-top b{font-size:17px}
+.sc-chip{font-size:12px;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:2px 10px}
+.sc-top .btn{margin-left:auto}
+.sc-banner{margin-top:20px;background:var(--surface);border:1px solid var(--sage);border-radius:12px;padding:16px 18px;display:grid;gap:4px}
+.sc-banner p{margin:4px 0 0;font-family:var(--serif);font-size:16px}
+.sc-banner code{display:block;margin-top:8px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.sc-banner .btns{flex-wrap:wrap;margin-top:12px}
+.sc-h{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:28px 0 8px}
+.sc-slide{display:flex;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.sc-slide .n{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;min-width:1.5em}
+.sc-slide b{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--clay)}
+.sc-slide p{margin:6px 0 0;font-family:var(--serif);font-size:15px;line-height:1.55}
+.sc-slide .muted{color:var(--muted);font-style:italic}
+
 /* verse action bar */
 /* vertical toolbar on the right edge; the top button hides or shows it */
 .actions{animation:pop .16s ease-out;position:fixed;right:max(12px,calc(env(safe-area-inset-right,0px) + 8px));top:50%;transform:translateY(-50%);z-index:25;
@@ -163,6 +189,7 @@ textarea{width:100%;min-height:110px;font:15px/1.5 var(--sans);color:var(--fg);b
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-hl" viewBox="0 0 24 24"><path d="m14 4 6 6-9 9H5v-6z"/><path d="M4 21h16"/></symbol>
+  <symbol id="i-slides" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4M7 9h10M7 13h6"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
   <symbol id="i-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
@@ -192,7 +219,19 @@ textarea{width:100%;min-height:110px;font:15px/1.5 var(--sans);color:var(--fg);b
   <button id="aNote" title="Note"><svg><use href="#i-note"/></svg><span>Note</span></button>
   <button id="aSave" aria-pressed="false" title="Save"><svg><use href="#i-save"/></svg><span>Save</span></button>
   <button id="aCopy" title="Copy"><svg><use href="#i-copy"/></svg><span>Copy</span></button>
+  <button id="aSlides" class="mk-slides" title="Make slides"><svg><use href="#i-slides"/></svg><span>Make slides</span></button>
 </div>
+
+<!-- Preview of the Scripture page receiving the passages (sample only; the real page is the app's Scripture page) -->
+<section class="sc" id="sc" hidden aria-label="Scripture page preview">
+  <div class="sc-top"><div class="sc-wrap"><b>Scripture Slides</b><span class="sc-chip">Preview of the Scripture page</span>
+    <button class="btn" id="scBack">Back to Bible</button></div></div>
+  <div class="sc-wrap">
+    <div class="sc-banner" id="scBanner"></div>
+    <h3 class="sc-h">Slides in this study</h3>
+    <div id="scSlides"></div>
+  </div>
+</section>
 
 <div class="scrim" id="scrim" hidden></div>
 <section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle" hidden>
@@ -243,7 +282,7 @@ function render(scrollTo){
   let h=`<p class="ref">${esc(S.book)} &middot; Chapter ${S.chap}</p>`;
   if(verses){
     h+=`<p class="passage">`+verses.map((t,i)=>{const k=`${S.book}|${S.chap}|${i+1}`;
-      return `<span class="v${S.hl[k]?" hl":""}${sel===k?" sel-on":""}" id="v${i+1}" data-k="${k}" tabindex="0" role="button" aria-label="Verse ${i+1}${S.saved[k]?", saved":""}${S.notes[k]?", has note":""}"><sup>${i+1}</sup>${esc(t)}${S.notes[k]?'<span class="mk note" aria-hidden="true"></span>':""}${S.saved[k]?'<span class="mk save" aria-hidden="true"></span>':""}</span> `}).join("")+`</p>`;
+      return `<span class="v${S.hl[k]?" hl":""}${picked.includes(k)?" sel-on":""}" id="v${i+1}" data-k="${k}" tabindex="0" role="button" aria-label="Verse ${i+1}${S.saved[k]?", saved":""}${S.notes[k]?", has note":""}"><sup>${i+1}</sup>${esc(t)}${S.notes[k]?'<span class="mk note" aria-hidden="true"></span>':""}${S.saved[k]?'<span class="mk save" aria-hidden="true"></span>':""}</span> `}).join("")+`</p>`;
     if(S.book==="Exodus"&&S.chap===3)h+=`<p class="hint">This sample includes verses 1&ndash;8 of Exodus 3.</p>`;
   }else{
     h+=`<p class="empty"><b>${esc(S.book)} ${S.chap} isn&rsquo;t included in this sample.</b><br>Only Exodus 3:1&ndash;8 (KJV) is available for review. Use the book list to go back.</p>`;
@@ -257,23 +296,42 @@ function render(scrollTo){
 }
 function go(b,c,v){S.book=b;S.chap=c;persist();clearSel();render(v);if(!v)window.scrollTo(0,0)}
 
-$("reader").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)selectVerse(sel===v.dataset.k?null:v.dataset.k)});
-$("reader").addEventListener("keydown",e=>{const v=e.target.closest(".v");if(v&&(e.key==="Enter"||e.key===" ")){e.preventDefault();selectVerse(sel===v.dataset.k?null:v.dataset.k)}});
+/* ---------- Selecting verses ----------
+   Tap a verse to select it. While verses are selected, tapping another adds it and tapping a selected one removes it. */
+let picked=[];                                   // selected verse keys, in reading order
+const CODES="GEN EXO LEV NUM DEU JOS JDG RUT 1SA 2SA 1KI 2KI 1CH 2CH EZR NEH EST JOB PSA PRO ECC SNG ISA JER LAM EZK DAN HOS JOL AMO OBA JON MIC NAM HAB ZEP HAG ZEC MAL MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV".split(" ");
+const parts=k=>{const [b,c,v]=k.split("|");return{b,c:+c,v:+v,o:BOOKS.findIndex(x=>x[0]===b)}};
+const byRef=(x,y)=>{const a=parts(x),b=parts(y);return a.o-b.o||a.c-b.c||a.v-b.v};
+function setPicked(arr){picked=[...new Set(arr)].sort(byRef);sel=picked[0]||null;
+  document.querySelectorAll(".v").forEach(x=>x.classList.toggle("sel-on",picked.includes(x.dataset.k)));updateTools()}
+function selectVerse(k){setPicked(k?[k]:[])}
+function tapVerse(k){setPicked(picked.includes(k)?picked.filter(x=>x!==k):[...picked,k])}
+function clearSel(){setPicked([])}
+function refresh(){const keep=picked;render();setPicked(keep)}
+function updateTools(){const n=picked.length;
+  $("actions").hidden=!n||!$("panel").hidden||!$("sc").hidden;if(!n)return;
+  $("actLab").textContent=n===1?"v"+parts(picked[0]).v:`${n} verses`;
+  $("aNote").disabled=n>1;$("aNote").title=n>1?"Note (one verse at a time)":"Note";
+  const allHl=picked.every(k=>S.hl[k]),allSaved=picked.every(k=>S.saved[k]);
+  $("aHl").setAttribute("aria-pressed",allHl);$("aSave").setAttribute("aria-pressed",allSaved);
+  $("aSave").lastChild.textContent=allSaved?"Saved":"Save"}
+$("reader").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)tapVerse(v.dataset.k)});
+$("reader").addEventListener("keydown",e=>{const v=e.target.closest(".v");if(v&&(e.key==="Enter"||e.key===" ")){e.preventDefault();tapVerse(v.dataset.k)}});
 
-function selectVerse(k){sel=k;document.querySelectorAll(".v").forEach(x=>x.classList.toggle("sel-on",x.dataset.k===k));
-  $("actions").hidden=!k||!$("panel").hidden;if(!k)return;
-  $("actLab").textContent="v"+k.split("|")[2];
-  $("aHl").setAttribute("aria-pressed",!!S.hl[k]);$("aSave").setAttribute("aria-pressed",!!S.saved[k]);
-  $("aSave").lastChild.textContent=S.saved[k]?"Saved":"Save"}
-function clearSel(){selectVerse(null)}
-function refresh(){const k=sel;render();if(k)selectVerse(k)}
+// Verses next to each other become one passage: 3:1, 3:2, 3:3, 3:7 -> 3:1-3 and 3:7
+function passages(keys){const out=[];for(const k of [...keys].sort(byRef)){const p=parts(k),last=out[out.length-1];
+  if(last&&last.b===p.b&&last.c===p.c&&p.v===last.v2+1)last.v2=p.v;else out.push({b:p.b,c:p.c,v1:p.v,v2:p.v})}return out}
+const plabel=g=>`${g.b} ${g.c}:${g.v1}${g.v2>g.v1?"–"+g.v2:""}`;
+const pcode=g=>`${CODES[BOOKS.findIndex(x=>x[0]===g.b)]}.${g.c}.${g.v1}${g.v2>g.v1?"-"+g.v2:""}`;
+const ptext=g=>{const out=[];for(let v=g.v1;v<=g.v2;v++)out.push({v,t:vtext(`${g.b}|${g.c}|${v}`)});return out};
 
-$("aHl").onclick=()=>{S.hl[sel]?delete S.hl[sel]:S.hl[sel]=1;persist();refresh();toast(S.hl[sel]?"Highlighted":"Highlight removed")};
-$("aSave").onclick=()=>{if(S.saved[sel])delete S.saved[sel];else S.saved[sel]=Date.now();persist();refresh();toast(S.saved[sel]?"Saved":"Removed from Saved")};
-$("aNote").onclick=()=>openNotes(sel);
-$("aCopy").onclick=async()=>{const s=`${vtext(sel)} (${ref(sel)} KJV)`;
+$("aHl").onclick=()=>{const on=!picked.every(k=>S.hl[k]);picked.forEach(k=>on?S.hl[k]=1:delete S.hl[k]);persist();refresh();toast(on?"Highlighted":"Highlight removed")};
+$("aSave").onclick=()=>{const on=!picked.every(k=>S.saved[k]);picked.forEach(k=>on?(S.saved[k]=S.saved[k]||Date.now()):delete S.saved[k]);persist();refresh();toast(on?"Saved":"Removed from Saved")};
+$("aNote").onclick=()=>{if(picked.length===1)openNotes(picked[0])};
+$("aCopy").onclick=async()=>{const s=passages(picked).map(g=>ptext(g).map(x=>`${x.v} ${x.t}`).join(" ")+` (${plabel(g)} KJV)`).join("\n\n");
   try{await navigator.clipboard.writeText(s);toast("Copied")}catch(e){const t=document.createElement("textarea");t.value=s;document.body.append(t);t.select();try{document.execCommand("copy");toast("Copied")}catch(_){toast("Copy isn't available here")}t.remove()}};
-document.addEventListener("click",e=>{if(sel&&!e.target.closest(".v,.actions,.panel,.scrim"))clearSel()});
+$("aSlides").onclick=()=>openMakeSlides(passages(picked),true);
+document.addEventListener("click",e=>{if(picked.length&&!e.target.closest(".v,.actions,.panel,.scrim,.sc"))clearSel()});
 
 /* ---------- Panels ---------- */
 let lastFocus=null,onClose=null;
@@ -289,7 +347,7 @@ function openPanel(title,sub,html,wide,asDrawer){lastFocus=document.activeElemen
   document.body.classList.toggle("drawer-open",drawer);
   $("panel").hidden=false;$("scrim").hidden=drawer;$("actions").hidden=true;
   document.body.style.overflow=drawer?"":"hidden";($("panel").querySelector("[autofocus]")||$("pClose")).focus()}
-function closePanel(){if($("panel").hidden)return;$("panel").hidden=true;$("scrim").hidden=true;document.body.style.overflow="";$("actions").hidden=!sel;
+function closePanel(){if($("panel").hidden)return;$("panel").hidden=true;$("scrim").hidden=true;document.body.style.overflow="";updateTools();
   document.body.classList.remove("drawer-open");drawer=false;
   if(onClose){const f=onClose;onClose=null;f()}else if(lastFocus)lastFocus.focus()}
 $("pClose").onclick=closePanel;$("scrim").onclick=closePanel;
@@ -330,13 +388,22 @@ function openVerses(book,c){const vs=TEXT[`${book} ${c}`];
   $("backCh").onclick=()=>openChapters(book);$("readCh").onclick=()=>{onClose=()=>go(book,c);closePanel()};
 }
 
-/* Saved */
-function openSaved(){const keys=Object.keys(S.saved).sort((a,b)=>S.saved[b]-S.saved[a]);
-  const h=keys.length?keys.map(k=>`<div class="item"><div class="r"><b>${esc(ref(k))}</b><span><button class="lnk" data-go="${k}">Read</button><button class="lnk" data-rm="${k}" aria-label="Remove ${esc(ref(k))} from Saved">Remove</button></span></div><p>${esc(vtext(k))}</p></div>`).join("")
-    :`<div class="none">No saved verses yet.<br>Tap a verse, then choose Save.</div>`;
-  openPanel("Saved",`${keys.length} saved verse${keys.length===1?"":"s"}`,h,false,true);
+/* Saved: the passages kept for slides, then saved verses */
+function openSaved(){const keys=Object.keys(S.saved).sort((a,b)=>S.saved[b]-S.saved[a]);const list=S.slideList||[];
+  let h="";
+  if(list.length)h+=`<p class="testament">For slides (${list.length})</p>`+list.map((g,i)=>`<div class="item"><div class="r"><b>${esc(plabel(g))}</b><button class="lnk" data-rmp="${i}" aria-label="Remove ${esc(plabel(g))} from the slide list">Remove</button></div></div>`).join("")
+    +`<div class="btns"><button class="btn" id="slClear">Clear list</button><button class="btn pri" id="slOpen">Open in Scripture</button></div>`;
+  if(keys.length)h+=`<p class="testament">Saved verses</p>`;
+  h+=keys.length?keys.map(k=>`<div class="item"><div class="r"><b>${esc(ref(k))}</b><span><button class="lnk" data-go="${k}">Read</button><button class="lnk" data-rm="${k}" aria-label="Remove ${esc(ref(k))} from Saved">Remove</button></span></div><p>${esc(vtext(k))}</p></div>`).join("")
+      +`<div class="btns"><button class="btn" id="svSlides"><svg><use href="#i-slides"/></svg>Make slides from saved verses</button></div>`
+    :(list.length?"":`<div class="none">No saved verses yet.<br>Tap a verse, then choose Save.</div>`);
+  openPanel("Saved",`${keys.length} saved verse${keys.length===1?"":"s"}${list.length?` · ${list.length} for slides`:""}`,h,false,true);
   $("pBody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{delete S.saved[b.dataset.rm];persist();refresh();openSaved()});
+  $("pBody").querySelectorAll("[data-rmp]").forEach(b=>b.onclick=()=>{S.slideList.splice(+b.dataset.rmp,1);persist();openSaved()});
   $("pBody").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const [bk,c,v]=b.dataset.go.split("|");onClose=()=>go(bk,+c,+v);closePanel()});
+  if($("slClear"))$("slClear").onclick=()=>{S.slideList=[];persist();openSaved()};
+  if($("slOpen"))$("slOpen").onclick=()=>{const gs=S.slideList;S.slideList=[];persist();onClose=()=>openScripture(gs);closePanel()};
+  if($("svSlides"))$("svSlides").onclick=()=>{const gs=passages(keys);onClose=()=>openMakeSlides(gs,false);closePanel()};
 }
 /* Notes */
 function openNotes(editKey){const keys=Object.keys(S.notes).filter(k=>k!==editKey);
@@ -353,6 +420,34 @@ function openNotes(editKey){const keys=Object.keys(S.notes).filter(k=>k!==editKe
   $("pBody").querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>openNotes(b.dataset.ed));
   $("pBody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{delete S.notes[b.dataset.rm];persist();refresh();openNotes()});
 }
+/* Make slides: send passages to the Scripture page, or keep them in a list */
+function openMakeSlides(gs,fromSelection){
+  const h=gs.map(g=>`<div class="item"><div class="r"><b>${esc(plabel(g))}</b><small class="cnt">${g.v2-g.v1+1} verse${g.v2>g.v1?"s":""}</small></div><p class="clip">${esc(ptext(g).map(x=>x.t).join(" "))}</p></div>`).join("")
+    +`<p class="hint">Each passage becomes one passage slide on the Scripture page, with the text already filled in. You can still edit, reorder and present them there.</p>
+    <div class="btns"><button class="btn" id="msList">Add to list</button><button class="btn pri" id="msOpen">Open in Scripture</button></div>`;
+  openPanel("Make slides",`${gs.length} passage${gs.length===1?"":"s"}`,h);
+  $("msList").onclick=()=>{const have=new Set((S.slideList||[]).map(plabel));S.slideList=[...(S.slideList||[]),...gs.filter(g=>!have.has(plabel(g)))];persist();
+    onClose=()=>{if(fromSelection)clearSel();toast(`Added · For slides (${S.slideList.length}) is in Saved`)};closePanel()};
+  $("msOpen").onclick=()=>{onClose=()=>{if(fromSelection)clearSel();openScripture(gs)};closePanel()};
+}
+
+/* Scripture page preview: what the real page would show when opened from the Bible */
+let study=[{label:"Passage",lines:[],empty:true}];
+function openScripture(gs){
+  const link=`/scripture/?add=kjv:${gs.map(pcode).join(",")}`;
+  $("scBanner").hidden=false;
+  $("scBanner").innerHTML=`<div><b>${gs.length} passage${gs.length===1?"":"s"} from the Bible</b>
+    <p>${gs.map(g=>esc(plabel(g))).join(" · ")}</p><code>${esc(link)}</code></div>
+    <div class="btns"><button class="btn" id="scDismiss">Dismiss</button><button class="btn" id="scNew">Start a new study</button><button class="btn pri" id="scAdd">Add to this study</button></div>`;
+  const add=(fresh)=>{const slides=gs.map(g=>({label:plabel(g),lines:ptext(g).map(x=>`${x.v} ${x.t}`)}));
+    study=fresh?slides:[...study.filter(x=>!x.empty),...slides];$("scBanner").hidden=true;drawStudy();toast(`${slides.length} slide${slides.length===1?"":"s"} added`)};
+  $("scAdd").onclick=()=>add(false);$("scNew").onclick=()=>add(true);$("scDismiss").onclick=()=>{$("scBanner").hidden=true};
+  drawStudy();$("sc").hidden=false;$("actions").hidden=true;document.body.style.overflow="hidden";$("scAdd").focus();
+}
+function drawStudy(){$("scSlides").innerHTML=study.map((x,i)=>`<div class="sc-slide"><span class="n">${i+1}</span><div><b>${esc(x.label)}</b>
+  ${x.empty?`<p class="muted">Empty passage slide</p>`:`<p>${x.lines.map(esc).join("<br>")}</p>`}</div></div>`).join("")}
+$("scBack").onclick=()=>{$("sc").hidden=true;document.body.style.overflow="";updateTools()};
+
 /* Settings */
 function openSettings(){
   const isDark=()=>S.theme?S.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;

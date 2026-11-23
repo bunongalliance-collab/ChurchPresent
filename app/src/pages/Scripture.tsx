@@ -14,6 +14,7 @@ import { breakRow } from "../lib/pptx";
 import { groupParagraphs, paragraphEnds, carryFormatting, carryFormattingSlides, carryLines, setColors, markVerses, setVerseMode, VERSE_SPLIT, contrastText, HIGHLIGHT_OPTIONS, parseRich, stripMarkers, TEXT_COLOR_OPTIONS, toggleMarker, type RichSeg } from "../lib/richtext";
 import { fmtAt, markerToVisible, NO_FMT, tokenLenAt, visibleToMarker } from "../lib/richeditor";
 import { DB_BIBLES, fetchDbBooks, fetchDbPassage, isDbBible } from "../lib/bible";
+import { addForSlides, passCode, readForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
 interface BibleVersion { id: string; name: string }
@@ -109,6 +110,28 @@ function newSlide(kind: Kind): StudySlide {
     title: kind === "passage" ? "" : kind === "questions" ? "Questions" : "Custom slide",
   };
 }
+
+// Passages sent from the Bunong Bible reader (/bible/), e.g. /scripture/?add=bunong-vn:EXO.3.1-3,EXO.3.6
+// The translation is one of our database Bibles; the text is fetched from the database when they are added.
+interface Incoming { bible: string; code: string; ch: number; v1: number; v2: number }
+function readIncoming(): Incoming[] {
+  const raw = new URLSearchParams(window.location.search).get("add");
+  if (!raw) return [];
+  const at = raw.indexOf(":");
+  const tr = at > 0 ? raw.slice(0, at) : "bunong-vn";
+  if (!/^[a-z0-9-]{2,40}$/.test(tr)) return [];
+  const out: Incoming[] = [];
+  for (const part of raw.slice(at + 1).split(",").slice(0, 50)) {
+    const m = /^([1-3]?[A-Z]{2,3})\.(\d{1,3})\.(\d{1,3})(?:-(\d{1,3}))?$/.exec(part.trim());
+    if (!m) continue;
+    const v1 = +m[3], v2 = Math.max(v1, +(m[4] || m[3]));
+    out.push({ bible: `db:${tr}`, code: m[1], ch: +m[2], v1, v2 });
+  }
+  return out;
+}
+
+const fromShared = (p: SlidePass): Incoming => ({ bible: `db:${p.t}`, code: p.b, ch: p.c, v1: p.v1, v2: p.v2 });
+const toShared = (r: Incoming): SlidePass => ({ t: r.bible.replace(/^db:/, ""), b: r.code, c: r.ch, v1: r.v1, v2: r.v2 });
 
 // One verse from the Vercel function (or the Vite dev stand-in). The key stays on the server.
 async function fetchVerse(bible: string, code: string, ch: number, v: number): Promise<string> {
@@ -244,6 +267,45 @@ export default function Scripture() {
   const [busy, setBusy] = useState(false);
 
   const say = (m: string, e = false) => { setStatus(m); setError(e); toast(m, e); };
+
+  // Passages from the Bible reader wait in a list shared with it (lib/forSlides), so they show here however this page is
+  // opened. A link with ?add= puts its passages in that list too, and is then removed from the address.
+  const [incoming, setIncoming] = useState<Incoming[]>(() => {
+    const fromLink = readIncoming();
+    if (fromLink.length) addForSlides(fromLink.map(toShared));
+    return readForSlides().map(fromShared);
+  });
+  const [laterIncoming, setLaterIncoming] = useState(false);   // "Later": hide the banner; the passages keep waiting
+  useEffect(() => {
+    const u = new URL(window.location.href);
+    if (!u.searchParams.has("add")) return;
+    u.searchParams.delete("add");
+    window.history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }, []);
+  // The banner shows the translation's own book names (e.g. "Nau Ngluh") once they are loaded
+  const [incomingNames, setIncomingNames] = useState<Record<string, string>>({});
+  const incomingBibles = [...new Set(incoming.map((r) => r.bible))].join(",");
+  useEffect(() => {
+    for (const b of incomingBibles.split(",").filter(Boolean)) {
+      if (Object.keys(incomingNames).some((k) => k.startsWith(`${b}|`))) continue;
+      fetchDbBooks(b).then((list) => setIncomingNames((cur) => ({ ...cur, ...Object.fromEntries(list.map((x) => [`${b}|${x.code}`, x.title])) }))).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingBibles]);
+  // When the study has nothing in it yet, add the passages straight away; otherwise the banner asks first.
+  // Checked when the page opens and whenever the list changes (another tab, or coming back to this page).
+  const slidesRef = useRef(slides); slidesRef.current = slides;
+  const addingRef = useRef(false);
+  const autoAdd = (list: Incoming[]) => {
+    if (!list.length || addingRef.current) return;
+    if (slidesRef.current.every((x) => !x.text.trim())) addIncoming(false, list);
+  };
+  useEffect(() => {
+    autoAdd(incoming);
+    return watchForSlides((list) => { const inc = list.map(fromShared); setIncoming(inc); if (inc.length) setLaterIncoming(false); autoAdd(inc); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const incomingLabel = (r: Incoming) => `${incomingNames[`${r.bible}|${r.code}`] || bookName(r.code)} ${r.ch}:${r.v1}${r.v2 > r.v1 ? `-${r.v2}` : ""}`;
 
   const [pickColor, setPickColor] = useState("#ff5050");
   const [pickHighlight, setPickHighlight] = useState("#fff176");
@@ -467,6 +529,43 @@ export default function Scripture() {
     setSelectedId("");
     setPreviewIndex(0);
     say(`Opened "${s.title}".`);
+  }
+
+  // Add the passages from the Bible reader as passage slides, with their text fetched from the database
+  async function addIncoming(fresh: boolean, list: Incoming[] = incoming) {
+    if (addingRef.current) return;
+    addingRef.current = true;
+    setBusy(true);
+    say("Adding passages…");
+    const made: StudySlide[] = [];
+    const added = new Set<string>();
+    let failed = 0;
+    const names: Record<string, { code: string; title: string }[] | null> = {};
+    for (const r of list) {
+      try {
+        if (!(r.bible in names)) names[r.bible] = bookCodes[r.bible] ?? await fetchDbBooks(r.bible).catch(() => null);
+        const rows = await fetchDbPassage(r.bible, r.code, r.ch, r.v1, r.v2);
+        const lines = rows.map((x) => { const num = x.verseEnd ? `${x.verse}-${x.verseEnd}` : String(x.verse); return look.verseNumbers ? `${num} ${x.text}` : x.text; });
+        const bookLabel = names[r.bible]?.find((b) => b.code === r.code)?.title || bookName(r.code);
+        made.push({
+          ...newSlide("passage"), title: `${bookLabel} ${r.ch}:${r.v1}${r.v2 > r.v1 ? `-${r.v2}` : ""}`,
+          bible: r.bible, book: r.code, chapter: String(r.ch), verseFrom: String(r.v1), verseTo: String(r.v2),
+          text: lines.join("\n"), fetchedText: lines.join("\n"),
+        });
+        added.add(passCode(toShared(r)));
+      } catch { failed++; }
+    }
+    // Added passages leave the shared list; any that failed stay, so they can be tried again
+    writeForSlides(readForSlides().filter((p) => !added.has(passCode(p))));
+    setIncoming(readForSlides().map(fromShared));
+    addingRef.current = false;
+    setBusy(false);
+    if (fresh) { setCurrentId(""); setTitle("Scripture study"); setPreviewIndex(0); }
+    // An empty passage slide (the one a new study starts with) is replaced
+    setSlides((cur) => [...(fresh ? [] : cur.filter((x) => !(x.kind === "passage" && !x.text.trim()))), ...made]);
+    if (made[0]) setSelectedId(made[0].id);
+    if (!made.length) say("The passages could not be loaded. Check the connection and try again.", true);
+    else say(`Added ${made.length} passage slide${made.length === 1 ? "" : "s"}${failed ? `; ${failed} could not be loaded` : ""}.`, failed > 0);
   }
 
   function newStudy() {
@@ -725,6 +824,20 @@ export default function Scripture() {
         )}
 
 
+
+        {incoming.length > 0 && !laterIncoming && (
+          <div className="sc-incoming" role="region" aria-label="Passages from the Bible">
+            <div>
+              <b>{incoming.length} passage{incoming.length === 1 ? "" : "s"} from the Bible</b>
+              <p>{incoming.map(incomingLabel).join(" · ")}</p>
+            </div>
+            <div className="sc-incoming-btns">
+              <button className="secondary" onClick={() => setLaterIncoming(true)} disabled={busy}>Later</button>
+              <button className="secondary" onClick={() => addIncoming(true)} disabled={busy}>Start a new study</button>
+              <button className="primary" onClick={() => addIncoming(false)} disabled={busy}>Add to this study</button>
+            </div>
+          </div>
+        )}
 
         <div className="sc-body">
           {/* Edit the selected slide */}

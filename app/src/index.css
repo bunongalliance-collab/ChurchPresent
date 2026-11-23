@@ -278,6 +278,10 @@ button.small { padding: 2px 6px; font-size: 0.75rem; }
 .sc button:disabled { opacity: 0.4; cursor: default; }
 .sc .status, .sc-status { color: var(--sc-muted); font-size: 0.8rem; margin: 6px 0; min-height: 1em; }
 .sc-status.error, .sc .status.error { color: var(--danger); }
+/* Passages sent from the Bible reader, waiting to be added */
+.sc-incoming { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px 0 4px; padding: 12px 14px; background: var(--sc-panel); border: 1px solid var(--sc-accent); border-radius: 10px; color: var(--sc-text); }
+.sc-incoming p { margin: 2px 0 0; color: var(--sc-muted); font-size: 0.9rem; }
+.sc-incoming-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .sc .empty, .sc-empty { color: var(--sc-muted); font-size: 0.85rem; }
 
 /* Header */

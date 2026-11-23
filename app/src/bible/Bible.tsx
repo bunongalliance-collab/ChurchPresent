@@ -1,6 +1,7 @@
 // Bunong Bible reader (/bible/). Design approved from the sample in bible-pwa/sample/index.html.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
+import { addForSlides, readForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
+import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
 
 // ---------- Stored on this device ----------
 type Size = "s" | "m" | "l";
@@ -11,7 +12,10 @@ interface State {
   book: string; chap: number;
   hl: Record<string, 1>; saved: Record<string, Mark>; notes: Record<string, Note>;
   size: Size; leading: Leading; theme: "light" | "dark" | null;
+  slideList?: Pass[];                                              // older versions kept the slide list here (moved to lib/forSlides)
 }
+// A passage for slides: book code, chapter, first and last verse
+interface Pass { b: string; c: number; v1: number; v2: number }
 const KEY = "bible.reader.v1";
 const DEFAULTS: State = { book: "GEN", chap: 1, hl: {}, saved: {}, notes: {}, size: "m", leading: "normal", theme: null };
 function loadState(): State { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return DEFAULTS; } }
@@ -21,6 +25,22 @@ const LEAD: Record<Leading, number> = { compact: 1.55, normal: 1.75, relaxed: 2 
 // A verse key: BOOK|chapter|verse
 const vkey = (b: string, c: number, v: number) => `${b}|${c}|${v}`;
 const parseKey = (k: string) => { const [b, c, v] = k.split("|"); return { b, c: +c, v: +v }; };
+
+// Verses next to each other become one passage: 3:1, 3:2, 3:3 and 3:7 -> 3:1-3 and 3:7.
+// endOf gives a verse's last number (a verse printed as "14-15" ends at 15).
+function toPasses(keys: string[], bookOrder: (b: string) => number, endOf: (k: string) => number): Pass[] {
+  const sorted = [...keys].sort((x, y) => { const a = parseKey(x), b = parseKey(y); return bookOrder(a.b) - bookOrder(b.b) || a.c - b.c || a.v - b.v; });
+  const out: Pass[] = [];
+  for (const k of sorted) {
+    const { b, c, v } = parseKey(k), last = out[out.length - 1];
+    if (last && last.b === b && last.c === c && v <= last.v2 + 1) last.v2 = Math.max(last.v2, endOf(k));
+    else out.push({ b, c, v1: v, v2: endOf(k) });
+  }
+  return out;
+}
+// Passages for slides wait in a list shared with the Scripture page (lib/forSlides), which picks them up when opened
+const toShared = (p: Pass): SlidePass => ({ t: TRANSLATION, ...p });
+const ownList = (list: SlidePass[]): Pass[] => list.filter((p) => p.t === TRANSLATION).map(({ b, c, v1, v2 }) => ({ b, c, v1, v2 }));
 
 // ---------- Icons ----------
 const PATHS: Record<string, ReactNode> = {
@@ -34,6 +54,8 @@ const PATHS: Record<string, ReactNode> = {
   copy: <><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" /></>,
   l: <path d="m15 6-6 6 6 6" />,
   r: <path d="m9 6 6 6-6 6" />,
+  open: <><path d="M14 9V5H3v14h11v-4" /><path d="M9 12h12M17 8l4 4-4 4" /></>,
+  slides: <><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></>,
 };
 const Icon = ({ n }: { n: string }) => <svg viewBox="0 0 24 24" aria-hidden="true">{PATHS[n]}</svg>;
 
@@ -45,14 +67,25 @@ export default function Bible() {
   const [books, setBooks] = useState<Book[]>(localBooks);
   const [text, setText] = useState<BookText | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [sel, setSel] = useState<string | null>(null);
+  // Selected verses, in reading order. Tap a verse to select it; while verses are selected, tapping another adds it
+  // and tapping a selected one removes it.
+  const [picked, setPicked] = useState<string[]>([]);
   const [panel, setPanel] = useState<PanelState | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ m: string; open?: boolean } | null>(null);   // open: show "Open Scripture"
   const [jump, setJump] = useState<number | null>(null);
   const [reload, setReload] = useState(0);
   const toastTimer = useRef(0);
 
   const update = useCallback((fn: (p: State) => State) => setS((p) => fn(p)), []);
+
+  // Passages waiting for the Scripture page. Kept in sync when the Scripture page adds them (and clears the list)
+  const [forSlides, setForSlides] = useState<Pass[]>(() => {
+    const old = loadState().slideList;
+    if (old?.length) addForSlides(old.map(toShared));
+    return ownList(readForSlides());
+  });
+  useEffect(() => watchForSlides((list) => setForSlides(ownList(list))), []);
+  useEffect(() => { if (s.slideList) update((p) => { const n = { ...p }; delete n.slideList; return n; }); }, [s.slideList, update]);
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage blocked */ } }, [s]);
   useEffect(() => { refreshBookNames().then((b) => b && setBooks(b)); }, []);
 
@@ -78,12 +111,17 @@ export default function Bible() {
 
   const book = books.find((b) => b.code === s.book) ?? books[0];
   const chapter: Chapter | undefined = text?.code === s.book ? text.chapters[s.chap] : undefined;
-  const say = (m: string) => { setToast(m); window.clearTimeout(toastTimer.current); toastTimer.current = window.setTimeout(() => setToast(null), 1800); };
+  const say = (m: string, open = false) => { setToast({ m, open }); window.clearTimeout(toastTimer.current); toastTimer.current = window.setTimeout(() => setToast(null), open ? 6000 : 1800); };
   const refOf = (k: string) => { const { b, c, v } = parseKey(k); const bk = books.find((x) => x.code === b); const vs = text?.code === b ? text.chapters[c]?.verses.find((x) => x.v === v) : undefined; return `${bk?.local ?? b} ${c}:${v}${vs?.end ? `–${vs.end}` : ""}`; };
+  const bookOrder = (b: string) => books.findIndex((x) => x.code === b);
+  const endOf = (k: string) => { const { b, c, v } = parseKey(k); return (text?.code === b ? text.chapters[c]?.verses.find((x) => x.v === v)?.end : null) ?? v; };
+  const passesOf = (keys: string[]) => toPasses(keys, bookOrder, endOf);
+  const sortKeys = (keys: string[]) => [...new Set(keys)].sort((x, y) => { const a = parseKey(x), b = parseKey(y); return bookOrder(a.b) - bookOrder(b.b) || a.c - b.c || a.v - b.v; });
+  const tap = (k: string) => setPicked((p) => sortKeys(p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
   const textOf = (k: string) => { const { b, c, v } = parseKey(k); return (text?.code === b ? text.chapters[c]?.verses.find((x) => x.v === v)?.text : undefined) ?? s.saved[k]?.text ?? s.notes[k]?.text ?? ""; };
 
   const go = useCallback((b: string, c: number, v?: number) => {
-    setSel(null); setPanel(null);
+    setPicked([]); setPanel(null);
     update((p) => ({ ...p, book: b, chap: c }));
     if (v) setJump(v); else window.scrollTo(0, 0);
   }, [update]);
@@ -95,7 +133,7 @@ export default function Bible() {
     if (el) {
       el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       el.focus({ preventScroll: true });
-      setSel(el.dataset.k ?? null);
+      setPicked(el.dataset.k ? [el.dataset.k] : []);
     }
     setJump(null);
   }, [jump, chapter]);
@@ -109,12 +147,33 @@ export default function Bible() {
   const prevLabel = s.chap > 1 ? `Chapter ${s.chap - 1}` : books[books.indexOf(book) - 1]?.local;
   const nextLabel = s.chap < book.chapters ? `Chapter ${s.chap + 1}` : books[books.indexOf(book) + 1]?.local;
 
-  // Verse actions
-  const toggleHl = () => { if (!sel) return; const on = !s.hl[sel]; update((p) => { const hl = { ...p.hl }; if (on) hl[sel] = 1; else delete hl[sel]; return { ...p, hl }; }); say(on ? "Highlighted" : "Highlight removed"); };
-  const toggleSave = () => { if (!sel) return; const on = !s.saved[sel]; update((p) => { const saved = { ...p.saved }; if (on) saved[sel] = { ref: refOf(sel), text: textOf(sel), at: Date.now() }; else delete saved[sel]; return { ...p, saved }; }); say(on ? "Saved" : "Removed from Saved"); };
+  // Verse actions: Highlight, Save and Copy work on every selected verse; Note on one verse
+  const allHl = picked.length > 0 && picked.every((k) => s.hl[k]);
+  const allSaved = picked.length > 0 && picked.every((k) => s.saved[k]);
+  const toggleHl = () => {
+    const on = !allHl;
+    update((p) => { const hl = { ...p.hl }; for (const k of picked) { if (on) hl[k] = 1; else delete hl[k]; } return { ...p, hl }; });
+    say(on ? "Highlighted" : "Highlight removed");
+  };
+  const toggleSave = () => {
+    const on = !allSaved;
+    update((p) => { const saved = { ...p.saved }; for (const k of picked) { if (on) saved[k] = saved[k] ?? { ref: refOf(k), text: textOf(k), at: Date.now() }; else delete saved[k]; } return { ...p, saved }; });
+    say(on ? (picked.length > 1 ? `${picked.length} verses saved` : "Saved") : "Removed from Saved");
+  };
+  const passLabel = (ps: Pass) => `${books.find((x) => x.code === ps.b)?.local ?? ps.b} ${ps.c}:${ps.v1}${ps.v2 > ps.v1 ? `–${ps.v2}` : ""}`;
+  // The slides icon: add the passages to the slide list in one tap. The message offers to open the Scripture page now;
+  // otherwise keep reading and collecting, and open the list later from Saved.
+  const addToSlides = (ps: Pass[]) => {
+    setForSlides(ownList(addForSlides(ps.map(toShared))));
+    setPicked([]);
+    say(`Added ${ps.length} passage${ps.length === 1 ? "" : "s"} to slides`, true);
+  };
+  const removeForSlides = (i: number) => { const next = forSlides.filter((_, j) => j !== i); writeForSlides([...readForSlides().filter((p) => p.t !== TRANSLATION), ...next.map(toShared)]); setForSlides(next); };
+  const clearForSlides = () => { writeForSlides(readForSlides().filter((p) => p.t !== TRANSLATION)); setForSlides([]); };
   const copy = async () => {
-    if (!sel) return;
-    const str = `${textOf(sel)} (${refOf(sel)})`;
+    if (!picked.length) return;
+    const str = passesOf(picked).map((ps) => picked.filter((k) => { const { b, c, v } = parseKey(k); return b === ps.b && c === ps.c && v >= ps.v1 && v <= ps.v2; })
+      .map((k) => `${parseKey(k).v} ${textOf(k)}`).join(" ") + ` (${passLabel(ps)})`).join("\n\n");
     try { await navigator.clipboard.writeText(str); say("Copied"); }
     catch { const t = document.createElement("textarea"); t.value = str; document.body.append(t); t.select(); try { document.execCommand("copy"); say("Copied"); } catch { say("Copy isn't available here"); } t.remove(); }
   };
@@ -134,11 +193,11 @@ export default function Bible() {
 
   // Clear the selection on a click outside the passage, or with Escape
   useEffect(() => {
-    const click = (e: MouseEvent) => { if (sel && !(e.target as Element).closest(".v,.actions,.panel,.scrim")) setSel(null); };
-    const key = (e: KeyboardEvent) => { if (e.key === "Escape" && !panel && sel) setSel(null); };
+    const click = (e: MouseEvent) => { if (picked.length && !(e.target as Element).closest(".v,.actions,.panel,.scrim")) setPicked([]); };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape" && !panel && picked.length) setPicked([]); };
     document.addEventListener("click", click); document.addEventListener("keydown", key);
     return () => { document.removeEventListener("click", click); document.removeEventListener("keydown", key); };
-  }, [sel, panel]);
+  }, [picked, panel]);
 
   return (
     <>
@@ -149,7 +208,7 @@ export default function Bible() {
             <button className="pill" onClick={() => setPanel({ name: "chapters", book: s.book })} aria-haspopup="dialog" aria-label={`Chapter ${s.chap}`}><span>{s.chap}</span><Icon n="down" /></button>
           </div>
           <nav className="icons" aria-label="Reader tools">
-            <button className="ib" aria-label="Home: back to the passage" onClick={() => { setPanel(null); setSel(null); window.scrollTo({ top: 0 }); }}><Icon n="home" /></button>
+            <button className="ib" aria-label="Home: back to the passage" onClick={() => { setPanel(null); setPicked([]); window.scrollTo({ top: 0 }); }}><Icon n="home" /></button>
             <button className="ib" aria-label="Saved verses" aria-haspopup="dialog" onClick={() => setPanel({ name: "saved" })}><Icon n="save" /></button>
             <button className="ib" aria-label="Notes" aria-haspopup="dialog" onClick={() => setPanel({ name: "notes" })}><Icon n="note" /></button>
             <button className="ib" aria-label="Settings" aria-haspopup="dialog" onClick={() => setPanel({ name: "settings" })}><Icon n="set" /></button>
@@ -161,7 +220,7 @@ export default function Bible() {
         <p className="title">Scripture</p>
         <main>
           <p className="ref">{book.local} &middot; Chapter {s.chap}</p>
-          {chapter ? <Passage book={s.book} chap={s.chap} ch={chapter} s={s} sel={sel} onSelect={(k) => setSel((p) => (p === k ? null : k))} />
+          {chapter ? <Passage book={s.book} chap={s.chap} ch={chapter} s={s} picked={picked} onSelect={tap} />
             : error ? <div className="empty">
                 <b>{error === "offline" ? `${book.local} isn’t saved on this device yet.` : "The passage didn’t load."}</b>
                 <span>{error === "offline" ? "Connect to the internet to open it, or save the whole Bible in Settings while you’re online." : error}</span>
@@ -177,24 +236,32 @@ export default function Bible() {
         </main>
       </div>
 
-      {sel && !panel && (
-        <div className="actions" role="toolbar" aria-label="Verse actions" aria-orientation="vertical">
-          <span className="lab">v{parseKey(sel).v}</span>
-          <button onClick={toggleHl} aria-pressed={!!s.hl[sel]} aria-label="Highlight" title="Highlight"><Icon n="hl" /></button>
-          <button onClick={() => setPanel({ name: "notes", edit: sel })} aria-label="Note" title="Note"><Icon n="note" /></button>
-          <button onClick={toggleSave} aria-pressed={!!s.saved[sel]} aria-label={s.saved[sel] ? "Saved" : "Save"} title={s.saved[sel] ? "Saved" : "Save"}><Icon n="save" /></button>
-          <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+      {/* Floating buttons on the right: verse tools while verses are selected, and always a button to the Scripture page */}
+      {!panel && (
+        <div className="actions" role="toolbar" aria-label={picked.length ? "Verse actions" : "Scripture slides"} aria-orientation="vertical">
+          {picked.length > 0 && <>
+            <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
+            <button onClick={toggleHl} aria-pressed={allHl} aria-label="Highlight" title="Highlight"><Icon n="hl" /></button>
+            <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
+            <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
+            <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
+          </>}
+          <button className="go" onClick={openScripture} aria-label={forSlides.length ? `Go to Scripture, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : "Go to Scripture"} title="Go to Scripture">
+            <Icon n="open" />{forSlides.length > 0 && <span className="badge" aria-hidden="true">{forSlides.length}</span>}
+          </button>
         </div>
       )}
 
-      {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} go={go} say={say} refOf={refOf} textOf={textOf} current={text} />}
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
+        passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} />}
+      {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(); }}>Open Scripture</button>}</div>}
     </>
   );
 }
 
 // ---------- The passage: paragraphs as printed, section headings between them ----------
-function Passage({ book, chap, ch, s, sel, onSelect }: { book: string; chap: number; ch: Chapter; s: State; sel: string | null; onSelect: (k: string) => void }) {
+function Passage({ book, chap, ch, s, picked, onSelect }: { book: string; chap: number; ch: Chapter; s: State; picked: string[]; onSelect: (k: string) => void }) {
   const blocks = useMemo(() => {
     const out: ({ kind: "h"; text: string; sub: boolean } | { kind: "p"; verses: Chapter["verses"] })[] = [];
     let para: Chapter["verses"] | null = null;
@@ -217,7 +284,7 @@ function Passage({ book, chap, ch, s, sel, onSelect }: { book: string; chap: num
             const label = v.end ? `${v.v}–${v.end}` : String(v.v);
             return <span key={k}>
               <span id={`v${v.v}`} data-k={k} tabIndex={0} role="button"
-                className={`v${s.hl[k] ? " hl" : ""}${sel === k ? " sel-on" : ""}`}
+                className={`v${s.hl[k] ? " hl" : ""}${picked.includes(k) ? " sel-on" : ""}`}
                 aria-label={`Verse ${label}${s.saved[k] ? ", saved" : ""}${s.notes[k] ? ", has note" : ""}`}
                 onClick={() => onSelect(k)} onKeyDown={(e) => key(e, k)}>
                 <sup>{label}</sup>{v.text}
@@ -235,6 +302,8 @@ interface PanelProps {
   p: PanelState; setPanel: (p: PanelState | null) => void; books: Book[]; s: State; current: BookText | null;
   update: (fn: (p: State) => State) => void; go: (b: string, c: number, v?: number) => void; say: (m: string) => void;
   refOf: (k: string) => string; textOf: (k: string) => string;
+  passLabel: (p: Pass) => string; passesOf: (keys: string[]) => Pass[]; addToSlides: (ps: Pass[]) => void;
+  forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void;
 }
 function Panels(props: PanelProps) {
   const { p, setPanel } = props;
@@ -344,19 +413,40 @@ function VersesPanel({ p, books, setPanel, close, go }: PanelProps & { close: ()
   );
 }
 
-function SavedPanel({ s, update, go, close }: PanelProps & { close: () => void }) {
+// Open the Scripture page with these passages (it asks whether to add them to the study)
+// The Scripture page picks up the waiting passages itself, however it is opened
+function openScripture() { window.location.href = "/scripture/"; }
+
+function SavedPanel({ s, update, go, close, passLabel, passesOf, addToSlides, forSlides, removeForSlides, clearForSlides }: PanelProps & { close: () => void }) {
   const keys = Object.keys(s.saved).sort((a, b) => s.saved[b].at - s.saved[a].at);
+  const list = forSlides;
+  const sub = `${keys.length} saved verse${keys.length === 1 ? "" : "s"}${list.length ? ` · ${list.length} for slides` : ""}`;
   return (
-    <Panel drawer title="Saved" sub={`${keys.length} saved verse${keys.length === 1 ? "" : "s"}`} close={close}>
-      {keys.length ? keys.map((k) => { const m = s.saved[k]; const { b, c, v } = parseKey(k); return (
-        <div className="item" key={k}>
-          <div className="r"><b>{m.ref}</b><span>
-            <button className="lnk" onClick={() => go(b, c, v)}>Read</button>
-            <button className="lnk" aria-label={`Remove ${m.ref} from Saved`} onClick={() => update((p) => { const saved = { ...p.saved }; delete saved[k]; return { ...p, saved }; })}>Remove</button>
-          </span></div>
-          <p>{m.text}</p>
-        </div>); })
-        : <div className="none">No saved verses yet.<br />Tap a verse, then choose Save.</div>}
+    <Panel drawer title="Saved" sub={sub} close={close}>
+      {list.length > 0 && <>
+        <p className="testament">For slides ({list.length})</p>
+        {list.map((ps, i) => (
+          <div className="item" key={`${passLabel(ps)}-${i}`}>
+            <div className="r"><b>{passLabel(ps)}</b>
+              <button className="lnk" aria-label={`Remove ${passLabel(ps)} from the slide list`} onClick={() => removeForSlides(i)}>Remove</button></div>
+          </div>))}
+        <div className="btns">
+          <button className="btn" onClick={clearForSlides}>Clear list</button>
+          <button className="btn pri" onClick={openScripture}>Open in Scripture</button>
+        </div>
+      </>}
+      {keys.length > 0 && list.length > 0 && <p className="testament">Saved verses</p>}
+      {keys.length ? <>
+        {keys.map((k) => { const m = s.saved[k]; const { b, c, v } = parseKey(k); return (
+          <div className="item" key={k}>
+            <div className="r"><b>{m.ref}</b><span>
+              <button className="lnk" onClick={() => go(b, c, v)}>Read</button>
+              <button className="lnk" aria-label={`Remove ${m.ref} from Saved`} onClick={() => update((p) => { const saved = { ...p.saved }; delete saved[k]; return { ...p, saved }; })}>Remove</button>
+            </span></div>
+            <p>{m.text}</p>
+          </div>); })}
+        <div className="btns"><button className="btn" onClick={() => addToSlides(passesOf(keys))}><Icon n="slides" />Add saved verses to slides</button></div>
+      </> : !list.length && <div className="none">No saved verses yet.<br />Tap a verse, then choose Save.</div>}
     </Panel>
   );
 }
