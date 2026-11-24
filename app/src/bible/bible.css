@@ -189,3 +189,10 @@ textarea { width: 100%; min-height: 110px; font: 15px/1.5 var(--sans); color: va
 .ib.sm:disabled { opacity: .3; cursor: default; }
 .fs-foot { position: sticky; bottom: -20px; display: flex; gap: 8px; justify-content: flex-end; background: var(--surface); padding: 14px 0 6px; margin-top: 4px; border-top: 1px solid var(--line); }
 .none .inl svg { width: 16px; height: 16px; vertical-align: -3px; }
+
+/* Settings: Backup (sign in to keep highlights, saved verses and notes on your account; sync.ts) */
+.row.backup { align-items: flex-start; }
+.backup-form { display: grid; gap: 8px; width: 100%; }
+.backup-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: inherit; font-size: 15px; }
+.backup-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

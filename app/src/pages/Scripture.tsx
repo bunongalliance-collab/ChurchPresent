@@ -98,7 +98,7 @@ interface Look {
   align: "left" | "center" | "right" | "justify"; // text alignment on every slide
 }
 interface StudyData extends Look { slides: StudySlide[] }
-interface SavedStudy { id: string; title: string; reference: string; data: StudyData }
+interface SavedStudy { id: string; title: string; reference: string; data: StudyData; owner?: string; private?: boolean }   // private: Only me (supabase/plans-only-me.sql)
 
 const DEFAULT_LOOK: Look = {
   font: "Arial", perSlide: 4, aspect: "16:9", bg: "#213648", fg: "#f5f2ea", verseNumbers: true, showLabels: false, verseNewLines: false,
@@ -442,14 +442,22 @@ export default function Scripture() {
   );
 
   // ---------- Account and saved studies ----------
+  // Only me / Share with the team for the open study (only the person who made it can change this)
+  const openSaved = saved.find((x) => x.id === currentId) ?? null;
+  async function setStudyPrivate(on: boolean) {
+    if (!supabase || !openSaved) return;
+    const { error: err } = await supabase.from("scripture_studies").update({ private: on }).eq("id", openSaved.id);
+    if (err) { say(/private/.test(err.message) && /column/i.test(err.message) ? "Only me isn't switched on yet. Ask the person who looks after the app." : "That didn't work. Check the connection and try again.", true); return; }
+    setSaved((cur) => cur.map((x) => (x.id === openSaved.id ? { ...x, private: on } : x)));
+    say(on ? `"${openSaved.title}" is now only for you. Your team can't see it until you share it.` : `"${openSaved.title}" is shared with your team.`);
+  }
   async function loadSaved() {
     if (!supabase) return;
-    const { data, error: err } = await supabase
-      .from("scripture_studies")
-      .select("id, study_title, reference, data")
-      .order("updated_at", { ascending: false });
-    if (err) { say("Could not load saved studies: " + err.message, true); return; }
-    setSaved((data || []).map((r) => ({ id: r.id, title: r.study_title, reference: r.reference, data: r.data as StudyData })));
+    // "private" exists once plans-only-me.sql is run; before that the list loads without it
+    let res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id, private").order("updated_at", { ascending: false });
+    if (res.error && /private/.test(res.error.message)) res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id").order("updated_at", { ascending: false }) as typeof res;
+    if (res.error) { say("Could not load saved studies: " + res.error.message, true); return; }
+    setSaved((res.data || []).map((r) => ({ id: r.id, title: r.study_title, reference: r.reference, data: r.data as StudyData, owner: r.owner_id ?? "", private: !!(r as { private?: boolean }).private })));
   }
 
   useEffect(() => {
@@ -846,15 +854,21 @@ export default function Scripture() {
                 <>
                   {studyFavs.length > 0 && <optgroup label="Favourites">{studyFavs.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
                   {studyRecent.length > 0 && <optgroup label="Recently used">{studyRecent.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
-                  <optgroup label="All studies">{saved.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>
+                  <optgroup label="All studies">{saved.map((st) => <option key={st.id} value={st.id}>{st.title}{st.private ? " · Only me" : ""}</option>)}</optgroup>
                 </>
               )}
             </select>
+            {openSaved?.private && <span className="sc-onlyme" title="Only you can see this study">Only me</span>}
             <button className="secondary" onClick={newStudy}>New</button>
             <details className="sc-more">
               <summary>More</summary>
               <div className="sc-menu">
                 <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
+                {openSaved && user && openSaved.owner === user.id && (
+                  <button className="secondary" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); void setStudyPrivate(!openSaved.private); }}>
+                    {openSaved.private ? "Share with the team" : "Make it only me"}
+                  </button>
+                )}
                 <button className="secondary danger" onClick={deleteStudy} disabled={!currentId}>Delete</button>
               </div>
             </details>

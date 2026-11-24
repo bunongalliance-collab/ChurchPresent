@@ -1,6 +1,9 @@
 // Bunong Bible reader (/nau-brah-ndu-ngoi/). Design approved from the sample in bible-pwa/sample/index.html.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { addForSlides, readForSlides, scriptureLink, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
+import { useReaderSync, type SyncState } from "./sync";
+import { supabase } from "../lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
 
 // ---------- Stored on this device ----------
@@ -79,6 +82,8 @@ export default function Bible() {
   const toastTimer = useRef(0);
 
   const update = useCallback((fn: (p: State) => State) => setS((p) => fn(p)), []);
+  // Highlights, saved verses and notes are also kept on the person's account when they sign in (./sync.ts)
+  const sync = useReaderSync(s, update);
 
   // Passages waiting for the Scripture page. Kept in sync when the Scripture page adds them (and clears the list)
   const [forSlides, setForSlides] = useState<Pass[]>(() => {
@@ -309,7 +314,7 @@ export default function Bible() {
         </div>
       )}
 
-      {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
+      {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} sync={sync} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
         passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} moveForSlides={moveForSlides} />}
       {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(forSlides); }}>Open Scripture</button>}</div>}
     </>
@@ -360,6 +365,7 @@ interface PanelProps {
   refOf: (k: string) => string; textOf: (k: string) => string;
   passLabel: (p: Pass) => string; passesOf: (keys: string[]) => Pass[]; addToSlides: (ps: Pass[]) => void;
   forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void; moveForSlides: (i: number, d: -1 | 1) => void;
+  sync: { session: Session | null; state: SyncState; savedAt: string | null };
 }
 function Panels(props: PanelProps) {
   const { p, setPanel } = props;
@@ -594,7 +600,54 @@ function NotesPanel({ p, s, update, go, setPanel, close, say, refOf, textOf }: P
   );
 }
 
-function SettingsPanel({ s, update, close }: PanelProps & { close: () => void }) {
+// Settings: keep highlights, saved verses and notes on your account (sign in), so they survive a new phone
+function Backup({ sync }: { sync: PanelProps["sync"] }) {
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const signIn = async (create: boolean) => {
+    if (!supabase) return;
+    if (!email.trim() || pass.length < 6) { setMsg("Enter your email and a password of at least 6 characters."); return; }
+    const creds = { email: email.trim(), password: pass };
+    const { data, error } = create ? await supabase.auth.signUp(creds) : await supabase.auth.signInWithPassword(creds);
+    if (error) { setMsg(/invalid login/i.test(error.message) ? "That email and password don’t match. Check them and try again." : "Signing in didn’t work. Check the connection and try again."); return; }
+    if (create && !data.session) { setMsg("Account made. Check your email to confirm it, then sign in here."); return; }
+    setPass(""); setMsg(null); setOpen(false);
+  };
+  if (!supabase) return null;
+  const when = sync.savedAt ? new Date(sync.savedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  if (sync.session) {
+    const line = sync.state === "syncing" ? "Saving to your account…"
+      : sync.state === "offline" ? "Offline. Changes stay on this device and are saved when you’re back online."
+      : sync.state === "missing" ? "Backup isn’t switched on yet. Ask the person who looks after the app."
+      : sync.state === "error" ? "Couldn’t save to your account just now. It will try again."
+      : `Saved to your account${when ? ` · ${when}` : ""}. Sign in on another phone to see them there.`;
+    return (
+      <div className="row"><div><div className="k">Backup</div><div className="d">{sync.session.user.email}<br />{line}</div></div>
+        <button className="btn" onClick={() => void supabase?.auth.signOut()}>Sign out</button></div>
+    );
+  }
+  return (
+    <div className="row backup"><div><div className="k">Backup</div><div className="d">Highlights, saved verses and notes are kept on this phone. Sign in to keep a copy on your account too.</div></div>
+      {!open ? <button className="btn" onClick={() => setOpen(true)}>Sign in</button> : (
+        <form className="backup-form" onSubmit={(e) => { e.preventDefault(); void signIn(false); }}>
+          <label className="sr" htmlFor="bk-email">Email</label>
+          <input id="bk-email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          <label className="sr" htmlFor="bk-pass">Password</label>
+          <input id="bk-pass" type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" />
+          <div className="backup-acts">
+            <button type="submit" className="btn pri">Sign in</button>
+            <button type="button" className="btn" onClick={() => void signIn(true)}>Create account</button>
+          </div>
+          {msg && <p className="hint" role="alert">{msg}</p>}
+        </form>
+      )}
+    </div>
+  );
+}
+
+function SettingsPanel({ s, update, close, sync }: PanelProps & { close: () => void }) {
   const dark = s.theme ? s.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   const [saved, setSaved] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -622,7 +675,8 @@ function SettingsPanel({ s, update, close }: PanelProps & { close: () => void })
           : <button className="btn pri" onClick={download}>Save all</button>)}
       </div>
       {busy && <progress className="prog" max={66} value={saved ?? 0} aria-label="Books saved" />}
-      <p className="hint">Books you open are saved automatically. Bunong Bible (Vietnam dialect).</p>
+      <Backup sync={sync} />
+      <p className="hint">Books you open are saved automatically. Nau Brah Ndu Ngơi: the Bunong Bible (Vietnam dialect).</p>
     </Panel>
   );
 }

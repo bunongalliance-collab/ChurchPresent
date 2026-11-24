@@ -354,6 +354,15 @@ export default function LyricsV2() {
     say("Update not saved. The song is back to its saved version.");
   }
 
+  // Copy the open song (from the hymn book or another church) into your church's songs. Saving a song you can't
+  // change already makes a copy; this makes it a clear choice.
+  const openSong = songs.find((x) => x.id === selectedId);
+  const copyable = !!supabase && !!user && !!openSong && !canEdit(openSong) && !!saveChurchId();
+  async function copyToMyChurch() {
+    const copy = await saveCurrent();
+    if (copy) say(`Copied to ${church.current?.name ?? "your church"}. Your team can edit this copy; the original stays as it is.`);
+  }
+
   async function onSave() {
     if (await saveCurrent()) say(supabase ? "Song saved." : "Song saved in this browser.");
     else if (!lyrics.trim()) say("Paste lyrics before saving.", true);
@@ -484,7 +493,12 @@ export default function LyricsV2() {
     window.open(`${import.meta.env.BASE_URL}#projector`, "_blank");
   }
 
-  const sorted = sortedSongs(songs);
+  // Your church's songs first, then the shared hymn book and other churches' songs (each part by number)
+  const sorted = (() => {
+    const all = sortedSongs(songs);
+    const cid = church.current?.id;
+    return cid ? [...all.filter((x) => x.church === cid), ...all.filter((x) => x.church !== cid)] : all;
+  })();
   // Category and language filters for the picker ("" = all, "none" = not set)
   const [filterCat, setFilterCat] = useState("");
   const [filterLang, setFilterLang] = useState("");
@@ -663,6 +677,13 @@ export default function LyricsV2() {
                   {SONG_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
                 </select>
                 {selectedInPresentation && <span className="lv2-chip">In presentation</span>}
+                {/* A song from the hymn book or another church: copy it to your church to change it there */}
+                {copyable && (
+                  <button type="button" className="secondary small lv2-copy" onClick={() => void copyToMyChurch()}
+                    title="Saves a copy in your church's songs, which your team can edit. The original stays as it is.">
+                    Copy to my church
+                  </button>
+                )}
 
                 {/* Slide Appearance: a button here; the controls open over the lyrics box */}
                 <details className="lv2-appearance cmp lf-ap">

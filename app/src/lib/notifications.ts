@@ -14,6 +14,7 @@ export interface Note {
     accepted?: boolean;                                                      // ownership_answer
     service_date?: string;                                                   // programs: the Sunday
     item_kind?: "song" | "reading"; item_title?: string; change?: "update" | "delete"; program_id?: string;
+    presentation_id?: string; presentation_title?: string;
   };
 }
 

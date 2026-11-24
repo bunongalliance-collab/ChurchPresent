@@ -44,7 +44,9 @@ function Message({ n }: { n: Note }) {
     case "ownership_answer": return n.data.accepted
       ? <><b>{who(n.actor_email)}</b> accepted ownership of {church}. They own it now.</>
       : <><b>{who(n.actor_email)}</b> declined ownership of {church}. You still own it.</>;
-    case "library_changed": return <>{n.data.item_kind === "reading" ? "The reading" : "The song"} <b>“{n.data.item_title || "Untitled"}”</b> was {n.data.change === "delete" ? "deleted" : "edited"} by <b>{who(n.actor_email)}</b>. It’s in the program for <b>{sunday(n.data.service_date)}</b>.</>;
+    case "library_changed": return <>{n.data.item_kind === "reading" ? "The reading" : "The song"} <b>“{n.data.item_title || "Untitled"}”</b> was {n.data.change === "delete" ? "deleted" : "edited"} by <b>{who(n.actor_email)}</b>. {n.data.presentation_id
+      ? <>It’s in the presentation <b>“{n.data.presentation_title || "Untitled"}”</b>, which still has the old {n.data.item_kind === "reading" ? "text" : "words"} until you update it.</>
+      : <>It’s in the program for <b>{sunday(n.data.service_date)}</b>.</>}</>;
   }
 }
 
@@ -128,7 +130,10 @@ export default function NotificationBell() {
                     )}
                     {n.kind === "church_waiting" && <a className="nb-link" href="#team" onClick={() => setOpen(false)}>Review on the Team page</a>}
                     {n.kind === "republish" && n.data.resolved === "republished" && <p className="nb-done">✓ Published again.</p>}
-                    {(n.kind === "program_new" || n.kind === "published" || n.kind === "library_changed" || (n.kind === "republish" && !n.data.resolved)) && (
+                    {n.kind === "library_changed" && n.data.presentation_id && (
+                      <a className="nb-link" href={`#builder:${n.data.presentation_id}`} onClick={() => { setOpen(false); if (!n.read_at) void markRead([n.id]); }}>Open the presentation</a>
+                    )}
+                    {(n.kind === "program_new" || n.kind === "published" || (n.kind === "library_changed" && !n.data.presentation_id) || (n.kind === "republish" && !n.data.resolved)) && (
                       <a className="nb-link" href="#program" onClick={() => { setOpen(false); if (!n.read_at) void markRead([n.id]); }}>{n.kind === "republish" ? "Open the program to publish" : n.kind === "library_changed" ? "Check the program" : "Open the program"}</a>
                     )}
                   </div>
