@@ -9,6 +9,7 @@ import { onAuthChange, supabase } from "../lib/supabase";
 import SlideshowStrip from "../components/SlideshowStrip";
 import { recordAdded } from "../lib/slideshowQueue";
 import NavBar from "../components/NavBar";
+import VisSwitch from "../components/VisSwitch";
 import { buildDeck, COLOR_PRESETS, flowLines, layoutPassage, passageAutoSize, SCRIPTURE_BOX_H, SCRIPTURE_BOX_W, browserMeasure, FONTS, MARGIN_IN, RECOMMENDED_PT, SCRIPTURE_PAD_BOTTOM, SLIDE_PAD, SLIDE_H_IN, SLIDE_W_IN, USABLE_H } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck, type SlideFmt } from "./Projector";
 import { breakRow } from "../lib/pptx";
@@ -858,23 +859,22 @@ export default function Scripture() {
                 </>
               )}
             </select>
-            {openSaved?.private && <span className="sc-onlyme" title="Only you can see this study">Only me</span>}
+            {openSaved && (
+              <VisSwitch isPrivate={!!openSaved.private} canChange={!!user && openSaved.owner === user.id}
+                what={openSaved.title || "this study"} onChange={(on) => void setStudyPrivate(on)} />
+            )}
             <button className="secondary" onClick={newStudy}>New</button>
             <details className="sc-more">
               <summary>More</summary>
               <div className="sc-menu">
                 <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
-                {openSaved && user && openSaved.owner === user.id && (
-                  <button className="secondary" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); void setStudyPrivate(!openSaved.private); }}>
-                    {openSaved.private ? "Share with the team" : "Make it only me"}
-                  </button>
-                )}
                 <button className="secondary danger" onClick={deleteStudy} disabled={!currentId}>Delete</button>
               </div>
             </details>
             <button className="primary" onClick={present} disabled={!output.slides.length}>Present</button>
             <button className="secondary" onClick={downloadPptx} disabled={!output.slides.length}>Download .pptx</button>
           </div>
+          {openSaved?.private && <p className="vis-note sc-vis-note">Only you can see this study. Your team sees it once you switch to Team.</p>}
         </header>
 
         {supabase && !user && (

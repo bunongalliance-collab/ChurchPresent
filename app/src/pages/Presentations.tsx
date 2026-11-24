@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { saveChurchId } from "../lib/church";
 import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
+import VisSwitch from "../components/VisSwitch";
 import { toast } from "../lib/toast";
 import { flatten, type Item, type PresentationData, type Settings } from "./Builder";
 import { PROJECTOR_KEY } from "./Projector";
@@ -198,8 +199,14 @@ export default function Presentations() {
           const c = countsOf(r.data);
           const busy = busyId === r.id;
           return (
-            <div className="pl-row" role="row" key={r.id}>
-              <span role="cell" className="pl-title" data-label="Title"><strong>{r.title || "(untitled)"}</strong>{r.private && <span className="pl-onlyme" title="Only you can see this presentation">Only me</span>}</span>
+            <div className={`pl-row${r.private ? " is-private" : ""}`} role="row" key={r.id}>
+              <span role="cell" className="pl-title" data-label="Title">
+                <strong>{r.title || "(untitled)"}</strong>
+                <span className="pl-vis">
+                  <VisSwitch isPrivate={r.private} canChange={r.owner === userId} busy={busy} what={r.title || "this presentation"} onChange={(on) => void setPrivate(r, on)} />
+                </span>
+                {r.private && <span className="vis-note">Only you can see this.</span>}
+              </span>
               <span role="cell" data-label="Service date">
                 <input type="date" value={serviceDateOf(r)} onChange={(e) => setServiceDate(r, e.target.value)} aria-label="Service date" disabled={!!busyId} />
               </span>
@@ -216,7 +223,6 @@ export default function Presentations() {
                   <div className="pl-menu">
                     <button onClick={(e) => { closeMenu(e); download(r); }} disabled={busy || c.total === 0}>Download .pptx</button>
                     <button onClick={(e) => { closeMenu(e); startDuplicate(r); }} disabled={busy}>Duplicate</button>
-                    {r.owner === userId && <button onClick={(e) => { closeMenu(e); void setPrivate(r, !r.private); }} disabled={busy}>{r.private ? "Share with the team" : "Make it only me"}</button>}
                     <button className="danger" onClick={(e) => { closeMenu(e); remove(r); }} disabled={busy}>Delete</button>
                   </div>
                 </details>

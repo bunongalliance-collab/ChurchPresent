@@ -1,0 +1,102 @@
+<title>Only Me Indicator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Sample: who can see a presentation or Scripture study, always visible. A two-part switch (Team | Only me) next to
+   the title for the person who made it; a plain label for everyone else. App tokens (index.css). */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --text:#243028; --muted:#3F4C44; --ctrl:#9AAA9F;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A;
+  --private:#6B3E8A; --private-soft:#EDE3F3; --on-private:#4A2463; --on-private-solid:#FFFFFF;
+  --ui:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8;
+  --private:#C9A6E0; --private-soft:#33263D; --on-private:#E6D3F2; --on-private-solid:#22142C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8;
+  --private:#C9A6E0; --private-soft:#33263D; --on-private:#E6D3F2; --on-private-solid:#22142C; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px}
+h1{margin:0 0 4px;font-size:1.5rem}
+.lede{margin:0 0 20px;color:var(--muted)}
+h2{margin:26px 0 10px;font-size:1.05rem}
+
+/* The switch: who can see this */
+.vis{display:inline-flex;align-items:center;background:var(--sunken);border-radius:999px;padding:3px;gap:2px}
+.vis button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:.88rem;font-weight:600;color:var(--muted);min-height:32px}
+.vis button[aria-checked="true"].team{background:var(--panel);color:var(--accent);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+.vis button[aria-checked="true"].me{background:var(--private);color:var(--on-private-solid)}
+/* For everyone else: a plain label (they only ever see team items) */
+.label{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.label.me{color:var(--on-private);background:var(--private-soft);border-radius:999px;padding:3px 10px}
+
+/* A private item is marked along its edge too, so it can't be missed in a list */
+.card{background:var(--panel);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-left:4px solid transparent}
+.card.private{border-left-color:var(--private);background:linear-gradient(90deg,var(--private-soft),var(--panel) 40%)}
+.card + .card{margin-top:8px}
+.card .t{flex:1 1 240px;min-width:0}
+.card .t b{display:block}
+.card .t small{color:var(--muted)}
+.btn{border:1px solid var(--ctrl);background:var(--bg);border-radius:8px;padding:6px 12px;font-weight:600;font-size:.88rem}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* Scripture page header */
+.head{background:var(--panel);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.head select{min-height:36px;border:1px solid var(--ctrl);border-radius:8px;background:var(--bg);padding:4px 10px;min-width:220px}
+.note{margin:6px 0 0;font-size:.88rem;color:var(--on-private)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:9;max-width:calc(100vw - 32px)}
+.foot{color:var(--muted);font-size:.85rem;margin-top:24px}
+</style>
+
+<div class="wrap">
+  <h1>Who can see it</h1>
+  <p class="lede">Every presentation and Scripture study shows who can see it, right beside its title. The person who made it switches between <b>Team</b> and <b>Only me</b> in one tap.</p>
+
+  <h2>Presentations page (you made these)</h2>
+  <div id="list"></div>
+
+  <h2>Presentations page (as a team member)</h2>
+  <div class="card"><div class="t"><b>Sunday Worship November 3rd</b><small>Made by Pastor (example)</small></div>
+    <span class="label"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a3 3 0 1 0 0-6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Team</span>
+    <button class="btn pri">Open in Builder</button></div>
+  <p class="foot" style="margin-top:8px">Team members never see the other person’s Only me items, so for them every item simply says Team.</p>
+
+  <h2>Scripture page header (the open study)</h2>
+  <div class="head">
+    <select aria-label="Open a saved study"><option>Sermon: Isaiah 9 · Only me</option><option>Psalm 23</option></select>
+    <div class="vis" role="radiogroup" aria-label="Who can see this study" id="studyVis"></div>
+    <button class="btn">New</button><button class="btn pri">Present</button>
+  </div>
+  <p class="note" id="studyNote"></p>
+  <p class="foot">Sample only. Titles and names are examples. Nothing is saved.</p>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const TEAM='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a3 3 0 1 0 0-6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>';
+const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+let items=[{t:"Sermon: Isaiah 9",p:true,d:"Changed 1 h ago"},{t:"Sunday Worship November 29",p:false,d:"Changed yesterday"},{t:"Christmas Eve",p:false,d:"Changed 3 days ago"}];
+let study=true;
+function toast(m){$("toast").textContent=m;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").hidden=true,2600)}
+const sw=(on,label,i)=>`<div class="vis" role="radiogroup" aria-label="${label}">
+  <button class="team" role="radio" aria-checked="${!on}" data-i="${i}" data-v="0">${TEAM}Team</button>
+  <button class="me" role="radio" aria-checked="${on}" data-i="${i}" data-v="1">${LOCK}Only me</button></div>`;
+function draw(){
+  $("list").innerHTML=items.map((x,i)=>`<div class="card${x.p?" private":""}"><div class="t"><b>${x.t}</b><small>${x.d}${x.p?" · Only you can see this":""}</small></div>${sw(x.p,"Who can see "+x.t,i)}<button class="btn pri">Open in Builder</button></div>`).join("");
+  $("studyVis").innerHTML=sw(study,"Who can see this study","s").replace(/^<div[^>]*>|<\/div>$/g,"");
+  $("studyNote").textContent=study?"Only you can see this study. Your team sees it once you switch to Team.":"";
+}
+document.addEventListener("click",e=>{const b=e.target.closest(".vis button");if(!b)return;const on=b.dataset.v==="1";
+  if(b.dataset.i==="s"){if(study===on)return;study=on;toast(on?"This study is now only for you.":"Shared with your team.")}
+  else{const x=items[+b.dataset.i];if(x.p===on)return;x.p=on;toast(on?`"${x.t}" is now only for you.`:`"${x.t}" is shared with your team.`)}
+  draw()});
+draw();
+</script>

@@ -73,7 +73,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - Public read on songs, readings and saved people. Writes are limited to the signed-in owner.
 
 ### Only me
-- Presentations and Scripture studies can be private to the person who made them (`private` column, `supabase/plans-only-me.sql`): Only me / Share with the team in the Presentations page's More menu and the Scripture page's More menu. Only the maker can make something private. Programs are always the team's.
+- Presentations and Scripture studies can be private to the person who made them (`private` column, `supabase/plans-only-me.sql`): A Team | Only me switch (`components/VisSwitch.tsx`) sits under each title on the Presentations page and beside the open study on the Scripture page; private presentations get a purple edge (colour tokens `--private*`). Only the maker can make something private. Programs are always the team's.
 
 ### Church owner
 - Each church has an owner (`churches.owner_id`, the person who started it; `supabase/church-owner.sql`). The database stops anyone else removing the owner or changing their role, keeps the owner an admin, and lets only the owner hand the church over, in two steps (`supabase/church-owner-offer.sql`): the owner offers it to an admin (`offer_ownership`, cancellable), who accepts or declines (`respond_ownership`) from the Team page or the bell. The one-step `transfer_ownership` is switched off. Admins may change only the church's name directly.
