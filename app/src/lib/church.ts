@@ -113,6 +113,9 @@ export const invite = async (cid: string, email: string, role: Role) => ({ error
 export const cancelInvite = async (cid: string, email: string) => ({ error: err((await supabase!.from("church_invites").delete().eq("church_id", cid).eq("email", email)).error) });
 export const renameChurch = async (cid: string, name: string) => ({ error: err((await supabase!.from("churches").update({ name: name.trim() }).eq("id", cid)).error) });
 export const renewCode = (cid: string) => call("renew_join_code", { cid });
+// The church's owner (supabase/church-owner.sql): other admins can't remove them; only they hand the church over
+export const churchOwner = async (cid: string): Promise<string | null> => { const { data } = await supabase!.rpc("church_owner", { cid }); return (data as string | null) ?? null; };
+export const transferOwnership = (cid: string, uid: string) => call("transfer_ownership", { cid, new_owner: uid });
 export const requestJoin = (code: string) => call("request_join", { code });
 export const cancelRequest = async (cid: string) => {
   const uid = state.session?.user.id;
