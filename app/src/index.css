@@ -8,8 +8,8 @@
   /* Source colours: blue, violet and orange are clearly different from each other and from the green accent,
      and still tell apart for most colour-blind viewers */
   --recent-song: #1D5FA8; --recent-reading: #6A3FA0; --recent-scripture: #B65A00; color-scheme: light;
-  /* "Only me" (private presentations and studies): purple, so it can't be mistaken for the green of buttons and "saved" */
-  --private: #6B3E8A; --private-soft: #EDE3F3; --on-private: #4A2463; --on-private-solid: #FFFFFF;
+  /* "Only me" (private presentations and studies): orange, so it can't be mistaken for the green of buttons and "saved" */
+  --private: #C2410C; --private-soft: #FDE7D6; --on-private: #8A2E07; --on-private-solid: #FFFFFF;
 }
 :root[data-theme="dark"] {
   --bg: #14181B; --panel: #1B2125; --sunken: #242B30; --text: #E5EAEC; --muted: #9BA7AD;
@@ -18,7 +18,7 @@
   --info: #8FB3D1; --danger: #E8836F; --danger-rgb: 232 131 111; --hint: #E8BF5A; --focus: #E8BF5A;
   --gold: #E8BF5A;
   --recent-song: #7DB4EA; --recent-reading: #C3A6F0; --recent-scripture: #F5A640; color-scheme: dark;
-  --private: #C9A6E0; --private-soft: #33263D; --on-private: #E6D3F2; --on-private-solid: #22142C;
+  --private: #F59E5B; --private-soft: #3A2516; --on-private: #FBD3B0; --on-private-solid: #2A1406;
 }
 /* The program's brochure pages are paper: they keep the light tokens in dark mode too */
 :root[data-theme="dark"] .pg .pg-page {
@@ -3041,9 +3041,9 @@ html body .sc-app .tn-account { display: block !important; }
 .tm-offer > span { flex: 1 1 220px; }
 .tm-ownoffer p { margin: 0; }
 /* Who can see it: Team | Only me beside a presentation's or study's title (components/VisSwitch.tsx) */
-.vis { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--sunken); vertical-align: middle; flex: none; }
-.vis button:not(#vis-x) { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 11px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 0.85rem/1 var(--font-ui); box-shadow: none !important; cursor: pointer; white-space: nowrap; }
-.vis button[aria-checked="true"].team:not(#vis-x) { background: var(--panel); color: var(--accent); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12) !important; cursor: default; }
+.vis { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--private-soft); vertical-align: middle; flex: none; }
+.vis button:not(#vis-x) { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 11px; border: 0; border-radius: 999px; background: transparent; color: var(--on-private); font: 600 0.85rem/1 var(--font-ui); box-shadow: none !important; cursor: pointer; white-space: nowrap; }
+.vis button[aria-checked="true"].team:not(#vis-x) { background: var(--panel); color: var(--private); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12) !important; cursor: default; }
 .vis button[aria-checked="true"].me:not(#vis-x) { background: var(--private); color: var(--on-private-solid); cursor: default; }
 .vis button:disabled:not(#vis-x) { opacity: 0.6; }
 .vis svg, .vis-label svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -3053,3 +3053,4 @@ html body .sc-app .tn-account { display: block !important; }
 .pl-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .pl-vis { display: block; }
 .pl-row.is-private { box-shadow: inset 4px 0 0 var(--private); background: linear-gradient(90deg, var(--private-soft), transparent 45%); }
+.sc-head-vis { margin-left: auto; }

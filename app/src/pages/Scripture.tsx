@@ -535,6 +535,15 @@ export default function Scripture() {
     try { return JSON.parse(localStorage.getItem(SC_RECENT_KEY) || "[]"); } catch { return []; }
   });
   const [studyQuery, setStudyQuery] = useState("");
+  const moreRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const close = (e: PointerEvent) => {
+      const d = moreRef.current;
+      if (d?.open && !d.contains(e.target as Node)) d.open = false;
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, []);
   useEffect(() => { try { localStorage.setItem(SC_FAV_KEY, JSON.stringify(scFavorites)); } catch { /* blocked */ } }, [scFavorites]);
   useEffect(() => { try { localStorage.setItem(SC_RECENT_KEY, JSON.stringify(scRecent)); } catch { /* blocked */ } }, [scRecent]);
 
@@ -859,12 +868,8 @@ export default function Scripture() {
                 </>
               )}
             </select>
-            {openSaved && (
-              <VisSwitch isPrivate={!!openSaved.private} canChange={!!user && openSaved.owner === user.id}
-                what={openSaved.title || "this study"} onChange={(on) => void setStudyPrivate(on)} />
-            )}
             <button className="secondary" onClick={newStudy}>New</button>
-            <details className="sc-more">
+            <details className="sc-more" ref={moreRef}>
               <summary>More</summary>
               <div className="sc-menu">
                 <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
@@ -895,7 +900,14 @@ export default function Scripture() {
         <div className="sc-body">
           {/* Edit the selected slide */}
           <section className="sc-col sc-edit" aria-label="Edit slide">
-            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
+            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span>
+              {openSaved && (
+                <span className="sc-head-vis">
+                  <VisSwitch isPrivate={!!openSaved.private} canChange={!!user && openSaved.owner === user.id}
+                    what={openSaved.title || "this study"} onChange={(on) => void setStudyPrivate(on)} />
+                </span>
+              )}
+            </div>
             {!selected && <p className="sc-empty">Pick a slide on the right to edit it, or add a new one.</p>}
             {selected?.kind === "passage" && (
               <>
