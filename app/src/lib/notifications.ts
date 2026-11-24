@@ -5,12 +5,13 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "./supabase";
 import { useChurch } from "./church";
 
-export type Kind = "join_request" | "added" | "role" | "removed" | "church_waiting" | "program_new" | "published" | "republish" | "library_changed";
+export type Kind = "join_request" | "added" | "role" | "removed" | "church_waiting" | "program_new" | "published" | "republish" | "library_changed" | "ownership_offer" | "ownership_answer";
 export interface Note {
   id: string; kind: Kind; church_id: string | null; actor_email: string; created_at: string; read_at: string | null;
   data: {
     church_name?: string; role?: string; request_user_id?: string; email?: string;
-    resolved?: "accepted" | "declined" | "withdrawn" | "republished"; resolved_by?: string;
+    resolved?: "accepted" | "declined" | "withdrawn" | "republished" | "cancelled" | "replaced" | "ended"; resolved_by?: string;
+    accepted?: boolean;                                                      // ownership_answer
     service_date?: string;                                                   // programs: the Sunday
     item_kind?: "song" | "reading"; item_title?: string; change?: "update" | "delete"; program_id?: string;
   };

@@ -114,8 +114,21 @@ export const cancelInvite = async (cid: string, email: string) => ({ error: err(
 export const renameChurch = async (cid: string, name: string) => ({ error: err((await supabase!.from("churches").update({ name: name.trim() }).eq("id", cid)).error) });
 export const renewCode = (cid: string) => call("renew_join_code", { cid });
 // The church's owner (supabase/church-owner.sql): other admins can't remove them; only they hand the church over
-export const churchOwner = async (cid: string): Promise<string | null> => { const { data } = await supabase!.rpc("church_owner", { cid }); return (data as string | null) ?? null; };
-export const transferOwnership = (cid: string, uid: string) => call("transfer_ownership", { cid, new_owner: uid });
+export interface Ownership { owner: string | null; pending: string | null; offeredAt: string | null }
+export async function churchOwnership(cid: string): Promise<Ownership> {
+  const r = await supabase!.rpc("church_ownership", { cid });
+  if (!r.error) {
+    const row = ((r.data ?? []) as { owner_id: string | null; pending_owner_id: string | null; owner_offered_at: string | null }[])[0];
+    return { owner: row?.owner_id ?? null, pending: row?.pending_owner_id ?? null, offeredAt: row?.owner_offered_at ?? null };
+  }
+  // church-owner-offer.sql not run yet: the owner only
+  const { data } = await supabase!.rpc("church_owner", { cid });
+  return { owner: (data as string | null) ?? null, pending: null, offeredAt: null };
+}
+// Handing over a church takes two steps: the owner offers it to an admin, who accepts or declines (church-owner-offer.sql)
+export const offerOwnership = (cid: string, uid: string) => call("offer_ownership", { cid, new_owner: uid });
+export const cancelOwnershipOffer = (cid: string) => call("cancel_ownership_offer", { cid });
+export const respondOwnership = (cid: string, accept: boolean) => call("respond_ownership", { cid, accept });
 export const requestJoin = (code: string) => call("request_join", { code });
 export const cancelRequest = async (cid: string) => {
   const uid = state.session?.user.id;

@@ -3033,3 +3033,7 @@ html body .sc-app .tn-account { display: block !important; }
 /* Team page: the church owner (supabase/church-owner.sql) */
 .tm-owner { display: inline-block; margin-left: 8px; padding: 0 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; vertical-align: 2px; }
 .tm-p .tm-handover { grid-column: 2 / -1; justify-self: start; }
+/* Team page: a waiting ownership offer */
+.tm-offer { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--accent-soft); color: var(--on-soft); border-radius: 8px; padding: 8px 10px; font-size: 0.9rem; }
+.tm-offer > span { flex: 1 1 220px; }
+.tm-ownoffer p { margin: 0; }

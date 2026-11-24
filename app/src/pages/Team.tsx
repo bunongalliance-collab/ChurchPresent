@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import {
   useChurch, reloadChurches, switchChurch, loadTeam, loadWaitingChurches,
-  acceptRequest, declineRequest, setRole, removeMember, invite, cancelInvite, renameChurch, renewCode, churchOwner, transferOwnership,
+  acceptRequest, declineRequest, setRole, removeMember, invite, cancelInvite, renameChurch, renewCode, churchOwnership, offerOwnership, cancelOwnershipOffer, respondOwnership, type Ownership,
   requestJoin, cancelRequest, startChurch, acceptChurch, declineChurch,
   type Member, type JoinRequest, type Invite, type WaitingChurch, type Role,
 } from "../lib/church";
@@ -133,7 +133,8 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [confirm, setConfirm] = useState<string | null>(null);
-  const [owner, setOwner] = useState<string | null>(null);   // the person who owns the church (can't be removed by others)
+  const [own, setOwn] = useState<Ownership>({ owner: null, pending: null, offeredAt: null });   // the owner, and who it's offered to
+  const owner = own.owner;
   const [email, setEmail] = useState("");
   const [newRole, setNewRole] = useState<Role>("editor");
   const [renaming, setRenaming] = useState(false);
@@ -142,7 +143,7 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
   const load = useCallback(async () => {
     const { data, error } = await loadTeam(cid);
     if (error) toast(error, true);
-    setOwner(await churchOwner(cid));
+    setOwn(await churchOwnership(cid));
     setMembers(data.members); setRequests(data.requests); setInvites(data.invites); setLoaded(true);
   }, [cid]);
   useEffect(() => { setLoaded(false); setConfirm(null); void load(); }, [load]);
@@ -158,6 +159,22 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
   return (
     <div className="tm-grid">
       <section className="tm-card" aria-labelledby="tm-team">
+        {own.pending && own.pending === me && (
+          <div className="tm-asks tm-ownoffer" role="status">
+            <h2>{members.find((x) => x.user_id === owner)?.email ?? "The owner"} offered you ownership of {name}</h2>
+            <p>If you accept, you own the church: nobody else can remove you, and you can remove anyone, including the current owner.</p>
+            <div className="tm-req">
+              <button className="small" onClick={async () => {
+                const { error } = await respondOwnership(cid, true);
+                if (error) toast(error, true); else { toast(`You now own ${name}.`); await load(); void reloadChurches(); }
+              }}>Accept ownership</button>
+              <button className="secondary small" onClick={async () => {
+                const { error } = await respondOwnership(cid, false);
+                if (error) toast(error, true); else { toast("Declined. They've been told."); await load(); }
+              }}>Decline</button>
+            </div>
+          </div>
+        )}
         {admin && requests.length > 0 && (
           <div className="tm-asks" aria-labelledby="tm-ask">
             <h2 id="tm-ask">Asking to join <span className="tm-n">{requests.length}</span></h2>
@@ -188,7 +205,8 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
               const isOwner = m.user_id === owner;
               // The owner's role and place are locked for everyone else; nobody changes or removes themselves here
               const lock = !admin || you || isOwner || (m.role === "admin" && admins === 1);
-              const canHandOver = me === owner && !you && m.role === "admin";
+              const canHandOver = me === owner && !you && m.role === "admin" && own.pending !== m.user_id;
+              const offered = own.pending === m.user_id;
               return (
                 <li className={`tm-p${you ? " you" : ""}`} key={m.user_id}>
                   <span className="tm-av" aria-hidden="true">{initials(m.email)}</span>
@@ -207,16 +225,25 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
                     </button>
                   )}
-                  {canHandOver && <button className="secondary small tm-handover" onClick={() => setConfirm(`own:${m.user_id}`)}>Make owner</button>}
+                  {canHandOver && <button className="secondary small tm-handover" onClick={() => setConfirm(`own:${m.user_id}`)}>Offer ownership…</button>}
+                  {offered && (
+                    <div className="tm-offer">
+                      <span>Ownership offered{own.offeredAt ? ` ${when(own.offeredAt)}` : ""}. Waiting for them to accept.</span>
+                      {me === owner && <button className="secondary small" onClick={async () => {
+                        const { error } = await cancelOwnershipOffer(cid);
+                        if (error) toast(error, true); else { toast("Offer cancelled. You still own the church."); await load(); }
+                      }}>Cancel offer</button>}
+                    </div>
+                  )}
                   {confirm === `own:${m.user_id}` && (
                     <div className="tm-confirm tm-confirm-own">
-                      <span>Make {m.email} the owner of {name}? They’ll be the only one who can hand it on, and you’ll stay an admin they can remove.</span>
-                      <button className="secondary small" onClick={() => setConfirm(null)}>Keep ownership</button>
+                      <span>Offer {name} to {m.email}? They’ll be asked to accept. Until they do, you stay the owner and can cancel. Once they accept, they own it and can remove you.</span>
+                      <button className="secondary small" onClick={() => setConfirm(null)}>Not now</button>
                       <button className="tm-danger small" onClick={async () => {
                         setConfirm(null);
-                        const { error } = await transferOwnership(cid, m.user_id);
-                        if (error) toast(error, true); else { toast(`${m.email} now owns ${name}.`); await load(); }
-                      }}>Make owner</button>
+                        const { error } = await offerOwnership(cid, m.user_id);
+                        if (error) toast(error, true); else { toast(`Offered to ${m.email}. They’ve been told and need to accept.`); await load(); }
+                      }}>Offer ownership</button>
                     </div>
                   )}
                   {confirm === m.user_id && (
@@ -284,7 +311,7 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
           <ul><li>Edit the church's songs, readings and programs</li><li>Build Scripture slides and presentations for the team</li></ul></div>
         <div className="tm-r"><span className="tm-tag member">Anyone else</span>
           <ul><li>Read songs, readings and the Bible</li><li>Use the Projector and Present</li><li className="no">Can't change the team's songs or readings</li></ul></div>
-        <p className="hint">The <b>owner</b> is the person who started the church. Other admins can’t remove them or change their role; only the owner can hand the church to another admin (Make owner).</p>
+        <p className="hint">The <b>owner</b> is the person who started the church. Other admins can’t remove them or change their role; only the owner can offer the church to another admin, who must accept before it changes hands.</p>
         <p className="hint">Roles are per church: someone can be an admin here and an editor elsewhere. A church always keeps at least one admin. The Bunong Bible is shared by every church.</p>
         <p className="hint">Songs and readings belong to a church: anyone can read them, and the church's team edits them. The Nau Mpro hymn book is shared. Programs and presentations move to churches next.</p>
       </aside>
