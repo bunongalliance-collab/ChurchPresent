@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { selectAll, supabase } from "../lib/supabase";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import { saveChurchId } from "../lib/church";
@@ -397,6 +397,19 @@ export default function Builder() {
       .limit(8);
     setRecent((data || []).map((r) => ({ id: r.id, title: r.study_title, updated: r.updated_at, data: r.data as Record<string, unknown> })));
   }
+
+  // The Recent list follows changes made elsewhere (a study saved, made Only me or shared again by its maker):
+  // it reloads when you come back to this page and every minute while it's open
+  const loadRecentRef = useRef(loadRecent);
+  loadRecentRef.current = loadRecent;
+  useEffect(() => {
+    if (!userId) return;
+    const refresh = () => { if (document.visibilityState === "visible") void loadRecentRef.current(); };
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    const t = window.setInterval(refresh, 60000);
+    return () => { document.removeEventListener("visibilitychange", refresh); window.removeEventListener("focus", refresh); window.clearInterval(t); };
+  }, [userId]);
 
   // Add a saved scripture study to the sequence, with its slides built the same way as on the scripture page
   function addScripture(study: RecentStudy, quiet = false): boolean {
