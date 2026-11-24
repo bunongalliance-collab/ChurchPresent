@@ -160,15 +160,17 @@ export function useSharedProgram<D extends Draftish>(d: D, replace: (next: D) =>
   }, [save, load]);
 
   // New program on the first free Sunday after the last one: a copy of the last program, or blank
-  const startNew = useCallback(async (from: "copy" | "blank", blank: (date: string) => D) => {
+  // from: "copy" the last program, "blank", or a chosen program to copy
+  const startNew = useCallback(async (from: "copy" | "blank" | ProgramInfo, blank: (date: string) => D) => {
     if (dirty.current) await save();
     const rows = (await refreshList()) ?? list;
     const last = rows[rows.length - 1];
     let date = last ? nextWeek(last.date) : nextWeek(latest.current.date);
     while (rows.some((r) => r.date === date)) date = nextWeek(date);
     let draft: D = blank(date);
-    if (from === "copy" && last) {
-      const { data } = await supabase!.from("programs").select("data").eq("id", last.id).single();
+    const source = from === "copy" ? last : from === "blank" ? null : from;
+    if (source) {
+      const { data } = await supabase!.from("programs").select("data").eq("id", source.id).single();
       if (data) draft = normalize({ ...(data.data as object), date });
     }
     const made = await create(draft);
@@ -178,7 +180,30 @@ export function useSharedProgram<D extends Draftish>(d: D, replace: (next: D) =>
     return made;
   }, [save, refreshList, list, create, load, normalize]);
 
+  // Delete the open program, then open the nearest other one (or a blank one if it was the only program).
+  // A published service is a separate record: deleting the program does not take it off the Nau Mpro App.
+  const remove = useCallback(async (blank: (date: string) => D): Promise<string | null> => {
+    const p = cur.current;
+    if (!supabase || !p) return null;
+    const { error } = await supabase.from("programs").delete().eq("id", p.id);
+    if (error) return /row-level security|permission/i.test(error.message) ? "Only your church team can delete programs." : "The program wasn't deleted. Check the connection and try again.";
+    dirty.current = false;
+    setCurrent(null);
+    cur.current = null;
+    const rows = (await refreshList()) ?? [];
+    if (rows.length) {
+      const t = new Date(p.date + "T12:00").getTime();
+      const near = rows.reduce((a, b) => (Math.abs(new Date(b.date + "T12:00").getTime() - t) < Math.abs(new Date(a.date + "T12:00").getTime() - t) ? b : a));
+      await load(near);
+    } else {
+      const made = await create(blank(p.date));
+      if (made) { setList([made]); await load(made); }
+    }
+    return null;
+  }, [refreshList, load, create]);
+
   return {
+    remove,
     active: !!uid && state !== "off" && state !== "missing",
     state, message, list, current, published, notice, me: uid,
     open, startNew,

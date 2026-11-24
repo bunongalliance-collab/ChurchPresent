@@ -2908,3 +2908,14 @@ html body .ct-app .hm h1:not(#hm-x) { margin: 0; font: 700 clamp(2rem, 4.6vw, 3r
   .hm-wide .hm-thumb { aspect-ratio: 16 / 8; }
   .hm-t-tools .hm-screen { width: 118%; transform: scale(0.82); }
 }
+/* Program bar: copy a chosen program, and delete with a confirm (components/ProgramBar.tsx) */
+.pgb .pgb-menu button.pgb-del:not(#pgb-x) { border-top: 1px solid var(--sunken); border-radius: 0 0 8px 8px; margin-top: 4px; color: var(--danger); }
+.pgb .pgb-copyfrom button:not(#pgb-x) { flex-direction: row; align-items: center; gap: 10px; }
+.pgb .pgb-copyfrom button.pgb-back:not(#pgb-x) { border-top: 1px solid var(--sunken); border-radius: 0 0 8px 8px; margin-top: 4px; color: var(--accent); }
+.pgb-copyfrom { max-height: 60vh; overflow: auto; }
+.pgb-confirm { padding: 12px 14px; gap: 8px; min-width: 300px; max-width: min(420px, calc(100vw - 32px)); }
+.pgb-confirm p { margin: 0; font-size: 0.92rem; color: var(--text); }
+.pgb-confirm .pgb-warn { color: var(--danger); }
+.pgb-confirm-acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+.pgb .pgb-confirm-acts button:not(#pgb-x) { min-height: 36px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); font-weight: 600; }
+.pgb .pgb-confirm-acts button.danger:not(#pgb-x) { background: var(--danger); border-color: var(--danger); color: var(--bg); }

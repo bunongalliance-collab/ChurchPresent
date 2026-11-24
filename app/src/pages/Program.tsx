@@ -365,7 +365,13 @@ export default function Program() {
         <ProgramBar state={shared.state} message={shared.message} list={shared.list} current={shared.current} published={shared.published}
           notice={shared.notice} me={shared.me}
           onOpen={(p) => void shared.open(p)}
-          onNew={async (from) => { const made = await shared.startNew(from, blankFor); if (made) setStatus(from === "copy" ? `New program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}, copied from the last one.` : `Blank program for ${new Date(made.date + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })}.`); }}
+          onNew={async (from) => {
+            const made = await shared.startNew(from, blankFor);
+            if (!made) return;
+            const day = (iso: string) => new Date(iso + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" });
+            setStatus(from === "blank" ? `Blank program for ${day(made.date)}.` : from === "copy" ? `New program for ${day(made.date)}, copied from the last one.` : `New program for ${day(made.date)}, copied from ${day(from.date)}.`);
+          }}
+          onDelete={async () => { const when = shared.current?.date; const err = await shared.remove(blankFor); if (!err && when) setStatus(`Program for ${new Date(when + "T12:00").toLocaleDateString(undefined, { month: "long", day: "numeric" })} deleted.`); return err; }}
           onTheirs={() => void shared.showTheirs()} onMine={() => void shared.keepMine()}
           onPublish={() => void publishToReader()} publishing={publishing} />
       )}

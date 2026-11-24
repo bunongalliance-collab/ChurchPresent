@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import type { ProgramInfo, SaveState } from "../lib/programs";
 
 // The bar above the brochure on the Program page: which Sunday's program is open, whether it is saved,
-// and New program (copy the last one, or blank). Shared with the church team (lib/programs.ts).
+// New program (copy the last one, copy any program, or blank), and delete. Shared with the church team (lib/programs.ts).
 
 interface Props {
   state: SaveState; message: string; list: ProgramInfo[]; current: ProgramInfo | null; published: Set<string>;
   notice: ProgramInfo | null; me: string | null;
-  onOpen: (p: ProgramInfo) => void; onNew: (from: "copy" | "blank") => void;
+  onOpen: (p: ProgramInfo) => void; onNew: (from: "copy" | "blank" | ProgramInfo) => void; onDelete: () => Promise<string | null>;
   onTheirs: () => void; onMine: () => void;
   onPublish: () => void; publishing: boolean;
 }
@@ -25,13 +25,16 @@ function ago(iso: string) {
 const Chevron = ({ d }: { d: string }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
 
 export default function ProgramBar(p: Props) {
-  const [menu, setMenu] = useState<"" | "list" | "new">("");
+  const [menu, setMenu] = useState<"" | "list" | "new" | "copyfrom" | "delete">("");
+  const [delError, setDelError] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [, tick] = useState(0);
   useEffect(() => { const t = window.setInterval(() => tick((n) => n + 1), 30000); return () => window.clearInterval(t); }, []);   // keep "2 min ago" fresh
   useEffect(() => {
     if (!menu) return;
     const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !(e.target as Element).closest(".pgb")) setMenu("");
+      // A click that swapped the menu's own contents (Copy another…, Delete…) has a target that is no longer on the page
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : (e.target as Element).isConnected && !(e.target as Element).closest(".pgb")) setMenu("");
     };
     document.addEventListener("click", close);
     document.addEventListener("keydown", close);
@@ -73,12 +76,40 @@ export default function ProgramBar(p: Props) {
           <div className="pgb-menu" role="menu">
             {coming.length > 0 && <small>Coming up</small>}{coming.map(row)}
             {past.length > 0 && <small>Past</small>}{past.map(row)}
+            <button role="menuitem" className="pgb-del" onClick={() => { setDelError(""); setMenu("delete"); }}>Delete this program…</button>
+          </div>
+        )}
+        {menu === "delete" && p.current && (
+          <div className="pgb-menu pgb-confirm" role="alertdialog" aria-labelledby="pgb-del-q">
+            <p id="pgb-del-q"><b>Delete the program for {short(p.current.date)}?</b> This can’t be undone, for everyone on the team.</p>
+            {p.published.has(p.current.date) && <p className="pgb-warn">It was published, and stays on the Nau Mpro App until you publish another service.</p>}
+            {delError && <p className="pgb-warn" role="alert">{delError}</p>}
+            <div className="pgb-confirm-acts">
+              <button onClick={() => setMenu("")}>Keep it</button>
+              <button className="danger" disabled={deleting} onClick={async () => {
+                setDeleting(true);
+                const err = await p.onDelete();
+                setDeleting(false);
+                if (err) setDelError(err); else setMenu("");
+              }}>{deleting ? "Deleting…" : "Delete program"}</button>
+            </div>
           </div>
         )}
         {menu === "new" && (
           <div className="pgb-menu pgb-newmenu" role="menu">
             <button role="menuitem" onClick={() => { setMenu(""); p.onNew("copy"); }}><b>Copy the last program</b><span>Same order, then change the songs and passage</span></button>
+            <button role="menuitem" onClick={() => setMenu("copyfrom")}><b>Copy another program…</b><span>Pick any program to start from</span></button>
             <button role="menuitem" onClick={() => { setMenu(""); p.onNew("blank"); }}><b>Start blank</b><span>The usual order of worship, nothing filled in</span></button>
+          </div>
+        )}
+        {menu === "copyfrom" && (
+          <div className="pgb-menu pgb-newmenu pgb-copyfrom" role="menu" aria-label="Copy which program">
+            <small>Copy which program?</small>
+            {coming.length > 0 && <small>Coming up</small>}
+            {coming.map((x) => <button key={x.id} role="menuitem" onClick={() => { setMenu(""); p.onNew(x); }}><span className="pgb-d">{short(x.date)}</span><span className="pgb-t">{x.title}</span>{tag(x)}</button>)}
+            {past.length > 0 && <small>Past</small>}
+            {past.map((x) => <button key={x.id} role="menuitem" onClick={() => { setMenu(""); p.onNew(x); }}><span className="pgb-d">{short(x.date)}</span><span className="pgb-t">{x.title}</span>{tag(x)}</button>)}
+            <button role="menuitem" className="pgb-back" onClick={() => setMenu("new")}>‹ Back</button>
           </div>
         )}
       </div>
