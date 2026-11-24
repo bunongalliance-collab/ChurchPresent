@@ -14,6 +14,12 @@ const COLS = "id, service_date, title, updated_at, updated_by, updated_by_email"
 const titleOf = (d: Draftish) => (d.coverKind || "Service").toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase()).slice(0, 200);
 export const nextWeek = (iso: string) => { const t = new Date(iso + "T12:00"); t.setDate(t.getDate() + 7); return t.toISOString().slice(0, 10); };
 
+// Which account and church the Program page's browser draft belongs to ("<account>/<church>"). Only that church may
+// turn the draft into a program; anyone else starts from their own programs or a fresh one.
+const OWNER_KEY = "programDraftOwner";
+const markDraft = (key: string) => { try { localStorage.setItem(OWNER_KEY, key); } catch { /* storage blocked */ } };
+const draftOwner = () => { try { return localStorage.getItem(OWNER_KEY); } catch { return null; } };
+
 export type SaveState = "off" | "loading" | "saved" | "saving" | "offline" | "error" | "missing";
 
 // D is the Program page's Draft. normalize turns stored data back into a full draft.
@@ -60,8 +66,9 @@ export function useSharedProgram<D extends Draftish>(d: D, replace: (next: D) =>
     setCurrent(info);
     setNotice(null);
     replace(normalize({ ...(data.data as object), date: data.service_date }));
+    if (uid) markDraft(`${uid}/${churchId ?? ""}`);
     setState("saved");
-  }, [replace, normalize]);
+  }, [replace, normalize, uid, churchId]);
 
   // Save the open program now. force: even if someone else changed it since (Keep mine).
   const save = useCallback(async (force = false): Promise<boolean> => {
@@ -116,8 +123,16 @@ export function useSharedProgram<D extends Draftish>(d: D, replace: (next: D) =>
       if (!rows) return;
       const same = rows.find((r) => r.date === latest.current.date);
       if (same) { await load(same); return; }
-      const made = await create(latest.current);   // the draft this browser had becomes the church's program for its date
-      if (made) { base.current = made.updated; setCurrent(made); setList((l) => [...l, made].sort((a, b) => a.date.localeCompare(b.date))); setState("saved"); }
+      const mine = draftOwner() === `${uid}/${churchId ?? ""}`;
+      if (!mine && rows.length) {
+        // The draft in this browser is someone else's (another account or church): open this church's next program
+        const today = new Date().toISOString().slice(0, 10);
+        await load(rows.find((r) => r.date >= today) ?? rows[rows.length - 1]);
+        return;
+      }
+      // This church's own draft becomes its program for that date; otherwise a fresh program, not another church's
+      const made = await create(mine ? latest.current : normalize({ date: latest.current.date }));
+      if (made) { await load(made); }
     })();
   }, [uid, churchId, refreshList, load, create]);
 

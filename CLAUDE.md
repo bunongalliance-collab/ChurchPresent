@@ -72,6 +72,10 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - Migrations live in `supabase/*.sql`. Each one is run by the user, never by Claude.
 - Public read on songs, readings and saved people. Writes are limited to the signed-in owner.
 
+### Browser storage and accounts
+- Work the app keeps in the browser (slideshow list, recent items, drafts, favourites, notes, projector deck) belongs to one account. `lib/accountData.ts` sets it aside when a different account (or nobody) signs in on the same browser and brings it back on that account's next sign-in. Add any new browser key that holds account work to its `KEYS` list.
+- The Program page only turns its browser draft into a program for the account and church that made it (`programDraftOwner`).
+
 ### Key files
 - `app/src/components/NavBar.tsx`: navbar links and the Light/Dark button.
 - `app/src/index.css`: all styles, including the colour tokens at the top.

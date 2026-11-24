@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { switchAccountData } from "./accountData";
 
 export type Role = "admin" | "editor";
 export interface Church { id: string; name: string; status: "waiting" | "active"; role: Role; join_code: string | null }
@@ -33,6 +34,9 @@ export function reloadChurches(): Promise<void> {
   loading ??= (async () => {
     const { data } = await sb.auth.getSession();
     const session = data.session;
+    // Another account (or nobody) is now signed in on this browser: set the last account's browser work aside,
+    // bring back this account's, and reload so every page reads it
+    if (switchAccountData(session?.user.id ?? "signed-out")) { window.location.reload(); return; }
     if (!session) { set({ ready: true, session: null, churches: [], current: null, requests: [], siteAdmin: false }); return; }
     await sb.rpc("claim_invites");   // join churches that invited this email
     const [mine, reqs, admin] = await Promise.all([sb.rpc("my_churches"), sb.rpc("my_requests"), sb.rpc("is_site_admin")]);
