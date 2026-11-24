@@ -2919,3 +2919,114 @@ html body .ct-app .hm h1:not(#hm-x) { margin: 0; font: 700 clamp(2rem, 4.6vw, 3r
 .pgb-confirm-acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
 .pgb .pgb-confirm-acts button:not(#pgb-x) { min-height: 36px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); font-weight: 600; }
 .pgb .pgb-confirm-acts button.danger:not(#pgb-x) { background: var(--danger); border-color: var(--danger); color: var(--bg); }
+
+/* ===== Notifications: the bell in the navbar, its list, and the welcome banner (components/NotificationBell.tsx) ===== */
+.nb { position: relative; }
+.nb button.nb-bell:not(#nb-x) { position: relative; width: 36px; height: 32px; padding: 0; border-radius: 8px; border: 1px solid var(--ctrl); background: transparent; color: var(--text); display: grid; place-items: center; }
+.nb button.nb-bell:hover:not(#nb-x) { background: var(--sunken); }
+.nb-bell svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nb-n { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--panel); font-variant-numeric: tabular-nums; }
+.nb-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 40; width: min(400px, calc(100vw - 24px)); background: var(--panel); border: 1px solid var(--ctrl); border-radius: 14px; box-shadow: 0 12px 32px rgb(0 0 0 / 0.18); overflow: hidden; color: var(--text); font-family: var(--font-ui); }
+.nb-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--sunken); }
+.nb-head h2 { margin: 0; font: 600 1rem var(--font-ui); }
+.nb button.nb-link:not(#nb-x), .nb a.nb-link { border: 0; background: none; padding: 4px 0; color: var(--accent); font-weight: 600; font-size: 0.9rem; text-decoration: none; }
+.nb-list { max-height: min(440px, 70vh); overflow: auto; }
+.nb-item { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--sunken); position: relative; }
+.nb-item.unread { background: var(--accent-soft); cursor: pointer; }
+.nb-item.unread::after { content: ""; position: absolute; right: 14px; top: 18px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.nb-ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--sunken); color: var(--text); }
+.nb-item.unread .nb-ic { background: var(--panel); }
+.nb-ic svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nb-txt { min-width: 0; padding-right: 14px; font-size: 0.92rem; line-height: 1.45; }
+.nb-txt p { margin: 0; overflow-wrap: anywhere; }
+.nb-txt small { color: var(--muted); font-size: 0.8rem; }
+.nb-item.unread .nb-txt small { color: var(--on-soft); }
+.nb-acts { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.nb .nb-acts button:not(#nb-x) { min-height: 34px; padding: 5px 14px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--panel); color: var(--text); font: 600 0.88rem var(--font-ui); }
+.nb .nb-acts button.pri:not(#nb-x) { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.nb .nb-acts button:disabled:not(#nb-x) { opacity: 0.5; }
+.nb-done { margin-top: 6px !important; font-weight: 600; color: var(--on-soft); }
+.nb-empty { margin: 0; padding: 28px 16px; text-align: center; color: var(--muted); font-size: 0.92rem; }
+.nb-foot { padding: 10px 16px; text-align: center; }
+.nb-welcome { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; max-width: 1280px; margin: 12px auto 0; padding: 12px 16px; border-radius: 12px; background: var(--accent-soft); color: var(--on-soft); font-family: var(--font-ui); }
+.nb-welcome > span { flex: 1 1 260px; }
+.nb-welcome button:not(#nb-x) { min-height: 36px; padding: 6px 16px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600; }
+@media (max-width: 760px) { .nb-panel { position: fixed; left: 12px; right: 12px; top: 64px; width: auto; } .nb-welcome { margin: 12px 16px 0; } }
+
+/* ===== Navbar (components/NavBar.tsx). Approved sample: bible-pwa/sample/navbar.html =====
+   Row 1 (sticky): brand, church, Apps, bell, theme, account. Row 2: every page as a tab, wrapping instead of hiding.
+   Phones: row 1 only (brand, bell, menu) and a menu sheet. */
+.tn-top { position: sticky; top: 0; z-index: 30; background: var(--panel); border-bottom: 1px solid var(--sunken); font-family: var(--font-ui); }
+.tn-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.tn-top a.tn-brand { font-weight: 700; color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 1rem; padding: 6px 2px; }
+.tn-sep { width: 1px; height: 22px; background: var(--sunken); margin: 0 2px; }
+.tn-grow { flex: 1; }
+.tn-popwrap { position: relative; }
+.tn-top button:not(#tn-x) { font-family: var(--font-ui); color: var(--text); }
+.tn-top button.tn-churchbtn:not(#tn-x) { display: flex; align-items: center; gap: 6px; max-width: 320px; border: 0; background: transparent; border-radius: 8px; padding: 6px 8px; font-weight: 600; font-size: 0.95rem; min-height: 38px; }
+.tn-churchbtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tn-top button.tn-textbtn:not(#tn-x) { display: flex; align-items: center; gap: 4px; border: 0; background: transparent; border-radius: 8px; padding: 6px 10px; font-weight: 600; font-size: 0.92rem; min-height: 38px; }
+.tn-chev { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tn-top button.tn-icon:not(#tn-x), .tn-top .nb button.nb-bell:not(#nb-x) { width: 38px; height: 38px; padding: 0; border: 0; border-radius: 10px; background: transparent; display: grid; place-items: center; }
+.tn-icon svg, .tn-top .nb-bell svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tn-top button:hover:not(#tn-x):not(.tn-avatar):not(.tn-signinbtn), .tn-top button[aria-expanded="true"]:not(#tn-x):not(.tn-avatar):not(.tn-signinbtn), .tn-top .nb button.nb-bell:hover:not(#nb-x), .tn-top .nb button.nb-bell[aria-expanded="true"]:not(#nb-x) { background: var(--sunken); }
+.tn-top .nb-n { top: 2px; right: 2px; border-color: var(--panel); }
+.tn-top button.tn-avatar:not(#tn-x) { width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 14px; margin-left: 2px; }
+.tn-top button.tn-avatar[aria-expanded="true"]:not(#tn-x) { box-shadow: 0 0 0 3px var(--accent-soft); }
+.tn-top button.tn-signinbtn:not(#tn-x) { min-height: 36px; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-weight: 600; font-size: 0.92rem; }
+.tn-top button.tn-menubtn:not(#tn-x) { display: none; }
+.tn-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 40; min-width: 240px; max-width: calc(100vw - 24px); background: var(--panel); border: 1px solid var(--ctrl); border-radius: 12px; box-shadow: 0 12px 32px rgb(0 0 0 / 0.16); padding: 6px; display: flex; flex-direction: column; }
+.tn-pop.tn-right { left: auto; right: 0; }
+.tn-pop small { padding: 6px 10px 2px; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.tn-pop a, .tn-top .tn-pop button:not(#tn-x) { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; text-align: left; text-decoration: none; padding: 9px 10px; border-radius: 8px; color: var(--text); font-size: 0.92rem; min-height: 0; width: auto; height: auto; }
+.tn-pop a:hover, .tn-top .tn-pop button:hover:not(#tn-x) { background: var(--sunken); }
+.tn-top .tn-pop button[aria-checked="true"]:not(#tn-x) { background: var(--accent-soft); color: var(--on-soft); font-weight: 600; }
+.tn-pop em { margin-left: auto; font-style: normal; color: var(--muted); font-size: 0.8rem; }
+.tn-pop a.tn-poplink { color: var(--accent); border-top: 1px solid var(--sunken); border-radius: 0 0 8px 8px; margin-top: 4px; }
+.tn-me { padding: 8px 10px 10px; border-bottom: 1px solid var(--sunken); margin-bottom: 4px; display: grid; gap: 2px; }
+.tn-me b { overflow-wrap: anywhere; }
+.tn-me span { color: var(--muted); font-size: 0.85rem; }
+.tn-signinpop { padding: 12px; width: 280px; }
+.tn-signin { display: grid; gap: 8px; }
+html body .ct-app .tn-signin input { width: 100%; min-height: 40px !important; height: auto !important; padding: 8px 10px !important; font-size: 0.95rem !important; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--bg); color: var(--text); }
+.tn-signin-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.tn-signin-acts button:not(#tn-x) { flex: 1; min-height: 38px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); color: var(--text); font-weight: 600; font-family: var(--font-ui); }
+.tn-signin-acts button.pri:not(#tn-x) { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.tn-msg { margin: 0; color: var(--danger); font-size: 0.88rem; }
+.tn-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tn-top :focus-visible, .tn-tabs :focus-visible, .tn-sheet :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.tn-tabs { background: var(--panel); border-bottom: 1px solid var(--sunken); font-family: var(--font-ui); }
+.tn-tabs ul { list-style: none; margin: 0; display: flex; flex-wrap: wrap; gap: 0 2px; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.tn-tabs li.tn-div { margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--sunken); }
+.tn-tabs a { display: flex; align-items: center; padding: 10px 10px 8px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tn-tabs a:hover { color: var(--text); }
+.tn-tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--accent); }
+.tn-count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.tn-end { height: 20px; }
+
+.tn-sheet { display: none; }
+@media (max-width: 900px) {
+  .tn-church, .tn-sep, .tn-apps, .tn-top button.tn-theme:not(#tn-x), .tn-account, .tn-tabs { display: none; }
+  .tn-top button.tn-menubtn:not(#tn-x) { display: grid; }
+  .tn-sheet { display: flex; flex-direction: column; background: var(--panel); border-bottom: 1px solid var(--sunken); padding: 8px max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px)); font-family: var(--font-ui); }
+  .tn-sheet-church { margin: 4px 0 8px; padding-bottom: 10px; border-bottom: 1px solid var(--sunken); font-weight: 700; }
+  .tn-sheet-churches { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 10px; border-bottom: 1px solid var(--sunken); margin-bottom: 6px; }
+  .tn-sheet-churches button:not(#tn-x) { border: 1px solid var(--ctrl); background: transparent; color: var(--text); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 0.88rem; }
+  .tn-sheet-churches button[aria-pressed="true"]:not(#tn-x) { background: var(--accent-soft); border-color: transparent; color: var(--on-soft); }
+  .tn-sheet nav { display: flex; flex-direction: column; }
+  .tn-sheet nav a { display: flex; align-items: center; padding: 11px 4px; text-decoration: none; color: var(--text); font-weight: 600; border-radius: 8px; }
+  .tn-sheet nav a[aria-current="page"] { color: var(--accent); }
+  .tn-sheet-foot { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--sunken); }
+  .tn-sheet-foot button:not(#tn-x) { border: 1px solid var(--ctrl); background: transparent; color: var(--text); border-radius: 8px; padding: 8px 14px; font-weight: 600; font-family: var(--font-ui); }
+  .tn-sheet .tn-signin { margin-top: 12px; }
+  .tn-end { height: 14px; }
+  .tn-top .nb-panel { top: 64px; }
+}
+/* Printing Service Slides leaves the navbar out; the Scripture app (/scripture/) shows only sign-in */
+@media print { body:has(.ss) :is(.tn-top, .tn-tabs, .tn-end, .tn-sheet, .nb-welcome) { display: none !important; } }
+html body .sc-app :is(.tn-tabs, .tn-church, .tn-sep, .tn-apps, .tn-sheet) { display: none !important; }
+html body .sc-app .tn-top button.tn-menubtn:not(#tn-x) { display: none !important; }
+html body .sc-app .tn-account { display: block !important; }
+/* The app marks anything current or pressed with an inset box; the navbar uses its own underline and tint instead */
+.tn-tabs a[aria-current], .tn-sheet a[aria-current], .tn-sheet-churches button[aria-pressed] { box-shadow: none !important; }

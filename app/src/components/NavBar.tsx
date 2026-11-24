@@ -4,30 +4,33 @@ import { supabase } from "../lib/supabase";
 import { currentTheme, setTheme, type Theme } from "../lib/theme";
 import { readForSlides, watchForSlides } from "../lib/forSlides";
 import { useChurch, switchChurch } from "../lib/church";
+import NotificationBell, { WelcomeBanner } from "./NotificationBell";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
 // newTab: a separate page (the congregation's reader), opened in a new tab so the team app stays open
-const PAGES: { href: string; label: string; newTab?: boolean }[] = [
+// The pages, in workflow order (a divider before the smaller tools), and the separate apps (opened in a new tab)
+const PAGES: { href: string; label: string; divider?: boolean }[] = [
   { href: "#lyrics-v2", label: "Hymn/Nau Mpro" },
-  { href: "/nau-mpro/", label: "Nau Mpro App ↗", newTab: true },
-  { href: "/nau-brah-ndu-ngoi/", label: "Nau Brah Ndu Ngơi ↗", newTab: true },
   { href: "#readings-v2", label: "Readings" },
   { href: "#scripture", label: "Scripture/Brah Ndu Ngoi" },
   { href: "#builder", label: "Presentation Builder" },
+  { href: "#presentations", label: "Presentations" },
   { href: "#program", label: "Program" },
   { href: "#service", label: "Service Slides" },
-  { href: "#thumbnail", label: "Thumbnail" },
-  { href: "#presentations", label: "Presentations" },
   { href: "#projector", label: "Projector" },
+  { href: "#thumbnail", label: "Thumbnail", divider: true },
   { href: "#notes", label: "Notes" },
   { href: "#team", label: "Team" },
+];
+const APPS = [
+  { href: "/nau-mpro/", label: "Nau Mpro App" },
+  { href: "/nau-brah-ndu-ngoi/", label: "Nau Brah Ndu Ngơi" },
 ];
 
 export default function NavBar() {
   const hash = (window.location.hash || "#").split(":")[0];
   const [session, setSession] = useState<Session | null>(null);
-  const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // phone menu (hamburger)
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -40,7 +43,8 @@ export default function NavBar() {
   const church = useChurch();
   const cur = church.current;
   const [asks, setAsks] = useState(0);
-  const [churchOpen, setChurchOpen] = useState(false);
+  // One menu open at a time: the church switcher, Apps, the account menu or the sign-in form
+  const [pop, setPop] = useState<"" | "church" | "apps" | "acct" | "signin">("");
   useEffect(() => {
     if (!supabase || !cur || cur.role !== "admin") { setAsks(0); return; }
     let live = true;
@@ -49,14 +53,16 @@ export default function NavBar() {
     return () => { live = false; };
   }, [cur, hash]);
   useEffect(() => {
-    if (!churchOpen) return;
+    if (!pop) return;
     const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !(e.target as Element).closest(".nav-church")) setChurchOpen(false);
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : (e.target as Element).isConnected && !(e.target as Element).closest(".tn-popwrap")) setPop("");
     };
-    document.addEventListener("click", close);
+    document.addEventListener("mousedown", close);
     document.addEventListener("keydown", close);
-    return () => { document.removeEventListener("click", close); document.removeEventListener("keydown", close); };
-  }, [churchOpen]);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", close); };
+  }, [pop]);
+  // The phone menu closes when the page changes
+  useEffect(() => { setMenuOpen(false); setPop(""); }, [hash]);
   function toggleTheme() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -77,85 +83,139 @@ export default function NavBar() {
     const { data, error } = kind === "up" ? await supabase.auth.signUp(creds) : await supabase.auth.signInWithPassword(creds);
     if (error) { setMsg(error.message); return; }
     if (kind === "up" && !data.session) { setMsg("Account created. Check your email to confirm, then sign in."); return; }
-    setPass(""); setMsg(""); setOpen(false);
+    setPass(""); setMsg(""); setPop("");
   }
 
+  const isCurrent = (href: string) => href === hash || (href === "#lyrics-v2" && hash === "#lyrics");
+  const counts = (href: string) => (
+    <>
+      {href === "#team" && asks > 0 && <span className="tn-count" aria-label={`, ${asks} ${asks === 1 ? "person" : "people"} asking to join`}>{asks}</span>}
+      {href === "#scripture" && waiting > 0 && <span className="tn-count" aria-label={`, ${waiting} passage${waiting === 1 ? "" : "s"} from the Bible waiting`}>{waiting}</span>}
+    </>
+  );
+  const themeLabel = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  const Chevron = () => <svg className="tn-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" /></svg>;
+  const signInForm = (
+    <form className="tn-signin" onSubmit={(e) => { e.preventDefault(); void auth("in"); }}>
+      <label className="tn-sr" htmlFor="tn-email">Email</label>
+      <input id="tn-email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+      <label className="tn-sr" htmlFor="tn-pass">Password</label>
+      <input id="tn-pass" type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" />
+      <div className="tn-signin-acts">
+        <button type="submit" className="pri">Sign in</button>
+        <button type="button" onClick={() => void auth("up")}>Create account</button>
+      </div>
+      {msg && <p className="tn-msg" role="alert">{msg}</p>}
+    </form>
+  );
+
+  // Two rows: who and where you are (brand, church, apps, bell, theme, account), then every page as a tab.
+  // Phones: one row (brand, bell, menu) and a menu sheet with everything else. Approved sample: bible-pwa/sample/navbar.html
   return (
-    <nav className={`navbar${menuOpen ? " menu-open" : ""}`} aria-label="Main">
-      <a className="brand" href="#" title="Church Tools home">Church Tools</a>
-      {cur && (
-        <div className="nav-church">
-          <button type="button" className="nav-church-btn" aria-haspopup="menu" aria-expanded={churchOpen} onClick={() => setChurchOpen((v) => !v)}
-            title={church.churches.length > 1 ? "Switch church" : cur.name}>
-            <span className="nav-church-name">{cur.name}</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" /></svg>
-          </button>
-          {churchOpen && (
-            <div className="nav-church-menu" role="menu">
-              <small>Your churches</small>
-              {church.churches.map((c) => (
-                <button type="button" role="menuitemradio" aria-checked={c.id === cur.id} key={c.id}
-                  onClick={() => { switchChurch(c.id); setChurchOpen(false); }}>
-                  <span>{c.name}</span><em>{c.status === "waiting" ? "Waiting" : c.role === "admin" ? "Admin" : "Editor"}</em>
+    <>
+      <div className="tn-top">
+        <div className="tn-bar">
+          <a className="tn-brand" href="#" title="Church Tools home">Church Tools</a>
+          {cur && (
+            <>
+              <span className="tn-sep" aria-hidden="true" />
+              <div className="tn-popwrap tn-church">
+                <button type="button" className="tn-churchbtn" aria-haspopup="menu" aria-expanded={pop === "church"} onClick={() => setPop(pop === "church" ? "" : "church")}
+                  title={church.churches.length > 1 ? "Switch church" : cur.name}>
+                  <span>{cur.name}</span><Chevron />
                 </button>
-              ))}
-              <a href="#team" role="menuitem" onClick={() => setChurchOpen(false)}>Join or start a church</a>
+                {pop === "church" && (
+                  <div className="tn-pop" role="menu">
+                    <small>Your churches</small>
+                    {church.churches.map((c) => (
+                      <button type="button" role="menuitemradio" aria-checked={c.id === cur.id} key={c.id} onClick={() => { switchChurch(c.id); setPop(""); }}>
+                        <span>{c.name}</span><em>{c.status === "waiting" ? "Waiting" : c.role === "admin" ? "Admin" : "Editor"}</em>
+                      </button>
+                    ))}
+                    <a href="#team" role="menuitem" className="tn-poplink" onClick={() => setPop("")}>Join or start a church</a>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+          <span className="tn-grow" />
+          <div className="tn-popwrap tn-apps">
+            <button type="button" className="tn-textbtn" aria-haspopup="menu" aria-expanded={pop === "apps"} onClick={() => setPop(pop === "apps" ? "" : "apps")}>Apps<Chevron /></button>
+            {pop === "apps" && (
+              <div className="tn-pop tn-right" role="menu">
+                <small>Opens in a new tab</small>
+                {APPS.map((a) => <a key={a.href} role="menuitem" href={a.href} target="_blank" rel="noopener" onClick={() => setPop("")}>{a.label} <span aria-hidden="true">↗</span></a>)}
+              </div>
+            )}
+          </div>
+          {session && <NotificationBell />}
+          <button type="button" className="tn-icon tn-theme" onClick={toggleTheme} aria-label={themeLabel} title={themeLabel}>
+            {theme === "dark"
+              ? <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+              : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></svg>}
+          </button>
+          {supabase && (
+            <div className="tn-popwrap tn-account">
+              {session ? (
+                <button type="button" className="tn-avatar" aria-haspopup="menu" aria-expanded={pop === "acct"} aria-label={`Account: ${session.user.email ?? ""}`} onClick={() => setPop(pop === "acct" ? "" : "acct")}>
+                  {(session.user.email ?? "?")[0].toUpperCase()}
+                </button>
+              ) : (
+                <button type="button" className="tn-signinbtn" aria-expanded={pop === "signin"} onClick={() => { setPop(pop === "signin" ? "" : "signin"); setMsg(""); }}>Sign in</button>
+              )}
+              {pop === "acct" && session && (
+                <div className="tn-pop tn-right" role="menu">
+                  <div className="tn-me"><b>{session.user.email}</b>{cur && <span>{cur.role === "admin" ? "Admin" : "Editor"} · {cur.name}</span>}</div>
+                  <a href="#team" role="menuitem" onClick={() => setPop("")}>Team</a>
+                  <button type="button" role="menuitem" onClick={() => { setPop(""); void supabase?.auth.signOut(); }}>Sign out</button>
+                </div>
+              )}
+              {pop === "signin" && !session && <div className="tn-pop tn-right tn-signinpop">{signInForm}</div>}
             </div>
           )}
+          <button type="button" className="tn-icon tn-menubtn" aria-expanded={menuOpen} aria-controls="tn-sheet" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((v) => !v)}>
+            {menuOpen
+              ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>}
+          </button>
         </div>
-      )}
-      <button className="nav-toggle" type="button" aria-expanded={menuOpen} aria-controls="nav-links" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((v) => !v)}>
-        <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
-      </button>
-      <ul id="nav-links" onClick={() => setMenuOpen(false)}>
-        {PAGES.map((p) => {
-          const current = p.href === hash || (p.href === "#lyrics-v2" && hash === "#lyrics");
-          return (
-            <li key={p.href}>
-              {p.newTab ? (
-                <a href={p.href} target="_blank" rel="noopener" aria-label={`${p.label.replace(" ↗", "")} (opens in a new tab)`}>
-                  {p.label}
-                </a>
-              ) : (
-                <a href={p.href} aria-current={current ? "page" : undefined} className={current ? "active" : undefined}>
-                  {p.label}
-                  {p.href === "#team" && asks > 0 && <span className="nav-count" aria-label={`, ${asks} ${asks === 1 ? "person" : "people"} asking to join`}>{asks}</span>}
-                  {p.href === "#scripture" && waiting > 0 && <span className="nav-count" aria-label={`, ${waiting} passage${waiting === 1 ? "" : "s"} from the Bible waiting`}>{waiting}</span>}
-                </a>
-              )}
+      </div>
+
+      <nav className="tn-tabs" aria-label="Pages">
+        <ul>
+          {PAGES.map((p) => (
+            <li key={p.href} className={p.divider ? "tn-div" : undefined}>
+              <a href={p.href} aria-current={isCurrent(p.href) ? "page" : undefined}>{p.label}{counts(p.href)}</a>
             </li>
-          );
-        })}
-      </ul>
-      <button type="button" className="theme-toggle secondary small" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
-        {theme === "dark" ? "☀ Light" : "☾ Dark"}
-      </button>
-      {supabase && (
-        <div className="nav-auth">
-          {session ? (
-            <>
-              <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
-            </>
-          ) : (
-            <>
-              <button className="secondary small" onClick={() => { setOpen((v) => !v); setMsg(""); }} aria-expanded={open}>
-                {open ? "Close" : "Sign in"}
-              </button>
-              {open && (
-                <form className="nav-auth-panel" onSubmit={(e) => { e.preventDefault(); auth("in"); }}>
-                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                  <input type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} />
-                  <div className="row">
-                    <button type="submit">Sign in</button>
-                    <button type="button" className="secondary" onClick={() => auth("up")}>Create account</button>
-                  </div>
-                  {msg && <p className="status error">{msg}</p>}
-                </form>
-              )}
-            </>
+          ))}
+        </ul>
+      </nav>
+
+      {menuOpen && (
+        <div className="tn-sheet" id="tn-sheet">
+          {cur && church.churches.length > 1 && (
+            <div className="tn-sheet-churches" role="group" aria-label="Your churches">
+              {church.churches.map((c) => (
+                <button type="button" key={c.id} aria-pressed={c.id === cur.id} onClick={() => switchChurch(c.id)}>{c.name}</button>
+              ))}
+            </div>
           )}
+          {cur && church.churches.length <= 1 && <p className="tn-sheet-church">{cur.name}</p>}
+          <nav aria-label="Pages">
+            {PAGES.map((p) => <a key={p.href} href={p.href} aria-current={isCurrent(p.href) ? "page" : undefined}>{p.label}{counts(p.href)}</a>)}
+            {APPS.map((a) => <a key={a.href} href={a.href} target="_blank" rel="noopener">{a.label} <span aria-hidden="true">↗</span></a>)}
+          </nav>
+          <div className="tn-sheet-foot">
+            <button type="button" onClick={toggleTheme}>{theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}</button>
+            {session
+              ? <button type="button" onClick={() => void supabase?.auth.signOut()}>Sign out</button>
+              : supabase && <button type="button" onClick={() => setPop("signin")}>Sign in</button>}
+          </div>
+          {!session && pop === "signin" && signInForm}
         </div>
       )}
-    </nav>
+      <div className="tn-end" aria-hidden="true" />
+      {session && <WelcomeBanner />}
+    </>
   );
 }

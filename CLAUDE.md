@@ -13,7 +13,7 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 
 ## Design rules
 - Show a sample page first when the user asks for a design change. Publish samples as artifacts.
-- Navbar: Lyric, Readings, Program, Scripture, Presentation Builder, Presentations, Projector, Notes, Thumbnail, Team. A church switcher sits next to the brand when the signed-in account belongs to a church. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins), except Lyric, Readings and Scripture, which use the full window width (16px side margins).
+- Navbar (`components/NavBar.tsx`, classes `tn-*`): two rows. Top (sticky): Church Tools, church switcher, Apps (Nau Mpro, Nau Brah Ndu Ngơi), notification bell, light/dark, account menu (or Sign in). Below: every page as a tab (Hymn/Nau Mpro, Readings, Scripture, Presentation Builder, Presentations, Program, Service Slides, Projector | Thumbnail, Notes, Team), wrapping instead of scrolling. Phones: one row and a menu sheet. Approved sample: `bible-pwa/sample/navbar.html`. The navbar sits full width above each page, and every page uses the same width (max 1280px, same side margins), except Lyric, Readings and Scripture, which use the full window width (16px side margins).
 - Light mode is the default. Use the colour tokens in `index.css`. Don't hard-code colours in UI components. Dark mode must still work.
 - The brochure PDF is set in serif throughout, with burgundy only for headings and small accents. The PDF and the on-screen program use the same type scale.
 - Capitalise names in the program (each word starts with a capital).
@@ -71,6 +71,9 @@ App: React + TypeScript + Vite in `app/`, Supabase backend, deployed to Vercel f
 - `lyric_songs`, `readings`, `reading_categories`, `scripture_studies`, `presentations`, `saved_people`.
 - Migrations live in `supabase/*.sql`. Each one is run by the user, never by Claude.
 - Public read on songs, readings and saved people. Writes are limited to the signed-in owner.
+
+### Notifications
+- The bell in the navbar (`components/NotificationBell.tsx`, `lib/notifications.ts`) lists the signed-in person's notifications. The database writes them (`supabase/notifications.sql` triggers): join requests to the church's admins, added / role changed / removed to that person, new churches to site admins; and for service plans (`supabase/notifications-plans.sql`): a program made or published for an upcoming Sunday, a published program changed afterwards (admins, once per publish), a song or reading used in an upcoming program edited or deleted. Never every edit. Admins accept or decline join requests from the list. A welcome banner under the navbar shows once after someone is added.
 
 ### Browser storage and accounts
 - Work the app keeps in the browser (slideshow list, recent items, drafts, favourites, notes, projector deck) belongs to one account. `lib/accountData.ts` sets it aside when a different account (or nobody) signs in on the same browser and brings it back on that account's next sign-in. Add any new browser key that holds account work to its `KEYS` list.

@@ -1,0 +1,146 @@
+<title>Team Notifications</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Sample: team notifications in Church Tools. A bell in the navbar with a count; its list shows what happened and,
+   for join requests, lets an admin accept or decline right there. Colours are the app's tokens (index.css). */
+:root{
+  --bg:#F1F4EF; --panel:#F9FBF7; --sunken:#E6ECE2; --text:#243028; --muted:#3F4C44; --ctrl:#9AAA9F;
+  --accent:#1F5F4A; --on-accent:#FFFFFF; --accent-soft:#D3E7DB; --on-soft:#174A3A; --danger:#B42318;
+  --ui:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --danger:#E8836F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181B; --panel:#1B2125; --sunken:#242B30; --text:#E5EAEC; --muted:#A7B2B8; --ctrl:rgb(229 234 236/.28);
+  --accent:#6CB4C8; --on-accent:#0A171B; --accent-soft:#1F3239; --on-soft:#AEDCE8; --danger:#E8836F; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-bottom:40px}
+
+.navbar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sunken);flex-wrap:wrap}
+.brand{color:var(--accent)}
+.ch{background:var(--sunken);border-radius:8px;padding:5px 10px;font-weight:600;font-size:.9rem}
+.links{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.links a{color:var(--text);text-decoration:none;padding:6px 10px;border-radius:8px;font-size:.92rem}
+.right{display:flex;align-items:center;gap:8px;margin-left:auto;position:relative}
+.bell{position:relative;width:40px;height:40px;border-radius:10px;border:1px solid var(--ctrl);background:var(--panel);display:grid;place-items:center}
+.bell svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bell .n{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid var(--bg)}
+.small{border:1px solid var(--ctrl);background:transparent;border-radius:8px;padding:6px 12px;font-size:.88rem}
+
+/* The list */
+.panel{position:absolute;right:0;top:calc(100% + 8px);z-index:10;width:min(400px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--ctrl);border-radius:14px;box-shadow:0 12px 32px rgb(0 0 0/.18);overflow:hidden}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--sunken)}
+.ph h2{margin:0;font-size:1rem}
+.link{border:0;background:none;color:var(--accent);font-weight:600;padding:4px 0}
+.list{max-height:440px;overflow:auto}
+.item{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;padding:14px 16px;border-bottom:1px solid var(--sunken);position:relative}
+.item.unread{background:var(--accent-soft)}
+.item.unread::after{content:"";position:absolute;right:14px;top:18px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--on-soft)}
+.ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.txt{min-width:0;padding-right:14px}
+.txt p{margin:0}
+.txt small{color:var(--muted)}
+.acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.b{min-height:34px;padding:5px 14px;border-radius:8px;border:1px solid var(--ctrl);background:var(--bg);font-weight:600;font-size:.88rem}
+.b.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.done{margin-top:6px;font-size:.88rem;color:var(--on-soft);font-weight:600}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.pf{padding:10px 16px;text-align:center}
+
+/* Welcome banner for someone just added */
+.welcome{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);color:var(--on-soft);border-radius:12px;padding:12px 16px;margin:16px 0}
+.welcome span{flex:1 1 260px}
+.side{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;margin-top:20px;align-items:start}
+@media (max-width:900px){.side{grid-template-columns:minmax(0,1fr)}}
+.notes{background:var(--panel);border-radius:14px;padding:16px}
+.notes h3{margin:0 0 8px;font-size:1rem}
+.notes ul{margin:0;padding-left:18px}.notes li{margin:4px 0}
+.view{display:flex;gap:4px;background:var(--sunken);border-radius:999px;padding:3px;margin-bottom:10px}
+.view button{flex:1;border:0;background:transparent;border-radius:999px;padding:5px 10px;font-size:.88rem}
+.view button[aria-pressed="true"]{background:var(--panel);font-weight:600}
+.note{color:var(--muted);font-size:.85rem}
+</style>
+
+<div class="wrap">
+  <nav class="navbar" aria-label="Main">
+    <span class="brand">Church Tools</span><span class="ch">Montagnard Bunong Alliance Church</span>
+    <div class="links"><a href="#">Hymn/Nau Mpro</a><a href="#">Readings</a><a href="#">Scripture</a><a href="#">Program</a><a href="#">Team</a></div>
+    <div class="right">
+      <button class="bell" id="bell" aria-haspopup="dialog" aria-expanded="true" aria-label="Notifications, 2 new">
+        <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="n" id="count">2</span>
+      </button>
+      <button class="small">Sign out</button>
+      <div class="panel" id="panel" role="dialog" aria-label="Notifications">
+        <div class="ph"><h2>Notifications</h2><button class="link" id="allRead">Mark all as read</button></div>
+        <div class="list" id="list"></div>
+        <div class="pf"><a class="link" href="#">Open the Team page</a></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="side">
+    <div>
+      <div class="view" role="group" aria-label="Show as">
+        <button aria-pressed="true" data-v="admin">As an admin</button>
+        <button aria-pressed="false" data-v="added">As someone just added</button>
+      </div>
+      <div class="welcome" id="welcome" hidden>
+        <span><b>Welcome to Montagnard Bunong Alliance Church.</b> Pastor (example) added you as an editor. You can now edit the church’s songs, readings and programs.</span>
+        <button class="b pri">Got it</button>
+      </div>
+      <p class="note">Sample only. Names are examples. Nothing is saved.</p>
+    </div>
+    <aside class="notes">
+      <h3>When people are told</h3>
+      <ul>
+        <li><b>Someone enters your join code:</b> every admin of that church gets a notification, and can accept or decline it right there.</li>
+        <li><b>Someone is added</b> (request accepted, or invited by email and signed in): they’re told who added them and their role.</li>
+        <li><b>A role changes</b> or someone is <b>removed</b>: that person is told.</li>
+        <li><b>A new church waits</b> for acceptance: site admins are told.</li>
+        <li>The bell checks every minute and when you come back to the page. Email can come later.</li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const I={join:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M19 8v6M16 11h6"/></svg>',
+ added:'<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+ role:'<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.3 6.8 19l1-5.8L3.6 9.1l5.8-.8z"/></svg>',
+ church:'<svg viewBox="0 0 24 24"><path d="M12 2v6M9 5h6M5 22V12l7-4 7 4v10M9 22v-5h6v5"/></svg>'};
+const ADMIN=[
+ {id:1,k:'join',unread:true,t:'<b>slides@example.com</b> wants to join <b>Montagnard Bunong Alliance Church</b>.',w:'2 min ago',acts:true},
+ {id:2,k:'church',unread:true,t:'A new church, <b>Example Church B</b>, is waiting to be accepted.',w:'1 hour ago',link:'Review on the Team page'},
+ {id:3,k:'added',unread:false,t:'<b>reader@example.com</b> joined <b>Montagnard Bunong Alliance Church</b> as an editor. Accepted by you.',w:'Yesterday'},
+];
+const ADDED=[
+ {id:4,k:'added',unread:true,t:'<b>Pastor (example)</b> added you to <b>Montagnard Bunong Alliance Church</b> as an <b>editor</b>.',w:'Just now'},
+ {id:5,k:'role',unread:false,t:'<b>Pastor (example)</b> made you an <b>admin</b> of <b>Example Church B</b>.',w:'3 days ago'},
+];
+let items=ADMIN.map(x=>({...x}));
+function draw(){
+  const n=items.filter(x=>x.unread).length;
+  $("count").textContent=n;$("count").hidden=!n;$("bell").setAttribute("aria-label",`Notifications${n?`, ${n} new`:""}`);
+  $("list").innerHTML=items.length?items.map(x=>`<div class="item${x.unread?" unread":""}">
+    <span class="ic" aria-hidden="true">${I[x.k]}</span>
+    <div class="txt"><p>${x.t}</p><small>${x.w}</small>
+    ${x.acts&&!x.done?`<div class="acts"><button class="b pri" data-a="ok" data-id="${x.id}">Make editor</button><button class="b" data-a="no" data-id="${x.id}">Decline</button></div>`:""}
+    ${x.done?`<p class="done">${x.done}</p>`:""}
+    ${x.link?`<div class="acts"><button class="link">${x.link}</button></div>`:""}</div></div>`).join(""):'<p class="empty">Nothing new.</p>';
+}
+$("list").onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const x=items.find(i=>i.id==b.dataset.id);x.unread=false;x.done=b.dataset.a==="ok"?"✓ Added as an editor. They’ve been told.":"Declined. They can still read and present.";draw()};
+$("allRead").onclick=()=>{items.forEach(x=>x.unread=false);draw()};
+$("bell").onclick=()=>{const p=$("panel");p.hidden=!p.hidden;$("bell").setAttribute("aria-expanded",!p.hidden)};
+document.querySelectorAll(".view button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".view button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  items=(b.dataset.v==="admin"?ADMIN:ADDED).map(x=>({...x}));$("welcome").hidden=b.dataset.v!=="added";$("panel").hidden=false;draw()});
+draw();
+</script>

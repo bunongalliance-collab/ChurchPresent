@@ -9,9 +9,14 @@ export default function Toasts() {
   // Measured again whenever a message appears: each page draws its own navbar, so it is replaced on page changes
   useEffect(() => {
     if (!list.length) return;
-    const nav = document.querySelector(".navbar");
+    // The top row of the navbar stays at the top of the screen; the page tabs below it scroll away
+    const nav = document.querySelector(".tn-top") ?? document.querySelector(".navbar");
     if (!nav) { setTop(12); return; }
-    const measure = () => setTop(Math.round(nav.getBoundingClientRect().bottom > 0 ? nav.getBoundingClientRect().bottom : 0) + 10);
+    const measure = () => {
+      const tabs = document.querySelector(".tn-tabs");
+      const tabsBottom = tabs && getComputedStyle(tabs).display !== "none" ? tabs.getBoundingClientRect().bottom : 0;
+      setTop(Math.round(Math.max(nav.getBoundingClientRect().bottom, tabsBottom, 0)) + 10);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(nav);
