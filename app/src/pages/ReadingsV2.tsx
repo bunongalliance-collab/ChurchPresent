@@ -15,6 +15,7 @@ import { fmtAt, tokenLenAt } from "../lib/richeditor";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
 import { downloadDeckPptx } from "../lib/pptx";
 import type { ProjDeck, ProjSlide } from "./Projector";
+import { mayDiscard, readingDirty, useUnsaved } from "../lib/unsaved";
 
 // Readings V2: the Readings page in the Lyric V2 layout (find | edit | check). Same data and storage as Readings.
 // Readings: non-song passages (Scripture readings, responsive readings, prayers, declarations...).
@@ -80,7 +81,7 @@ export default function ReadingsV2() {
 
   const [readings, setReadings] = useState<Reading[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState<string>(draft?.selectedId ?? "");
   const [query] = useState("");
   const [filterCat, setFilterCat] = useState(""); // "" all, "none" = Other (no category), else a category id
   const [favorites, setFavorites] = useState<string[]>(() => load(FAV_KEY, []));
@@ -100,8 +101,8 @@ export default function ReadingsV2() {
   const say = (msg: string, error = false) => { setStatus(msg); setStatusIsError(error); toast(msg, error); };
 
   useEffect(() => {
-    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ title, number, subtitle, categoryId, content, look })); } catch { /* blocked */ }
-  }, [title, number, subtitle, categoryId, content, look]);
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ selectedId, title, number, subtitle, categoryId, content, look })); } catch { /* blocked */ }
+  }, [selectedId, title, number, subtitle, categoryId, content, look]);
 
   // ----- Loading (Supabase when configured, otherwise this browser) -----
   const refresh = async (u: Session["user"] | null) => {
@@ -203,7 +204,12 @@ export default function ReadingsV2() {
     if (r?.look && Object.keys(r.look).length) setLook({ ...DEFAULT_LOOK, ...r.look });
     say(r ? `Opened "${r.title || "(untitled)"}".` : "New reading. Type or paste the text.");
   }
-  function newReading() { fillForm(null); setTitle(""); setNumber(""); setSubtitle(""); setContent(""); }
+  // Before the editor is replaced: ask when it holds changes that aren't saved
+  const dirty = () => readingDirty(readings.find((r) => r.id === selectedId) ?? null, { title, number, subtitle, categoryId, content, look });
+  const mayLeave = () => mayDiscard(dirty(), "reading", title);
+  // For the warning when the tab is closed (unknown while the open reading's saved copy hasn't loaded)
+  useUnsaved("reading", selectedId && !readings.length ? null : dirty(), title);
+  function newReading() { if (!mayLeave()) return; fillForm(null); setTitle(""); setNumber(""); setSubtitle(""); setContent(""); }
 
   const selected = readings.find((r) => r.id === selectedId) ?? null;
   const owned = !supabase || !selected || canEdit(selected);
@@ -406,7 +412,7 @@ export default function ReadingsV2() {
   const rowName = (r: Reading) => `${r.number ? r.number + ". " : ""}${r.title || (r.content.split("\n").find((l) => l.trim()) || "(untitled)").slice(0, 40)}`;
   const row = (r: Reading, group: string) => (
     <li key={`${group}-${r.id}`}>
-      <button type="button" className="lv2-song" aria-current={r.id === selectedId ? "true" : undefined} onClick={() => { if (r.id !== selectedId) fillForm(r); setLibOpen(false); }}>
+      <button type="button" className="lv2-song" aria-current={r.id === selectedId ? "true" : undefined} onClick={() => { if (r.id !== selectedId) { if (!mayLeave()) return; fillForm(r); } setLibOpen(false); }}>
         <span className="lv2-song-name">{rowName(r)}</span>
         <span className="lv2-song-meta">{r.categoryId ? catName(r.categoryId) : "Other"}</span>
       </button>
@@ -468,7 +474,9 @@ export default function ReadingsV2() {
 
         {/* Edit the reading */}
         <section className="lv2-card lv2-editor" aria-label="Reading editor">
-          <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span></div>
+          <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2>
+            <button className="primary small step-save" onClick={onSave}>Save Reading</button>
+          </div>
           <div className="lv2-title-row">
             <input className="lv2-title" aria-label="Reading title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Reading title" />
             <input className="lv2-number" aria-label="Number" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="No." />
@@ -506,11 +514,6 @@ export default function ReadingsV2() {
           )}
 
           <div className="rv2-dock">
-          <div className="lv2-actions rv2-actions-dock">
-            <span className="lv2-actions-end">
-              <button className="secondary" onClick={onSave}>Save Reading</button>
-            </span>
-          </div>
           <details className="lv2-appearance" open>
             <summary>Slide Appearance <span className="lv2-summary">{look.font} · {look.customSize ? `${look.customSize} pt` : "Automatic size"}</span></summary>
             {slides.some((x) => x.tooWide.length > 0) && <p className="sc-warn" role="alert">A word is too wide for the slide at this size. Reduce the font size.</p>}

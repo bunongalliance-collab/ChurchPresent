@@ -13,7 +13,7 @@ const KEYS = [
   // Recently added songs and readings (Presentation Builder, Program)
   "addedSongsLog", "builderHiddenRecentSongs", "addedReadingsLog", "builderHiddenRecentScriptures",
   // Unsaved drafts
-  "serviceProgramDraft5", "programDraftOwner", "builderDraft", "readingDraft", "scriptureDraft", "returnToBuilder",
+  "serviceProgramDraft5", "programDraftOwner", "builderDraft", "readingDraft", "scriptureDraft", "returnToBuilder", "unsavedPages", "serviceSlidesProgram",
   "programV2Items", "programV3Items", "programSimpleLines",
   // Favourites and recently used
   "lyricsFavorites", "lyricsRecent", "readingFavourites", "readingRecent", "scriptureFavorites", "scriptureRecent",

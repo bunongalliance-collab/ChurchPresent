@@ -15,6 +15,7 @@ import { recordAddedSong } from "../lib/recentSongs";
 import { parseRows, songRowSchema } from "../lib/schemas";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
 import { canEdit, saveChurchId, useChurch, useChurchNames } from "../lib/church";
+import { mayDiscard, songDirty, useUnsaved } from "../lib/unsaved";
 
 // Lyric V2: the Lyrics page in the find | edit | check layout.
 // It reads and writes the same songs, drafts and browser storage as the Lyrics page, so the two stay in step.
@@ -76,6 +77,7 @@ export default function LyricsV2() {
   const draft = useMemo(() => {
     try { return JSON.parse(sessionStorage.getItem(LYRICS_DRAFT) || "null"); } catch { return null; }
   }, []);
+  const [selectedId, setSelectedId] = useState<string>(draft?.selectedId ?? "");
   const [songTitle, setSongTitle] = useState<string>(draft?.songTitle ?? "");
   const [songNumber, setSongNumber] = useState<string>(draft?.songNumber ?? "");
   const [songCategory, setSongCategory] = useState<string>(draft?.songCategory ?? "");
@@ -92,15 +94,14 @@ export default function LyricsV2() {
   useEffect(() => {
     try {
       sessionStorage.setItem(LYRICS_DRAFT, JSON.stringify({
-        songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats,
+        selectedId, songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats,
       }));
     } catch { /* storage blocked */ }
-  }, [songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats]);
+  }, [selectedId, songTitle, songNumber, songCategory, songLanguage, lyrics, font, perSlide, customSize, colorBg, colorText, showTitle, showLabels, removeRepeats]);
   // How many preview slides sit side by side (a smaller preview shows more slides at once)
 
   // Saved songs and account
   const [songs, setSongs] = useState<SavedSong[]>([]);
-  const [selectedId, setSelectedId] = useState("");
   const [loaded, setLoaded] = useState(false); // the song list has arrived (or failed)
   const [confirmDel, setConfirmDel] = useState(false); // Delete asks first, in the page
   const [libOpen, setLibOpen] = useState(false); // phone only: the song list is folded away until chosen
@@ -125,8 +126,8 @@ export default function LyricsV2() {
     const song = songs.find((x) => x.id === openId);
     openedRef.current = true;
     if (!song) return;
-    ensureLyrics(song).then((full) => {
-      if (!full) return;
+    ensureLyrics(song).then(async (full) => {
+      if (!full || !(await mayLeave())) return;
       fillForm(full);
       say(`Editing "${song.title || "(untitled)"}". Change the formatting, save, then go back.`);
     });
@@ -185,9 +186,27 @@ export default function LyricsV2() {
     void cacheLyrics(s.id, text);
     return { ...s, lyrics: text };
   }
+  // For the warning when the tab is closed. The open song's words are fetched (after a reload) so it can be compared.
+  const opened = songs.find((x) => x.id === selectedId);
+  useEffect(() => { if (opened && opened.lyrics === undefined) void ensureLyrics(opened); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [opened?.id, opened?.lyrics === undefined]);
+  const songName = songTitle.trim() ? `${songNumber.trim() ? `${songNumber.trim()}. ` : ""}${songTitle.trim()}` : "";
+  useUnsaved("song", (selectedId && !loaded) || (opened && opened.lyrics === undefined) ? null
+    : songDirty(opened ?? null, { title: songTitle, number: songNumber, lyrics, look: currentLook() }), songName);
+
+  // Before the editor is replaced: ask when it holds changes that aren't saved
+  async function mayLeave(): Promise<boolean> {
+    const open = songs.find((x) => x.id === selectedId);
+    const saved = open ? await ensureLyrics(open) : null;
+    // The saved copy couldn't be loaded to compare: ask, to be safe
+    const dirty = open && !saved ? true : songDirty(saved, { title: songTitle, number: songNumber, lyrics, look: currentLook() });
+    return mayDiscard(dirty, "song", songName);
+  }
+  async function newSong() {
+    if (await mayLeave()) fillForm(null);
+  }
   async function pickSong(s: SavedSong) {
     const full = await ensureLyrics(s);
-    if (full) fillForm(full);
+    if (full && (await mayLeave())) fillForm(full);
   }
 
   const refreshSongs = async (user: Session["user"] | null) => {
@@ -386,7 +405,7 @@ export default function LyricsV2() {
   }
 
   async function onNext() {
-    await saveCurrent();
+    if (!(await saveCurrent()) && !(await mayLeave())) return;   // not saved (signed out, no words): don't lose it
     fillForm(null);
     say("Ready for the next song.");
   }
@@ -599,8 +618,8 @@ export default function LyricsV2() {
         <div className="lv2-grid">
           {/* Step 1: find a song */}
           <div className="lf-stop lf-s1">
-            <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose a song</h2></div>
             <aside className={`lv2-card lv2-lib${libOpen ? " open" : ""}`} aria-label="Song library">
+              <div className="lv2-step-head"><span className="lv2-step-n">1</span><h2>Choose a song</h2></div>
               {/* Phone: one row showing the current song; the list opens from it */}
               <button type="button" className="lv2-lib-toggle" aria-expanded={libOpen} onClick={() => setLibOpen((v) => !v)}>
                 <span className="lv2-lib-current">{selectedId ? `${songNumber ? songNumber + ". " : ""}${songTitle || "(untitled)"}` : "Choose a song"}</span>
@@ -609,7 +628,7 @@ export default function LyricsV2() {
               <div className="lv2-lib-head">
                 <div className="lf-search-row">
                   <input className="lv2-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, number or lyrics" aria-label="Search songs" />
-                  <button type="button" className="secondary small lv2-new" onClick={() => fillForm(null)}>+ New song</button>
+                  <button type="button" className="secondary small lv2-new" onClick={() => void newSong()}>+ New song</button>
                 </div>
                 <div className="lv2-filters">
                   <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} aria-label="Filter songs by category">
@@ -654,9 +673,10 @@ export default function LyricsV2() {
 
           {/* Step 2: edit the song */}
           <div className="lf-stop lf-s2">
-            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2></div>
-            <p className="lf-sub">Edit, then save</p>
             <section className="lv2-card lv2-editor" aria-label="Song editor">
+              <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2>
+                <button className="primary small step-save" onClick={onSave}>Save Song</button>
+              </div>
               <p className="lv2-note">
                 If the lyric is incorrect, you can make changes and then save the song.
                 <span lang="vi">Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.</span>
@@ -805,7 +825,6 @@ export default function LyricsV2() {
                     </div>
                   </details>
                   <button className="secondary" onClick={onNext}>Next Song</button>
-                  <button className="secondary" onClick={onSave}>Save Song</button>
                 </span>
               </div>
               {confirmDel && (
@@ -832,13 +851,13 @@ export default function LyricsV2() {
 
           {/* Step 3: check the slides */}
           <div className="lf-stop lf-s3">
-            {/* Wider screens: Add to Presentation on the heading's row (phones keep it in the pinned preview) */}
-            <div className="lv2-step-head lv2-preview-row">
-              <span className="lv2-step-n">3</span><h2>Preview the slides</h2>
-              <button className={`primary lv2-add lv2-add-head${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
-            </div>
-            <p className="lf-sub">Generated from the current lyrics</p>
             <aside className={`lv2-card lv2-preview${current ? "" : " empty"}`} aria-label="Slide preview">
+              {/* Wider screens: Add to Presentation on the heading's row (phones keep it in the pinned preview) */}
+              <div className="lv2-step-head lv2-preview-row">
+                <span className="lv2-step-n">3</span><h2>Preview the slides</h2>
+                <button className={`primary lv2-add lv2-add-head${justAdded ? " flash" : ""}`} onClick={onAddToPresentation}>{justAdded ? "✓ Added" : selectedInPresentation ? "✓ In presentation" : "+ Add to Presentation"}</button>
+              </div>
+              <p className="lf-sub">Generated from the current lyrics</p>
               {current ? (
                 <div className="lv2-stage" style={{ background: colorBg, color: colorText, fontFamily: `${font}, sans-serif`, ...(current.left ? { padding: 0, alignItems: "flex-start", justifyContent: "flex-start" } : {}) }}>
                   <div className="lv2-stage-text" style={{ fontSize: `${((current.size || deck.size) / SLIDE_W_PT) * 100}cqw`, lineHeight: current.lineH || 1.3, padding: current.left ? LYRIC_PAD_CSS : SLIDE_PAD, ...(current.left ? { textAlign: "left" as const } : {}) }}>{current.join("\n")}</div>

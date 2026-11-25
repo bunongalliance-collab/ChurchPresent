@@ -2050,6 +2050,7 @@ html .lf .lv2-card { background: var(--panel); border: 0; border-radius: 20px; b
 /* Step 1 */
 html .lf .lv2-lib { padding: 14px; gap: 10px; top: 12px; max-height: calc(100vh - 90px); }
 html .lf .lv2-lib-head { padding: 0; border: 0; gap: 8px; }
+html .lf .lv2-lib > .lv2-step-head { padding: 0; }   /* the step numbers sit inside the cards */
 .lf-search-row { display: flex; gap: 8px; align-items: center; }
 html .lf input.lv2-search { flex: 1; min-width: 0; border-radius: 999px; padding: 7px 16px; }
 html .lf button.lv2-new { width: auto; flex: none; }
@@ -2147,7 +2148,7 @@ html .lf .lv2-show > button { margin-left: 0; background: var(--accent); color: 
   html .lf .lf-stop { display: contents; }
   html .lf .lv2-step-head::after { display: none; }
   html .lf .lf-sub { margin-left: 0; }
-  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head, html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lf-sub { display: none; }
+  html .lf .lv2-preview:not(.empty) > .lv2-step-head, html .lf .lv2-preview:not(.empty) > .lf-sub { display: none; }
   html .lf .lv2-show { position: static; transform: none; width: auto; max-width: none; border-radius: 16px; padding: 8px 12px; flex-wrap: wrap; margin-top: 14px; }
   html .lf .lf-ap .lf-ap-panel .rv2-line { grid-template-columns: 1fr; gap: 3px; }
   .lf-qsize { margin-left: 0; padding-left: 0; border-left: 0; }
@@ -2271,6 +2272,10 @@ html:has(.ss), html:has(.ss) body { height: auto; overflow: auto; background: va
 .ss-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
 .ss-top h1 { font: 600 1.9rem/1.15 var(--font-ui); margin: 0; }
 .ss-status { margin: 4px 0 0; color: var(--muted); }
+/* Which program's slides: at the top of the Program order card */
+.ss-pick { display: grid; gap: 4px; margin-bottom: 12px; }
+.ss-pick select { width: 100%; }
+.ss-pick small { color: var(--muted); padding: 0 4px; }
 .ss-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .ss-link { color: var(--accent); text-decoration: none; padding: 0 6px; }
 .ss-link:hover { text-decoration: underline; }
@@ -2533,8 +2538,8 @@ html body .toast .toast-x:hover { opacity: 1; }
 @media (max-width: 720px) {
   .lv2-add-bottom { display: none !important; }
   /* The Lyric page hides the Preview heading on phones while a song is open; keep only its button */
-  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head { display: contents !important; }
-  html .lf .lf-s3:has(.lv2-preview:not(.empty)) > .lv2-step-head > :not(.lv2-add-head) { display: none; }
+  html .lf .lv2-preview:not(.empty) > .lv2-step-head { display: contents !important; }
+  html .lf .lv2-preview:not(.empty) > .lv2-step-head > :not(.lv2-add-head) { display: none; }
   html body .ct-app button.primary.lv2-add-head,
   html body .ct-app .sc-preview .sc-pres-inline button.primary {
     display: inline-flex !important; align-items: center; position: fixed; right: 16px; bottom: calc(28px + env(safe-area-inset-bottom, 0px));
@@ -3054,3 +3059,7 @@ html body .sc-app .tn-account { display: block !important; }
 .pl-vis { display: block; }
 .pl-row.is-private { box-shadow: inset 4px 0 0 var(--private); background: linear-gradient(90deg, var(--private-soft), transparent 45%); }
 .sc-head-vis { margin-left: auto; }
+
+/* Lyric, Readings and Scripture: Save sits at the top right of step 2, in view while editing */
+.step-save { margin-left: auto; flex: none; }
+.step-save + .sc-head-vis { margin-left: 8px; }

@@ -18,6 +18,7 @@ import { fmtAt, markerToVisible, NO_FMT, tokenLenAt, visibleToMarker } from "../
 import { DB_BIBLES, fetchDbBooks, fetchDbPassage, isDbBible } from "../lib/bible";
 import { addForSlides, claimForSlides, passCode, readForSlides, releaseForSlides, watchForSlides, writeForSlides, type SlidePass } from "../lib/forSlides";
 import { savedBook } from "../bible/data";
+import { mayDiscard, studyDirty, useUnsaved } from "../lib/unsaved";
 
 // ---------- Bible versions (YouVersion IDs). Kept in this browser; add or remove as needed. ----------
 interface BibleVersion { id: string; name: string }
@@ -559,7 +560,20 @@ export default function Scripture() {
     setScFavorites((cur) => (cur.includes(currentId) ? cur.filter((x) => x !== currentId) : [...cur, currentId]));
   }
 
+  // Before the study on the page is replaced: ask when it holds changes that aren't saved
+  function dirty(): boolean {
+    const open = saved.find((x) => x.id === currentId);
+    const { slides: was, ...rest } = open?.data ?? { slides: [] };
+    return studyDirty(open ? { title: open.title, slides: was, look: { ...DEFAULT_LOOK, ...rest } } : null, { title, slides, look });
+  }
+  const studyName = title === "Scripture study" ? "" : title;   // the starting name says nothing
+  const mayLeave = () => mayDiscard(dirty(), "study", studyName);
+  // For the warning when the tab is closed (unknown while the open study's saved copy hasn't loaded)
+  useUnsaved("study", currentId && !saved.length ? null : dirty(), studyName);
+  async function onSave() { await save(); }
+
   function openStudy(id: string) {
+    if (id !== currentId && !mayLeave()) return;
     setScRecent((cur) => [id, ...cur.filter((x) => x !== id)].slice(0, 8));
     const s = saved.find((x) => x.id === id);
     if (!s) return;
@@ -623,6 +637,9 @@ export default function Scripture() {
   }
 
   function newStudy() {
+    if (mayLeave()) resetStudy();
+  }
+  function resetStudy() {
     setCurrentId(""); setTitle("Scripture study"); setSlides([]); setSelectedId(""); setPreviewIndex(0);
     say("New study. Add a slide to start.");
   }
@@ -640,7 +657,7 @@ export default function Scripture() {
     const r = await saveRow({ table: "scripture_studies", op: "delete", id: currentId });
     if (r.status === "error") { say("Could not delete: " + r.message, true); return; }
     if (r.status === "sent") await loadSaved();
-    newStudy();
+    resetStudy();
     say(r.status === "queued" ? QUEUED_NOTE : "Study deleted.");
   }
 
@@ -845,7 +862,7 @@ export default function Scripture() {
               </div>
               <div className="sc-incoming-btns">
                 <button className="secondary" onClick={() => setLaterIncoming(true)} disabled={busy}>Later</button>
-                <button className="secondary" onClick={() => addIncoming(true)} disabled={busy}>Start a new study</button>
+                <button className="secondary" onClick={() => { if (mayLeave()) void addIncoming(true); }} disabled={busy}>Start a new study</button>
                 <button className="primary" onClick={() => addIncoming(false)} disabled={busy}>Add to this study</button>
               </div>
             </section>
@@ -900,7 +917,8 @@ export default function Scripture() {
         <div className="sc-body">
           {/* Edit the selected slide */}
           <section className="sc-col sc-edit" aria-label="Edit slide">
-            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2><span className="lv2-sub">Edit, then save</span>
+            <div className="lv2-step-head"><span className="lv2-step-n">2</span><h2>Check the words</h2>
+              <button className="primary small step-save" onClick={() => void onSave()} disabled={busy}>Save Study</button>
               {openSaved && (
                 <span className="sc-head-vis">
                   <VisSwitch isPrivate={!!openSaved.private} canChange={!!user && openSaved.owner === user.id}

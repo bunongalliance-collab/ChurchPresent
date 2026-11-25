@@ -4,7 +4,9 @@ import NavBar from "../components/NavBar";
 import { PROJECTOR_KEY, renderStage, type ProjDeck, type ProjSlide } from "./Projector";
 import { flatten, type Item, type Settings } from "./Builder";
 import { buildOutput } from "./Scripture";
-import { loadDraft } from "./Program";
+import { loadDraft, normalizeDraft } from "./Program";
+import { loadProgramData, useProgramList, type ProgramChoice } from "../lib/programList";
+import { toast } from "../lib/toast";
 import { findSongOptions, loadSongOptions, matchSong } from "../lib/recentSongs";
 import { PROGRAM_DRAFT_KEY, rowsToLines, subKind } from "../lib/orderLines";
 import { STAGES } from "../lib/programPdf";
@@ -12,13 +14,17 @@ import { browserMeasure } from "../lib/slides";
 import { buildServiceDeck, parseItems, type Resources, type SongData } from "../lib/servicePresentation";
 
 // Service presentation (#service): slides for the whole service, built from the Program's order of worship.
-// It reads the Program saved in this browser and the saved songs, readings and scriptures. It keeps no copy of any of them:
-// every time the page opens (or Refresh is pressed) the slides are built again from the current data.
+// It shows the program open on the Program page (saved in this browser), or any of the church's programs chosen from the
+// list, with the saved songs, readings and scriptures. It keeps no copy of any of them: every time the page opens (or
+// Refresh is pressed) the slides are built again from the current data. Choosing a program here changes nothing in it.
 
 const BG = "#213648";
 const FG = "#f5f2ea";
 const FONT = "Arial";
 const SETTINGS: Settings = { font: FONT, perSlide: 4, bg: BG, fg: FG, showLabels: true, removeRepeats: false };
+const PICK_KEY = "serviceSlidesProgram";   // the chosen program, for this tab ("": the one on the Program page)
+const readPick = () => { try { return sessionStorage.getItem(PICK_KEY) ?? ""; } catch { return ""; } };
+const dayName = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 
 // Load what the Program's lines point at: songs (public), recent readings (this browser) and scripture studies (the owner's)
 async function loadResources(lines: ReturnType<typeof rowsToLines>): Promise<Resources> {
@@ -100,9 +106,35 @@ export default function ServicePresentation() {
   const seenRaw = useRef<string | null>(null);
   const readRaw = () => { try { return localStorage.getItem(PROGRAM_DRAFT_KEY); } catch { return null; } };
   if (seenRaw.current === null) seenRaw.current = readRaw() ?? "";
-  const refresh = useCallback(() => { seenRaw.current = readRaw() ?? ""; setRes(null); setProgram(loadDraft()); }, []);
+  // Which program: "" follows the Program page; otherwise one of the church's saved programs
+  const { signedIn, list } = useProgramList();
+  const [picked, setPicked] = useState(readPick);
+  const pickedRef = useRef(picked); pickedRef.current = picked;
+  const show = useCallback(async (id: string) => {
+    if (!id) { seenRaw.current = readRaw() ?? ""; setRes(null); setProgram(loadDraft()); return; }
+    const data = await loadProgramData(id);
+    if (pickedRef.current !== id) return;   // another one was chosen meanwhile
+    if (!data) { toast("That program couldn’t be opened. Check the connection and sign-in.", true); return; }
+    setRes(null); setProgram(normalizeDraft(data));
+  }, []);
+  const choose = (id: string) => {
+    setPicked(id); pickedRef.current = id; setIndex(0);
+    try { sessionStorage.setItem(PICK_KEY, id); } catch { /* storage blocked */ }
+    void show(id);
+  };
+  // A chosen program from earlier in this tab: open it once signed in; one that is gone falls back to the Program page's
+  const opened = useRef(false);
   useEffect(() => {
-    const check = () => { if ((readRaw() ?? "") !== seenRaw.current) refresh(); };
+    if (opened.current || !list.length) return;
+    opened.current = true;
+    if (!pickedRef.current) return;
+    if (list.some((x) => x.id === pickedRef.current)) void show(pickedRef.current); else choose("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list]);
+  const refresh = useCallback(() => { void show(pickedRef.current); }, [show]);
+  useEffect(() => {
+    // Following the Program page: rebuild when it changed. A chosen program: read it again on coming back.
+    const check = () => { if (pickedRef.current) { if (document.hasFocus()) refresh(); } else if ((readRaw() ?? "") !== seenRaw.current) refresh(); };
     window.addEventListener("storage", check);   // another tab saved the Program
     window.addEventListener("focus", check);     // coming back to this tab
     return () => { window.removeEventListener("storage", check); window.removeEventListener("focus", check); };
@@ -160,6 +192,12 @@ export default function ServicePresentation() {
   }
 
   const stageName = (s: number) => STAGES[s] ?? "";
+  const today = new Date().toLocaleDateString("en-CA");
+  const groups: [string, ProgramChoice[]][] = [
+    ["Upcoming", list.filter((x) => x.date >= today)],
+    ["Past", list.filter((x) => x.date < today).reverse()],
+  ];
+  const known = signedIn && list.some((x) => x.id === picked);
   const itemCount = parseItems(lines).length;
 
   return (
@@ -195,6 +233,17 @@ export default function ServicePresentation() {
 
         <div className="ss-grid">
           <aside className="ss-outline" aria-label="Program order">
+            <div className="ss-pick">
+              <select aria-label="Program" value={known ? picked : ""} onChange={(e) => choose(e.target.value)}>
+                <option value="">On the Program page{!known && program.date ? ` · ${dayName(program.date)}` : ""}</option>
+                {groups.map(([name, items]) => items.length > 0 && (
+                  <optgroup key={name} label={name}>
+                    {items.map((x) => <option key={x.id} value={x.id}>{dayName(x.date)} · {x.title || "Service"}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              {!signedIn && <small>Sign in to choose from your church’s programs.</small>}
+            </div>
             <h2>Program order</h2>
             {result?.outline.map((e, i) => {
               const showStage = i > 0 && (i === 1 || e.stage !== result.outline[i - 1].stage);
