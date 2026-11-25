@@ -209,23 +209,52 @@ textarea { width: 100%; min-height: 110px; font: 15px/1.5 var(--sans); color: va
 .hit span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
 .hit .tx { font-family: var(--serif); font-size: 16px; line-height: 1.6; color: var(--fg); }
 
-/* The service's scripture reading: a quiet nudge just above the bottom bar, beside the corner button when that shows.
-   Its page-coloured backing only keeps it readable over the text. */
-.nudge { position: fixed; z-index: 15; right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 2px; max-width: calc(100vw - 96px); min-height: 36px; padding: 4px 4px 4px 10px; border-radius: 8px; background: var(--bg); color: var(--muted); font-size: 13px; text-align: right; }
-.nudge.beside { right: calc(max(12px, calc(env(safe-area-inset-right, 0px) + 8px)) + 56px); bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
+/* Quiet nudges just above the bottom bar, beside the corner button when that shows: the church's latest shared verse
+   and the service's scripture reading. Their page-coloured backing only keeps them readable over the text. */
+.nudges { position: fixed; z-index: 15; right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; align-items: flex-end; max-width: calc(100vw - 96px); }
+.nudges.beside { right: calc(max(12px, calc(env(safe-area-inset-right, 0px) + 8px)) + 56px); bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+.nudge { display: flex; align-items: center; gap: 2px; min-height: 32px; padding: 3px 4px 3px 10px; border-radius: 8px; background: var(--bg); color: var(--muted); font-size: 13px; text-align: right; }
 .nudge:hover { color: var(--fg); }
 .nudge svg { width: 14px; height: 14px; }
+.nudge svg:first-child:not(:last-child) { width: 16px; height: 16px; margin-right: 4px; }
 main.has-nudge { padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px)); }
+main.has-nudge.two { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 /* Desktop has no bottom bar: the lower-right corner, above the For slides button */
-@media (min-width: 900px) { .nudge, .nudge.beside { right: 16px; bottom: 88px; } main.has-nudge { padding-bottom: 136px; } }
+@media (min-width: 900px) { .nudges, .nudges.beside { right: 16px; bottom: 88px; } main.has-nudge { padding-bottom: 136px; } main.has-nudge.two { padding-bottom: 170px; } }
 /* The way back from the service reading, under the chapter heading. It stays in view, as the passage may open further down */
 .svc { display: flex; align-items: center; gap: 4px; width: fit-content; max-width: 100%; text-align: left; margin: -12px 0 12px -8px; padding: 6px 8px; min-height: 36px; border-radius: 8px; background: var(--bg); font-size: 13px; color: var(--muted); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; position: sticky; top: calc(8px + env(safe-area-inset-top, 0px)); z-index: 15; }
 .svc:hover { color: var(--fg); text-decoration-color: currentColor; }
 .svc svg { width: 14px; height: 14px; }
 @media (min-width: 900px) { .svc { top: 68px; } }
 
-/* Narrow phones: five tools and the book name share the bar, so the tools sit closer (still 44px tall) */
+/* Church choice, and sharing verses with it */
+.select { min-height: 44px; max-width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: inherit; font-size: 16px; }
+.row .select { flex: 1 1 180px; min-width: 0; }
+.share-form { display: grid; gap: 6px; padding-top: 12px; }
+.share-form .k { font-weight: 600; font-size: 14px; margin-top: 8px; }
+.share-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: 16px; }
+.share-form textarea { min-height: 76px; margin-top: 0; font-size: 16px; }
+.share-form .hint { margin: 2px 0 0; }
+.btn:disabled { opacity: .5; cursor: default; }
+.pb > .seg { margin-bottom: 6px; }
+.pb > .select { width: 100%; }
+.shared { border-bottom: 1px solid var(--line); }
+.shared .hit { border-bottom: 0; }
+.shared .lnk { margin-bottom: 6px; }
+.btns.mid { justify-content: center; }
+.views { margin: 0 0 6px; }
+/* A shared verse: its first two lines, then the note and who */
+.hit .tx.two { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hit .nt { font-size: 14px; color: var(--fg); border-left: 2px solid var(--line); padding-left: 10px; margin-top: 8px; white-space: pre-wrap; }
+.hit strong { color: var(--fg); font-weight: 600; }
+/* New shared verses since the last look: a small quiet dot */
+.ib { position: relative; }
+.dot { position: absolute; top: 9px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--clay); }
+
+/* Narrow phones: six tools and the book name share the bar, so the tools sit closer (still 44px tall) */
 @media (max-width: 480px) {
-  .icons .ib { width: 38px; }
+  .icons .ib { width: 35px; }
   .pill { padding-inline: 6px; }
 }
+@media (max-width: 400px) { .pill svg { display: none; } }
+@media (max-width: 340px) { .icons .ib { width: 31px; } main.has-nudge.two { padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px)); } }

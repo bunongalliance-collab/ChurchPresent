@@ -8,6 +8,7 @@ import { SEARCH_LIMIT, TRANSLATION, getBook, localBooks, refreshBookNames, saveW
 import { parseReference, tidy, versesInRange, type Found } from "./find";
 import { applyPos, currentPos, readBack, readPos, writeBack, writePos, type Pos } from "./position";
 import { useServiceScripture } from "./service";
+import { NOTE_MAX, loadMyChurches, postShare, rememberName, rememberedName, removeShare, shareAudience, useReaderChurch, useShared, type ChurchChoice, type MyShare, type SharedData } from "./share";
 
 // ---------- Stored on this device ----------
 type Size = "s" | "m" | "l";
@@ -65,12 +66,14 @@ const PATHS: Record<string, ReactNode> = {
   up: <path d="m6 15 6-6 6 6" />,
   dn: <path d="m6 9 6 6 6-6" />,
   open: <><path d="M14 9V5H3v14h11v-4" /><path d="M9 12h12M17 8l4 4-4 4" /></>,
+  share: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><path d="M18 8v6M15 11h6" /></>,
+  shared: <><circle cx="12" cy="8" r="3" /><path d="M7 19c0-3 2.2-5 5-5s5 2 5 5" /><circle cx="5" cy="10" r="2" /><path d="M2 17c0-2 1.3-3.3 3.5-3.3" /><circle cx="19" cy="10" r="2" /><path d="M22 17c0-2-1.3-3.3-3.5-3.3" /></>,
   slides: <><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></>,
 };
 const Icon = ({ n }: { n: string }) => <svg viewBox="0 0 24 24" aria-hidden="true">{PATHS[n]}</svg>;
 
-type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings" | "slides" | "search";
-interface PanelState { name: PanelName; book?: string; chap?: number; edit?: string }
+type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings" | "slides" | "search" | "share" | "shared";
+interface PanelState { name: PanelName; book?: string; chap?: number; edit?: string; pass?: Pass }
 
 export default function Bible() {
   const [s, setS] = useState<State>(loadState);
@@ -194,7 +197,9 @@ export default function Bible() {
 
   // ---------- The scripture reading of the church's service: a quiet nudge in the lower-right corner ----------
   useEffect(() => writeBack(back), [back]);
-  const service = useServiceScripture(books);
+  const churches = useReaderChurch(sync.session?.user.id ?? null);
+  const service = useServiceScripture(books, churches.church?.id ?? null);
+  const shared = useShared(churches.church?.id ?? null, sync.session?.user.id ?? null);
   const openService = (f: Found) => {
     const from = here();
     go(f.book.code, f.chap, f.v1 ?? undefined, f.v2 ?? undefined);
@@ -207,8 +212,16 @@ export default function Bible() {
     setRestore((n) => n + 1);
   };
   const bookName = (code: string) => books.find((x) => x.code === code)?.local ?? code;
-  // Hidden while verse actions or a panel are open, and on the passage it has just opened
-  const nudge = service && !panel && !picked.length && !(back && s.book === service.found.book.code && s.chap === service.found.chap) ? service : null;
+  // The church's newest shared verse, shown above the service reading
+  const latest = shared.rows?.find((r) => books.some((b) => b.code === r.book_code));
+  const latestFound: Found | null = latest ? { book: books.find((b) => b.code === latest.book_code)!, chap: latest.chapter, v1: latest.verse_from, v2: latest.verse_to } : null;
+  // Hidden while verse actions or a panel are open, and each one on the passage it has just opened
+  const offer = (f: Found) => !panel && !picked.length && !(back && s.book === f.book.code && s.chap === f.chap);
+  const nudges = [
+    ...(latestFound && offer(latestFound) ? [{ key: "shared", label: "Latest shared", found: latestFound, open: () => { shared.markSeen(); openService(latestFound); } }] : []),
+    ...(service && offer(service.found) ? [{ key: "service", label: service.label, found: service.found, open: () => openService(service.found) }] : []),
+  ];
+  const nudgeSpace = (latestFound ? 1 : 0) + (service ? 1 : 0);   // room kept below the chapter's last buttons
 
   // Previous and next chapter, across books
   const step = (d: 1 | -1) => {
@@ -233,6 +246,12 @@ export default function Bible() {
     say(on ? (picked.length > 1 ? `${picked.length} verses saved` : "Saved") : "Removed from Saved");
   };
   const passLabel = (ps: Pass) => `${books.find((x) => x.code === ps.b)?.local ?? ps.b} ${ps.c}:${ps.v1}${ps.v2 > ps.v1 ? `–${ps.v2}` : ""}`;
+  // Share with church: one passage at a time (verses next to each other in a chapter)
+  const sharePicked = () => {
+    const ps = passesOf(picked);
+    if (ps.length === 1) setPanel({ name: "share", pass: ps[0] });
+    else say("To share, select verses next to each other");
+  };
   // The slides icon: add the passages to the slide list in one tap. The message offers to open the Scripture page now;
   // otherwise keep reading and collecting, and open the list later from Saved.
   const addToSlides = (ps: Pass[]) => {
@@ -326,6 +345,7 @@ export default function Bible() {
             <button className="ib" aria-label="Search" aria-haspopup="dialog" onClick={() => setPanel({ name: "search" })}><Icon n="search" /></button>
             <button className="ib" aria-label="Home: back to the passage" onClick={() => { setPanel(null); setPicked([]); window.scrollTo({ top: 0 }); }}><Icon n="home" /></button>
             <button className="ib" aria-label="Saved verses" aria-haspopup="dialog" onClick={() => setPanel({ name: "saved" })}><Icon n="save" /></button>
+            <button className="ib" aria-label={shared.unseen ? "Shared verses, new" : "Shared verses"} aria-haspopup="dialog" onClick={() => { shared.reload(); setPanel({ name: "shared" }); }}><Icon n="shared" />{shared.unseen && <span className="dot" aria-hidden="true" />}</button>
             <button className="ib" aria-label="Notes" aria-haspopup="dialog" onClick={() => setPanel({ name: "notes" })}><Icon n="note" /></button>
             <button className="ib" aria-label="Settings" aria-haspopup="dialog" onClick={() => setPanel({ name: "settings" })}><Icon n="set" /></button>
           </nav>
@@ -334,7 +354,7 @@ export default function Bible() {
 
       <div className="wrap">
         <p className="title">Nau Brah Ndu Ngơi</p>
-        <main className={service ? "has-nudge" : undefined}>
+        <main className={nudgeSpace ? (nudgeSpace > 1 ? "has-nudge two" : "has-nudge") : undefined}>
           <p className="ref">{book.local} &middot; Chapter {s.chap}</p>
           {back && <button className="svc" onClick={() => goBack(back)}><Icon n="l" />Back to {bookName(back.book)} {back.chap}</button>}
           {chapter ? <Passage book={s.book} chap={s.chap} ch={chapter} s={s} picked={picked} onSelect={tap} />
@@ -363,6 +383,7 @@ export default function Bible() {
             <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
         </div>
       )}
@@ -374,6 +395,7 @@ export default function Bible() {
             <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}
           {showGo && <button className="go" aria-pressed={desk ? panel?.name === "slides" : undefined}
@@ -384,9 +406,12 @@ export default function Bible() {
         </div>
       )}
 
-      {nudge && <button className={`nudge${showGo ? " beside" : ""}`} onClick={() => openService(nudge.found)}>{nudge.label} &middot; {refLabel(nudge.found)}<Icon n="r" /></button>}
+      {nudges.length > 0 && <div className={`nudges${showGo ? " beside" : ""}`}>
+        {nudges.map((n) => <button key={n.key} className="nudge" onClick={n.open}>{n.key === "shared" && <Icon n="shared" />}{n.label} &middot; {refLabel(n.found)}<Icon n="r" /></button>)}
+      </div>}
 
       {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} sync={sync} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
+        churches={churches} shared={shared} clearPicked={() => setPicked([])}
         passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} moveForSlides={moveForSlides} />}
       {toast && <div className={`toast${toast.open ? " act" : ""}`} role="status">{toast.m}{toast.open && <button onClick={() => { setToast(null); openScripture(forSlides); }}>Open Scripture</button>}</div>}
     </>
@@ -438,6 +463,7 @@ interface PanelProps {
   passLabel: (p: Pass) => string; passesOf: (keys: string[]) => Pass[]; addToSlides: (ps: Pass[]) => void;
   forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void; moveForSlides: (i: number, d: -1 | 1) => void;
   sync: { session: Session | null; state: SyncState; savedAt: string | null };
+  churches: ChurchChoice; shared: SharedData; clearPicked: () => void;
 }
 function Panels(props: PanelProps) {
   const { p, setPanel } = props;
@@ -450,6 +476,8 @@ function Panels(props: PanelProps) {
     case "notes": return <NotesPanel {...props} close={close} />;
     case "settings": return <SettingsPanel {...props} close={close} />;
     case "search": return <SearchPanel {...props} close={close} />;
+    case "share": return <SharePanel {...props} close={close} />;
+    case "shared": return <SharedPanel {...props} close={close} />;
     case "slides": return <SlidesPanel {...props} close={close} />;
   }
 }
@@ -475,7 +503,7 @@ function Panel({ title, sub, wide, top, drawer: asDrawer, bodyClass, close, chil
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") { e.stopPropagation(); close(); }
     if (e.key !== "Tab" || !ref.current || drawer) return;
-    const f = [...ref.current.querySelectorAll<HTMLElement>("button:not(:disabled),input,textarea,[tabindex='0']")];
+    const f = [...ref.current.querySelectorAll<HTMLElement>("button:not(:disabled),input,select,textarea,[tabindex='0']")];
     if (!f.length) return;
     const a = f[0], z = f[f.length - 1];
     if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
@@ -554,7 +582,8 @@ function VersesPanel({ p, books, setPanel, close, go }: PanelProps & { close: ()
 // The Scripture page picks up the waiting passages itself, however it is opened
 function openScripture(list: Pass[]) { window.location.href = scriptureLink(list.map(toShared)); }
 
-function SavedPanel({ s, update, go, close, passLabel, passesOf, addToSlides, forSlides, removeForSlides, clearForSlides }: PanelProps & { close: () => void }) {
+function SavedPanel(props: PanelProps & { close: () => void }) {
+  const { s, update, go, close, passLabel, passesOf, addToSlides, forSlides, removeForSlides, clearForSlides } = props;
   const keys = Object.keys(s.saved).sort((a, b) => s.saved[b].at - s.saved[a].at);
   const list = forSlides;
   const sub = `${keys.length} saved verse${keys.length === 1 ? "" : "s"}${list.length ? ` · ${list.length} for slides` : ""}`;
@@ -721,8 +750,146 @@ function SearchPanel({ books, go, close }: PanelProps & { close: () => void }) {
   );
 }
 
+function ChurchSelect({ id, label, none, value, list, onChange }: { id: string; label: string; none: string; value: ChurchChoice["church"]; list: ChurchChoice["list"]; onChange: (c: ChurchChoice["church"]) => void }) {
+  // The chosen church stays listed when the list couldn't load (offline)
+  const all = value && !list?.some((c) => c.id === value.id) ? [value, ...(list ?? [])] : list ?? [];
+  return (
+    <>
+      <label className="sr" htmlFor={id}>{label}</label>
+      <select id={id} className="select" value={value?.id ?? ""} onChange={(e) => onChange(all.find((c) => c.id === e.target.value) ?? null)}>
+        <option value="">{all.length ? none : "Needs a connection"}</option>
+        {all.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </>
+  );
+}
+
+// Share with church: shows which church will see the verse before anything is posted
+function SharePanel({ p, sync, churches, shared, passLabel, textOf, say, clearPicked, close }: PanelProps & { close: () => void }) {
+  const pass = p.pass!;
+  const uid = sync.session?.user.id ?? null;
+  // Only a church the person belongs to can be shared to
+  const [mine, setMine] = useState<{ uid: string; list: ChurchChoice["list"]; error: string | null } | null>(null);
+  const [again, setAgain] = useState(0);
+  useEffect(() => {
+    if (!uid) return;
+    let live = true;
+    void loadMyChurches().then((r) => { if (live) setMine({ uid, list: "churches" in r ? r.churches : null, error: "error" in r ? r.error : null }); });
+    return () => { live = false; };
+  }, [uid, again]);
+  const own = mine && mine.uid === uid ? mine : null;
+  const [picked, setPicked] = useState<ChurchChoice["church"] | undefined>(undefined);   // undefined: not changed here
+  const audience = picked === undefined ? shareAudience(churches.church, own?.list ?? []) : picked;
+  const [typed, setTyped] = useState<string | null>(null);
+  const meta = sync.session?.user.user_metadata as { full_name?: string; name?: string } | undefined;
+  const name = typed ?? ((uid && rememberedName(uid)) || meta?.full_name || meta?.name || "");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  // The words as they were selected (the first verse's number is enough to find each)
+  const words = Array.from({ length: pass.v2 - pass.v1 + 1 }, (_, i) => textOf(vkey(pass.b, pass.c, pass.v1 + i))).filter(Boolean).join(" ");
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uid || busy) return;
+    if (!audience) { setMsg("Choose the church that will see this."); return; }
+    if (!name.trim()) { setMsg("Add your name, so people know who shared it."); return; }
+    if (!navigator.onLine) { setMsg("You’re offline. Connect to share."); return; }
+    setBusy(true); setMsg(null);
+    const error = await postShare({ church_id: audience.id, sharer_name: name.trim(), book_code: pass.b, chapter: pass.c, verse_from: pass.v1, verse_to: pass.v2, note: note.trim() });
+    setBusy(false);
+    if (error) { setMsg(error); return; }
+    rememberName(uid, name.trim());
+    shared.reload(); clearPicked(); close(); say(`Shared with ${audience.name}`);
+  };
+  return (
+    <Panel title="Share with church" sub={passLabel(pass)} top close={close}>
+      <div className="item"><p className="clip">{words}</p></div>
+      {!sync.session ? <Backup sync={sync} title="Sign in to share" intro="Only people who belong to a church can share. Signing in also keeps a copy of your highlights, saved verses and notes on your account." />
+        : !own ? <p className="hint" role="status">Checking your church…</p>
+        : own.error ? <div className="none" role="alert">{own.error}<div className="btns mid"><button className="btn" onClick={() => { setMine(null); setAgain((n) => n + 1); }}>Try again</button></div></div>
+        : !own.list?.length ? <div className="none">Only people who belong to a church can share.<br />Ask a church admin to add you on the Team page.</div>
+        : <form className="share-form" onSubmit={submit}>
+          <span className="k" aria-hidden="true">Church</span>
+          <ChurchSelect id="share-church" label="Church that will see this" none="Choose a church" value={audience} list={own.list} onChange={setPicked} />
+          {churches.church && !own.list.some((c) => c.id === churches.church!.id) && <p className="hint">You don’t belong to {churches.church.name}, so you can’t share to it.</p>}
+          {audience && <p className="hint">Anyone who opens this Bible and chooses <b>{audience.name}</b> will see the verse, your name and your note.</p>}
+          <label className="k" htmlFor="share-name">Your name</label>
+          <input id="share-name" value={name} maxLength={60} onChange={(e) => setTyped(e.target.value)} autoComplete="name" />
+          <label className="k" htmlFor="share-note">Note (optional)</label>
+          <textarea id="share-note" value={note} maxLength={NOTE_MAX} onChange={(e) => setNote(e.target.value)} />
+          {msg && <p className="hint" role="alert">{msg}</p>}
+          <div className="btns"><button type="button" className="btn" onClick={close}>Cancel</button><button type="submit" className="btn pri" disabled={busy || !audience}>{busy ? "Sharing…" : "Share"}</button></div>
+        </form>}
+    </Panel>
+  );
+}
+
+function SharedPanel(props: PanelProps & { close: () => void }) {
+  return <Panel drawer title="Shared verses" sub={props.churches.church?.name} close={props.close}><SharedList {...props} /></Panel>;
+}
+
+// The church's shared verses, newest first, and what you shared yourself
+function SharedList({ churches, shared, books, go, sync, passLabel, say }: PanelProps) {
+  const church = churches.church;
+  const signedIn = !!sync.session;
+  const [view, setView] = useState<"church" | "me">("church");
+  const mineView = signedIn && view === "me";
+  const rows: (MyShare & { mine?: boolean; can_remove?: boolean })[] | null = mineView
+    ? shared.mine
+    : church && shared.rows ? shared.rows.map((r) => ({ ...r, church_id: church.id })) : null;
+  const error = mineView ? shared.mineError : shared.error;
+  // Looking at the church's list is what clears the "new" dot
+  const { markSeen } = shared;
+  useEffect(() => { if (!mineView) markSeen(); }, [mineView, markSeen]);
+  // The first words of each verse, from the books saved on this device (or fetched once)
+  const [texts, setTexts] = useState<Record<string, BookText>>({});
+  const codes = [...new Set(rows?.map((r) => r.book_code))].filter((c) => books.some((b) => b.code === c)).join(",");
+  useEffect(() => {
+    let live = true;
+    for (const code of codes ? codes.split(",") : []) void getBook(code).then((t) => { if (live) setTexts((cur) => ({ ...cur, [code]: t })); }).catch(() => {});
+    return () => { live = false; };
+  }, [codes]);
+  const churchName = (id: string) => churches.list?.find((c) => c.id === id)?.name ?? "a church";
+  const remove = async (r: MyShare) => {
+    if (!window.confirm(`Remove this shared verse from ${churchName(r.church_id)}?`)) return;
+    const failed = await removeShare(r.id);
+    if (failed) say(failed); else shared.drop(r.id);
+  };
+  const list = () => {
+    if (!mineView && !church) return <>
+      <div className="none">Choose your church to see the verses shared with it.</div>
+      <ChurchSelect id="shared-church" label="Your church" none="Choose a church" value={null} list={churches.list} onChange={churches.choose} />
+    </>;
+    if (!rows) return error
+      ? <div className="none" role="alert">{error}<div className="btns mid"><button className="btn" onClick={shared.reload}>Try again</button></div></div>
+      : <p className="hint" role="status">Loading shared verses…</p>;
+    const known = rows.filter((r) => books.some((b) => b.code === r.book_code));
+    if (!known.length) return mineView ? <div className="none">You haven’t shared any verses yet.</div>
+      : <div className="none">Nothing shared yet.<br />Select verses, then tap the share button <span className="inl"><Icon n="share" /></span>.</div>;
+    return <>{known.map((r) => {
+      const label = passLabel({ b: r.book_code, c: r.chapter, v1: r.verse_from, v2: r.verse_to });
+      const words = versesInRange(texts[r.book_code]?.chapters[r.chapter]?.verses ?? [], r.verse_from, r.verse_to).map((v) => v.text).join(" ");
+      const when = new Date(r.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      return (
+        <div className="shared" key={r.id}>
+          <button className="hit" onClick={() => go(r.book_code, r.chapter, r.verse_from, r.verse_to)}>
+            <b>{label}</b>
+            {words && <span className="tx two">{words}</span>}
+            {r.note && <span className="nt">{r.note}</span>}
+            <span>{mineView ? `To ${churchName(r.church_id)}` : r.mine ? <strong>You</strong> : r.sharer_name} · {when}</span>
+          </button>
+          {(mineView || r.can_remove) && <button className="lnk" aria-label={`Remove ${label} shared by ${mineView || r.mine ? "you" : r.sharer_name}`} onClick={() => void remove(r)}>Remove</button>}
+        </div>);
+    })}</>;
+  };
+  return <>
+    {signedIn && <div className="views"><Seg label="Whose shares" value={view} options={[["church", "From church"], ["me", "Shared by me"]]} onChange={setView} /></div>}
+    {list()}
+  </>;
+}
+
 // Settings: keep highlights, saved verses and notes on your account (sign in), so they survive a new phone
-function Backup({ sync }: { sync: PanelProps["sync"] }) {
+function Backup({ sync, title = "Backup", intro = "Highlights, saved verses and notes are kept on this phone. Sign in to keep a copy on your account too." }: { sync: PanelProps["sync"]; title?: string; intro?: string }) {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -750,7 +917,7 @@ function Backup({ sync }: { sync: PanelProps["sync"] }) {
     );
   }
   return (
-    <div className="row backup"><div><div className="k">Backup</div><div className="d">Highlights, saved verses and notes are kept on this phone. Sign in to keep a copy on your account too.</div></div>
+    <div className="row backup"><div><div className="k">{title}</div><div className="d">{intro}</div></div>
       {!open ? <button className="btn" onClick={() => setOpen(true)}>Sign in</button> : (
         <form className="backup-form" onSubmit={(e) => { e.preventDefault(); void signIn(false); }}>
           <label className="sr" htmlFor="bk-email">Email</label>
@@ -768,7 +935,7 @@ function Backup({ sync }: { sync: PanelProps["sync"] }) {
   );
 }
 
-function SettingsPanel({ s, update, close, sync, books, current }: PanelProps & { close: () => void }) {
+function SettingsPanel({ s, update, close, sync, books, current, churches }: PanelProps & { close: () => void }) {
   const dark = s.theme ? s.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   const [saved, setSaved] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -794,6 +961,8 @@ function SettingsPanel({ s, update, close, sync, books, current }: PanelProps & 
         <Seg label="Line spacing" value={s.leading} options={[["compact", "Compact"], ["normal", "Normal"], ["relaxed", "Relaxed"]]} onChange={(v) => update((p) => ({ ...p, leading: v }))} /></div>
       {!matchMedia(DESK).matches && <div className="row"><div><div className="k">Go to Scripture button</div><div className="d">The round button for slides</div></div>
         <Seg label="Go to Scripture button" value={s.goScripture ? "show" : "hide"} options={[["show", "Show"], ["hide", "Hide"]]} onChange={(v) => update((p) => ({ ...p, goScripture: v === "show" }))} /></div>}
+      <div className="row"><div><div className="k">Your church</div><div className="d">For the service reading and shared verses. Nau Mpro on this browser uses the same choice.</div></div>
+        <ChurchSelect id="set-church" label="Your church" none="No church" value={churches.church} list={churches.list} onChange={churches.choose} /></div>
       <div className="row"><div><div className="k">Offline reading</div>
         <div className="d">{saved === null ? "Checking…" : saved >= 66 ? "The whole Bible is saved on this device." : `${saved} of 66 books saved on this device.`}
           {saved !== null && saved < 66 && hereSaved !== null && <><br />{books.find((x) => x.code === s.book)?.local} (open now) is {hereSaved ? "saved" : "not saved yet"}.</>}{err && <><br />{err}</>}</div></div>
