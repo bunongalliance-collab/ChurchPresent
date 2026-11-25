@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ProgramInfo, SaveState } from "../lib/programs";
+import { canDeleteWork } from "../lib/church";
 
 // The bar above the brochure on the Program page: which Sunday's program is open, whether it is saved,
 // New program (copy the last one, copy any program, or blank), and delete. Shared with the church team (lib/programs.ts).
@@ -76,7 +77,7 @@ export default function ProgramBar(p: Props) {
           <div className="pgb-menu" role="menu">
             {coming.length > 0 && <small>Coming up</small>}{coming.map(row)}
             {past.length > 0 && <small>Past</small>}{past.map(row)}
-            <button role="menuitem" className="pgb-del" onClick={() => { setDelError(""); setMenu("delete"); }}>Delete this program…</button>
+            {p.current && canDeleteWork(p.current) && <button role="menuitem" className="pgb-del" onClick={() => { setDelError(""); setMenu("delete"); }}>Delete this program…</button>}
           </div>
         )}
         {menu === "delete" && p.current && (

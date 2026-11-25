@@ -5,12 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "./supabase";
 import { churchReady, saveChurchId, useChurch } from "./church";
 
-export interface ProgramInfo { id: string; date: string; title: string; updated: string; by: string; byEmail: string }
+export interface ProgramInfo { id: string; date: string; title: string; updated: string; by: string; byEmail: string; owner: string; church: string | null }
 type Draftish = { date: string; coverKind?: string };
 
-const toInfo = (r: { id: string; service_date: string; title: string; updated_at: string; updated_by: string | null; updated_by_email: string }): ProgramInfo =>
-  ({ id: r.id, date: r.service_date, title: r.title, updated: r.updated_at, by: r.updated_by ?? "", byEmail: r.updated_by_email });
-const COLS = "id, service_date, title, updated_at, updated_by, updated_by_email";
+const toInfo = (r: { id: string; service_date: string; title: string; updated_at: string; updated_by: string | null; updated_by_email: string; owner_id: string; church_id: string | null }): ProgramInfo =>
+  ({ id: r.id, date: r.service_date, title: r.title, updated: r.updated_at, by: r.updated_by ?? "", byEmail: r.updated_by_email, owner: r.owner_id, church: r.church_id });
+const COLS = "id, service_date, title, updated_at, updated_by, updated_by_email, owner_id, church_id";
 const titleOf = (d: Draftish) => (d.coverKind || "Service").toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase()).slice(0, 200);
 export const nextWeek = (iso: string) => { const t = new Date(iso + "T12:00"); t.setDate(t.getDate() + 7); return t.toISOString().slice(0, 10); };
 

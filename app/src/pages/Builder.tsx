@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { selectAll, supabase } from "../lib/supabase";
 import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
-import { saveChurchId } from "../lib/church";
+import { canDeleteWork, saveChurchId, useChurch } from "../lib/church";
+import { GONE_NOTE, lostAccess, shownInChurch, useRecheck } from "../lib/access";
 import NavBar from "../components/NavBar";
 import { buildDeck, deckSize, flowLines, FONTS, type Slide } from "../lib/slides";
 import { PROJECTOR_KEY, type ProjDeck } from "./Projector";
@@ -53,7 +54,7 @@ interface ScriptureItem {
   labelColor: string;
   size: number;
 }
-interface RecentStudy { id: string; title: string; updated: string; data: Record<string, unknown> }
+interface RecentStudy { id: string; title: string; updated: string; data: Record<string, unknown>; church?: string }
 // A reading (non-song passage) added from the Readings page
 interface ReadingItem {
   kind: "reading";
@@ -84,6 +85,8 @@ export interface Presentation {
   id: string;
   title: string;
   data: PresentationData;
+  owner_id?: string;      // who made it (database rows)
+  church_id?: string | null;
 }
 interface LibrarySong { id: string; title: string; number: string; lyrics: string; look?: Partial<Settings> & { bg?: string; fg?: string; customSize?: number } }
 
@@ -93,7 +96,7 @@ const DEFAULT_SETTINGS: Settings = {
 const uid = () => Math.random().toString(36).slice(2, 10);
 const DRAFT_KEY = "builderDraft";
 const RETURN_KEY = "returnToBuilder";
-function loadDraft(): { settings?: Settings; items?: Item[]; title?: string; currentId?: string } | null {
+function loadDraft(): { settings?: Settings; items?: Item[]; title?: string; currentId?: string; currentOwner?: string } | null {
   try { return JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null"); } catch { return null; }
 }
 const LOCAL_KEY = "presentationsLocal";
@@ -173,9 +176,10 @@ export default function Builder() {
   const [title, setTitle] = useState(draft?.title ?? "Sunday Worship");
   const [savedList, setSavedList] = useState<Presentation[]>([]);
   const [currentId, setCurrentId] = useState<string>(draft?.currentId ?? "");
+  const [currentOwner, setCurrentOwner] = useState<string>(draft?.currentOwner ?? "");   // who made the open presentation
   useEffect(() => {
-    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ settings, items, title, currentId })); } catch { /* storage blocked */ }
-  }, [settings, items, title, currentId]);
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ settings, items, title, currentId, currentOwner })); } catch { /* storage blocked */ }
+  }, [settings, items, title, currentId, currentOwner]);
   const [library, setLibrary] = useState<LibrarySong[]>([]);
   const [recent, setRecent] = useState<RecentStudy[]>([]);
   const [, setStatus] = useState("Pick songs from the library to start a presentation.");
@@ -195,7 +199,7 @@ export default function Builder() {
   useEffect(() => {
     const m = window.location.hash.match(/^#builder:(.+)$/);
     if (!m || !supabase) return;
-    supabase.from("presentations").select("id, title, data").eq("id", m[1]).single().then(({ data }) => {
+    supabase.from("presentations").select("id, title, data, owner_id, church_id").eq("id", m[1]).single().then(({ data }) => {
       if (data) openPresentation(data as Presentation);
       else say("That presentation could not be found.");
     });
@@ -241,7 +245,9 @@ export default function Builder() {
     });
   }, [missingKey]);
   const recentSongs = useMemo(() => pickRecent(library, addedLog, hiddenSongs), [addedLog, library, hiddenSongs]);
-  const recentScriptures = useMemo(() => recent.filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures]);
+  // The chosen church's newest studies
+  const churchId = useChurch().current?.id;
+  const recentScriptures = useMemo(() => recent.filter((x) => shownInChurch(x.church, churchId)).slice(0, RECENT_LIMIT).filter((x) => !hiddenScriptures.includes(x.id)), [recent, hiddenScriptures, churchId]);
 
   // Add a saved song as a snapshot with its own slides, the same way scripture studies are added
   function addSong(song: LibrarySong, quiet = false): boolean {
@@ -392,10 +398,9 @@ export default function Builder() {
     if (!supabase) return;
     const { data } = await supabase
       .from("scripture_studies")
-      .select("id, study_title, updated_at, data")
-      .order("updated_at", { ascending: false })
-      .limit(8);
-    setRecent((data || []).map((r) => ({ id: r.id, title: r.study_title, updated: r.updated_at, data: r.data as Record<string, unknown> })));
+      .select("id, study_title, updated_at, data, church_id")
+      .order("updated_at", { ascending: false });
+    if (data) setRecent(data.map((r) => ({ id: r.id, title: r.study_title, updated: r.updated_at, data: r.data as Record<string, unknown>, church: r.church_id ?? "" })));
   }
 
   // The Recent list follows changes made elsewhere (a study saved, made Only me or shared again by its maker):
@@ -430,12 +435,24 @@ export default function Builder() {
     return true;
   }
 
-  async function loadPresentations() {
+  // The ids in the latest list read from the database, to notice when the open presentation is no longer shared
+  const [fresh, setFresh] = useState<{ uid: string; ids: string[] } | null>(null);
+  async function loadPresentations(quiet = false) {
     if (!supabase) return;
-    const { data, error } = await supabase.from("presentations").select("id, title, data").order("updated_at", { ascending: false });
-    if (error) { say("Could not load presentations: " + error.message); return; }
+    const who = (await supabase.auth.getSession()).data.session?.user.id ?? "";
+    const { data, error } = await supabase.from("presentations").select("id, title, data, owner_id, church_id").order("updated_at", { ascending: false });
+    if (error) { if (!quiet) say("Could not load presentations: " + error.message); return; }
     setSavedList((data || []) as Presentation[]);
+    if (who) setFresh({ uid: who, ids: (data || []).map((r) => r.id) });
   }
+  useRecheck(() => void loadPresentations(true), !!userId);
+  useEffect(() => {
+    if (!fresh || !lostAccess(currentId, currentOwner, fresh.uid, fresh.ids)) return;
+    newPresentation();
+    toast(GONE_NOTE("presentation"), true);
+    // Only when a new list arrives
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fresh]);
   function loadLocalPresentations() {
     try { setSavedList(JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]")); } catch { setSavedList([]); }
   }
@@ -449,7 +466,8 @@ export default function Builder() {
       const r = currentId
         ? await saveRow({ table: "presentations", op: "update", id, data: { title, data } })
         : await saveRow({ table: "presentations", op: "insert", id, data: { title, data, owner_id: userId, church_id: saveChurchId() } });
-      if (r.status === "error") { say("Could not save: " + r.message); return; }
+      if (r.status === "error") { say("Could not save: " + r.message); void loadPresentations(true); return; }
+      if (!currentId) setCurrentOwner(userId);
       setCurrentId(id);
       if (r.status === "queued") { say(QUEUED_NOTE); return; }
       await loadPresentations();
@@ -470,6 +488,7 @@ export default function Builder() {
     setItems(its || []);
     setTitle(p.title);
     setCurrentId(p.id);
+    setCurrentOwner(p.owner_id ?? "");
     setSelectedItem("");
     say(`Opened "${p.title}".`);
   }
@@ -500,6 +519,10 @@ export default function Builder() {
     }
     newPresentation();
   }
+
+  const listedSaved = savedList.filter((p) => shownInChurch(p.church_id, churchId));
+  const openSaved = savedList.find((p) => p.id === currentId);
+  const mayDelete = !openSaved?.owner_id || canDeleteWork({ owner: openSaved.owner_id, church: openSaved.church_id });
 
   function present() {
     if (!deck.slides.length) { say("Add songs or slides first."); return; }
@@ -542,14 +565,14 @@ export default function Builder() {
       <div className="builder-top">
         <input className="title-in" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Presentation title" />
         <select value={currentId} onChange={(e) => { const p = savedList.find((x) => x.id === e.target.value); if (p) openPresentation(p); else newPresentation(); }} aria-label="Saved presentations">
-          <option value="">{savedList.length ? "Open a saved presentation" : "No saved presentations"}</option>
-          {savedList.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+          <option value="">{listedSaved.length ? "Open a saved presentation" : "No saved presentations"}</option>
+          {listedSaved.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
         </select>
         <div className="row">
           <button onClick={savePresentation}>Save</button>
           <button className="secondary" onClick={newPresentation}>New</button>
           <button className="secondary" onClick={duplicatePresentation}>Duplicate</button>
-          <button className="secondary" onClick={deletePresentation}>Delete</button>
+          <button className="secondary" onClick={deletePresentation} disabled={!mayDelete} title={mayDelete ? undefined : "Only the person who made it, or a church admin, can delete it"}>Delete</button>
           <button className="primary" onClick={present} disabled={!items.length}>Present</button>
         </div>
       </div>

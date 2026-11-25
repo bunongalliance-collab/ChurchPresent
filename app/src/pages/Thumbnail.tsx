@@ -5,9 +5,11 @@ import { STYLES, renderTo, extractFromPdf, parseProgram, W, H } from "../lib/thu
 import { todayScripture } from "../lib/programPdf";
 import type { Draft } from "./Program";
 import { supabase } from "../lib/supabase";
+import { useChurch } from "../lib/church";
+import { shownInChurch } from "../lib/access";
 
 // The scripture for the thumbnail: today's scripture from the program, or a saved scripture study
-interface SavedStudy { id: string; label: string; ref: string; text: string }
+interface SavedStudy { id: string; label: string; ref: string; text: string; church?: string }
 function studyText(data: unknown): string {
   const slides = (data as { slides?: { kind?: string; text?: string }[] } | null)?.slides ?? [];
   return slides.filter((x) => x.kind === "passage" && x.text).map((x) => (x.text ?? "").replace(/\*\*|~~|__|\{#?[^}]*\}|\{\/\}|[\u0001-\u0003]/g, "").trim()).join(" ");
@@ -64,6 +66,8 @@ export default function Thumbnail() {
   const [pastorChoice, setPastorChoice] = useState(JOHN);
   const [programDraft] = useState<Draft | null>(() => loadProgramDraft());
   const [studies, setStudies] = useState<SavedStudy[]>([]);
+  const churchId = useChurch().current?.id;
+  const listedStudies = studies.filter((st) => shownInChurch(st.church, churchId));   // the chosen church's
   const [scripture, setScripture] = useState<string>(() => (loadProgramDraft() ? "program" : "custom"));
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -76,9 +80,9 @@ export default function Thumbnail() {
   // Saved scripture studies (signed in: the database)
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("scripture_studies").select("id, study_title, reference, data").order("updated_at", { ascending: false })
+    supabase.from("scripture_studies").select("id, study_title, reference, data, church_id").order("updated_at", { ascending: false })
       .then(({ data: rows }) => setStudies((rows ?? []).map((x) => ({
-        id: x.id, label: x.reference || x.study_title || "(untitled)", ref: x.reference || x.study_title || "", text: studyText(x.data),
+        id: x.id, church: x.church_id ?? "", label: x.reference || x.study_title || "(untitled)", ref: x.reference || x.study_title || "", text: studyText(x.data),
       }))));
   }, []);
 
@@ -236,8 +240,8 @@ export default function Thumbnail() {
           <label>Scripture</label>
           <select className="th-field" value={scripture} onChange={(e) => chooseScripture(e.target.value)}>
             {programDraft && <option value="program">Today’s scripture (from the program)</option>}
-            {studies.length > 0 && <optgroup label="Saved scriptures">
-              {studies.map((st) => <option key={st.id} value={st.id}>{st.label}</option>)}
+            {listedStudies.length > 0 && <optgroup label="Saved scriptures">
+              {listedStudies.map((st) => <option key={st.id} value={st.id}>{st.label}</option>)}
             </optgroup>}
             <option value="custom">Type or read from the PDF</option>
           </select>

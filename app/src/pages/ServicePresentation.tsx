@@ -7,6 +7,7 @@ import { buildOutput } from "./Scripture";
 import { loadDraft, normalizeDraft } from "./Program";
 import { loadProgramData, useProgramList, type ProgramChoice } from "../lib/programList";
 import { toast } from "../lib/toast";
+import { useRecheck } from "../lib/access";
 import { findSongOptions, loadSongOptions, matchSong } from "../lib/recentSongs";
 import { PROGRAM_DRAFT_KEY, rowsToLines, subKind } from "../lib/orderLines";
 import { STAGES } from "../lib/programPdf";
@@ -144,6 +145,18 @@ export default function ServicePresentation() {
     loadResources(lines).then((r) => { if (!cancelled) setRes(r); }).catch(() => { if (!cancelled) setRes({ songs: {}, songIdForLabel: () => undefined, readings: {}, studies: {} }); });
     return () => { cancelled = true; };
   }, [lines, program]);
+
+  // A study on these slides that is no longer shared (made Only me, deleted) leaves them. Only on a clear answer from
+  // the database, so a weak connection during a service never empties the slides.
+  useRecheck(() => {
+    const ids = Object.keys(res?.studies ?? {});
+    if (!ids.length || !supabase || !navigator.onLine) return;
+    void supabase.from("scripture_studies").select("id").in("id", ids).then(({ data, error }) => {
+      if (error || !data) return;
+      const gone = ids.filter((id) => !data.some((r) => r.id === id));
+      if (gone.length) setRes((cur) => cur && { ...cur, studies: Object.fromEntries(Object.entries(cur.studies).filter(([id]) => !gone.includes(id))) });
+    });
+  }, true);
 
   const result = useMemo(() => {
     if (!res) return null;

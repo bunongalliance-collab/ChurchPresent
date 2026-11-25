@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { saveChurchId } from "../lib/church";
+import { canDeleteWork, saveChurchId, useChurch } from "../lib/church";
+import { shownInChurch, useRecheck } from "../lib/access";
 import { onAuthChange, supabase } from "../lib/supabase";
 import NavBar from "../components/NavBar";
 import VisSwitch from "../components/VisSwitch";
@@ -16,6 +17,7 @@ interface Row {
   updated: string;
   data: PresentationData;
   owner: string;      // who made it
+  church?: string;
   private: boolean;   // Only me: seen only by the person who made it (supabase/plans-only-me.sql)
 }
 
@@ -62,15 +64,16 @@ export default function Presentations() {
   }
 
   // Reads only the signed-in user's rows (RLS also restricts them to the owner)
-  async function load() {
+  // quiet: a background re-read, so the list follows what others share or stop sharing
+  async function load(quiet = false) {
     if (!supabase) { setLoading(false); return; }
-    setLoading(true);
+    if (!quiet) setLoading(true);
     // "private" exists once plans-only-me.sql is run; before that the list loads without it
-    let res = await supabase.from("presentations").select("id, title, updated_at, data, owner_id, private").order("updated_at", { ascending: false });
-    if (res.error && /private/.test(res.error.message)) res = await supabase.from("presentations").select("id, title, updated_at, data, owner_id").order("updated_at", { ascending: false }) as typeof res;
+    let res = await supabase.from("presentations").select("id, title, updated_at, data, owner_id, church_id, private").order("updated_at", { ascending: false });
+    if (res.error && /private/.test(res.error.message)) res = await supabase.from("presentations").select("id, title, updated_at, data, owner_id, church_id").order("updated_at", { ascending: false }) as typeof res;
     setLoading(false);
-    if (res.error) { say("Could not load presentations: " + res.error.message, true); return; }
-    setRows((res.data || []).map((r) => ({ id: r.id, title: r.title, updated: r.updated_at, data: r.data as PresentationData, owner: r.owner_id ?? "", private: !!(r as { private?: boolean }).private })));
+    if (res.error) { if (!quiet) say("Could not load presentations: " + res.error.message, true); return; }
+    setRows((res.data || []).map((r) => ({ id: r.id, title: r.title, updated: r.updated_at, data: r.data as PresentationData, owner: r.owner_id ?? "", church: r.church_id ?? "", private: !!(r as { private?: boolean }).private })));
   }
 
   useEffect(() => {
@@ -88,16 +91,21 @@ export default function Presentations() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useRecheck(() => void load(true), !!userId);
+  // The lists show the chosen church's presentations
+  const churchId = useChurch().current?.id;
+  const listed = useMemo(() => rows.filter((r) => shownInChurch(r.church, churchId)), [rows, churchId]);
+
   // The five most recently modified, always by date, whatever the sort
   const recent = useMemo(
-    () => [...rows].sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 5),
-    [rows],
+    () => [...listed].sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 5),
+    [listed],
   );
 
   // Search by title, then sort
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = rows.filter((r) => !q || r.title.toLowerCase().includes(q));
+    const list = listed.filter((r) => !q || r.title.toLowerCase().includes(q));
     return list.sort((a, b) => {
       if (sortBy === "name") return a.title.localeCompare(b.title, undefined, { numeric: true });
       if (sortBy === "date") {
@@ -110,7 +118,7 @@ export default function Presentations() {
       }
       return b.updated.localeCompare(a.updated);
     });
-  }, [rows, query, sortBy]);
+  }, [listed, query, sortBy]);
 
   // ---------- Actions ----------
   // Open in Builder: the builder reads the id from the address (#builder:<id>) and restores everything
@@ -227,7 +235,7 @@ export default function Presentations() {
                   <div className="pl-menu">
                     <button onClick={(e) => { closeMenu(e); download(r); }} disabled={busy || c.total === 0}>Download .pptx</button>
                     <button onClick={(e) => { closeMenu(e); startDuplicate(r); }} disabled={busy}>Duplicate</button>
-                    <button className="danger" onClick={(e) => { closeMenu(e); remove(r); }} disabled={busy}>Delete</button>
+                    {canDeleteWork(r) && <button className="danger" onClick={(e) => { closeMenu(e); remove(r); }} disabled={busy}>Delete</button>}
                   </div>
                 </details>
               </span>
@@ -239,7 +247,7 @@ export default function Presentations() {
   }
 
   // ---------- Layout ----------
-  const empty = !loading && rows.length === 0;
+  const empty = !loading && listed.length === 0;
 
   return (
     <>
@@ -267,7 +275,7 @@ export default function Presentations() {
           </div>
         )}
 
-        {!empty && rows.length > 0 && (
+        {!empty && listed.length > 0 && (
           <>
             <section className="pl-section pl-recent">
               <h2>Recently modified</h2>

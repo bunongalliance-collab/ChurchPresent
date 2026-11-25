@@ -16,6 +16,16 @@ describe("pickService", () => {
 });
 
 describe("toPublishedItems", () => {
+  it("never publishes free-text lines, where people's names are often typed", () => {
+    const lines = [
+      [{ id: "a", text: "Prelude", level: 0 }, { id: "b", text: "H'Mai", level: 1 }],
+      [{ id: "c", text: "Sok Nh'hor", level: 0 }, { id: "d", text: "Ntrom, Boi", level: 1 }, { id: "e", text: "Message", level: 0 }, { id: "f", text: "Walking In Faith", level: 1 }],
+    ] as unknown as Lines;
+    const items = toPublishedItems(lines);
+    expect(items.map((it) => it.name)).toEqual(["Prelude", "Sok Nh'hor", "Message"]);
+    expect(items.every((it) => it.subs.length === 0)).toBe(true);
+    expect(JSON.stringify(items)).not.toMatch(/Mai|Ntrom|Walking/);
+  });
   it("keeps items, songs and passages, and leaves people's names out", () => {
     const lines = [
       [{ id: "a", text: "Opening Song", level: 0 }, { id: "b", text: "12. Bơh Ndu Ueh", level: 1, songId: "s12" }, { id: "c", text: "Y Nhen", level: 2 }],

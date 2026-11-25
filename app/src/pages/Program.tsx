@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { canEdit, saveChurchId, useChurch } from "../lib/church";
+import { shownInChurch, useRecheck } from "../lib/access";
 import NavBar from "../components/NavBar";
 import logo from "../assets/church-logo.png?url";
 import { STAGES, buildProgramPdf, todayScripture } from "../lib/programPdf";
@@ -199,38 +200,39 @@ export default function Program() {
   const printCase = (t: string) => t.split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w)).join(" ");
   // The order as the brochure prints it (the same rows the PDF builder uses)
   const printedOrder = useMemo(() => toRows(orderLines, {}), [orderLines]);
-  // Scripture text for the PDF comes from the saved studies
-  const [passages, setPassages] = useState<Record<string, string>>({});
-  // The same passages with each slide's text on its own paragraph, for the Nau Mpro App
-  const [passageText, setPassageText] = useState<Record<string, string>>({});
+  // The saved studies of the chosen church (read again on coming back, so one made Only me drops out)
+  const [studies, setStudies] = useState<{ id: string; study_title: string; reference: string; data: unknown; updated_at: string; church_id: string | null }[]>([]);
+  const readStudies = useCallback(() => {
+    void supabase?.from("scripture_studies").select("id, study_title, reference, data, updated_at, church_id").order("updated_at", { ascending: false })
+      .then(({ data }) => { if (data) setStudies(data as never); });
+  }, []);
+  useEffect(() => { readStudies(); }, [readStudies]);
+  useRecheck(readStudies, true);
+  const churchId = useChurch().current?.id;
+  // Scripture text for the PDF (passages), the same with each slide's text on its own paragraph for the Nau Mpro App
+  // (passageText), and the suggestions: the study's title and verse, e.g. "Trust in God — Psalm 23:1-6"
+  const { passages, passageText, passageOptions } = useMemo(() => {
+    const map: Record<string, string> = {};
+    const full: Record<string, string> = {};
+    const opts: { id: string; value: string; label: string; date: string; recent: boolean }[] = [];
+    const mine = studies.filter((x) => shownInChurch(x.church_id, churchId));
+    // The Builder's Recent scriptures: the 8 newest studies, minus the ones hidden there
+    const recentIds = recentStudyIds(mine);
+    mine.forEach((x) => {
+      if (!x.reference) return;
+      map[x.reference] = studyText(x.data as never);
+      full[x.reference] = studyParagraphs(x.data as never);
+      opts.push({ id: x.id, value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "", recent: recentIds.has(x.id) });
+    });
+    return { passages: map, passageText: full, passageOptions: opts };
+  }, [studies, churchId]);
   // Song choices: the Presentation Builder's Recent songs first, then every saved song. Each choice carries the song's id.
   // Kept up to date: a song added on the Lyric page (in another tab or on another device) appears without a reload
   const songOptions = useSongOptions();
-  // Passage suggestions: the study's title and its verse, e.g. "Trust in God — Psalm 23:1-6"; the verse is what gets saved
-  const [passageOptions, setPassageOptions] = useState<{ id: string; value: string; label: string; date: string; recent: boolean }[]>([]);
   // Reading suggestions: the saved readings from the Readings page, newest first
   // Recent readings (the Builder's list) come first; each carries the id of its saved copy
   const [readingOptions, setReadingOptions] = useState<ReadingOption[]>([]);
   useEffect(() => { void loadReadingOptions().then(setReadingOptions); }, []);
-  useEffect(() => {
-    if (!supabase) return;
-    supabase.from("scripture_studies").select("id, study_title, reference, data, updated_at").order("updated_at", { ascending: false }).then(({ data }) => {
-      const map: Record<string, string> = {};
-      const full: Record<string, string> = {};
-      const opts: { id: string; value: string; label: string; date: string; recent: boolean }[] = [];
-      // The Builder's Recent scriptures: the 8 newest studies, minus the ones hidden there
-      const recentIds = recentStudyIds(data ?? []);
-      (data ?? []).forEach((x) => {
-        if (!x.reference) return;
-        map[x.reference] = studyText(x.data);
-        full[x.reference] = studyParagraphs(x.data);
-        opts.push({ id: x.id, value: x.reference, label: x.study_title ? `${x.study_title} — ${x.reference}` : x.reference, date: x.updated_at ?? "", recent: recentIds.has(x.id) });
-      });
-      setPassages(map);
-      setPassageText(full);
-      setPassageOptions(opts);
-    });
-  }, []);
   // A choice made from a Recent list stays linked to what it came from: if a song's number or title (or a study's
   // reference) changes, the line follows
   useEffect(() => {

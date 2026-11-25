@@ -35,14 +35,15 @@ export async function loadChurchList(): Promise<ReaderChurch[] | null> {
 }
 
 // The order of worship as the congregation sees it: item names and their songs, passages and readings.
-// People's names are left out; the reader is public.
+// The reader is public, so people's names are left out, and so are free-text lines (prelude, prayers, message and the
+// rest), where names are often typed. The database drops them too (supabase/privacy-fixes.sql).
 // bodyFor gives the text of a passage or reading, so the app can open it like a song.
 export function toPublishedItems(lines: Lines, bodyFor: (kind: PubSub["kind"], text: string) => string | undefined = () => undefined): PubItem[] {
   return parseItems(lines).map((it) => {
     const kind = subKind(it.name);
     return {
       name: it.name,
-      subs: it.subs.map((s) => {
+      subs: (kind === "text" ? [] : it.subs).map((s) => {
         const body = kind === "scripture" || kind === "reading" ? bodyFor(kind, s.text)?.trim() : undefined;
         return { text: s.text, kind, ...(s.line.songId ? { songId: s.line.songId } : {}), ...(body ? { body } : {}) };
       }),

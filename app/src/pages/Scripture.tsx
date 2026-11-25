@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
 import { QUEUED_NOTE, newId, saveRow, NOTHING_CHANGED } from "../lib/outbox";
-import { saveChurchId } from "../lib/church";
+import { canDeleteWork, saveChurchId, useChurch } from "../lib/church";
+import { GONE_NOTE, lostAccess, shownInChurch, useRecheck } from "../lib/access";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
@@ -100,7 +101,7 @@ interface Look {
   align: "left" | "center" | "right" | "justify"; // text alignment on every slide
 }
 interface StudyData extends Look { slides: StudySlide[] }
-interface SavedStudy { id: string; title: string; reference: string; data: StudyData; owner?: string; private?: boolean }   // private: Only me (supabase/plans-only-me.sql)
+interface SavedStudy { id: string; title: string; reference: string; data: StudyData; owner?: string; church?: string; private?: boolean }   // private: Only me (supabase/plans-only-me.sql)
 
 const DEFAULT_LOOK: Look = {
   font: "Arial", perSlide: 4, aspect: "16:9", bg: "#213648", fg: "#f5f2ea", verseNumbers: true, showLabels: false, verseNewLines: false,
@@ -245,9 +246,10 @@ export default function Scripture() {
   }, [look]);
   const [selectedId, setSelectedId] = useState<string>(draft?.selectedId ?? "");
   const [currentId, setCurrentId] = useState<string>(draft?.currentId ?? "");
+  const [currentOwner, setCurrentOwner] = useState<string>(draft?.currentOwner ?? "");   // who made the open study
   useEffect(() => {
-    try { sessionStorage.setItem(SCRIPTURE_DRAFT, JSON.stringify({ title, slides, selectedId, currentId })); } catch { /* storage blocked */ }
-  }, [title, slides, selectedId, currentId]);
+    try { sessionStorage.setItem(SCRIPTURE_DRAFT, JSON.stringify({ title, slides, selectedId, currentId, currentOwner })); } catch { /* storage blocked */ }
+  }, [title, slides, selectedId, currentId, currentOwner]);
   const [previewIndex, setPreviewIndex] = useState(0);
 
   // Saved studies and account
@@ -454,13 +456,18 @@ export default function Scripture() {
     setSaved((cur) => cur.map((x) => (x.id === openSaved.id ? { ...x, private: on } : x)));
     say(on ? `"${openSaved.title}" is now only for you. Your team can't see it until you share it.` : `"${openSaved.title}" is shared with your team.`);
   }
-  async function loadSaved() {
+  // The ids in the latest list read from the database, to notice when the open study is no longer shared
+  const [fresh, setFresh] = useState<{ uid: string; ids: string[] } | null>(null);
+  // quiet: a background re-read, which keeps the list shown if it fails
+  async function loadSaved(quiet = false) {
     if (!supabase) return;
+    const who = (await supabase.auth.getSession()).data.session?.user.id ?? "";
     // "private" exists once plans-only-me.sql is run; before that the list loads without it
-    let res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id, private").order("updated_at", { ascending: false });
-    if (res.error && /private/.test(res.error.message)) res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id").order("updated_at", { ascending: false }) as typeof res;
-    if (res.error) { say("Could not load saved studies: " + res.error.message, true); return; }
-    setSaved((res.data || []).map((r) => ({ id: r.id, title: r.study_title, reference: r.reference, data: r.data as StudyData, owner: r.owner_id ?? "", private: !!(r as { private?: boolean }).private })));
+    let res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id, church_id, private").order("updated_at", { ascending: false });
+    if (res.error && /private/.test(res.error.message)) res = await supabase.from("scripture_studies").select("id, study_title, reference, data, owner_id, church_id").order("updated_at", { ascending: false }) as typeof res;
+    if (res.error) { if (!quiet) say("Could not load saved studies: " + res.error.message, true); return; }
+    setSaved((res.data || []).map((r) => ({ id: r.id, title: r.study_title, reference: r.reference, data: r.data as StudyData, owner: r.owner_id ?? "", church: r.church_id ?? "", private: !!(r as { private?: boolean }).private })));
+    if (who) setFresh({ uid: who, ids: (res.data || []).map((r) => r.id) });
   }
 
   useEffect(() => {
@@ -477,6 +484,15 @@ export default function Scripture() {
     // loadSaved reads only, so subscribing once is enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useRecheck(() => void loadSaved(true), !!session);
+  useEffect(() => {
+    if (!fresh || !lostAccess(currentId, currentOwner, fresh.uid, fresh.ids)) return;
+    resetStudy();
+    toast(GONE_NOTE("study"), true);
+    // Only when a new list arrives
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fresh]);
 
   async function authAction(kind: "in" | "up") {
     if (!supabase) return;
@@ -503,7 +519,8 @@ export default function Scripture() {
       ? await saveRow({ table: "scripture_studies", op: "update", id, data: row })
       : await saveRow({ table: "scripture_studies", op: "insert", id, data: { ...row, owner_id: user.id, church_id: saveChurchId() } });
     setBusy(false);
-    if (r.status === "error") { say("Could not save: " + r.message, true); return null; }
+    if (r.status === "error") { say("Could not save: " + r.message, true); void loadSaved(true); return null; }
+    if (!currentId) setCurrentOwner(user.id);
     setCurrentId(id);
     if (r.status === "queued") { say(QUEUED_NOTE); return id; }
     await loadSaved();
@@ -549,12 +566,15 @@ export default function Scripture() {
   useEffect(() => { try { localStorage.setItem(SC_FAV_KEY, JSON.stringify(scFavorites)); } catch { /* blocked */ } }, [scFavorites]);
   useEffect(() => { try { localStorage.setItem(SC_RECENT_KEY, JSON.stringify(scRecent)); } catch { /* blocked */ } }, [scRecent]);
 
+  // The lists show the chosen church's studies
+  const church = useChurch();
+  const listed = saved.filter((st) => shownInChurch(st.church, church.current?.id));
   const sq = studyQuery.trim().toLowerCase();
   const studyMatches = sq
-    ? saved.filter((st) => `${st.title} ${st.reference} ${st.data.slides.map((x) => x.title).join(" ")}`.toLowerCase().includes(sq))
+    ? listed.filter((st) => `${st.title} ${st.reference} ${st.data.slides.map((x) => x.title).join(" ")}`.toLowerCase().includes(sq))
     : [];
-  const studyFavs = saved.filter((st) => scFavorites.includes(st.id));
-  const studyRecent = scRecent.map((id) => saved.find((st) => st.id === id)).filter((st): st is SavedStudy => !!st);
+  const studyFavs = listed.filter((st) => scFavorites.includes(st.id));
+  const studyRecent = scRecent.map((id) => listed.find((st) => st.id === id)).filter((st): st is SavedStudy => !!st);
 
   function toggleStudyFavorite() {
     if (!currentId) return;
@@ -580,6 +600,7 @@ export default function Scripture() {
     if (!s) return;
     const { slides: ss, ...rest } = s.data;
     setCurrentId(s.id);
+    setCurrentOwner(s.owner ?? "");
     setTitle(s.title);
     setLook({ ...DEFAULT_LOOK, ...rest });
     setSlides(ss || []);
@@ -873,7 +894,7 @@ export default function Scripture() {
             <input className="sc-search" type="search" value={studyQuery} onChange={(e) => setStudyQuery(e.target.value)} placeholder="Search studies" aria-label="Search saved studies" />
             <button className={`sc-star${currentId && scFavorites.includes(currentId) ? " on" : ""}`} onClick={toggleStudyFavorite} disabled={!currentId} aria-label="Favourite this study" aria-pressed={!!currentId && scFavorites.includes(currentId)} title="Favourite">★</button>
             <select value={currentId} onChange={(e) => (e.target.value ? openStudy(e.target.value) : newStudy())} aria-label="Open a saved study">
-              <option value="">{saved.length ? "Saved studies…" : user ? "No saved studies" : "Sign in to see studies"}</option>
+              <option value="">{listed.length ? "Saved studies…" : user ? "No saved studies" : "Sign in to see studies"}</option>
               {sq ? (
                 <optgroup label={`Results (${studyMatches.length})`}>
                   {studyMatches.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}
@@ -882,7 +903,7 @@ export default function Scripture() {
                 <>
                   {studyFavs.length > 0 && <optgroup label="Favourites">{studyFavs.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
                   {studyRecent.length > 0 && <optgroup label="Recently used">{studyRecent.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}</optgroup>}
-                  <optgroup label="All studies">{saved.map((st) => <option key={st.id} value={st.id}>{st.title}{st.private ? " · Only me" : ""}</option>)}</optgroup>
+                  <optgroup label="All studies">{listed.map((st) => <option key={st.id} value={st.id}>{st.title}{st.private ? " · Only me" : ""}</option>)}</optgroup>
                 </>
               )}
             </select>
@@ -891,7 +912,7 @@ export default function Scripture() {
               <summary>More</summary>
               <div className="sc-menu">
                 <button className="secondary" onClick={duplicateStudy} disabled={!currentId}>Duplicate</button>
-                <button className="secondary danger" onClick={deleteStudy} disabled={!currentId}>Delete</button>
+                <button className="secondary danger" onClick={deleteStudy} disabled={!currentId || (!!openSaved && !canDeleteWork(openSaved))} title={openSaved && !canDeleteWork(openSaved) ? "Only the person who made it, or a church admin, can delete it" : undefined}>Delete</button>
               </div>
             </details>
             <button className="primary" onClick={present} disabled={!output.slides.length}>Present</button>

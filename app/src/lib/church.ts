@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { switchAccountData } from "./accountData";
+import { mayDeleteWork } from "./access";
 
 export type Role = "admin" | "editor";
 export interface Church { id: string; name: string; status: "waiting" | "active"; role: Role; join_code: string | null }
@@ -152,6 +153,10 @@ export function canEdit(row: { owner?: string | null; church?: string | null }):
   if (row.owner) return row.owner === uid;
   return state.siteAdmin;
 }
+
+// Whether the signed-in account may delete a study, presentation or program (its maker, or its church's admin)
+export const canDeleteWork = (row: { owner?: string | null; church?: string | null }) =>
+  mayDeleteWork(row, state.session?.user.id, state.churches.filter((c) => c.role === "admin").map((c) => c.id));
 
 // Names of accepted churches, for small labels ("from Example Church B"). Loaded once, readable without signing in.
 let names: Record<string, string> | null = null;
