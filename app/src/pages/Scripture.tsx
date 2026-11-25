@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
-import { QUEUED_NOTE, newId, saveRow } from "../lib/outbox";
+import { QUEUED_NOTE, newId, saveRow, NOTHING_CHANGED } from "../lib/outbox";
 import { saveChurchId } from "../lib/church";
 import { toast } from "../lib/toast";
 import PptxGenJS from "pptxgenjs";
@@ -448,7 +448,8 @@ export default function Scripture() {
   const openSaved = saved.find((x) => x.id === currentId) ?? null;
   async function setStudyPrivate(on: boolean) {
     if (!supabase || !openSaved) return;
-    const { error: err } = await supabase.from("scripture_studies").update({ private: on }).eq("id", openSaved.id);
+    const { data: hit, error: err } = await supabase.from("scripture_studies").update({ private: on }).eq("id", openSaved.id).select("id");
+    if (!err && !hit?.length) { say(NOTHING_CHANGED, true); await loadSaved(); return; }
     if (err) { say(/private/.test(err.message) && /column/i.test(err.message) ? "Only me isn't switched on yet. Ask the person who looks after the app." : "That didn't work. Check the connection and try again.", true); return; }
     setSaved((cur) => cur.map((x) => (x.id === openSaved.id ? { ...x, private: on } : x)));
     say(on ? `"${openSaved.title}" is now only for you. Your team can't see it until you share it.` : `"${openSaved.title}" is shared with your team.`);

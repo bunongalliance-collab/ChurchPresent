@@ -7,6 +7,7 @@ import { toast } from "../lib/toast";
 import { flatten, type Item, type PresentationData, type Settings } from "./Builder";
 import { PROJECTOR_KEY } from "./Projector";
 import { downloadDeckPptx } from "../lib/pptx";
+import { NOTHING_CHANGED } from "../lib/outbox";
 
 // One saved presentation, as listed on this page
 interface Row {
@@ -52,8 +53,9 @@ export default function Presentations() {
   async function setPrivate(row: Row, on: boolean) {
     if (!supabase) return;
     setBusyId(row.id);
-    const { error: err } = await supabase.from("presentations").update({ private: on }).eq("id", row.id);
+    const { data: hit, error: err } = await supabase.from("presentations").update({ private: on }).eq("id", row.id).select("id");
     setBusyId("");
+    if (!err && !hit?.length) { say(NOTHING_CHANGED, true); await load(); return; }
     if (err) { say(/private/.test(err.message) && /column/i.test(err.message) ? "Only me isn't switched on yet. Ask the person who looks after the app." : "That didn't work. Check the connection and try again.", true); return; }
     setRows((cur) => cur.map((x) => (x.id === row.id ? { ...x, private: on } : x)));
     say(on ? `"${row.title || "Untitled"}" is now only for you. Your team can't see it until you share it.` : `"${row.title || "Untitled"}" is shared with your team.`);
@@ -161,7 +163,8 @@ export default function Presentations() {
   async function setServiceDate(row: Row, date: string) {
     if (!supabase || !userId) { say("Sign in to change dates.", true); return; }
     const data = { ...row.data, serviceDate: date || undefined };
-    const { error: err } = await supabase.from("presentations").update({ data }).eq("id", row.id);
+    const { data: hit, error: err } = await supabase.from("presentations").update({ data }).eq("id", row.id).select("id");
+    if (!err && !hit?.length) { say(NOTHING_CHANGED, true); await load(); return; }
     if (err) { say("Could not save the date: " + err.message, true); return; }
     await load();
   }
@@ -170,8 +173,9 @@ export default function Presentations() {
     if (!supabase || !userId) { say("Sign in to delete presentations.", true); return; }
     if (!window.confirm(`Delete "${row.title}"? This cannot be undone.`)) return;
     setBusyId(row.id);
-    const { error: err } = await supabase.from("presentations").delete().eq("id", row.id);
+    const { data: hit, error: err } = await supabase.from("presentations").delete().eq("id", row.id).select("id");
     setBusyId("");
+    if (!err && !hit?.length) { say(NOTHING_CHANGED, true); await load(); return; }
     if (err) { say("Could not delete: " + err.message, true); return; }
     say(`Deleted "${row.title}".`);
     await load();

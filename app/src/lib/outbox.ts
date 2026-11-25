@@ -19,14 +19,19 @@ type Plain = { message: string } | null;
 const NETWORK = /failed to fetch|networkerror|network request failed|load failed|internet|offline|timed out/i;
 const isNetworkMessage = (m: string) => NETWORK.test(m);
 
+// The server answers an update or delete of a row this account can't reach with no error and no row changed
+export const NOTHING_CHANGED = "Nothing was changed. It may have been deleted or made Only me, or you can no longer change it.";
+type Changed = PromiseLike<{ data: unknown[] | null; error: Plain }>;
+
 // The Supabase call for one saved item
-function send(item: OutboxItem): PromiseLike<{ error: Plain }> {
+async function send(item: OutboxItem): Promise<{ error: Plain }> {
   const sb = supabase;
-  if (!sb) return Promise.resolve({ error: { message: "Supabase is not configured" } });
+  if (!sb) return { error: { message: "Supabase is not configured" } };
   const table = sb.from(item.table);
-  if (item.op === "insert") return table.insert({ id: item.id, ...item.data }) as PromiseLike<{ error: Plain }>;
-  if (item.op === "update") return table.update(item.data ?? {}).eq("id", item.id) as PromiseLike<{ error: Plain }>;
-  return table.delete().eq("id", item.id) as PromiseLike<{ error: Plain }>;
+  if (item.op === "insert") return (await table.insert({ id: item.id, ...item.data })) as { error: Plain };
+  // Ask for the changed rows back, so "no row changed" is not mistaken for saved
+  const { data, error } = await ((item.op === "update" ? table.update(item.data ?? {}) : table.delete()).eq("id", item.id).select("id") as Changed);
+  return { error: error ?? (data?.length ? null : { message: NOTHING_CHANGED }) };
 }
 
 // Try to save now; if the connection is down, keep it in the outbox instead

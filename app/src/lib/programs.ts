@@ -200,7 +200,8 @@ export function useSharedProgram<D extends Draftish>(d: D, replace: (next: D) =>
   const remove = useCallback(async (blank: (date: string) => D): Promise<string | null> => {
     const p = cur.current;
     if (!supabase || !p) return null;
-    const { error } = await supabase.from("programs").delete().eq("id", p.id);
+    const { data: gone, error } = await supabase.from("programs").delete().eq("id", p.id).select("id");
+    if (!error && !gone?.length) return "The program wasn't deleted. It may be gone already, or you can no longer change it.";
     if (error) return /row-level security|permission/i.test(error.message) ? "Only your church team can delete programs." : "The program wasn't deleted. Check the connection and try again.";
     dirty.current = false;
     setCurrent(null);
