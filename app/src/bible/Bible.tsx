@@ -4,7 +4,10 @@ import { addForSlides, readForSlides, scriptureLink, watchForSlides, writeForSli
 import { useReaderSync, type SyncState } from "./sync";
 import { supabase } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
-import { TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBookCodes, type Book, type BookText, type Chapter } from "./data";
+import { SEARCH_LIMIT, TRANSLATION, getBook, localBooks, refreshBookNames, saveWholeBible, savedBook, savedBookCodes, searchBible, type Book, type BookText, type Chapter, type SearchResult } from "./data";
+import { parseReference, tidy, versesInRange, type Found } from "./find";
+import { applyPos, currentPos, readBack, readPos, writeBack, writePos, type Pos } from "./position";
+import { useServiceScripture } from "./service";
 
 // ---------- Stored on this device ----------
 type Size = "s" | "m" | "l";
@@ -15,12 +18,13 @@ interface State {
   book: string; chap: number;
   hl: Record<string, 1>; saved: Record<string, Mark>; notes: Record<string, Note>;
   size: Size; leading: Leading; theme: "light" | "dark" | null;
+  goScripture: boolean;                                             // phones and tablets: show the Go to Scripture button
   slideList?: Pass[];                                              // older versions kept the slide list here (moved to lib/forSlides)
 }
 // A passage for slides: book code, chapter, first and last verse
 interface Pass { b: string; c: number; v1: number; v2: number }
 const KEY = "bible.reader.v1";
-const DEFAULTS: State = { book: "GEN", chap: 1, hl: {}, saved: {}, notes: {}, size: "m", leading: "normal", theme: null };
+const DEFAULTS: State = { book: "GEN", chap: 1, hl: {}, saved: {}, notes: {}, size: "m", leading: "normal", theme: null, goScripture: false };
 function loadState(): State { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return DEFAULTS; } }
 const SIZES: Record<Size, string> = { s: "1.0625rem", m: "1.25rem", l: "1.5rem" };
 const LEAD: Record<Leading, number> = { compact: 1.55, normal: 1.75, relaxed: 2 };
@@ -51,6 +55,7 @@ const PATHS: Record<string, ReactNode> = {
   save: <path d="M7 4h10v16l-5-4-5 4z" />,
   note: <><path d="M5 4h10l4 4v12H5z" /><path d="M9 12h6M9 16h4" /></>,
   set: <><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></>,
+  search: <><circle cx="11" cy="11" r="6" /><path d="m20 20-4.5-4.5" /></>,
   down: <path d="m6 9 6 6 6-6" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
   hl: <><path d="m14 4 6 6-9 9H5v-6z" /><path d="M4 21h16" /></>,
@@ -64,7 +69,7 @@ const PATHS: Record<string, ReactNode> = {
 };
 const Icon = ({ n }: { n: string }) => <svg viewBox="0 0 24 24" aria-hidden="true">{PATHS[n]}</svg>;
 
-type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings" | "slides";
+type PanelName = "books" | "chapters" | "verses" | "saved" | "notes" | "settings" | "slides" | "search";
 interface PanelState { name: PanelName; book?: string; chap?: number; edit?: string }
 
 export default function Bible() {
@@ -77,7 +82,12 @@ export default function Bible() {
   const [picked, setPicked] = useState<string[]>([]);
   const [panel, setPanel] = useState<PanelState | null>(null);
   const [toast, setToast] = useState<{ m: string; open?: boolean } | null>(null);   // open: show "Open Scripture"
-  const [jump, setJump] = useState<number | null>(null);
+  const [jump, setJump] = useState<{ v1: number; v2: number } | null>(null);   // verses to scroll to and select
+  // The reading position kept on this device (./position.ts), put back once its chapter is on screen
+  const pending = useRef<Pos | null>(readPos());
+  const [restore, setRestore] = useState(0);
+  // Where the reader was before opening the service's scripture reading
+  const [back, setBack] = useState<Pos | null>(readBack);
   const [reload, setReload] = useState(0);
   const toastTimer = useRef(0);
 
@@ -127,23 +137,78 @@ export default function Bible() {
   const tap = (k: string) => setPicked((p) => sortKeys(p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
   const textOf = (k: string) => { const { b, c, v } = parseKey(k); return (text?.code === b ? text.chapters[c]?.verses.find((x) => x.v === v)?.text : undefined) ?? s.saved[k]?.text ?? s.notes[k]?.text ?? ""; };
 
-  const go = useCallback((b: string, c: number, v?: number) => {
+  const go = useCallback((b: string, c: number, v?: number, v2?: number) => {
     setPicked([]); setPanel(null);
+    pending.current = null;
+    setBack((old) => (old && old.book === b && old.chap === c ? null : old));
     update((p) => ({ ...p, book: b, chap: c }));
-    if (v) setJump(v); else window.scrollTo(0, 0);
+    setJump(v ? { v1: v, v2: v2 ?? v } : null);
+    if (!v) window.scrollTo(0, 0);
   }, [update]);
 
   // After a verse jump, scroll to it once the chapter is on screen
   useEffect(() => {
     if (!jump || !chapter) return;
-    const el = document.getElementById(`v${jump}`);
+    const found = versesInRange(chapter.verses, jump.v1, jump.v2);
+    const el = found.length ? document.getElementById(`v${found[0].v}`) : null;
     if (el) {
       el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       el.focus({ preventScroll: true });
-      setPicked(el.dataset.k ? [el.dataset.k] : []);
-    }
+      setPicked(found.map((x) => vkey(s.book, s.chap, x.v)));
+    } else window.scrollTo(0, 0);
     setJump(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jump, chapter]);
+
+  // ---------- Reading position: remembered quietly, and put back on return or reload ----------
+  const place = useRef({ book: s.book, chap: s.chap, shown: false });
+  place.current = { book: s.book, chap: s.chap, shown: !!chapter };
+  const here = () => currentPos(place.current.book, place.current.chap);
+  const savePos = useCallback(() => {
+    if (place.current.shown && !pending.current) writePos(currentPos(place.current.book, place.current.chap));
+  }, []);
+  useLayoutEffect(() => {
+    const p = pending.current;
+    if (!chapter) return;
+    if (!p || p.book !== s.book || p.chap !== s.chap) { pending.current = null; savePos(); return; }
+    applyPos(p);
+    const at = window.scrollY;
+    // Again once the fonts are in (lines can move), unless the reader has already scrolled or gone elsewhere
+    void document.fonts.ready.then(() => {
+      if (pending.current !== p) return;
+      if (Math.abs(window.scrollY - at) < 2) applyPos(p);
+      pending.current = null;
+      savePos();
+    });
+  }, [chapter, restore, s.book, s.chap, savePos]);
+  useEffect(() => {
+    history.scrollRestoration = "manual";
+    let t = 0;
+    const later = () => { window.clearTimeout(t); t = window.setTimeout(savePos, 150); };
+    const hide = () => { if (document.visibilityState === "hidden") savePos(); };
+    window.addEventListener("scroll", later, { passive: true });
+    window.addEventListener("pagehide", savePos);
+    document.addEventListener("visibilitychange", hide);
+    return () => { window.clearTimeout(t); window.removeEventListener("scroll", later); window.removeEventListener("pagehide", savePos); document.removeEventListener("visibilitychange", hide); };
+  }, [savePos]);
+
+  // ---------- The scripture reading of the church's service: a quiet nudge in the lower-right corner ----------
+  useEffect(() => writeBack(back), [back]);
+  const service = useServiceScripture(books);
+  const openService = (f: Found) => {
+    const from = here();
+    go(f.book.code, f.chap, f.v1 ?? undefined, f.v2 ?? undefined);
+    setBack(from);
+  };
+  const goBack = (to: Pos) => {
+    go(to.book, to.chap);
+    pending.current = to;
+    setBack(null);
+    setRestore((n) => n + 1);
+  };
+  const bookName = (code: string) => books.find((x) => x.code === code)?.local ?? code;
+  // Hidden while verse actions or a panel are open, and on the passage it has just opened
+  const nudge = service && !panel && !picked.length && !(back && s.book === service.found.book.code && s.chap === service.found.chap) ? service : null;
 
   // Previous and next chapter, across books
   const step = (d: 1 | -1) => {
@@ -214,6 +279,8 @@ export default function Bible() {
   const [desk, setDesk] = useState(() => matchMedia(DESK).matches);
   useEffect(() => { const mq = matchMedia(DESK); const f = () => setDesk(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
   useEffect(() => { const mq = matchMedia(NEAR_MQ); const f = () => setNear(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
+  // The corner button: always on desktop (For slides); on phones and tablets only when turned on in Settings
+  const showGo = desk || s.goScripture;
   const toolsRef = useRef<HTMLDivElement>(null);
   const placeTools = useCallback(() => {
     const el = toolsRef.current;
@@ -241,7 +308,7 @@ export default function Bible() {
 
   // Clear the selection on a click outside the passage, or with Escape
   useEffect(() => {
-    const click = (e: MouseEvent) => { if (picked.length && !(e.target as Element).closest(".v,.actions,.panel,.scrim")) setPicked([]); };
+    const click = (e: MouseEvent) => { if (picked.length && !(e.target as Element).closest(".v,.actions,.panel,.scrim,.svc,.nudge")) setPicked([]); };
     const key = (e: KeyboardEvent) => { if (e.key === "Escape" && !panel && picked.length) setPicked([]); };
     document.addEventListener("click", click); document.addEventListener("keydown", key);
     return () => { document.removeEventListener("click", click); document.removeEventListener("keydown", key); };
@@ -256,6 +323,7 @@ export default function Bible() {
             <button className="pill" onClick={() => setPanel({ name: "chapters", book: s.book })} aria-haspopup="dialog" aria-label={`Chapter ${s.chap}`}><span>{s.chap}</span><Icon n="down" /></button>
           </div>
           <nav className="icons" aria-label="Reader tools">
+            <button className="ib" aria-label="Search" aria-haspopup="dialog" onClick={() => setPanel({ name: "search" })}><Icon n="search" /></button>
             <button className="ib" aria-label="Home: back to the passage" onClick={() => { setPanel(null); setPicked([]); window.scrollTo({ top: 0 }); }}><Icon n="home" /></button>
             <button className="ib" aria-label="Saved verses" aria-haspopup="dialog" onClick={() => setPanel({ name: "saved" })}><Icon n="save" /></button>
             <button className="ib" aria-label="Notes" aria-haspopup="dialog" onClick={() => setPanel({ name: "notes" })}><Icon n="note" /></button>
@@ -266,8 +334,9 @@ export default function Bible() {
 
       <div className="wrap">
         <p className="title">Nau Brah Ndu Ngơi</p>
-        <main>
+        <main className={service ? "has-nudge" : undefined}>
           <p className="ref">{book.local} &middot; Chapter {s.chap}</p>
+          {back && <button className="svc" onClick={() => goBack(back)}><Icon n="l" />Back to {bookName(back.book)} {back.chap}</button>}
           {chapter ? <Passage book={s.book} chap={s.chap} ch={chapter} s={s} picked={picked} onSelect={tap} />
             : error ? <div className="empty">
                 <b>{error === "offline" ? `${book.local} isn’t saved on this device yet.` : "The passage didn’t load."}</b>
@@ -285,7 +354,8 @@ export default function Bible() {
       </div>
 
       {/* Floating buttons. Phones: the verse tools stack above Go to Scripture at the right edge. Tablet and desktop: the
-          verse tools sit beside the selected verses (placed by placeTools), and Go to Scripture stays in its corner. */}
+          verse tools sit beside the selected verses (placed by placeTools), and the corner button stays in its corner.
+          On phones and tablets the Go to Scripture button shows only when turned on in Settings. */}
       {(!panel || panel.name === "slides") && picked.length > 0 && near && (
         <div ref={toolsRef} className="actions near" role="toolbar" aria-label="Verse actions" aria-orientation="vertical">
             <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
@@ -296,7 +366,7 @@ export default function Bible() {
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
         </div>
       )}
-      {(!panel || panel.name === "slides") && (
+      {(!panel || panel.name === "slides") && (showGo || (picked.length > 0 && !near)) && (
         <div className="actions" role="toolbar" aria-label={picked.length && !near ? "Verse actions" : "Scripture slides"} aria-orientation="vertical">
           {picked.length > 0 && !near && <>
             <span className="lab">{picked.length === 1 ? `v${parseKey(picked[0]).v}` : `${picked.length} verses`}</span>
@@ -306,13 +376,15 @@ export default function Bible() {
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}
-          <button className="go" aria-pressed={desk ? panel?.name === "slides" : undefined}
+          {showGo && <button className="go" aria-pressed={desk ? panel?.name === "slides" : undefined}
             onClick={() => (desk ? setPanel(panel?.name === "slides" ? null : { name: "slides" }) : openScripture(forSlides))}
             aria-label={`${desk ? "For slides" : "Go to Scripture"}${forSlides.length ? `, ${forSlides.length} passage${forSlides.length === 1 ? "" : "s"} waiting` : ""}`} title={desk ? "For slides" : "Go to Scripture"}>
             <Icon n="open" />{forSlides.length > 0 && <span className="badge" aria-hidden="true">{forSlides.length}</span>}
-          </button>
+          </button>}
         </div>
       )}
+
+      {nudge && <button className={`nudge${showGo ? " beside" : ""}`} onClick={() => openService(nudge.found)}>{nudge.label} &middot; {refLabel(nudge.found)}<Icon n="r" /></button>}
 
       {panel && <Panels p={panel} setPanel={setPanel} books={books} s={s} update={update} sync={sync} go={go} say={say} refOf={refOf} textOf={textOf} current={text}
         passLabel={passLabel} passesOf={passesOf} addToSlides={addToSlides} forSlides={forSlides} removeForSlides={removeForSlides} clearForSlides={clearForSlides} moveForSlides={moveForSlides} />}
@@ -361,7 +433,7 @@ function Passage({ book, chap, ch, s, picked, onSelect }: { book: string; chap: 
 // ---------- Panels ----------
 interface PanelProps {
   p: PanelState; setPanel: (p: PanelState | null) => void; books: Book[]; s: State; current: BookText | null;
-  update: (fn: (p: State) => State) => void; go: (b: string, c: number, v?: number) => void; say: (m: string) => void;
+  update: (fn: (p: State) => State) => void; go: (b: string, c: number, v?: number, v2?: number) => void; say: (m: string) => void;
   refOf: (k: string) => string; textOf: (k: string) => string;
   passLabel: (p: Pass) => string; passesOf: (keys: string[]) => Pass[]; addToSlides: (ps: Pass[]) => void;
   forSlides: Pass[]; removeForSlides: (i: number) => void; clearForSlides: () => void; moveForSlides: (i: number, d: -1 | 1) => void;
@@ -377,6 +449,7 @@ function Panels(props: PanelProps) {
     case "saved": return <SavedPanel {...props} close={close} />;
     case "notes": return <NotesPanel {...props} close={close} />;
     case "settings": return <SettingsPanel {...props} close={close} />;
+    case "search": return <SearchPanel {...props} close={close} />;
     case "slides": return <SlidesPanel {...props} close={close} />;
   }
 }
@@ -386,7 +459,7 @@ function Panels(props: PanelProps) {
 // On phones every panel is a bottom sheet over a dimmed reader.
 const DESK = "(min-width: 900px)";
 const NEAR_MQ = "(min-width: 768px)";
-function Panel({ title, sub, wide, drawer: asDrawer, bodyClass, close, children }: { title: string; sub?: string; wide?: boolean; drawer?: boolean; bodyClass?: string; close: () => void; children: ReactNode }) {
+function Panel({ title, sub, wide, top, drawer: asDrawer, bodyClass, close, children }: { title: string; sub?: string; wide?: boolean; top?: boolean; drawer?: boolean; bodyClass?: string; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   const [drawer] = useState(() => !!asDrawer && matchMedia(DESK).matches);
   useEffect(() => {
@@ -402,7 +475,7 @@ function Panel({ title, sub, wide, drawer: asDrawer, bodyClass, close, children 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") { e.stopPropagation(); close(); }
     if (e.key !== "Tab" || !ref.current || drawer) return;
-    const f = [...ref.current.querySelectorAll<HTMLElement>("button:not(:disabled),textarea,[tabindex='0']")];
+    const f = [...ref.current.querySelectorAll<HTMLElement>("button:not(:disabled),input,textarea,[tabindex='0']")];
     if (!f.length) return;
     const a = f[0], z = f[f.length - 1];
     if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
@@ -411,7 +484,7 @@ function Panel({ title, sub, wide, drawer: asDrawer, bodyClass, close, children 
   return (
     <>
       {!drawer && <div className="scrim" onClick={close} />}
-      <section ref={ref} className={`panel${wide ? " wide" : ""}${drawer ? " drawer" : ""}`} role="dialog" aria-modal={!drawer} aria-labelledby="pTitle" onKeyDown={onKey}>
+      <section ref={ref} className={`panel${wide ? " wide" : ""}${top ? " from-top" : ""}${drawer ? " drawer" : ""}`} role="dialog" aria-modal={!drawer} aria-labelledby="pTitle" onKeyDown={onKey}>
         <div className="ph">
           <div><h2 id="pTitle">{title}</h2>{sub && <div className="sub">{sub}</div>}</div>
           <button className="ib" aria-label="Close" onClick={close}><Icon n="x" /></button>
@@ -600,6 +673,54 @@ function NotesPanel({ p, s, update, go, setPanel, close, say, refOf, textOf }: P
   );
 }
 
+// "Nau Ntơm 1:1–2", or "Nau Mprơ Ơm 23" for a whole chapter
+const refLabel = ({ book, chap, v1, v2 }: Found) => `${book.local} ${chap}${v1 === null ? "" : `:${v1}${v2 === 999 ? " onwards" : v2! > v1 ? `–${v2}` : ""}`}`;
+
+// Search: a reference ("Nau Ntơm 1:1", "John 3:16") opens that passage; anything else is looked for in the text
+function SearchPanel({ books, go, close }: PanelProps & { close: () => void }) {
+  const [q, setQ] = useState("");
+  const [result, setResult] = useState<(SearchResult & { q: string }) | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const run = useRef(0);   // only the latest search may show its result
+  const refs = parseReference(q, books);
+  const open = (f: Found) => go(f.book.code, f.chap, f.v1 ?? undefined, f.v2 ?? undefined);
+  const type = (v: string) => { setQ(v); run.current++; setResult(null); setBusy(false); setFailed(false); };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (refs.length) { if (refs.length === 1) open(refs[0]); return; }
+    const phrase = tidy(q);
+    if (phrase.length < 2) return;
+    const n = ++run.current;
+    setBusy(true); setFailed(false);
+    try { const r = await searchBible(phrase, books); if (n === run.current) setResult({ ...r, q: phrase }); }
+    catch { if (n === run.current) setFailed(true); }
+    if (n === run.current) setBusy(false);
+  };
+  const name = (code: string) => books.find((x) => x.code === code)?.local ?? code;
+  return (
+    <Panel title="Search" sub="A reference, or words from a verse" wide top close={close}>
+      <form className="search-form" role="search" onSubmit={submit}>
+        <label className="sr" htmlFor="searchText">Search the Bible</label>
+        <input id="searchText" data-autofocus type="search" enterKeyHint="search" autoComplete="off" autoCapitalize="off" spellCheck={false}
+          placeholder="John 3:16, or brah ndu" value={q} onChange={(e) => type(e.target.value)} />
+        <button type="submit" className="btn pri">Search</button>
+      </form>
+      {refs.map((f) => <button key={f.book.code} className="hit" onClick={() => open(f)}><b>{refLabel(f)}</b><span>Open this passage</span></button>)}
+      {busy && <p className="hint" role="status">Searching…</p>}
+      {failed && <p className="hint" role="alert">The search didn’t finish. Try again.</p>}
+      {result && !refs.length && <>
+        <p className="hint" role="status">
+          {result.hits.length ? (result.more ? `First ${SEARCH_LIMIT} verses with “${result.q}”. Add more words to narrow it.` : `${result.hits.length} verse${result.hits.length === 1 ? "" : "s"} with “${result.q}”`) : `No verse has “${result.q}”. Check the spelling and accents.`}
+          {result.searched !== null && ` Searched only the ${result.searched} book${result.searched === 1 ? "" : "s"} saved on this device.`}
+        </p>
+        {result.hits.map((h) => <button key={`${h.b}|${h.c}|${h.v}`} className="hit" onClick={() => go(h.b, h.c, h.v)}>
+          <b>{name(h.b)} {h.c}:{h.v}{h.end ? `–${h.end}` : ""}</b><span className="tx">{h.text}</span></button>)}
+      </>}
+    </Panel>
+  );
+}
+
 // Settings: keep highlights, saved verses and notes on your account (sign in), so they survive a new phone
 function Backup({ sync }: { sync: PanelProps["sync"] }) {
   const [email, setEmail] = useState("");
@@ -647,11 +768,14 @@ function Backup({ sync }: { sync: PanelProps["sync"] }) {
   );
 }
 
-function SettingsPanel({ s, update, close, sync }: PanelProps & { close: () => void }) {
+function SettingsPanel({ s, update, close, sync, books, current }: PanelProps & { close: () => void }) {
   const dark = s.theme ? s.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   const [saved, setSaved] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  // Whether the open book is one of the saved ones (checked again as books arrive)
+  const [hereSaved, setHereSaved] = useState<boolean | null>(null);
+  useEffect(() => { void savedBook(s.book).then((b) => setHereSaved(!!b)); }, [s.book, saved, current]);
   const stop = useRef(false);
   useEffect(() => { savedBookCodes().then((c) => setSaved(c.length)); return () => { stop.current = true; }; }, []);
   const download = async () => {
@@ -668,8 +792,11 @@ function SettingsPanel({ s, update, close, sync }: PanelProps & { close: () => v
         <Seg label="Text size" value={s.size} options={[["s", "Small"], ["m", "Medium"], ["l", "Large"]]} onChange={(v) => update((p) => ({ ...p, size: v }))} /></div>
       <div className="row"><div className="k">Line spacing</div>
         <Seg label="Line spacing" value={s.leading} options={[["compact", "Compact"], ["normal", "Normal"], ["relaxed", "Relaxed"]]} onChange={(v) => update((p) => ({ ...p, leading: v }))} /></div>
+      {!matchMedia(DESK).matches && <div className="row"><div><div className="k">Go to Scripture button</div><div className="d">The round button for slides</div></div>
+        <Seg label="Go to Scripture button" value={s.goScripture ? "show" : "hide"} options={[["show", "Show"], ["hide", "Hide"]]} onChange={(v) => update((p) => ({ ...p, goScripture: v === "show" }))} /></div>}
       <div className="row"><div><div className="k">Offline reading</div>
-        <div className="d">{saved === null ? "Checking…" : saved >= 66 ? "The whole Bible is saved on this device." : `${saved} of 66 books saved on this device.`}{err && <><br />{err}</>}</div></div>
+        <div className="d">{saved === null ? "Checking…" : saved >= 66 ? "The whole Bible is saved on this device." : `${saved} of 66 books saved on this device.`}
+          {saved !== null && saved < 66 && hereSaved !== null && <><br />{books.find((x) => x.code === s.book)?.local} (open now) is {hereSaved ? "saved" : "not saved yet"}.</>}{err && <><br />{err}</>}</div></div>
         {saved !== null && saved < 66 && (busy
           ? <button className="btn" onClick={() => { stop.current = true; }}>Stop</button>
           : <button className="btn pri" onClick={download}>Save all</button>)}

@@ -105,13 +105,14 @@ function readCache(): PublishedService | null {
 }
 
 // The service for the reader: the latest from the database, kept on the device so it opens offline
-export async function loadTodayService(churchId: string | null): Promise<PublishedService | null> {
+// today: the day to pick the service for (the Bible reader passes the church's date)
+export async function loadTodayService(churchId: string | null, today = new Date()): Promise<PublishedService | null> {
   if (!churchId) return null;
   const cached = readCache();
-  const fromCache = cached ? pickService([cached]) : null;
+  const fromCache = cached ? pickService([cached], today) : null;
   if (!supabase) return fromCache;
   try {
-    const since = new Date(); since.setDate(since.getDate() - 6);
+    const since = new Date(today); since.setDate(since.getDate() - 6);
     const { data, error } = await supabase.from("published_services")
       .select("service_date, title, date_label, items, updated_at")
       .eq("church_id", churchId).gte("service_date", isoDay(since)).order("service_date").limit(20);
@@ -120,7 +121,7 @@ export async function loadTodayService(churchId: string | null): Promise<Publish
       serviceDate: r.service_date, title: r.title ?? "", dateLabel: r.date_label ?? "",
       items: Array.isArray(r.items) ? (r.items as PubItem[]) : [], updated: r.updated_at ?? "",
     }));
-    const pick = pickService(rows);
+    const pick = pickService(rows, today);
     try { if (pick) localStorage.setItem(CACHE_KEY, JSON.stringify(pick)); else localStorage.removeItem(CACHE_KEY); } catch { /* storage blocked */ }
     return pick;
   } catch {

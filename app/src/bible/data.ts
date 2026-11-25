@@ -2,6 +2,7 @@
 // A book is fetched whole the first time any chapter of it is opened, then saved in IndexedDB, so it reads offline
 // afterwards. "Save the whole Bible" in Settings fetches every book.
 import { supabase, selectAll, withTimeout } from "../lib/supabase";
+import { searchSaved, tidy, type Hit } from "./find";
 
 export const TRANSLATION = "bunong-vn";
 
@@ -124,4 +125,30 @@ export async function saveWholeBible(onProgress: (done: number, total: number) =
     await getBook(code);
     onProgress(++done, BASE.length);
   }
+}
+
+// ---------- Phrase search ----------
+export const SEARCH_LIMIT = 100;
+// searched: how many books were looked through, when it was only the ones saved on this device (offline); otherwise null
+export interface SearchResult { hits: Hit[]; more: boolean; searched: number | null }
+// With the whole Bible saved, or offline, the saved books are searched; otherwise the database, so every book is covered
+export async function searchBible(phrase: string, books: Book[]): Promise<SearchResult> {
+  const q = tidy(phrase);
+  const have = await savedBookCodes();
+  const whole = have.length >= BASE.length;
+  const done = (hits: Hit[], searched: number | null) => ({ hits: hits.slice(0, SEARCH_LIMIT), more: hits.length > SEARCH_LIMIT, searched });
+  if (!whole && supabase && navigator.onLine) {
+    const res = await withTimeout(
+      supabase.from("bible_verses").select("book_code, chapter, verse, verse_end, text, bible_books(book_order)")
+        .eq("translation_id", TRANSLATION).ilike("text", `%${q.replace(/[\\%_]/g, "\\$&")}%`)
+        .order("bible_books(book_order)").order("chapter").order("verse").limit(SEARCH_LIMIT + 1),
+      15000, { data: null, error: { message: "timeout" } } as never,
+    );
+    if (!res.error && res.data) {
+      const rows = res.data as unknown as { book_code: string; chapter: number; verse: number; verse_end: number | null; text: string }[];
+      return done(rows.map((r) => ({ b: r.book_code, c: r.chapter, v: r.verse, end: r.verse_end, text: r.text })), null);
+    }
+  }
+  const texts = (await idb<BookText[]>("readonly", (s) => s.getAll())) ?? [];
+  return done(searchSaved(q, texts, books, SEARCH_LIMIT + 1), whole ? null : texts.length);
 }
