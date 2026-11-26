@@ -96,6 +96,80 @@ function makeThatch(): { strands: Strand[]; fringe: Strand[]; courses: string[] 
   return { strands, fringe, courses };
 }
 
+// Which picture sits at the top of Home: "bible" (an open Bible) or "church" (the thatched hut church).
+// Change this one word to switch between them.
+const HERO_ART: "bible" | "church" = "church";
+
+// Page outlines for the open Bible: each page curls up from the spine and dips at the outer edge
+const PAGE_L = "M300 268C250 236 150 226 58 240L76 98C160 82 248 90 300 122Z";
+const PAGE_R = "M300 268C350 236 450 226 542 240L524 98C440 82 352 90 300 122Z";
+
+// Lines of print on one page, following the page's curve. side -1 = left page, 1 = right page
+function printLines(side: -1 | 1): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < 13; i++) {
+    const t = i / 12;
+    const yIn = 132 + t * 116, yOut = 112 + t * 112;          // the inner end sits lower, near the spine
+    const xIn = 300 + side * 18, xOut = 300 + side * (214 - t * 6);
+    const short = i === 5 || i === 11 ? 0.55 : 1;             // paragraph ends
+    const xEnd = xIn + (xOut - xIn) * short, yEnd = yIn + (yOut - yIn) * short;
+    const midX = (xIn + xEnd) / 2, midY = (yIn + yEnd) / 2 - 6;
+    out.push(`M${xIn} ${yIn}Q${midX} ${midY} ${xEnd} ${yEnd}`);
+  }
+  return out;
+}
+
+// An open Bible lying on the page, lit from the top left like the sunlight, with a ribbon marker
+function OpenBible() {
+  const left = useMemo(() => printLines(-1), []);
+  const right = useMemo(() => printLines(1), []);
+  return (
+    <svg className="hm-roof" viewBox="0 0 600 380" aria-hidden="true">
+      <defs>
+        <filter id="hm-bblur8" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9" /></filter>
+        <filter id="hm-bblur2"><feGaussianBlur stdDeviation="1.6" /></filter>
+        <linearGradient id="hm-page-l" x1="0" y1="0" x2="1" y2="0.3">
+          <stop offset="0" className="hm-page-lit" /><stop offset="0.82" className="hm-page" /><stop offset="1" className="hm-page-shade" />
+        </linearGradient>
+        <linearGradient id="hm-page-r" x1="0" y1="0" x2="1" y2="0.3">
+          <stop offset="0" className="hm-page-shade" /><stop offset="0.18" className="hm-page" /><stop offset="1" className="hm-page-dim" />
+        </linearGradient>
+        <linearGradient id="hm-leather" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" className="hm-leather-lit" /><stop offset="1" className="hm-leather" />
+        </linearGradient>
+      </defs>
+
+      {/* shadow on the table, thrown down and to the right */}
+      <path d="M70 262Q300 250 560 262L600 312Q330 318 120 306Z" className="hm-cast" filter="url(#hm-bblur8)" />
+
+      {/* leather cover showing under the pages */}
+      <path d="M36 246Q170 232 300 280Q430 232 564 246L560 268Q430 256 300 298Q170 256 40 268Z" fill="url(#hm-leather)" />
+      {/* page block edges */}
+      {[0, 1, 2, 3, 4].map((k) => (
+        <g key={k}>
+          <path d={`M${46 + k * 2.5} ${243 - k * 1.2}Q170 ${231 - k} 300 ${276 - k * 2}`} className="hm-edge" />
+          <path d={`M${554 - k * 2.5} ${243 - k * 1.2}Q430 ${231 - k} 300 ${276 - k * 2}`} className="hm-edge" />
+        </g>
+      ))}
+
+      {/* pages */}
+      <path d={PAGE_L} fill="url(#hm-page-l)" />
+      <path d={PAGE_R} fill="url(#hm-page-r)" />
+      {left.map((d, i) => <path key={`l${i}`} d={d} className="hm-print" />)}
+      {right.map((d, i) => <path key={`r${i}`} d={d} className="hm-print" />)}
+      {/* gold initial and the spine's shadow */}
+      <rect x="252" y="128" width="12" height="16" className="hm-gold" transform="rotate(14 258 136)" />
+      <path d="M300 122L300 268" className="hm-spine" filter="url(#hm-bblur2)" />
+      {/* sunlit edge on the left page */}
+      <path d="M76 98C160 82 248 90 300 122" className="hm-rim" />
+
+      {/* ribbon marker */}
+      <path d="M296 122L304 122L310 330L300 318L290 330Z" className="hm-ribbon" />
+      <path d="M304 124L311 330L320 334" className="hm-cast" filter="url(#hm-bblur2)" fill="none" />
+    </svg>
+  );
+}
+
 // A Bunong-style thatched church on stilts, lit from the top left like the sunlight on the page
 function HutChurch() {
   const { strands, fringe, courses } = useMemo(makeThatch, []);
@@ -276,7 +350,7 @@ export default function Home() {
         <div className="hm-stage">
           <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
           <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
-          <HutChurch />
+          {HERO_ART === "bible" ? <OpenBible /> : <HutChurch />}
           <GlyphRain />
           <div className="hm-copy">
             <p className="hm-kicker">{t.kicker}</p>

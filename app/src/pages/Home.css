@@ -7,6 +7,7 @@ html body .ct-app > div.hm {
   --hm-glyph: rgba(43, 36, 32, .78); --hm-card: #f4efe4; --hm-shadow: rgba(60, 40, 20, .18);
   --hm-ray: rgba(255, 247, 222, .9); --hm-glow: rgba(255, 226, 150, .75); --hm-core: rgba(255, 254, 245, 1); --hm-blend: normal;
   --hm-straw: #a98446; --hm-s1: #e9cf8e; --hm-s2: #c49a55; --hm-s3: #7d5a2c; --hm-bamboo: #cdb17a; --hm-bamboo-line: rgba(95, 65, 30, .45); --hm-post: #5e4026; --hm-post-lit: #a07a4e; --hm-doorway: #2e2116; --hm-lit: rgba(255, 244, 210, .45); --hm-darkc: rgba(50, 28, 8, .5); --hm-dark-strong: rgba(40, 22, 6, .55); --hm-cast: rgba(70, 48, 22, .28); --hm-cast-strong: rgba(60, 40, 18, .4); --hm-rim: rgba(255, 246, 215, .8);
+  --hm-page: #f6efdf; --hm-page-lit: #fffaf0; --hm-page-shade: #cdbf9f; --hm-page-dim: #e6dac2; --hm-print: rgba(60, 45, 30, .38); --hm-leather: #5c1a22; --hm-leather-lit: #8a2c36; --hm-edge: #e3d6b8; --hm-ribbon: #9a2433;
   --hm-display: "Fraunces", Georgia, "Times New Roman", serif;
   --hm-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   /* the app's own text tokens follow this page's theme, so text that inherits them stays readable */
@@ -22,6 +23,7 @@ html body .ct-app > div.hm {
   --hm-glyph: rgba(238, 230, 216, .75); --hm-card: #2a2521; --hm-shadow: rgba(0, 0, 0, .5);
   --hm-ray: rgba(255, 215, 140, .35); --hm-glow: rgba(255, 200, 120, .3); --hm-core: rgba(255, 220, 150, .35); --hm-blend: soft-light;
   --hm-straw: #6e5430; --hm-s1: #c7a462; --hm-s2: #8e6d3a; --hm-s3: #3e2c16; --hm-bamboo: #85693e; --hm-bamboo-line: rgba(20, 12, 4, .5); --hm-post: #3a2816; --hm-post-lit: #7c5e3a; --hm-doorway: #0e0906; --hm-lit: rgba(255, 215, 150, .22); --hm-darkc: rgba(0, 0, 0, .55); --hm-dark-strong: rgba(0, 0, 0, .65); --hm-cast: rgba(0, 0, 0, .4); --hm-cast-strong: rgba(0, 0, 0, .55); --hm-rim: rgba(255, 210, 140, .55);
+  --hm-page: #cfc3a8; --hm-page-lit: #e6dbc2; --hm-page-shade: #7d725c; --hm-page-dim: #a89c82; --hm-print: rgba(40, 30, 20, .5); --hm-leather: #3c1016; --hm-leather-lit: #6a222b; --hm-edge: #a3977d; --hm-ribbon: #b8384a;
 }
 html:has(.hm), html:has(.hm) body { background: var(--bg); }
 
@@ -55,6 +57,13 @@ html:has(.hm), html:has(.hm) body { background: var(--bg); }
 .hm-roof { grid-column: 2; grid-row: 1; justify-self: center; width: 100%; height: auto; max-height: 46svh; display: block; }
 .hm-gold { fill: var(--hm-gold); }
 .hm-straw { fill: var(--hm-straw); }
+.hm-page { stop-color: var(--hm-page); } .hm-page-lit { stop-color: var(--hm-page-lit); }
+.hm-page-shade { stop-color: var(--hm-page-shade); } .hm-page-dim { stop-color: var(--hm-page-dim); }
+.hm-leather { stop-color: var(--hm-leather); } .hm-leather-lit { stop-color: var(--hm-leather-lit); }
+.hm-print { fill: none; stroke: var(--hm-print); stroke-width: 2.2; stroke-linecap: round; }
+.hm-edge { fill: none; stroke: var(--hm-edge); stroke-width: 1.4; }
+.hm-spine { fill: none; stroke: var(--hm-dark-strong); stroke-width: 10; opacity: .55; }
+.hm-ribbon { fill: var(--hm-ribbon); }
 .hm-s1, .hm-s2, .hm-s3 { fill: none; stroke-width: 1.1; stroke-linecap: round; }
 .hm-s1 { stroke: var(--hm-s1); } .hm-s2 { stroke: var(--hm-s2); } .hm-s3 { stroke: var(--hm-s3); }
 .hm-course { fill: none; stroke: var(--hm-dark-strong); stroke-width: 3; opacity: .5; }
