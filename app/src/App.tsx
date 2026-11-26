@@ -38,6 +38,7 @@ export default function App() {
 function renderPage(page: string) {
   // The main address is the home page; NauBrah starts at Lyric (#lyrics-v2)
   if (page === "" || page === "#" || page === "#home") return <Home />;
+  if (page === "#home-new") return <Home variant="helps" />;
   if (page === "#lyrics") return <LyricsV2 />;
   if (page === "#projector") return <Projector />;
   if (page === "#remote") return <Remote />;

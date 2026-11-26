@@ -362,6 +362,15 @@ const TEXT = {
     team: ["Admins and editors for each church", "Join codes and invites for new members", "A bell when a program is published or a song changes", "Keep a presentation to yourself with Only me"],
     verseEyebrow: "Verse of the week", verse: "Your word is a lamp to my feet and a light to my path.", cite: "Psalm 119:105",
     footChurch: "Montagnard Bunong Alliance Church, Charlotte, NC",
+    // The "How it helps" home page (#home-new)
+    xH1a: "Sunday slides ready in ", xH1em: "minutes", xH1b: ", not hours",
+    xSub: "Fill in the program once. NauBrah makes the slides, the printout and the phone version.",
+    xPlan: "Plan this Sunday", xHow: "See how it works",
+    xProof: "520 hymns · 66 Bible books · Works offline",
+    xBeforeLabel: "Before", xBefore: "Retyping every song and verse, every week.",
+    xAfterLabel: "With NauBrah", xAfter: "Pick the songs. The rest is done for you.",
+    xCompareEyebrow: "Why NauBrah", xCompareTitle: "Stop retyping Sunday",
+    otherHome: "See the other home page",
   },
   vi: {
     title: "NauBrah · Ba ứng dụng cho sự thờ phượng",
@@ -392,10 +401,20 @@ const TEXT = {
     team: ["Quản trị viên và người biên tập cho mỗi hội thánh", "Mã tham gia và lời mời cho thành viên mới", "Thông báo khi chương trình được đăng hoặc bài hát thay đổi", "Giữ bài trình chiếu cho riêng mình với Chỉ mình tôi"],
     verseEyebrow: "Câu gốc trong tuần", verse: "Lời Chúa là ngọn đèn cho chân tôi, ánh sáng cho đường lối tôi.", cite: "Thi Thiên 119:105",
     footChurch: "Hội Thánh Montagnard Bunong Alliance, Charlotte, NC",
+    xH1a: "Trình chiếu Chúa Nhật xong trong ", xH1em: "vài phút", xH1b: ", không phải vài giờ",
+    xSub: "Điền chương trình một lần. NauBrah tạo trình chiếu, bản in và bản trên điện thoại.",
+    xPlan: "Soạn Chúa Nhật này", xHow: "Xem cách hoạt động",
+    xProof: "520 thánh ca · 66 sách Kinh Thánh · Dùng không cần mạng",
+    xBeforeLabel: "Trước đây", xBefore: "Gõ lại từng bài hát và câu Kinh Thánh, mỗi tuần.",
+    xAfterLabel: "Với NauBrah", xAfter: "Chọn bài hát. Phần còn lại được làm sẵn.",
+    xCompareEyebrow: "Vì sao chọn NauBrah", xCompareTitle: "Không còn gõ lại mỗi Chúa Nhật",
+    otherHome: "Xem trang chủ còn lại",
   },
 };
 
-export default function Home() {
+// variant "helps": the same page with copy that explains how the app helps (#home-new)
+export default function Home({ variant = "classic" }: { variant?: "classic" | "helps" }) {
+  const helps = variant === "helps";
   const [lang, setLangState] = useState<Lang>(homeLang);
   const t = TEXT[lang];
   const toggleLang = () => {
@@ -436,10 +455,34 @@ export default function Home() {
           <GlyphRain />
           <div className="hm-copy">
             <p className="hm-kicker">{t.kicker}</p>
-            <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>
+            {helps
+              ? <h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1>
+              : <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>}
           </div>
-          <p className="hm-note">{t.note}<a href="#lyrics-v2">{t.openLyrics}</a></p>
+          {helps ? (
+            <div className="hm-note">
+              <p>{t.xSub}</p>
+              <div className="hm-btns">
+                <a className="hm-btn hm-dark" href="#program">{t.xPlan}</a>
+                <a className="hm-btn" href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }}>{t.xHow}</a>
+              </div>
+              <p className="hm-proof">{t.xProof}</p>
+            </div>
+          ) : (
+            <p className="hm-note">{t.note}<a href="#lyrics-v2">{t.openLyrics}</a></p>
+          )}
         </div>
+
+        {helps && (
+          <section className="hm-compare">
+            <p className="hm-eyebrow">{t.xCompareEyebrow}</p>
+            <h2>{t.xCompareTitle}</h2>
+            <div className="hm-compare-grid">
+              <div className="hm-before"><b>{t.xBeforeLabel}</b><p>{t.xBefore}</p></div>
+              <div className="hm-after"><b>{t.xAfterLabel}</b><p>{t.xAfter}</p></div>
+            </div>
+          </section>
+        )}
 
         <section>
           <p className="hm-eyebrow">{t.appsEyebrow}</p>
@@ -467,7 +510,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
+        <section id="how">
           <p className="hm-eyebrow">{t.stepsEyebrow}</p>
           <h2>{t.stepsTitle}</h2>
           <ol className="hm-steps">
@@ -499,6 +542,7 @@ export default function Home() {
           <a href="/nau-mpro/">Nau Mpro</a>
           <a href="/nau-brah-ndu-ngoi/">Nau Brah Ndu Ngơi</a>
           <a href="#team">{t.signIn}</a>
+          <a href={helps ? "#home" : "#home-new"}>{t.otherHome}</a>
           <button type="button" className="hm-theme hm-theme-foot" onClick={toggleLang}>{t.other}</button>
           <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.lightMode : t.darkMode}</button>
         </footer>
