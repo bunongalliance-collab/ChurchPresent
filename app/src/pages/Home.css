@@ -148,7 +148,13 @@ div.hm-note { max-width: 300px; }
   .hm-stage { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 0; margin-top: 12px; }
   .hm-roof { grid-column: 1; grid-row: auto; max-width: 480px; max-height: 30svh; }
   .hm-rain { grid-column: 1; grid-row: auto; max-width: 320px; height: clamp(210px, 28svh, 300px); }
-  .hm-side { display: none; }
+  /* Phones: the two app tiles float small at the bottom of the hanging letters, one each side */
+  .hm-roof { grid-row: 1; }
+  .hm-rain { grid-row: 2; }
+  .hm-side { grid-row: 2; grid-column: 1; align-self: end; position: relative; z-index: 2; margin: 0 0 6px; gap: 2px; font-size: 9px; }
+  .hm-l { justify-self: start; }
+  .hm-r { justify-self: end; }
+  .hm-tile { padding: 4px 7px; font-size: 11px; }
   .hm-copy, .hm-note { position: static; max-width: none; margin-top: 20px; }
   .hm section { margin-top: 70px; }
   .hm-apps, .hm-sunday, .hm-team { grid-template-columns: 1fr; }
