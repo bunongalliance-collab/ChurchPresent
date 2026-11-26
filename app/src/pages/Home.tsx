@@ -54,7 +54,7 @@ function GlyphRain() {
         const cap = Math.max(4, Math.floor((H - drop) / size) - 2);
         return {
           x: left + i * gap, drop, text: i === hiddenIdx ? `${HIDDEN} · ${takeNames(cap)}` : takeNames(cap),
-          amp: 0.012 + Math.random() * 0.03, freq: 0.5 + Math.random() * 0.7, phase: Math.random() * Math.PI * 2, fade: 1, next: null,
+          amp: (7 + Math.random() * 10) / H, /* bottom of each strand swings 7–17px on any screen */ freq: 0.5 + Math.random() * 0.7, phase: Math.random() * Math.PI * 2, fade: 1, next: null,
         };
       });
       chimes[hiddenIdx].drop = 4;
@@ -70,7 +70,7 @@ function GlyphRain() {
       x.beginPath(); x.moveTo(chimes[0]?.x - 8 || 0, 1); x.lineTo((chimes[chimes.length - 1]?.x ?? W) + 8, 1); x.stroke();
       const breeze = Math.sin(t * 0.35) * 0.6 + Math.sin(t * 0.9 + 1.3) * 0.4; // gusts every chime feels
       chimes.forEach((ch, i) => {
-        const angle = ch.amp * Math.sin(t * ch.freq * 2 + ch.phase) + breeze * 0.025;
+        const angle = ch.amp * Math.sin(t * ch.freq * 2 + ch.phase) + breeze * (8 / H);
         const hidden = i === hiddenIdx;
         // the hidden chime flashes: a slow glow plus a quick bright flash every few seconds
         const pulse = hidden ? 0.55 + 0.45 * Math.max(Math.sin(t * 1.6) ** 8, (Math.sin(t * 0.7) > 0.97 ? 1 : 0)) : 1;
