@@ -147,7 +147,7 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['**/*-cyrillic-*.woff2', '**/*-cyrillic-ext-*.woff2', '**/*-greek-*.woff2', '**/*-greek-ext-*.woff2'],
           navigateFallback: 'index.html',
           // The reader is its own page: never answer it with the team app's page
-          navigateFallbackDenylist: [/^\/nau-mpro/, /^\/scripture/, /^\/nau-brah-ndu-ngoi/, /^\/bible/],
+          navigateFallbackDenylist: [/^\/v\//, /^\/api\//, /^\/nau-mpro/, /^\/scripture/, /^\/nau-brah-ndu-ngoi/, /^\/bible/],
           runtimeCaching: [
             {
               // Songs, presentations and scripture studies: the last copy is used when offline

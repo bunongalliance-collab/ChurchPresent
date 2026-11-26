@@ -1,4 +1,8 @@
 import { StrictMode } from 'react'
+
+// A shared verse link (/v/JHN.3.16) that an older offline copy of the team app caught: send it on to the Bible reader
+const sharedVerse = /^\/v\/([^/?#]+)/.exec(location.pathname)
+if (sharedVerse) location.replace(`/nau-brah-ndu-ngoi/?v=${sharedVerse[1]}`)
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'

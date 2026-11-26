@@ -270,9 +270,10 @@ export default function Bible() {
     const keys = picked.filter((k) => { const { b, c, v } = parseKey(k); return b === p.b && c === p.c && v >= p.v1 && v <= p.v2; });
     const verse = keys.map((k) => textOf(k).trim()).join(" ").replace(/^[\u201C\u201D"]+|[\u201C\u201D"]+$/g, "");
     const url = `${location.origin}/v/${p.b}.${p.c}.${p.v1}${p.v2 > p.v1 ? `-${p.v2}` : ""}`;
-    const msg = `“${verse}”\n\n— ${passLabel(p)} · Shared from Nau Brah Ndu Ngơi\n\n${url}`;
+    const words = `“${verse}”\n\n— ${passLabel(p)} · Shared from Nau Brah Ndu Ngơi`;
+    const msg = `${words}\n\n${url}`;
     if (navigator.share) {
-      try { await navigator.share({ text: msg }); return; }
+      try { await navigator.share({ text: words, url }); return; }
       catch (e) { if ((e as Error).name === "AbortError") return; }
     }
     try { await navigator.clipboard.writeText(msg); say("Verse and link copied"); }
