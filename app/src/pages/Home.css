@@ -135,7 +135,7 @@ html body .ct-app .hm h1#hm-h { font-family: var(--hm-display); font-weight: 600
   /* Phones and tablets: everything stacks; the church and letters are sized by the screen height so the message shows on the first screen */
   .hm-stage { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 0; margin-top: 12px; }
   .hm-roof { grid-column: 1; grid-row: auto; max-width: 480px; max-height: 30svh; }
-  .hm-rain { grid-column: 1; grid-row: auto; max-width: 320px; height: clamp(60px, 16svh, 300px); }
+  .hm-rain { grid-column: 1; grid-row: auto; max-width: 320px; height: clamp(210px, 28svh, 300px); }
   .hm-side { display: none; }
   .hm-copy, .hm-note { position: static; max-width: none; margin-top: 20px; }
   .hm section { margin-top: 70px; }

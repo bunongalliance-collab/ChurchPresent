@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { setTheme, type Theme } from "../lib/theme";
 import "./Home.css";
 
-// Letters for the falling curtain under the roof: the app names plus Vietnamese-style marks used in Bunong
-const GLYPHS = "NAUMPROBRAHNDUNGƠIơưăâêôđƠƯĂÊÔĐáàảãạớờởỡợ".split("");
 
 function nextSunday(): Date {
   const d = new Date();
@@ -11,44 +9,128 @@ function nextSunday(): Date {
   return d;
 }
 
+// The 66 book names of the Bunong Bible (Vietnam dialect), as in supabase/bible-book-names-fix.sql
+const BOOK_NAMES: string[] = ["Nau Ntơm", "Nau Ngluh", "Kan Lêvi", "Nau Kơp", "Nau Vay Rơh Bar", "Y-Yôsuê", "Phung Kôranh Phat Dôih", "H'Rut", "I Y-Samuel", "II Y-Samuel", "I Kan Hađăch", "II Kan Hađăch", "I Nau Rêh Jêng", "II Nau Rêh Jêng", "Y-Êsra", "Y-Nêhêmi", "H'Êsther", "Y-Yôp", "Nau Mprơ Ơm", "Nau Hôr", "Kôranh Nơm Nti", "Nau Mprơ Ueh", "Y-Êsai", "Y-Yêrêmi", "Nau Y-Yêrêmi Nhĭm Vơl", "Y-Êsêkiêl", "Y-Daniel", "Y-Ôsê", "Y-Yôel", "Y-Amôt", "Y-Apdia", "Y-Yôna", "Y-Mika", "Y-Nahum", "Y-Habakuk", "Y-Sôphôni", "Y-Agê", "Y-Sakari", "Y-Malaki", "Y-Mathiơ", "Y-Markôs", "Y-Luk", "Y-Yôhan", "Kan Phung Oh Mon", "Rôm", "I Kôrintô", "II Kôrintô", "Galati", "Êphêsô", "Philip", "Kôlôs", "I Têsalônik", "II Têsalônik", "I Timôthê", "II Timôthê", "Y-Tit", "Y-Philêmôn", "Hêbrơ", "Y-Yakơ", "I Y-Pêtrôs", "II Y-Pêtrôs", "I Y-Yôhan", "II Y-Yôhan", "III Y-Yôhan", "Y-Yut", "Nau Tâm Mpơl"];
+
+// The words hidden among the chimes: one chime in the middle spells them and flashes now and then
+const HIDDEN = "NAU BRAH NDU NGƠI";
+
+type Chime = { x: number; drop: number; text: string; amp: number; freq: number; phase: number; fade: number; next: string | null };
+
+// Letters hanging like wind chimes under the church: each strand holds Bunong book names,
+// sways in a shared breeze, and now and then swaps its names so every book appears in turn
 function GlyphRain() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current;
     const x = c?.getContext("2d");
     if (!c || !x) return;
-    const size = 13;
-    let W = 0, H = 0, cols = 0, drops: number[] = [], raf = 0;
+    let size = 13, gap = 15;
+    let W = 0, H = 0, raf = 0, start = 0, lastSwap = 0;
+    let chimes: Chime[] = [], queue: string[] = [], hiddenIdx = 0;
+
+    const shuffled = () => [...BOOK_NAMES].sort(() => Math.random() - 0.5).map((n) => n.toUpperCase());
+    const takeNames = (cap: number) => {
+      let t = "";
+      while (t.length < cap) {
+        if (!queue.length) queue = shuffled();
+        const n = queue.shift()!;
+        t = t ? `${t} · ${n}` : n;
+      }
+      return t;
+    };
+
     const fit = () => {
       const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+      if (!r.width || !r.height) return;
       W = r.width; H = r.height; c.width = W * d; c.height = H * d;
+      size = H < 260 ? 10.5 : 13; gap = size + 2; // smaller letters on short screens so the whole name fits
       x.setTransform(d, 0, 0, d, 0, 0);
-      cols = Math.floor(W / size);
-      drops = Array.from({ length: cols }, () => Math.random() * H / size);
+      const n = Math.max(3, Math.floor(W / gap));
+      const left = (W - (n - 1) * gap) / 2;
+      hiddenIdx = Math.floor(n / 2);
+      chimes = Array.from({ length: n }, (_, i) => {
+        const drop = 4 + Math.random() * Math.min(18, H * 0.08);       // short bare string above the letters
+        const cap = Math.max(4, Math.floor((H - drop) / size) - 2);
+        return {
+          x: left + i * gap, drop, text: i === hiddenIdx ? `${HIDDEN} · ${takeNames(cap)}` : takeNames(cap),
+          amp: 0.012 + Math.random() * 0.03, freq: 0.5 + Math.random() * 0.7, phase: Math.random() * Math.PI * 2, fade: 1, next: null,
+        };
+      });
+      chimes[hiddenIdx].drop = 4;
     };
-    const draw = (still: boolean) => {
+
+    const draw = (t: number) => {
       x.clearRect(0, 0, W, H);
-      const g = getComputedStyle(c).getPropertyValue("--hm-glyph");
-      x.font = `500 ${size - 1}px "IBM Plex Mono", monospace`;
-      x.textAlign = "center";
-      const rows = Math.floor(H / size);
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          if ((i * 31 + j * 17 + Math.floor(drops[i])) % 5 === 0) continue;
-          x.globalAlpha = Math.max(0, (1 - j / rows) * (0.35 + 0.65 * ((i * 7 + j) % 3) / 2));
-          x.fillStyle = g;
-          x.fillText(GLYPHS[(i * 13 + j * 7 + Math.floor(drops[i])) % GLYPHS.length], i * size + size / 2, j * size + size);
+      const css = getComputedStyle(c);
+      const ink = css.getPropertyValue("--hm-glyph").trim();
+      x.textAlign = "center"; x.textBaseline = "middle";
+      // the bar the chimes hang from
+      x.globalAlpha = 0.5; x.strokeStyle = ink; x.lineWidth = 1.5;
+      x.beginPath(); x.moveTo(chimes[0]?.x - 8 || 0, 1); x.lineTo((chimes[chimes.length - 1]?.x ?? W) + 8, 1); x.stroke();
+      const breeze = Math.sin(t * 0.35) * 0.6 + Math.sin(t * 0.9 + 1.3) * 0.4; // gusts every chime feels
+      chimes.forEach((ch, i) => {
+        const angle = ch.amp * Math.sin(t * ch.freq * 2 + ch.phase) + breeze * 0.025;
+        const hidden = i === hiddenIdx;
+        // the hidden chime flashes: a slow glow plus a quick bright flash every few seconds
+        const pulse = hidden ? 0.55 + 0.45 * Math.max(Math.sin(t * 1.6) ** 8, (Math.sin(t * 0.7) > 0.97 ? 1 : 0)) : 1;
+        x.save();
+        x.translate(ch.x, 1);
+        x.rotate(angle);
+        x.globalAlpha = 0.35 * ch.fade; x.lineWidth = 0.8;
+        x.beginPath(); x.moveTo(0, 0); x.lineTo(0, ch.drop); x.stroke();
+        x.font = hidden ? `700 ${size}px "IBM Plex Mono", monospace` : `500 ${size - 1}px "IBM Plex Mono", monospace`;
+        if (hidden) { x.shadowColor = ink; x.shadowBlur = 10 * pulse; }
+        let y = ch.drop + size * 0.6, k = 0;
+        for (const chr of ch.text) {
+          if (y > H - size * 0.5) break;
+          const lit = hidden && k < HIDDEN.length;
+          if (hidden && k === HIDDEN.length) { x.shadowBlur = 0; x.font = `500 ${size - 1}px "IBM Plex Mono", monospace`; }
+          if (chr !== " ") {
+            const depth = 1 - y / H;
+            x.globalAlpha = lit ? pulse : Math.max(0, ch.fade * depth * (0.35 + 0.45 * ((k * 7 + i) % 3) / 2));
+            x.fillStyle = ink;
+            x.fillText(chr, 0, y);
+          }
+          y += size; k++;
         }
-        if (!still) drops[i] += 0.04 + ((i * 7) % 5) * 0.01;
-      }
+        x.shadowBlur = 0;
+        // a small weight at the end of the strand
+        x.globalAlpha = 0.5 * ch.fade * Math.max(0, 1 - y / H);
+        x.beginPath(); x.arc(0, Math.min(y, H - 4) - size * 0.2, 2, 0, Math.PI * 2); x.fillStyle = ink; x.fill();
+        x.restore();
+      });
       x.globalAlpha = 1;
     };
-    fit();
-    window.addEventListener("resize", fit);
+
+    // Every couple of seconds one chime fades out, takes the next book names and fades back in
+    const swap = (t: number, dt: number) => {
+      if (t - lastSwap > 1.6) {
+        lastSwap = t;
+        const i = Math.floor(Math.random() * chimes.length);
+        if (i !== hiddenIdx && !chimes[i].next) chimes[i].next = takeNames(Math.max(4, Math.floor((H - chimes[i].drop) / size) - 2));
+      }
+      for (const ch of chimes) {
+        if (ch.next) { ch.fade -= dt * 2; if (ch.fade <= 0) { ch.text = ch.next; ch.next = null; ch.fade = 0; } }
+        else if (ch.fade < 1) ch.fade = Math.min(1, ch.fade + dt * 1.5);
+      }
+    };
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const loop = () => { draw(reduce); if (!reduce) raf = requestAnimationFrame(loop); };
-    loop();
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", fit); };
+    const ro = new ResizeObserver(() => { fit(); if (reduce) draw(0); });
+    ro.observe(c);
+    fit();
+    let prev = 0;
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const t = (now - start) / 1000, dt = prev ? Math.min(0.1, t - prev) : 0;
+      prev = t;
+      swap(t, dt);
+      draw(t);
+      raf = requestAnimationFrame(loop);
+    };
+    if (reduce) draw(0); else raf = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
   }, []);
   return <canvas ref={ref} className="hm-rain" aria-hidden="true" />;
 }
