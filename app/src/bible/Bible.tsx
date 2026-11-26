@@ -68,6 +68,7 @@ const PATHS: Record<string, ReactNode> = {
   open: <><path d="M14 9V5H3v14h11v-4" /><path d="M9 12h12M17 8l4 4-4 4" /></>,
   share: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><path d="M18 8v6M15 11h6" /></>,
   shared: <><circle cx="12" cy="8" r="3" /><path d="M7 19c0-3 2.2-5 5-5s5 2 5 5" /><circle cx="5" cy="10" r="2" /><path d="M2 17c0-2 1.3-3.3 3.5-3.3" /><circle cx="19" cy="10" r="2" /><path d="M22 17c0-2-1.3-3.3-3.5-3.3" /></>,
+  send: <><path d="M12 15V4M8 8l4-4 4 4" /><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /></>,
   slides: <><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></>,
 };
 const Icon = ({ n }: { n: string }) => <svg viewBox="0 0 24 24" aria-hidden="true">{PATHS[n]}</svg>;
@@ -148,6 +149,15 @@ export default function Bible() {
     setJump(v ? { v1: v, v2: v2 ?? v } : null);
     if (!v) window.scrollTo(0, 0);
   }, [update]);
+
+  // A shared link (?v=BOOK.chapter.verse or .v1-v2) opens the reader at that verse, selected
+  useEffect(() => {
+    const m = /^([^.]+)\.(\d+)\.(\d+)(?:-(\d+))?$/.exec(new URLSearchParams(location.search).get("v") ?? "");
+    if (!m) return;
+    go(m[1], +m[2], +m[3], m[4] ? +m[4] : undefined);
+    history.replaceState(null, "", location.pathname + location.hash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // After a verse jump, scroll to it once the chapter is on screen
   useEffect(() => {
@@ -251,6 +261,22 @@ export default function Bible() {
     const ps = passesOf(picked);
     if (ps.length === 1) setPanel({ name: "share", pass: ps[0] });
     else say("To share, select verses next to each other");
+  };
+  // Send the verses to anyone (messages, WhatsApp, social): the Scripture first, then a link back to this reader at that verse
+  const sendPicked = async () => {
+    const ps = passesOf(picked);
+    if (ps.length !== 1) { say("To send, select verses next to each other"); return; }
+    const p = ps[0];
+    const keys = picked.filter((k) => { const { b, c, v } = parseKey(k); return b === p.b && c === p.c && v >= p.v1 && v <= p.v2; });
+    const verse = keys.map((k) => textOf(k).trim()).join(" ").replace(/^[\u201C\u201D"]+|[\u201C\u201D"]+$/g, "");
+    const url = `${location.origin}/v/${p.b}.${p.c}.${p.v1}${p.v2 > p.v1 ? `-${p.v2}` : ""}`;
+    const msg = `“${verse}”\n\n— ${passLabel(p)} · Shared from Nau Brah Ndu Ngơi\n\n${url}`;
+    if (navigator.share) {
+      try { await navigator.share({ text: msg }); return; }
+      catch (e) { if ((e as Error).name === "AbortError") return; }
+    }
+    try { await navigator.clipboard.writeText(msg); say("Verse and link copied"); }
+    catch { say("Copy isn't available here"); }
   };
   // The slides icon: add the passages to the slide list in one tap. The message offers to open the Scripture page now;
   // otherwise keep reading and collecting, and open the list later from Saved.
@@ -383,6 +409,7 @@ export default function Bible() {
             <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button onClick={sendPicked} aria-label="Send verse" title="Send verse"><Icon n="send" /></button>
             <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
         </div>
@@ -395,6 +422,7 @@ export default function Bible() {
             <button onClick={() => setPanel({ name: "notes", edit: picked[0] })} disabled={picked.length > 1} aria-label="Note" title={picked.length > 1 ? "Note (one verse at a time)" : "Note"}><Icon n="note" /></button>
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
+            <button onClick={sendPicked} aria-label="Send verse" title="Send verse"><Icon n="send" /></button>
             <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}

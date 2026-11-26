@@ -1,0 +1,6 @@
+{
+  "rewrites": [{ "source": "/v/:ref", "destination": "/api/verse?v=:ref" }],
+  "functions": {
+    "api/verse-card.js": { "includeFiles": "public/fonts/NotoSerif-*.ttf" }
+  }
+}

@@ -3,6 +3,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { recordVisit } from './api/_visit-core.js'
 import { recordInstall } from './api/_install-core.js'
+import { cardPng, fetchVerse, originOf, parseRef, verseHtml } from './api/_verse-core.js'
 import { fileURLToPath } from 'node:url'
 
 // Local stand-in for api/yv/[...path].js, so the scripture page works in `npm run dev`.
@@ -45,6 +46,29 @@ function visitDevProxy(supabaseUrl: string, anonKey: string, serviceKey: string)
         if (body === null) { res.end(); return }
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify(body))
+      })
+    },
+  }
+}
+
+// Local stand-ins for api/verse.js (/v/JHN.3.16) and api/verse-card.js, so shared verse links work in `npm run dev`.
+function verseDevProxy(supabaseUrl: string, anonKey: string): Plugin {
+  return {
+    name: 'verse-dev-proxy',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const url = new URL(req.url ?? '/', 'http://x')
+        const page = /^\/v\/([^/]+)$/.exec(url.pathname)
+        if (!page && url.pathname !== '/api/verse-card') { next(); return }
+        const r = parseRef(page ? decodeURIComponent(page[1]) : url.searchParams.get('v'), url.searchParams.get('t'))
+        const verse = r && await fetchVerse(r, supabaseUrl, anonKey).catch(() => null)
+        if (page) {
+          const origin = originOf(req.headers as Record<string, string>)
+          if (!r) { res.statusCode = 302; res.setHeader('Location', `${origin}/nau-brah-ndu-ngoi/`); res.end(); return }
+          res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.end(verseHtml({ origin, r, verse })); return
+        }
+        if (!verse?.found) { res.statusCode = 404; res.end(); return }
+        res.setHeader('Content-Type', 'image/png'); res.end(cardPng(verse))
       })
     },
   }
@@ -96,6 +120,7 @@ export default defineConfig(({ mode }) => {
       // SUPABASE_SERVICE_ROLE_KEY: server only (no VITE_ prefix), read from app/.env.local; never bundled into the page
       visitDevProxy(env.VITE_SUPABASE_URL ?? '', env.VITE_SUPABASE_ANON_KEY ?? '', env.SUPABASE_SERVICE_ROLE_KEY ?? ''),
       installDevProxy(env.VITE_SUPABASE_URL ?? '', env.SUPABASE_SERVICE_ROLE_KEY ?? ''),
+      verseDevProxy(env.VITE_SUPABASE_URL ?? '', env.VITE_SUPABASE_ANON_KEY ?? ''),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'icons.svg', 'icons/icon-180.png'],
