@@ -36,7 +36,7 @@ export default function App() {
 }
 
 function renderPage(page: string) {
-  // The main address is the home page; Church Tools starts at Lyric (#lyrics-v2)
+  // The main address is the home page; NauBrah starts at Lyric (#lyrics-v2)
   if (page === "" || page === "#" || page === "#home") return <Home />;
   if (page === "#lyrics") return <LyricsV2 />;
   if (page === "#projector") return <Projector />;

@@ -67,7 +67,7 @@ function VisitsSection() {
 interface Install { id: string; created_at: string; app: string; device: string; how: string; city: string; region: string; country: string }
 const INSTALL_APPS = [
   { app: "nau-mpro", label: "Nau Mpro" },
-  { app: "church-tools", label: "Church Tools" },
+  { app: "church-tools", label: "NauBrah" },
   { app: "scripture", label: "Scripture" },
 ];
 const appLabel = (a: string) => INSTALL_APPS.find((x) => x.app === a)?.label ?? a;

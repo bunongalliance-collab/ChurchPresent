@@ -115,7 +115,7 @@ export default function NavBar() {
     <>
       <div className="tn-top">
         <div className="tn-bar">
-          <a className="tn-brand" href="#" title="Church Tools home">Church Tools</a>
+          <a className="tn-brand" href="#" title="NauBrah home">NauBrah</a>
           {cur && (
             <>
               <span className="tn-sep" aria-hidden="true" />

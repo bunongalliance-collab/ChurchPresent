@@ -168,54 +168,128 @@ function HutChurch() {
   );
 }
 
-const apps = [
-  { name: "Nau Mpro", text: "The hymn book and this Sunday's service on your phone. No account needed. Pick your church once.", href: "/nau-mpro/", action: "Open Nau Mpro ↗" },
-  { name: "Nau Brah Ndu Ngơi", text: "The Bunong Bible. Books you open are saved for reading offline. Highlights and notes back up when you sign in.", href: "/nau-brah-ndu-ngoi/", action: "Open the Bible ↗" },
-  { name: "Church Tools", text: "For the worship team: the program, lyric slides, readings, scripture slides and the projector.", href: "#lyrics-v2", action: "Open Church Tools" },
-];
+type Lang = "en" | "vi";
+
+// Home opens in Vietnamese when the browser is set to Vietnamese, unless the visitor picked a language here
+function homeLang(): Lang {
+  try { const l = localStorage.getItem("homeLang"); if (l === "en" || l === "vi") return l; } catch { /* storage blocked */ }
+  return typeof navigator !== "undefined" && navigator.language.toLowerCase().startsWith("vi") ? "vi" : "en";
+}
+
+const TEXT = {
+  en: {
+    title: "NauBrah · Three apps for worship",
+    navLyrics: "Lyrics", navService: "Service Slides", navProgram: "Program",
+    light: "☀ Light", dark: "☾ Dark", lightMode: "☀ Light mode", darkMode: "☾ Dark mode", signIn: "Sign in", other: "Tiếng Việt", otherShort: "VI",
+    hymns: "Hymns ↗", bible: "Bible ↗",
+    kicker: "Montagnard Bunong Alliance Church · Sunday service",
+    h1a: "Hymns, readings and slides for ", h1em: "every Sunday", h1b: ", ready before the first song",
+    note: "Build the program, put the lyrics on the projector and share the service with the whole church.", openLyrics: "Open Lyrics",
+    appsEyebrow: "Three apps", appsTitle: "One for singing, one for reading, one for the team",
+    apps: [
+      { name: "Nau Mpro", text: "The hymn book and this Sunday's service on your phone. No account needed. Pick your church once.", href: "/nau-mpro/", action: "Open Nau Mpro ↗" },
+      { name: "Nau Brah Ndu Ngơi", text: "The Bunong Bible. Books you open are saved for reading offline. Highlights and notes back up when you sign in.", href: "/nau-brah-ndu-ngoi/", action: "Open the Bible ↗" },
+      { name: "NauBrah", text: "For the worship team: the program, lyric slides, readings, scripture slides and the projector.", href: "#lyrics-v2", action: "Open NauBrah" },
+    ],
+    sundayEyebrow: "This Sunday", sundaySmall: "Sunday service",
+    sundayText: "The order of service, songs and readings for this Sunday are published to Nau Mpro as soon as the team finishes the program.",
+    sundayBtn: "See this Sunday in Nau Mpro ↗",
+    stepsEyebrow: "How a Sunday comes together", stepsTitle: "From program to projector",
+    steps: [
+      ["Plan the program", "Fill in the Order of Worship. It saves for the whole team as you type."],
+      ["Choose songs and readings", "Pick from the hymn book and your church's readings."],
+      ["Slides build themselves", "Service Slides turns the program into a full deck."],
+      ["Present", "Open the projector view and step through the service."],
+    ],
+    teamEyebrow: "For your team", teamTitle: "Your church's work stays with your church",
+    start: "Start a church", join: "Join with a code",
+    team: ["Admins and editors for each church", "Join codes and invites for new members", "A bell when a program is published or a song changes", "Keep a presentation to yourself with Only me"],
+    verseEyebrow: "Verse of the week", verse: "Your word is a lamp to my feet and a light to my path.", cite: "Psalm 119:105",
+    footChurch: "Montagnard Bunong Alliance Church, Charlotte, NC",
+  },
+  vi: {
+    title: "NauBrah · Ba ứng dụng cho sự thờ phượng",
+    navLyrics: "Lời bài hát", navService: "Trình chiếu buổi lễ", navProgram: "Chương trình",
+    light: "☀ Sáng", dark: "☾ Tối", lightMode: "☀ Chế độ sáng", darkMode: "☾ Chế độ tối", signIn: "Đăng nhập", other: "English", otherShort: "EN",
+    hymns: "Thánh ca ↗", bible: "Kinh Thánh ↗",
+    kicker: "Hội Thánh Montagnard Bunong Alliance · Lễ Chúa Nhật",
+    h1a: "Thánh ca, bài đọc và trình chiếu cho ", h1em: "mỗi Chúa Nhật", h1b: ", sẵn sàng trước bài hát đầu tiên",
+    note: "Soạn chương trình, đưa lời bài hát lên máy chiếu và chia sẻ buổi lễ với cả hội thánh.", openLyrics: "Mở Lời bài hát",
+    appsEyebrow: "Ba ứng dụng", appsTitle: "Một để hát, một để đọc, một cho ban phục vụ",
+    apps: [
+      { name: "Nau Mpro", text: "Sách thánh ca và chương trình Chúa Nhật này trên điện thoại. Không cần tài khoản. Chọn hội thánh một lần.", href: "/nau-mpro/", action: "Mở Nau Mpro ↗" },
+      { name: "Nau Brah Ndu Ngơi", text: "Kinh Thánh tiếng Bunong. Sách đã mở được lưu để đọc khi không có mạng. Đánh dấu và ghi chú được sao lưu khi bạn đăng nhập.", href: "/nau-brah-ndu-ngoi/", action: "Mở Kinh Thánh ↗" },
+      { name: "NauBrah", text: "Cho ban thờ phượng: chương trình, trình chiếu lời bài hát, bài đọc, Kinh Thánh và máy chiếu.", href: "#lyrics-v2", action: "Mở NauBrah" },
+    ],
+    sundayEyebrow: "Chúa Nhật này", sundaySmall: "Lễ Chúa Nhật",
+    sundayText: "Chương trình, bài hát và bài đọc của Chúa Nhật này được đăng lên Nau Mpro ngay khi ban phục vụ soạn xong.",
+    sundayBtn: "Xem Chúa Nhật này trên Nau Mpro ↗",
+    stepsEyebrow: "Chuẩn bị một buổi lễ Chúa Nhật", stepsTitle: "Từ chương trình đến máy chiếu",
+    steps: [
+      ["Soạn chương trình", "Điền Chương trình thờ phượng. Mọi thay đổi được lưu cho cả ban khi bạn gõ."],
+      ["Chọn bài hát và bài đọc", "Chọn từ sách thánh ca và các bài đọc của hội thánh."],
+      ["Trình chiếu tự tạo", "Trình chiếu buổi lễ biến chương trình thành bộ trình chiếu đầy đủ."],
+      ["Trình chiếu", "Mở màn hình máy chiếu và đi qua từng phần của buổi lễ."],
+    ],
+    teamEyebrow: "Cho ban phục vụ", teamTitle: "Công việc của hội thánh ở lại với hội thánh",
+    start: "Tạo hội thánh", join: "Tham gia bằng mã",
+    team: ["Quản trị viên và người biên tập cho mỗi hội thánh", "Mã tham gia và lời mời cho thành viên mới", "Thông báo khi chương trình được đăng hoặc bài hát thay đổi", "Giữ bài trình chiếu cho riêng mình với Chỉ mình tôi"],
+    verseEyebrow: "Câu gốc trong tuần", verse: "Lời Chúa là ngọn đèn cho chân tôi, ánh sáng cho đường lối tôi.", cite: "Thi Thiên 119:105",
+    footChurch: "Hội Thánh Montagnard Bunong Alliance, Charlotte, NC",
+  },
+};
 
 export default function Home() {
+  const [lang, setLangState] = useState<Lang>(homeLang);
+  const t = TEXT[lang];
+  const toggleLang = () => {
+    const next: Lang = lang === "en" ? "vi" : "en";
+    try { localStorage.setItem("homeLang", next); } catch { /* storage blocked */ }
+    setLangState(next);
+  };
+
   useEffect(() => {
     const before = document.title;
-    document.title = "Church Tools · Three apps for worship";
+    document.title = t.title;
     return () => { document.title = before; };
-  }, []);
+  }, [t.title]);
 
   const [theme, setThemeState] = useState<Theme>(homeTheme);
   const toggleTheme = () => { const next: Theme = theme === "dark" ? "light" : "dark"; setTheme(next); setThemeState(next); };
   const sunday = nextSunday();
-  const month = sunday.toLocaleDateString("en-US", { month: "short" });
+  const dateText = lang === "vi" ? `${sunday.getDate()} tháng ${sunday.getMonth() + 1}` : `${sunday.toLocaleDateString("en-US", { month: "short" })} ${sunday.getDate()}`;
 
   return (
-    <div className="hm" data-hm-theme={theme}>
+    <div className="hm" data-hm-theme={theme} lang={lang}>
       <div className="hm-sun" aria-hidden="true"><i /><i /><i /><i /><i /></div>
       <div className="hm-wrap">
         <header className="hm-nav">
-          <a className="hm-brand" href="#">Church Tools</a>
-          <a href="#lyrics-v2">Lyrics</a>
-          <a href="#service">Service Slides</a>
-          <a href="#program">Program</a>
-          <button type="button" className="hm-theme" onClick={toggleTheme}>{theme === "dark" ? "☀ Light" : "☾ Dark"}</button>
-          <a className="hm-signin" href="#team">Sign in</a>
+          <a className="hm-brand" href="#">NauBrah</a>
+          <a href="#lyrics-v2">{t.navLyrics}</a>
+          <a href="#service">{t.navService}</a>
+          <a href="#program">{t.navProgram}</a>
+          <button type="button" className="hm-theme" onClick={toggleLang} aria-label={t.other} title={t.other}>{t.otherShort}</button>
+          <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.light : t.dark}</button>
+          <a className="hm-signin" href="#team">{t.signIn}</a>
         </header>
 
         <div className="hm-stage">
-          <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>Hymns ↗</a>
-          <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>Bible ↗</a>
+          <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
+          <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
           <HutChurch />
           <GlyphRain />
           <div className="hm-copy">
-            <p className="hm-kicker">Montagnard Bunong Alliance Church · Sunday service</p>
-            <h1 id="hm-h">Hymns, readings and slides for <em>every Sunday</em>, ready before the first song</h1>
+            <p className="hm-kicker">{t.kicker}</p>
+            <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>
           </div>
-          <p className="hm-note">Build the program, put the lyrics on the projector and share the service with the whole church.<a href="#lyrics-v2">Open Lyrics</a></p>
+          <p className="hm-note">{t.note}<a href="#lyrics-v2">{t.openLyrics}</a></p>
         </div>
 
         <section>
-          <p className="hm-eyebrow">Three apps</p>
-          <h2>One for singing, one for reading, one for the team</h2>
+          <p className="hm-eyebrow">{t.appsEyebrow}</p>
+          <h2>{t.appsTitle}</h2>
           <div className="hm-apps">
-            {apps.map((a) => (
+            {t.apps.map((a) => (
               <div className="hm-app" key={a.name}>
                 <span className="hm-bar" />
                 <h3>{a.name}</h3>
@@ -228,56 +302,49 @@ export default function Home() {
 
         <section className="hm-sunday">
           <div>
-            <p className="hm-eyebrow">This Sunday</p>
-            <p className="hm-date">{month} {sunday.getDate()}<small>Sunday service</small></p>
+            <p className="hm-eyebrow">{t.sundayEyebrow}</p>
+            <p className="hm-date">{dateText}<small>{t.sundaySmall}</small></p>
           </div>
           <div>
-            <p className="hm-sunday-text">The order of service, songs and readings for this Sunday are published to Nau Mpro as soon as the team finishes the program.</p>
-            <a className="hm-btn hm-dark" href="/nau-mpro/">See this Sunday in Nau Mpro ↗</a>
+            <p className="hm-sunday-text">{t.sundayText}</p>
+            <a className="hm-btn hm-dark" href="/nau-mpro/">{t.sundayBtn}</a>
           </div>
         </section>
 
         <section>
-          <p className="hm-eyebrow">How a Sunday comes together</p>
-          <h2>From program to projector</h2>
+          <p className="hm-eyebrow">{t.stepsEyebrow}</p>
+          <h2>{t.stepsTitle}</h2>
           <ol className="hm-steps">
-            <li><b>Plan the program</b>Fill in the Order of Worship. It saves for the whole team as you type.</li>
-            <li><b>Choose songs and readings</b>Pick from the hymn book and your church's readings.</li>
-            <li><b>Slides build themselves</b>Service Slides turns the program into a full deck.</li>
-            <li><b>Present</b>Open the projector view and step through the service.</li>
+            {t.steps.map(([b, d]) => <li key={b}><b>{b}</b>{d}</li>)}
           </ol>
         </section>
 
         <section className="hm-team">
           <div>
-            <p className="hm-eyebrow">For your team</p>
-            <h2>Your church's work stays with your church</h2>
+            <p className="hm-eyebrow">{t.teamEyebrow}</p>
+            <h2>{t.teamTitle}</h2>
             <div className="hm-btns">
-              <a className="hm-btn hm-dark" href="#team">Start a church</a>
-              <a className="hm-btn" href="#team">Join with a code</a>
+              <a className="hm-btn hm-dark" href="#team">{t.start}</a>
+              <a className="hm-btn" href="#team">{t.join}</a>
             </div>
           </div>
-          <ul>
-            <li>Admins and editors for each church</li>
-            <li>Join codes and invites for new members</li>
-            <li>A bell when a program is published or a song changes</li>
-            <li>Keep a presentation to yourself with Only me</li>
-          </ul>
+          <ul>{t.team.map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
 
         <section className="hm-verse">
-          <p className="hm-eyebrow">Verse of the week</p>
-          <blockquote>Your word is a lamp to my feet and a light to my path.</blockquote>
-          <cite>Psalm 119:105</cite>
+          <p className="hm-eyebrow">{t.verseEyebrow}</p>
+          <blockquote>{t.verse}</blockquote>
+          <cite>{t.cite}</cite>
         </section>
 
         <footer className="hm-footer">
-          <span className="hm-brand">Church Tools</span>
-          <span>Montagnard Bunong Alliance Church, Charlotte, NC</span>
+          <span className="hm-brand">NauBrah</span>
+          <span>{t.footChurch}</span>
           <a href="/nau-mpro/">Nau Mpro</a>
           <a href="/nau-brah-ndu-ngoi/">Nau Brah Ndu Ngơi</a>
-          <a href="#team">Sign in</a>
-          <button type="button" className="hm-theme hm-theme-foot" onClick={toggleTheme}>{theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}</button>
+          <a href="#team">{t.signIn}</a>
+          <button type="button" className="hm-theme hm-theme-foot" onClick={toggleLang}>{t.other}</button>
+          <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.lightMode : t.darkMode}</button>
         </footer>
       </div>
     </div>
