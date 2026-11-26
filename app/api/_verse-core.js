@@ -1,5 +1,5 @@
 // Shared by api/verse.js, api/verse-card.js and the Vite dev stand-in (vite.config.ts).
-// A shared verse link (/v/JHN.3.16-17) answers with a small page that carries the Open Graph tags (so messaging apps show
+// A shared verse link (/nau-brah-ndu-ngoi/v/JHN.3.16-17; older ones /v/...) answers with a small page that carries the Open Graph tags (so messaging apps show
 // the verse card) and sends people straight on to the Bible reader at that verse. The card is a 1200 x 630 PNG.
 // Files starting with "_" in api/ are not routes on Vercel.
 import { readFileSync } from "node:fs";
@@ -64,7 +64,7 @@ export function verseHtml({ origin, r, verse }) {
 <meta property="og:site_name" content="${APP}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${esc(`${origin}/v/${refParam(r)}${t ? `?${t}` : ""}`)}">
+<meta property="og:url" content="${esc(`${origin}/nau-brah-ndu-ngoi/v/${refParam(r)}${t ? `?${t}` : ""}`)}">
 ${verse ? `<meta property="og:image" content="${esc(image)}">
 <meta property="og:image:width" content="600">
 <meta property="og:image:height" content="600">

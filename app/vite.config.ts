@@ -58,7 +58,7 @@ function verseDevProxy(supabaseUrl: string, anonKey: string): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://x')
-        const page = /^\/v\/([^/]+)$/.exec(url.pathname)
+        const page = /^(?:\/nau-brah-ndu-ngoi)?\/v\/([^/]+)$/.exec(url.pathname)
         if (!page && url.pathname !== '/api/verse-card') { next(); return }
         const r = parseRef(page ? decodeURIComponent(page[1]) : url.searchParams.get('v'), url.searchParams.get('t'))
         const verse = r && await fetchVerse(r, supabaseUrl, anonKey).catch(() => null)

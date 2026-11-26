@@ -66,7 +66,7 @@ const PATHS: Record<string, ReactNode> = {
   up: <path d="m6 15 6-6 6 6" />,
   dn: <path d="m6 9 6 6 6-6" />,
   open: <><path d="M14 9V5H3v14h11v-4" /><path d="M9 12h12M17 8l4 4-4 4" /></>,
-  share: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><path d="M18 8v6M15 11h6" /></>,
+  share: <><path d="M12 2v5M10 4h4" /><path d="M5 12l7-5 7 5" /><path d="M6.5 11v9h11v-9" /><path d="M10.5 20v-4a1.5 1.5 0 0 1 3 0v4" /></>,   // a church: Post to church group
   shared: <><circle cx="12" cy="8" r="3" /><path d="M7 19c0-3 2.2-5 5-5s5 2 5 5" /><circle cx="5" cy="10" r="2" /><path d="M2 17c0-2 1.3-3.3 3.5-3.3" /><circle cx="19" cy="10" r="2" /><path d="M22 17c0-2-1.3-3.3-3.5-3.3" /></>,
   send: <><path d="M12 15V4M8 8l4-4 4 4" /><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /></>,
   slides: <><rect x="3" y="5" width="18" height="12" rx="1.5" /><path d="M8 21h8M12 17v4M7 9h10M7 13h6" /></>,
@@ -256,7 +256,7 @@ export default function Bible() {
     say(on ? (picked.length > 1 ? `${picked.length} verses saved` : "Saved") : "Removed from Saved");
   };
   const passLabel = (ps: Pass) => `${books.find((x) => x.code === ps.b)?.local ?? ps.b} ${ps.c}:${ps.v1}${ps.v2 > ps.v1 ? `–${ps.v2}` : ""}`;
-  // Share with church: one passage at a time (verses next to each other in a chapter)
+  // Post to church group: one passage at a time (verses next to each other in a chapter)
   const sharePicked = () => {
     const ps = passesOf(picked);
     if (ps.length === 1) setPanel({ name: "share", pass: ps[0] });
@@ -269,7 +269,8 @@ export default function Bible() {
     const p = ps[0];
     const keys = picked.filter((k) => { const { b, c, v } = parseKey(k); return b === p.b && c === p.c && v >= p.v1 && v <= p.v2; });
     const verse = keys.map((k) => textOf(k).trim()).join(" ").replace(/^[\u201C\u201D"]+|[\u201C\u201D"]+$/g, "");
-    const url = `${location.origin}/v/${p.b}.${p.c}.${p.v1}${p.v2 > p.v1 ? `-${p.v2}` : ""}`;
+    // Under the reader's own path, which the team app's offline copy never answers (old copies included)
+    const url = `${location.origin}/nau-brah-ndu-ngoi/v/${p.b}.${p.c}.${p.v1}${p.v2 > p.v1 ? `-${p.v2}` : ""}`;
     const words = `“${verse}”\n\n— ${passLabel(p)} · Shared from Nau Brah Ndu Ngơi`;
     const msg = `${words}\n\n${url}`;
     if (navigator.share) {
@@ -411,7 +412,7 @@ export default function Bible() {
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
             <button onClick={sendPicked} aria-label="Send verse" title="Send verse"><Icon n="send" /></button>
-            <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
+            <button onClick={sharePicked} aria-label="Post to church group" title="Post to church group"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
         </div>
       )}
@@ -424,7 +425,7 @@ export default function Bible() {
             <button onClick={toggleSave} aria-pressed={allSaved} aria-label={allSaved ? "Saved" : "Save"} title={allSaved ? "Saved" : "Save"}><Icon n="save" /></button>
             <button onClick={copy} aria-label="Copy" title="Copy"><Icon n="copy" /></button>
             <button onClick={sendPicked} aria-label="Send verse" title="Send verse"><Icon n="send" /></button>
-            <button onClick={sharePicked} aria-label="Share with church" title="Share with church"><Icon n="share" /></button>
+            <button onClick={sharePicked} aria-label="Post to church group" title="Post to church group"><Icon n="share" /></button>
             <button className="mk-slides" onClick={() => addToSlides(passesOf(picked))} aria-label="Add to slides" title="Add to slides"><Icon n="slides" /></button>
           </>}
           {showGo && <button className="go" aria-pressed={desk ? panel?.name === "slides" : undefined}
@@ -793,7 +794,7 @@ function ChurchSelect({ id, label, none, value, list, onChange }: { id: string; 
   );
 }
 
-// Share with church: shows which church will see the verse before anything is posted
+// Post to church group: shows which church will see the verse before anything is posted
 function SharePanel({ p, sync, churches, shared, passLabel, textOf, say, clearPicked, close }: PanelProps & { close: () => void }) {
   const pass = p.pass!;
   const uid = sync.session?.user.id ?? null;
@@ -828,10 +829,10 @@ function SharePanel({ p, sync, churches, shared, passLabel, textOf, say, clearPi
     setBusy(false);
     if (error) { setMsg(error); return; }
     rememberName(uid, name.trim());
-    shared.reload(); clearPicked(); close(); say(`Shared with ${audience.name}`);
+    shared.reload(); clearPicked(); close(); say(`Posted to ${audience.name}`);
   };
   return (
-    <Panel title="Share with church" sub={passLabel(pass)} top close={close}>
+    <Panel title="Post to church group" sub={passLabel(pass)} top close={close}>
       <div className="item"><p className="clip">{words}</p></div>
       {!sync.session ? <Backup sync={sync} title="Sign in to share" intro="Only people who belong to a church can share. Signing in also keeps a copy of your highlights, saved verses and notes on your account." />
         : !own ? <p className="hint" role="status">Checking your church…</p>
@@ -992,6 +993,11 @@ function SettingsPanel({ s, update, close, sync, books, current, churches }: Pan
         <Seg label="Go to Scripture button" value={s.goScripture ? "show" : "hide"} options={[["show", "Show"], ["hide", "Hide"]]} onChange={(v) => update((p) => ({ ...p, goScripture: v === "show" }))} /></div>}
       <div className="row"><div><div className="k">Your church</div><div className="d">For the service reading and shared verses. Nau Mpro on this browser uses the same choice.</div></div>
         <ChurchSelect id="set-church" label="Your church" none="No church" value={churches.church} list={churches.list} onChange={churches.choose} /></div>
+      <div className="row"><div><div className="k">Post to church group</div>
+        <div className="d">Select verses and tap the church button to post them to your church, with your name and a short note. It doesn’t send anything to anyone’s phone.
+          <br /><b>Who can see it:</b> anyone who opens this Bible and chooses that church, with or without signing in. Shown under Shared, newest first.
+          <br /><b>Who can post:</b> signed-in members of the church (its admins and editors), up to 20 a day.
+          <br /><b>Removing:</b> you can take down your own posts, and the church’s admins can remove any of them.</div></div></div>
       <div className="row"><div><div className="k">Offline reading</div>
         <div className="d">{saved === null ? "Checking…" : saved >= 66 ? "The whole Bible is saved on this device." : `${saved} of 66 books saved on this device.`}
           {saved !== null && saved < 66 && hereSaved !== null && <><br />{books.find((x) => x.code === s.book)?.local} (open now) is {hereSaved ? "saved" : "not saved yet"}.</>}{err && <><br />{err}</>}</div></div>
