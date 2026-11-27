@@ -502,14 +502,14 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           {HERO_ART === "bible" ? <OpenBible /> : <HutChurch />}
           <GlyphRain />
           <div className="hm-copy">
-            <p className="hm-kicker">{t.kicker}</p>
+            <p className="hm-kicker hm-sm-hide">{t.kicker}</p>
             {helps
               ? <><h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1><p className="hm-kicker hm-tagline">{t.xH1sub}</p></>
               : <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>}
           </div>
           {helps ? (
             <div className="hm-note">
-              <p>{t.xSub}</p>
+              <p className="hm-sm-hide">{t.xSub}</p>
               <div className="hm-btns">
                 <a className="hm-btn hm-dark hm-go" href="#lyrics-v2">{t.xPlan}<span className="hm-arrow" aria-hidden="true">→</span></a>
                 <a className="hm-btn" href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }}>{t.xHow}</a>
