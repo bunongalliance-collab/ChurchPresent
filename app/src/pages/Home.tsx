@@ -621,7 +621,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           <a href="/nau-mpro/">Nau Mpro</a>
           <a href="/nau-brah-ndu-ngoi/">Nau Brah Ndu Ngơi</a>
           <a href="#team">{t.signIn}</a>
-          <a href={helps ? "#home" : "#home-new"}>{t.otherHome}</a>
+          <a href={helps ? "#home-old" : "#home"}>{t.otherHome}</a>
           <button type="button" className="hm-theme hm-theme-foot" onClick={toggleLang}>{t.other}</button>
           <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.lightMode : t.darkMode}</button>
         </footer>
