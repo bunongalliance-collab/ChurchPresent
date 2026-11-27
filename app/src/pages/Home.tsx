@@ -491,7 +491,6 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
         <div className="hm-stage">
           {helps ? <>
             {/* How it helps: the promise on the left, both reading apps stacked on the right */}
-            <p className="hm-side hm-l hm-lead">{t.xH1sub}</p>
             <div className="hm-side hm-r hm-stack">
               <a className="hm-side" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
               <a className="hm-side" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
@@ -505,7 +504,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           <div className="hm-copy">
             <p className="hm-kicker">{t.kicker}</p>
             {helps
-              ? <h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1>
+              ? <><h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1><p className="hm-kicker hm-tagline">{t.xH1sub}</p></>
               : <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>}
           </div>
           {helps ? (

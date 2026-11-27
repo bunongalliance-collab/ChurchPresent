@@ -175,3 +175,5 @@ div.hm-note { max-width: 300px; }
 .hm-go:active .hm-arrow { animation: none; transform: translateX(10px); transition-duration: .1s; }
 @keyframes hm-nudge { 0%, 100% { transform: translateX(4px); } 50% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .hm-sun i { animation: none; } .hm-tile { transition: none; } .hm-go, .hm-go .hm-arrow { transition: none; animation: none !important; } }
+/* The promise under the headline, set like the kicker above it */
+.hm .hm-tagline { margin: 14px 0 0; }
