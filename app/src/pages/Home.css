@@ -150,9 +150,9 @@ div.hm-note { max-width: 300px; }
   .ct-app .hm button.hm-theme { padding: 7px 10px; }
   .ct-app .hm .hm-signin { padding: 8px 12px; }
   /* Phones and tablets: everything stacks; the church and letters are sized by the screen height so the message shows on the first screen */
-  .hm-stage { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 0; margin-top: 12px; }
-  .hm-roof { grid-column: 1; grid-row: auto; max-width: 480px; max-height: 30svh; }
-  .hm-rain { grid-column: 1; grid-row: auto; max-width: 320px; height: clamp(210px, 28svh, 300px); }
+  .hm-stage { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 0; margin-top: 8px; }
+  .hm-roof { grid-column: 1; grid-row: auto; max-width: 480px; max-height: 16svh; }
+  .hm-rain { grid-column: 1; grid-row: auto; max-width: 320px; height: clamp(150px, 22svh, 300px); }
   /* Phones: the two app tiles float small at the bottom of the hanging letters, one each side */
   .hm-roof { grid-row: 1; }
   .hm-rain { grid-row: 2; }
@@ -162,10 +162,15 @@ div.hm-note { max-width: 300px; }
   .hm-tile { padding: 4px 7px; font-size: 11px; }
   .hm .hm-lead { font-size: 13px; max-width: 170px; padding: 8px 10px; }
   .hm-stack { gap: 8px; }
-  .hm-copy, .hm-note { position: static; max-width: none; margin-top: 20px; }
+  .hm-copy, .hm-note { position: static; max-width: none; margin-top: 12px; }
+  .hm-kicker { margin-bottom: 10px; }
   .hm section { margin-top: 70px; }
   .hm-apps, .hm-sunday, .hm-team { grid-template-columns: 1fr; }
   .hm-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* Very short phones (iPhone SE): a smaller church so the buttons still show on the first screen */
+@media (max-width: 820px) and (max-height: 580px) {
+  .hm-roof { max-height: 8svh; }
 }
 /* Create your first slide: the arrow slides on hover, the button presses in and the arrow shoots on click */
 .ct-app .hm .hm-go { display: inline-flex; align-items: center; gap: 8px; transition: transform .12s ease, background-color .2s; }

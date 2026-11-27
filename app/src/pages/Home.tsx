@@ -45,7 +45,7 @@ function GlyphRain() {
       const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
       if (!r.width || !r.height) return;
       W = r.width; H = r.height; c.width = W * d; c.height = H * d;
-      size = H < 260 ? 10.5 : 13; gap = size + 2; // smaller letters on short screens so the whole name fits
+      size = H < 190 ? 8 : H < 260 ? 10.5 : 13; gap = size + 2; // smaller letters on short screens so the whole name fits
       x.setTransform(d, 0, 0, d, 0, 0);
       const n = Math.max(3, Math.floor(W / gap));
       const left = (W - (n - 1) * gap) / 2;
