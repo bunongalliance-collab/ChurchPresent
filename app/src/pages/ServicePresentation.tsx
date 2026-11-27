@@ -216,7 +216,7 @@ export default function ServicePresentation() {
   return (
     <>
       <NavBar />
-      <div className="ss">
+      <div className="ss lt">
         <header className="ss-top">
           <div>
             <h1>Service presentation</h1>

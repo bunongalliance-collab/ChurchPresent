@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setTheme, type Theme } from "../lib/theme";
+import { supabase } from "../lib/supabase";
 import "./Home.css";
 
 
@@ -363,13 +364,22 @@ const TEXT = {
     verseEyebrow: "Verse of the week", verse: "Your word is a lamp to my feet and a light to my path.", cite: "Psalm 119:105",
     footChurch: "Montagnard Bunong Alliance Church, Charlotte, NC",
     // The "How it helps" home page (#home-new)
-    xH1a: "Sunday slides ready in ", xH1em: "minutes", xH1b: ", not hours",
+    xH1a: "Sunday Service ready in ", xH1em: "minutes", xH1b: ", not hours",
+    xH1sub: "From lines of text to presentation in seconds",
+    xMproTile: "Nau Mpro (Bunong) - 520 Songs",
     xSub: "Fill in the program once. NauBrah makes the slides, the printout and the phone version.",
-    xPlan: "Plan this Sunday", xHow: "See how it works",
+    xPlan: "Create Your First Slide", xHow: "See how it works",
     xProof: "520 hymns · 66 Bible books · Works offline",
-    xBeforeLabel: "Before", xBefore: "Retyping every song and verse, every week.",
-    xAfterLabel: "With NauBrah", xAfter: "Pick the songs. The rest is done for you.",
-    xCompareEyebrow: "Why NauBrah", xCompareTitle: "Stop retyping Sunday",
+    xBeforeLabel: "Before", xBefore: "Retyping every song and verse from scratch, line by line, every week. Wasted hours.",
+    xAfterLabel: "With NauBrah", xAfter: "Pick the songs or passage. The rest is done for you.",
+    xCompareEyebrow: "Why NauBrah", xCompareTitle: "Less time on slides, more on worship",
+    xStepsTitle: "From lines of text to projector in seconds",
+    xStepsNote: "Do it once, available everywhere.",
+    xSteps: [
+      ["Pick songs and readings", "Add hymns, scripture, or custom notes to your service."],
+      ["Projection builds automatically", "Your choices instantly turn into a full presentation deck."],
+      ["Present", "Open the projector view and step through the service."],
+    ],
     otherHome: "See the other home page",
   },
   vi: {
@@ -401,21 +411,51 @@ const TEXT = {
     team: ["Quản trị viên và người biên tập cho mỗi hội thánh", "Mã tham gia và lời mời cho thành viên mới", "Thông báo khi chương trình được đăng hoặc bài hát thay đổi", "Giữ bài trình chiếu cho riêng mình với Chỉ mình tôi"],
     verseEyebrow: "Câu gốc trong tuần", verse: "Lời Chúa là ngọn đèn cho chân tôi, ánh sáng cho đường lối tôi.", cite: "Thi Thiên 119:105",
     footChurch: "Hội Thánh Montagnard Bunong Alliance, Charlotte, NC",
-    xH1a: "Trình chiếu Chúa Nhật xong trong ", xH1em: "vài phút", xH1b: ", không phải vài giờ",
+    xH1a: "Buổi lễ Chúa Nhật sẵn sàng trong ", xH1em: "vài phút", xH1b: ", không phải vài giờ",
+    xH1sub: "Từ dòng chữ đến bản trình chiếu trong vài giây",
+    xMproTile: "Nau Mpro (Bunong) - 520 bài hát",
     xSub: "Điền chương trình một lần. NauBrah tạo trình chiếu, bản in và bản trên điện thoại.",
-    xPlan: "Soạn Chúa Nhật này", xHow: "Xem cách hoạt động",
+    xPlan: "Tạo trang trình chiếu đầu tiên", xHow: "Xem cách hoạt động",
     xProof: "520 thánh ca · 66 sách Kinh Thánh · Dùng không cần mạng",
-    xBeforeLabel: "Trước đây", xBefore: "Gõ lại từng bài hát và câu Kinh Thánh, mỗi tuần.",
-    xAfterLabel: "Với NauBrah", xAfter: "Chọn bài hát. Phần còn lại được làm sẵn.",
-    xCompareEyebrow: "Vì sao chọn NauBrah", xCompareTitle: "Không còn gõ lại mỗi Chúa Nhật",
+    xBeforeLabel: "Trước đây", xBefore: "Gõ lại từng bài hát và câu Kinh Thánh từ đầu, từng dòng một, mỗi tuần. Mất hàng giờ.",
+    xAfterLabel: "Với NauBrah", xAfter: "Chọn bài hát hoặc đoạn Kinh Thánh. Phần còn lại được làm sẵn.",
+    xCompareEyebrow: "Vì sao chọn NauBrah", xCompareTitle: "Ít thời gian cho trình chiếu, nhiều hơn cho thờ phượng",
+    xStepsTitle: "Từ dòng chữ đến máy chiếu, chỉ trong vài giây",
+    xStepsNote: "Làm một lần, dùng ở mọi nơi.",
+    xSteps: [
+      ["Chọn bài hát và bài đọc", "Thêm thánh ca, Kinh Thánh hoặc ghi chú riêng vào buổi lễ."],
+      ["Trình chiếu tự tạo", "Lựa chọn của bạn lập tức thành một bộ trình chiếu đầy đủ."],
+      ["Trình chiếu", "Mở màn hình máy chiếu và đi qua từng phần của buổi lễ."],
+    ],
     otherHome: "Xem trang chủ còn lại",
   },
 };
 
 // variant "helps": the same page with copy that explains how the app helps (#home-new)
+// The verse of the week in the Bunong Bible (shown when the page is in Vietnamese). null until loaded or offline.
+const WEEK_VERSE = { book: "PSA", chapter: 119, verse: 105 };
+function useBunongVerse(on: boolean) {
+  const [v, setV] = useState<{ text: string; cite: string } | null>(null);
+  useEffect(() => {
+    if (!on || v || !supabase) return;
+    let live = true;
+    const { book, chapter, verse } = WEEK_VERSE;
+    Promise.all([
+      supabase.from("bible_verses").select("text").eq("translation_id", "bunong-vn").eq("book_code", book).eq("chapter", chapter).eq("verse", verse).maybeSingle(),
+      supabase.from("bible_book_names").select("name").eq("translation_id", "bunong-vn").eq("book_code", book).maybeSingle(),
+    ]).then(([t, n]) => {
+      const text = (t.data as { text?: string } | null)?.text?.trim().replace(/[,;:]$/, ".");   // a verse alone reads as a whole sentence
+      if (live && text) setV({ text, cite: `${(n.data as { name?: string } | null)?.name ?? book} ${chapter}:${verse}` });
+    }, () => {});
+    return () => { live = false; };
+  }, [on, v]);
+  return on ? v : null;
+}
+
 export default function Home({ variant = "classic" }: { variant?: "classic" | "helps" }) {
   const helps = variant === "helps";
   const [lang, setLangState] = useState<Lang>(homeLang);
+  const bunong = useBunongVerse(lang === "vi");
   const t = TEXT[lang];
   const toggleLang = () => {
     const next: Lang = lang === "en" ? "vi" : "en";
@@ -435,7 +475,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
   const dateText = lang === "vi" ? `${sunday.getDate()} tháng ${sunday.getMonth() + 1}` : `${sunday.toLocaleDateString("en-US", { month: "short" })} ${sunday.getDate()}`;
 
   return (
-    <div className="hm" data-hm-theme={theme} lang={lang}>
+    <div className={helps ? "hm hm-helps" : "hm"} data-hm-theme={theme} lang={lang}>
       <div className="hm-sun" aria-hidden="true"><i /><i /><i /><i /><i /></div>
       <div className="hm-wrap">
         <header className="hm-nav">
@@ -449,8 +489,17 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
         </header>
 
         <div className="hm-stage">
-          <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
-          <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
+          {helps ? <>
+            {/* How it helps: the promise on the left, both reading apps stacked on the right */}
+            <p className="hm-side hm-l hm-lead">{t.xH1sub}</p>
+            <div className="hm-side hm-r hm-stack">
+              <a className="hm-side" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
+              <a className="hm-side" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
+            </div>
+          </> : <>
+            <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
+            <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
+          </>}
           {HERO_ART === "bible" ? <OpenBible /> : <HutChurch />}
           <GlyphRain />
           <div className="hm-copy">
@@ -463,7 +512,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
             <div className="hm-note">
               <p>{t.xSub}</p>
               <div className="hm-btns">
-                <a className="hm-btn hm-dark" href="#program">{t.xPlan}</a>
+                <a className="hm-btn hm-dark hm-go" href="#lyrics-v2">{t.xPlan}<span className="hm-arrow" aria-hidden="true">→</span></a>
                 <a className="hm-btn" href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }}>{t.xHow}</a>
               </div>
               <p className="hm-proof">{t.xProof}</p>
@@ -484,6 +533,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           </section>
         )}
 
+        {!helps && <>
         <section>
           <p className="hm-eyebrow">{t.appsEyebrow}</p>
           <h2>{t.appsTitle}</h2>
@@ -491,7 +541,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
             {t.apps.map((a) => (
               <div className="hm-app" key={a.name}>
                 <span className="hm-bar" />
-                <h3>{a.name}</h3>
+                <h3>{helps && a.href === "/nau-mpro/" ? t.xMproTile : a.name}</h3>
                 <p>{a.text}</p>
                 <a href={a.href}>{a.action}</a>
               </div>
@@ -509,12 +559,13 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
             <a className="hm-btn hm-dark" href="/nau-mpro/">{t.sundayBtn}</a>
           </div>
         </section>
+        </>}
 
         <section id="how">
           <p className="hm-eyebrow">{t.stepsEyebrow}</p>
-          <h2>{t.stepsTitle}</h2>
+          <h2>{helps ? <>{t.xStepsTitle} <span className="hm-h2-note">{t.xStepsNote}</span></> : t.stepsTitle}</h2>
           <ol className="hm-steps">
-            {t.steps.map(([b, d]) => <li key={b}><b>{b}</b>{d}</li>)}
+            {(variant === "helps" ? t.xSteps : t.steps).map(([b, d]) => <li key={b}><b>{b}</b>{d}</li>)}
           </ol>
         </section>
 
@@ -529,11 +580,39 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           </div>
           <ul>{t.team.map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
+        {/* How it helps: the apps and this Sunday come after For your team */}
+        {helps && <>
+        <section>
+          <p className="hm-eyebrow">{t.appsEyebrow}</p>
+          <h2>{t.appsTitle}</h2>
+          <div className="hm-apps">
+            {t.apps.map((a) => (
+              <div className="hm-app" key={a.name}>
+                <span className="hm-bar" />
+                <h3>{helps && a.href === "/nau-mpro/" ? t.xMproTile : a.name}</h3>
+                <p>{a.text}</p>
+                <a href={a.href}>{a.action}</a>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="hm-sunday">
+          <div>
+            <p className="hm-eyebrow">{t.sundayEyebrow}</p>
+            <p className="hm-date">{dateText}<small>{t.sundaySmall}</small></p>
+          </div>
+          <div>
+            <p className="hm-sunday-text">{t.sundayText}</p>
+            <a className="hm-btn hm-dark" href="/nau-mpro/">{t.sundayBtn}</a>
+          </div>
+        </section>
+        </>}
 
         <section className="hm-verse">
           <p className="hm-eyebrow">{t.verseEyebrow}</p>
-          <blockquote>{t.verse}</blockquote>
-          <cite>{t.cite}</cite>
+          <blockquote>{bunong?.text ?? t.verse}</blockquote>
+          <cite>{bunong?.cite ?? t.cite}</cite>
         </section>
 
         <footer className="hm-footer">

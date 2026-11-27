@@ -186,7 +186,7 @@ export default function Thumbnail() {
   return (
     <>
       <NavBar />
-    <div className="th">
+    <div className="th lt">
       <h1>Sermon thumbnail</h1>
 
       <div className="th-grid">

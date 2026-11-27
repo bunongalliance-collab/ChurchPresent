@@ -557,7 +557,7 @@ export default function Builder() {
   return (
     <>
     <NavBar />
-    <div className="builder-page">
+    <div className="builder-page lt">
       <header>
         <h1>Presentation Builder</h1>
       </header>

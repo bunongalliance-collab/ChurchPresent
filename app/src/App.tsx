@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./pages/Linen.css";   // the Scripture page look for pages with class "lt" (all but Lyric)
 import LyricsV2 from "./pages/LyricsV2";
 import ReadingsV2 from "./pages/ReadingsV2";
 import Program from "./pages/Program";

@@ -215,7 +215,7 @@ export default function Notes() {
   return (
     <>
       <NavBar />
-      <div className="notes-page">
+      <div className="notes-page lt">
         <header className="pl-top">
           <div>
             <h1>Notes</h1>

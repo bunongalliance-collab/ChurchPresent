@@ -350,7 +350,7 @@ export default function Program() {
   return (
     <>
       <NavBar />
-    <div className="pg">
+    <div className="pg lt">
       <div className="pg-top">
         <div>
           <h1>Service program</h1>

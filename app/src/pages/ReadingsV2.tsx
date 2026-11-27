@@ -423,7 +423,7 @@ export default function ReadingsV2() {
   return (
     <>
       <NavBar />
-    <div className="lv2 rl">
+    <div className="lv2 rl lt">
       <header className="lv2-top">
         <div>
           <h1>Readings</h1>

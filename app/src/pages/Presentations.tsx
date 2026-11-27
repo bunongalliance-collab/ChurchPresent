@@ -252,7 +252,7 @@ export default function Presentations() {
   return (
     <>
       <NavBar />
-      <div className="pl-page">
+      <div className="pl-page lt">
         <header className="pl-top">
           <div>
             <h1>Presentations</h1>

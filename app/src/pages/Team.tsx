@@ -24,7 +24,7 @@ export default function Team() {
   return (
     <>
       <NavBar />
-      <main className="tm">
+      <main className="tm lt">
         <div className="tm-head">
           <h1>Team</h1>
           {cur && <p className="sub">Who can change <b>{cur.name}</b>'s songs, readings and Sunday slides.</p>}
