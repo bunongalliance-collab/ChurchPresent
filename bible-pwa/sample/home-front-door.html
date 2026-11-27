@@ -1,0 +1,161 @@
+<title>Church Tools front door</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: one phone-first column (Sunday, the two apps, then quiet extras); on wide screens Sunday sits beside the apps.
+   Colours and fonts are the apps' own (app/src/index.css). */
+:root {
+  --bg: #F1F4EF; --panel: #F9FBF7; --sunken: #E6ECE2; --text: #243028; --muted: #55645A; --rule: #D5DED2;
+  --accent: #1F5F4A; --on-accent: #FFFFFF; --soft: #D3E7DB; --on-soft: #174A3A; --gold: #F2C14E; --focus: #1F5F4A;
+  --font-ui: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif; --font-song: "Alegreya", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #14181B; --panel: #1B2125; --sunken: #242B30; --text: #E5EAEC; --muted: #A5B0B6; --rule: #303A40;
+  --accent: #6CB4C8; --on-accent: #0A171B; --soft: #1F3239; --on-soft: #AEDCE8; --gold: #E8BF5A; --focus: #E8BF5A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #14181B; --panel: #1B2125; --sunken: #242B30; --text: #E5EAEC; --muted: #A5B0B6; --rule: #303A40;
+  --accent: #6CB4C8; --on-accent: #0A171B; --soft: #1F3239; --on-soft: #AEDCE8; --gold: #E8BF5A; --focus: #E8BF5A; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 17px/1.45 var(--font-ui); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: 32px; }
+a, button, summary { color: inherit; font: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; text-align: left; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* Sample controls: not part of the page */
+.sample { max-width: 960px; margin: 0 auto; padding: 10px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px dashed var(--muted); font-size: 13px; color: var(--muted); }
+.sample button { border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; min-height: 34px; }
+.sample button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+.page { max-width: 960px; margin: 0 auto; display: grid; gap: 16px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; }
+.brand { font-weight: 700; font-size: 15px; color: var(--muted); }
+.signin { min-height: 44px; display: inline-flex; align-items: center; font-weight: 600; font-size: 15px; color: var(--accent); }
+h1 { font: 700 clamp(22px, 5.6vw, 30px)/1.15 var(--font-song); margin: 0; text-wrap: balance; }
+
+.main { display: grid; gap: 16px; }
+@media (min-width: 760px) { .main { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; } }
+
+/* This Sunday: a hymn board, the song numbers large */
+.sunday { background: var(--panel); border-radius: 14px; padding: 12px 14px 6px; border-top: 4px solid var(--gold); }
+.sunday h2 { margin: 0 0 2px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.row { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 48px; border-top: 1px solid var(--rule); padding: 4px 0; }
+.row:first-of-type { border-top: 0; }
+.row:hover .name { color: var(--accent); }
+.num { font: 700 28px/1 var(--font-song); color: var(--accent); font-variant-numeric: lining-nums tabular-nums; text-align: right; }
+.num svg { display: inline-block; vertical-align: middle; }
+.name { font: 500 16px/1.25 var(--font-song); overflow-wrap: anywhere; }
+.name small { display: block; font: 400 12px/1.3 var(--font-ui); color: var(--muted); }
+.row > svg { width: 18px; height: 18px; color: var(--muted); }
+.none { margin: 6px 0 10px; color: var(--muted); }
+
+.apps { display: grid; gap: 10px; }
+.app { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; min-height: 76px; padding: 12px 16px; border-radius: 14px; background: var(--accent); color: var(--on-accent); width: 100%; }
+.app strong { display: block; font: 700 22px/1.15 var(--font-song); }
+.app span span { display: block; font-size: 14px; }
+.app > svg:first-child { width: 30px; height: 30px; }
+.app:hover { filter: brightness(1.08); }
+
+details { background: var(--sunken); border-radius: 12px; }
+summary { min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 8px 14px; cursor: pointer; font-weight: 600; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+details ol { margin: 0; padding: 0 16px 14px 34px; display: grid; gap: 4px; font-size: 15px; }
+details p { margin: 0 14px 4px; font-weight: 700; font-size: 14px; }
+
+.team { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 14px; border: 1px solid var(--rule); border-radius: 12px; }
+.team strong { display: block; }
+.team small { display: block; color: var(--muted); font-size: 14px; }
+footer { border-top: 1px solid var(--rule); padding-top: 14px; color: var(--muted); font-size: 14px; display: grid; gap: 6px; }
+footer button { color: var(--accent); font-weight: 600; text-decoration: underline; }
+.toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100vw - 32px); background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 10px; font-size: 14px; }
+</style>
+
+<div class="sample" role="group" aria-label="Sample controls">
+  <span>Sample only. This Sunday:</span>
+  <button type="button" data-state="songs" aria-pressed="true">As published now</button>
+  <button type="button" data-state="reading" aria-pressed="false">With a reading (example)</button>
+  <button type="button" data-state="none" aria-pressed="false">Nothing published</button>
+</div>
+
+<div class="page">
+  <header>
+    <span class="brand">Church Tools</span>
+    <button type="button" class="signin" data-go="Opens sign-in right away, then returns to the team tools.">Team sign in</button>
+  </header>
+
+  <h1>Montagnard Bunong Alliance Church</h1>
+
+  <div class="main">
+    <section class="sunday" aria-labelledby="sun-h">
+      <h2 id="sun-h"><span>This Sunday</span><span id="date">Nov 29</span></h2>
+      <div id="order"></div>
+    </section>
+
+    <div class="apps">
+      <button type="button" class="app" data-go="Opens Nau Mpro, the hymn book.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>
+        <span><strong>Nau Mpro</strong><span>Hymn book</span></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+      <button type="button" class="app" data-go="Opens Nau Brah Ndu Ngơi, the Bible.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-8-1.5V18c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V4.500c-3-.5-6 0-8 1.5zM12 6v13.500"/></svg>
+        <span><strong>Nau Brah Ndu Ngơi</strong><span>Bible</span></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+      <details>
+        <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Add an app to your phone</summary>
+        <p>iPhone</p>
+        <ol><li>Open the app above in Safari.</li><li>Tap the Share button.</li><li>Tap Add to Home Screen.</li></ol>
+        <p>Android</p>
+        <ol><li>Open the app above in Chrome.</li><li>Tap the three dots.</li><li>Tap Add to Home screen or Install app.</li></ol>
+      </details>
+    </div>
+  </div>
+
+  <button type="button" class="team" data-go="Opens the team tools: songs, readings, Scripture, program and projector.">
+    <span><strong>Church team</strong><small>Prepare Sunday’s slides and program</small></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+  </button>
+
+  <footer>
+    <span>4116 Freedom Dr. · Charlotte, NC 28208</span>
+    <span>Another church? <button type="button" data-go="Opens the page for starting a church.">Use Church Tools for your church</button></span>
+  </footer>
+</div>
+<div class="toast" role="status" hidden></div>
+
+<script>
+  // The songs are the ones published for November 29. The reading is an example.
+  var songs = [
+    { n: "1", t: "Mât ton nau Brah Amoh Yê-su", part: "Opening Song" },
+    { n: "5", t: "Lĕ rngôch bunuyh ta neh ntu tâm rnê", part: "Opening Song" },
+    { n: "3", t: "Tâm rnê Yê-su", part: "Songs of Praise" }
+  ];
+  var chev = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+  var book = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-8-1.5V18c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V4.500c-3-.5-6 0-8 1.5zM12 6v13.500"/></svg>';
+  function row(num, name, part, go) {
+    return '<button type="button" class="row" data-go="' + go + '"><span class="num">' + num + '</span><span class="name">' + name + '<small>' + part + '</small></span>' + chev + '</button>';
+  }
+  function show(state) {
+    var html = songs.map(function (s) { return row(s.n, s.t, s.part, "Opens hymn " + s.n + " in Nau Mpro."); }).join("");
+    if (state === "reading") html += row(book, "Nau Ntơm 1:1–2", "Scripture Reading", "Opens Nau Ntơm 1:1–2 in the Bible.");
+    if (state === "none") html = '<p class="none">The order of service isn’t posted yet. The hymn book and Bible are ready below.</p>';
+    document.getElementById("order").innerHTML = html;
+    document.getElementById("date").textContent = state === "none" ? "" : "Nov 29";
+    document.querySelectorAll("[data-state]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state)); });
+  }
+  var timer;
+  document.addEventListener("click", function (e) {
+    var s = e.target.closest("[data-state]");
+    if (s) { show(s.getAttribute("data-state")); return; }
+    var g = e.target.closest("[data-go]");
+    if (!g) return;
+    var t = document.querySelector(".toast");
+    t.textContent = "In the real page: " + g.getAttribute("data-go");
+    t.hidden = false;
+    clearTimeout(timer);
+    timer = setTimeout(function () { t.hidden = true; }, 2600);
+  });
+  show("songs");
+</script>

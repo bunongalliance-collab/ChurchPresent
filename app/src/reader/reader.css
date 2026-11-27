@@ -68,12 +68,13 @@ body { margin: 0; overflow: hidden; }
 .nm-side, .nm-lyrics, .nm-score { min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .nm:not(.reading) .nm-panes { grid-template-columns: 300px minmax(0, 1fr); }
 .nm:not(.reading) .nm-score { display: none; }
+@media (min-width: 1200px) { .nm.reading.nosheet .nm-panes { grid-template-columns: 250px minmax(0, 1fr); } }
 
 .nm-side { background: var(--nm-panel); border-right: 1px solid var(--nm-rule); display: flex; flex-direction: column; }
-.nm-chips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 12px 0; scrollbar-width: none; flex: none; }
-.nm-chips::-webkit-scrollbar { display: none; }
-.nm-chip { flex: none; border: 1px solid var(--nm-rule) !important; border-radius: 999px; padding: 3px 11px !important; font-size: 0.82rem; color: var(--nm-muted) !important; }
+.nm-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px 0; flex: none; }
+.nm-chip { max-width: 100%; text-align: left; line-height: 1.35; border: 1px solid var(--nm-rule) !important; border-radius: 999px; padding: 3px 11px !important; font-size: 0.82rem; color: var(--nm-muted) !important; }
 .nm-chip.on { background: var(--nm-green) !important; border-color: var(--nm-green) !important; color: var(--nm-on-green) !important; }
+.nm button.nm-chip-more { padding: 3px 4px; border: 0 !important; font-size: 0.82rem; color: var(--nm-green) !important; text-decoration: underline; }
 .nm-saved { margin: 0; padding: 8px 14px 4px; font-size: 0.78rem; color: var(--nm-muted); display: flex; align-items: center; gap: 7px; flex: none; }
 .nm-saved::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--nm-green); }
 .nm-saved.warn::before { background: #b5832a; }
@@ -83,12 +84,37 @@ body { margin: 0; overflow: hidden; }
 .nm-row.sel { background: var(--nm-green-soft) !important; border-left-color: var(--nm-green) !important; }
 .nm-num { text-align: right; font-weight: 700; font-size: 0.88rem; color: var(--nm-green); font-variant-numeric: tabular-nums; }
 .nm-rt { min-width: 0; font-family: var(--nm-serif); font-size: 0.98rem; line-height: 1.25; }
-.nm-empty, .nm-pick { color: var(--nm-muted); padding: 16px; margin: 0; }
-.nm-pick { padding: 40px 32px; font-family: var(--nm-serif); font-size: 1.1rem; }
+.nm-empty { color: var(--nm-muted); padding: 16px; margin: 0; }
+.nm-na { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--nm-rule); border-radius: 4px; font: 0.75rem/1.5 var(--nm-sans); color: var(--nm-muted); white-space: nowrap; }
+
+/* ----- Welcome (no song open) and a song that is not available ----- */
+.nm-welcome, .nm-missing { max-width: 30em; margin: 0 auto; padding: 32px 8px; line-height: 1.45; }
+.nm-welcome h1, .nm-missing h2 { margin: 0 0 12px; font: 700 1.5rem/1.25 var(--nm-serif); }
+.nm-welcome ul { list-style: none; margin: 0 0 20px; padding: 0; }
+.nm-welcome li { padding: 10px 0; border-top: 1px solid var(--nm-rule); }
+.nm-welcome li b { color: var(--nm-green); font-weight: 700; }
+.nm-missing p { margin: 0 0 12px; font-size: 1.05rem; }
+.nm-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.nm button.nm-go, .nm button.nm-alt { min-height: 44px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--nm-green) !important; font-weight: 500; text-align: left; }
+.nm button.nm-go { background: var(--nm-green) !important; color: var(--nm-on-green) !important; }
+.nm button.nm-alt { color: var(--nm-green) !important; }
+.nm button.nm-go:hover, .nm button.nm-alt:hover { box-shadow: 0 2px 8px var(--nm-shadow); }
+
+/* ----- What is saved for offline, for the open song ----- */
+.nm-avail { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 12px; font: 0.82rem/1.4 var(--nm-sans); color: var(--nm-muted); }
+/* Side by side, the status beside the lyrics is enough; the one above the sheet is for the Music Sheet tab */
+.nm-score-inner .nm-avail { display: none; margin: 0; }
+@media (max-width: 1199px) and (orientation: portrait), (max-width: 760px) { .nm-score-inner .nm-avail { display: flex; } }
+.nm button.nm-save-one { min-height: var(--nm-tap); padding: 0 12px; border: 1px solid var(--nm-green) !important; border-radius: 6px; color: var(--nm-green) !important; font-weight: 500; }
+.nm button.nm-save-one:hover:not(:disabled) { background: var(--nm-green-soft); }
 .nm-empty a { color: var(--nm-green); }
 
 .nm-lyrics { border-right: 1px solid var(--nm-rule); padding: 16px 22px calc(40px + env(safe-area-inset-bottom, 0px)); }
 .nm-song { max-width: 36em; }
+/* No music sheet: the lyrics take the sheet's space, in a centred reading column */
+.nm.reading.nosheet .nm-score { display: none; }
+.nm.reading.nosheet .nm-lyrics { border-right: 0; }
+.nm.reading.nosheet .nm-song { margin: 0 auto; }
 .nm-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-family: var(--nm-sans); font-size: 0.82rem; color: var(--nm-muted); margin-bottom: 8px; }
 .nm-facts b { color: var(--nm-ink); font-weight: 500; }
 .nm-size { margin-left: auto; display: flex; gap: 2px; }
@@ -127,6 +153,7 @@ body { margin: 0; overflow: hidden; }
 @media (max-width: 1199px) {
   .nm.reading .nm-songs-btn { display: inline-block; }
   .nm.reading .nm-panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+  .nm.reading.nosheet .nm-panes { grid-template-columns: minmax(0, 1fr); }
   .nm:not(.reading) .nm-panes { grid-template-columns: minmax(0, 1fr); }
   .nm:not(.reading) .nm-lyrics { display: none; }
   .nm.reading .nm-side {
@@ -152,7 +179,6 @@ body { margin: 0; overflow: hidden; }
   .nm-htitle { font-size: 1.1rem; }
   .nm-play span { display: none; }
   .nm-play { padding: 0 11px !important; }
-  .nm-pick { padding: 24px 18px; }
 }
 /* Fingers: 44px targets on touch screens */
 @media (pointer: coarse) {
@@ -161,6 +187,7 @@ body { margin: 0; overflow: hidden; }
   .nm-tabs button { padding: 8px 20px !important; }
   .nm-controls button { min-width: 48px; height: 46px; font-size: 1.05rem; }
   .nm-size button { height: 40px; }
+  .nm-chip, .nm .nm-chip-more { min-height: 36px; }
 }
 /* Play mode hides the tabs at every size, and on narrow screens the controls span the width */
 .nm.reading.playing .nm-tabs { display: none; }
@@ -248,6 +275,6 @@ body { margin: 0; overflow: hidden; }
 .nm-today-none { padding: 12px 14px; }
 .nm-today-none p { margin: 4px 0 0; font-size: 1.05rem; }
 .nm-today .nm-today-h { font-size: 1.3rem; }
-.nm-today .nm-today-d { font-size: 0.95rem; }
+.nm-today .nm-today-d { font-size: 0.95rem; padding-right: 3.2em; }
 .nm-today .nm-today-name { font-size: 0.82rem; }
 .nm .nm-today-song { font-size: 1.15rem; min-height: 48px; }

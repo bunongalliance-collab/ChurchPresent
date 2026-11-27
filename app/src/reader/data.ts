@@ -5,7 +5,8 @@ import { cacheReaderSongs, loadReaderSongs, type ReaderSong } from "../lib/offli
 // Every song is saved on the device after each online load, so the whole hymn book opens offline.
 
 export type Source = "online" | "saved" | "none";
-export interface LoadResult { songs: ReaderSong[]; source: Source; savedAt: string | null; error?: string }
+export interface LoadResult { songs: ReaderSong[]; source: Source; savedAt: string | null; error?: string; stored?: boolean }
+// stored: false when this load could not be saved on the device
 
 const SAVED_AT_KEY = "readerSavedAt";
 const savedAt = (): string | null => { try { return localStorage.getItem(SAVED_AT_KEY); } catch { return null; } };
@@ -49,8 +50,9 @@ export async function loadSongs(): Promise<LoadResult> {
       };
     });
     const now = new Date().toISOString();
-    if (await cacheReaderSongs(songs)) { try { localStorage.setItem(SAVED_AT_KEY, now); } catch { /* ignore */ } }
-    return { songs, source: "online", savedAt: now };
+    const stored = await cacheReaderSongs(songs);
+    if (stored) { try { localStorage.setItem(SAVED_AT_KEY, now); } catch { /* ignore */ } }
+    return { songs, source: "online", savedAt: now, stored };
   } catch (e) {
     const saved = await loadSavedSongs();
     return { ...saved, error: e instanceof Error ? e.message : String(e) };

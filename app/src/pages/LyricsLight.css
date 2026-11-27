@@ -1,0 +1,144 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+/* Lyric page (#lyrics-v2): sunlight from the top left, as on the home page, and soft shadows cast down and to the right.
+   Not used by the blueprint skin (.bp). Styles only: no button or feature is added or removed. */
+:root, :root[data-theme="light"] {
+  --lf-sun-core: rgba(255, 252, 238, 0.95); --lf-sun-glow: rgba(255, 226, 160, 0.55); --lf-ray: rgba(255, 240, 200, 0.45);
+  --lf-cast: rgba(70, 55, 25, 0.10); --lf-cast-near: rgba(70, 55, 25, 0.08); --lf-edge-lit: rgba(255, 255, 255, 0.85);
+}
+:root[data-theme="dark"] {
+  --lf-sun-core: rgba(255, 215, 150, 0.16); --lf-sun-glow: rgba(255, 200, 120, 0.08); --lf-ray: rgba(255, 210, 140, 0.06);
+  --lf-cast: rgba(0, 0, 0, 0.45); --lf-cast-near: rgba(0, 0, 0, 0.35); --lf-edge-lit: rgba(255, 230, 190, 0.08);
+}
+
+/* The light: a warm glow in the top-left corner and wide, blurred beams slanting down to the right */
+html:has(.lf:not(.bp)) body::before,
+html:has(.lf:not(.bp)) body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+html:has(.lf:not(.bp)) body::before {
+  background: radial-gradient(ellipse 65% 55% at 3% -6%, var(--lf-sun-core) 0%, var(--lf-sun-glow) 24%, transparent 68%);
+}
+html:has(.lf:not(.bp)) body::after {
+  background: repeating-linear-gradient(118deg, transparent 0 140px, var(--lf-ray) 170px 230px, transparent 260px 420px);
+  filter: blur(22px);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 0%, transparent 75%);
+  animation: lf-shimmer 10s ease-in-out infinite alternate;
+}
+@keyframes lf-shimmer { from { opacity: 0.65; } to { opacity: 1; } }
+html:has(.lf:not(.bp)) .lf { position: relative; z-index: 1; }
+html:has(.lf:not(.bp)) .tn-tabs { position: relative; z-index: 2; } /* keep the page tabs above the light */
+
+/* Shadows fall down and to the right, away from the light; the top-left edge catches it */
+html .lf:not(.bp) .lv2-card {
+  box-shadow: inset 1px 1px 0 var(--lf-edge-lit), 10px 16px 32px -8px var(--lf-cast), 3px 5px 10px -4px var(--lf-cast-near);
+}
+html .lf:not(.bp) button.primary:not(:disabled) { box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.25), 3px 5px 12px -4px var(--lf-cast); }
+html .lf:not(.bp) .lv2-stage { box-shadow: 12px 18px 36px -10px var(--lf-cast), 4px 6px 12px -4px var(--lf-cast-near); }
+html .lf:not(.bp) .lv2-thumbs > * { box-shadow: 4px 6px 12px -6px var(--lf-cast); }
+
+@media (prefers-reduced-motion: reduce) { html:has(.lf:not(.bp)) body::after { animation: none; } }
+
+/* ===== Home page look (approved sample bible-pwa/sample/lyric-linen.html): linen, forest green, mono UI, serif headings, square controls ===== */
+/* The app's tokens are set on the whole document while the Lyric page is open, so the navbar follows too */
+:root:has(.lf:not(.bp)), :root[data-theme="light"]:has(.lf:not(.bp)) {
+  --bg: #efe7d5; --panel: rgba(244, 239, 228, 0.9); --sunken: rgba(80, 60, 30, 0.12); --text: #2b2420; --muted: #6d6155; --text-rgb: 43 36 32;
+  --line: rgba(80, 60, 30, 0.18); --ctrl: rgba(80, 60, 30, 0.18);
+  --accent: #2f5a3c; --accent-rgb: 47 90 60; --on-accent: #f4efe4; --accent-soft: #dde6d3; --on-soft: #23452e; --focus: #2f5a3c;
+  --lf-thread: rgba(80, 60, 30, 0.07); --lf-gold: #b8862f; --lf-solid: #f4efe4;
+  --font-ui: "IBM Plex Mono", Menlo, monospace; --lf-display: "Fraunces", Georgia, "Times New Roman", serif;
+}
+:root[data-theme="dark"]:has(.lf:not(.bp)) {
+  --bg: #1f1b18; --panel: rgba(42, 37, 33, 0.9); --sunken: rgba(255, 240, 220, 0.10); --text: #eee6d8; --muted: #a99c8c; --text-rgb: 238 230 216;
+  --line: rgba(255, 240, 220, 0.14); --ctrl: rgba(255, 240, 220, 0.14);
+  --accent: #9cc49a; --accent-rgb: 156 196 154; --on-accent: #1f1b18; --accent-soft: #2c3a2e; --on-soft: #cfe3cc; --focus: #9cc49a;
+  --lf-thread: rgba(255, 240, 220, 0.04); --lf-gold: #d3a24c; --lf-solid: #2a2521;
+}
+html:has(.lf:not(.bp)) {
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(0deg, var(--lf-thread) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, var(--lf-thread) 0 1px, transparent 1px 3px);
+}
+html:has(.lf:not(.bp)) body { font-family: var(--font-ui); }
+
+/* Navbar: brand in serif; page tabs in mono with a green underline for the current page */
+html:has(.lf:not(.bp)) .tn-top, html:has(.lf:not(.bp)) .tn-tabs { background: transparent; border-bottom-color: var(--line); }
+html:has(.lf:not(.bp)) .tn-top { background: var(--bg); }
+html:has(.lf:not(.bp)) .tn-brand { font-family: var(--lf-display); font-weight: 600; color: var(--text); }
+html:has(.lf:not(.bp)) .tn-tabs a { font: 400 12px var(--font-ui); }
+html:has(.lf:not(.bp)) .tn-tabs a[aria-current="page"] { border-bottom-width: 2px; }
+html:has(.lf:not(.bp)) .tn-top button, html:has(.lf:not(.bp)) .tn-top a.tn-icon { border-radius: 0; font-family: var(--font-ui); }
+html:has(.lf:not(.bp)) .tn-pop, html:has(.lf:not(.bp)) .tn-sheet { border-radius: 0; background: var(--lf-solid); }
+
+/* Title: serif, with a small mono eyebrow */
+html body .ct-app .lf:not(.bp) .lv2-top h1 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--lf-display); letter-spacing: 0; }
+
+/* Buttons: the home page's square mono buttons */
+html body .ct-app .lf:not(.bp) button { border-radius: 0; font: 500 12px/1.4 var(--font-ui); padding: 8px 16px; border: 1px solid var(--text); background: transparent; color: var(--text); box-shadow: none; }
+html body .ct-app .lf:not(.bp) button.small { padding: 6px 12px; font-size: 11px; }
+html body .ct-app .lf:not(.bp) button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+html body .ct-app .lf:not(.bp) button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: 3px 5px 12px -4px var(--lf-cast); }
+html body .ct-app .lf:not(.bp) button.primary:hover:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
+html body .ct-app .lf:not(.bp) button.secondary { background: transparent; border-color: var(--line); color: var(--text); box-shadow: none; }
+html body .ct-app .lf:not(.bp) button.quiet { border-color: transparent; color: var(--muted); }
+html body .ct-app .lf:not(.bp) button.danger { border-color: var(--danger); color: var(--danger); }
+html body .ct-app .lf:not(.bp) .step-save { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* Cards: flat paper with a short green bar, shadow cast down-right */
+html body .ct-app .lf:not(.bp) .lv2-card { background: var(--panel); border: 1px solid var(--lf-thread); border-radius: 0; padding: 20px; position: relative; }
+html body .ct-app .lf:not(.bp) .lv2-card::before { content: ""; display: block; width: 34px; height: 3px; background: var(--accent); margin-bottom: 4px; }
+html body .ct-app .lf:not(.bp) .lv2-step-head { align-items: baseline; gap: 10px; }
+html body .ct-app .lf:not(.bp) .lv2-step-n { width: auto; height: auto; background: none; color: var(--accent); border-radius: 0; font: 600 26px/1 var(--lf-display); }
+html body .ct-app .lf:not(.bp) .lv2-step-head h2 { font: 600 19px/1.1 var(--lf-display); }
+html body .ct-app .lf:not(.bp) .lv2-step-head::after { display: none; }
+
+/* Controls: square, hairline, mono; the lyrics keep the song font */
+html body .ct-app .lf:not(.bp) input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+html body .ct-app .lf:not(.bp) select { border-radius: 0; border: 1px solid var(--line); background: transparent; color: var(--text); font: 400 13px var(--font-ui); box-shadow: none; }
+html body .ct-app .lf:not(.bp) textarea { border-radius: 0; border: 1px solid var(--line); background: transparent; color: var(--text); box-shadow: none; }
+html body .ct-app .lf:not(.bp) select option { background: var(--lf-solid); color: var(--text); }
+html body .ct-app .lf:not(.bp) input[type="range"] { accent-color: var(--accent); }
+html body .ct-app .lf:not(.bp) .lv2-lib-toggle { border-radius: 0; border: 1px solid var(--line); background: transparent; }
+html body .ct-app .lf:not(.bp) button.lv2-star { border-radius: 0; background: transparent; border: 1px solid var(--line); }
+
+/* Song list: rows divided by hairlines; the open song is a soft green row */
+html body .ct-app .lf:not(.bp) .lv2-songs { gap: 0; border-top: 1px solid var(--line); }
+html body .ct-app .lf:not(.bp) .lv2-group { font: 400 10.5px/1.2 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 12px 4px 4px; }
+html body .ct-app .lf:not(.bp) button.lv2-song { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 9px 6px; background: transparent; color: var(--text); }
+html body .ct-app .lf:not(.bp) button.lv2-song:hover:not(:disabled) { background: rgb(var(--accent-rgb) / 0.06); color: var(--text); }
+html body .ct-app .lf:not(.bp) button.lv2-song[aria-current="true"] { background: var(--accent-soft); color: var(--on-soft); }
+html body .ct-app .lf:not(.bp) .lv2-song-name { font: 400 12px/1.3 var(--font-ui); }
+html body .ct-app .lf:not(.bp) .lv2-song-meta { font: 400 10.5px/1.3 var(--font-ui); color: var(--muted); }
+
+/* Notes, tags and panels */
+html body .ct-app .lf:not(.bp) .lv2-note { background: none; border: 0; border-left: 2px solid var(--lf-gold); border-radius: 0; padding: 0 0 0 10px; color: var(--muted); font: 400 12px/1.5 var(--font-ui); }
+html body .ct-app .lf:not(.bp) .lv2-note span { font: 400 12px/1.5 var(--font-ui); }
+html body .ct-app .lf:not(.bp) .lv2-chip { background: transparent; color: var(--muted); border: 1px dashed var(--line); border-radius: 0; padding: 3px 8px; font: 400 11px var(--font-ui); }
+html body .ct-app .lf:not(.bp) .lf-ap > summary.lf-ap-btn, html body .ct-app .lf:not(.bp) .lv2-more summary { border-radius: 0; box-shadow: none; border: 1px dashed var(--line); color: var(--text); font: 400 12px var(--font-ui); }
+html body .ct-app .lf:not(.bp) .lf-ap[open] > summary.lf-ap-btn { background: var(--accent-soft); border-style: solid; border-color: var(--accent); }
+html body .ct-app .lf:not(.bp) .lf-ap .lf-ap-panel, html body .ct-app .lf:not(.bp) .lv2-menu { background: var(--lf-solid); border: 1px solid var(--line); border-radius: 0; }
+html body .ct-app .lf:not(.bp) .lf-ap-panel .rv2-line { border-radius: 0; background: transparent; border: 1px solid var(--line); }
+html body .ct-app .lf:not(.bp) .lv2-approve, html body .ct-app .lf:not(.bp) .lv2-added, html body .ct-app .lf:not(.bp) .return-bar { background: var(--accent-soft); color: var(--on-soft); border-radius: 0; }
+html body .ct-app .lf:not(.bp) .lv2-confirm { border-radius: 0; }
+html body .ct-app .lf:not(.bp) button.lf-q, html body .ct-app .lf:not(.bp) button.lf-qb { border-radius: 0; padding: 0; }
+
+/* Slide frames: square corners; the selected thumbnail gets a green outline */
+html body .ct-app .lf:not(.bp) .lv2-stage, html body .ct-app .lf:not(.bp) .lv2-thumbs > * { border-radius: 0; }
+html body .ct-app .lf:not(.bp) .lv2-thumbs [aria-current="true"], html body .ct-app .lf:not(.bp) .lv2-thumbs .on, html body .ct-app .lf:not(.bp) .lv2-thumbs .active { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  html body .ct-app .lf:not(.bp) .lv2-card { padding: 14px; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+  html body .ct-app .lf:not(.bp) .step-save { margin-left: auto; position: static; }
+  html body .ct-app .lf:not(.bp) .lv2-step-head { flex-wrap: wrap; min-width: 0; }
+  html body .ct-app .lf:not(.bp) .lv2-step-head h2 { white-space: normal; }
+}
+
+/* Header bar: title on its own row; the slideshow strip and the actions below it with room between them */
+html body .ct-app .lf:not(.bp) .lv2-top { flex-wrap: wrap; align-items: center; column-gap: 32px; row-gap: 18px; padding: 8px 0 24px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
+html body .ct-app .lf:not(.bp) .lv2-top > .lf-greet { flex: 1 1 100%; }
+html body .ct-app .lf:not(.bp) .lv2-top > .lv2-show { flex: 1 1 380px; min-width: 0; margin: 0; }
+html body .ct-app .lf:not(.bp) .lv2-top > .lv2-top-actions { margin-left: auto; gap: 12px; }
+/* The slideshow strip: a plain hairline box, no accent bar or shadow */
+html body .ct-app .lf:not(.bp) .lv2-show { padding: 10px 16px; gap: 6px 14px; border: 1px solid var(--line); background: transparent; box-shadow: none; }
+html body .ct-app .lf:not(.bp) .lv2-show::before { display: none; }
+
+/* No sunlight glow (removed on request; the landing pages keep theirs) */
+html:has(.lf:not(.bp)) body::before, html:has(.lf:not(.bp)) body::after { content: none; }

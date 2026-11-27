@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import "./LyricsBlueprint.css";
+import "./LyricsLight.css";
 import PptxGenJS from "pptxgenjs";
 import type { Session } from "@supabase/supabase-js";
 import { onAuthChange, selectAll, supabase, withTimeout } from "../lib/supabase";
@@ -71,7 +73,8 @@ function songIdsInPresentation(): Set<string> {
 // Ten quick slide themes (background, text) shown under the lyrics box
 
 
-export default function LyricsV2() {
+// skin "blueprint": the same page styled from app/DESIGN.md (#lyrics-blueprint)
+export default function LyricsV2({ skin }: { skin?: "blueprint" } = {}) {
   // Form
   // The unsaved song and its formatting are kept for this browser tab, so moving to another page keeps them
   const draft = useMemo(() => {
@@ -593,7 +596,7 @@ export default function LyricsV2() {
   return (
     <>
       <NavBar />
-      <div className="lv2 lf">
+      <div className={`lv2 lf${skin === "blueprint" ? " bp" : ""}`}>
         <header className="lv2-top">
           <div className="lf-greet">
             <h1>Create Slide Show</h1>

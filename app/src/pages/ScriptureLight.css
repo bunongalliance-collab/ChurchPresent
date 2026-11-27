@@ -1,0 +1,118 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+/* Scripture page (#scripture): the same home page look as the Lyric page (LyricsLight.css): linen, sunlight from the top left,
+   forest green, mono UI, serif headings, square controls, shadows cast down and to the right.
+   Styles only: no button or feature is added or removed. The slides keep their own colours. */
+:root:has(.sc), :root[data-theme="light"]:has(.sc) {
+  --bg: #efe7d5; --panel: rgba(244, 239, 228, 0.9); --sunken: rgba(80, 60, 30, 0.12); --text: #2b2420; --muted: #6d6155; --text-rgb: 43 36 32;
+  --line: rgba(80, 60, 30, 0.18); --ctrl: rgba(80, 60, 30, 0.18);
+  --accent: #2f5a3c; --accent-rgb: 47 90 60; --on-accent: #f4efe4; --accent-soft: #dde6d3; --on-soft: #23452e; --focus: #2f5a3c;
+  --font-ui: "IBM Plex Mono", Menlo, monospace;
+  --scl-display: "Fraunces", Georgia, "Times New Roman", serif; --scl-thread: rgba(80, 60, 30, 0.07); --scl-gold: #b8862f; --scl-solid: #f4efe4;
+  --scl-core: rgba(255, 252, 238, 0.95); --scl-glow: rgba(255, 226, 160, 0.55); --scl-ray: rgba(255, 240, 200, 0.45);
+  --scl-cast: rgba(70, 55, 25, 0.13); --scl-cast-near: rgba(70, 55, 25, 0.09); --scl-edge: rgba(255, 255, 255, 0.85);
+}
+:root[data-theme="dark"]:has(.sc) {
+  --bg: #1f1b18; --panel: rgba(42, 37, 33, 0.9); --sunken: rgba(255, 240, 220, 0.10); --text: #eee6d8; --muted: #a99c8c; --text-rgb: 238 230 216;
+  --line: rgba(255, 240, 220, 0.14); --ctrl: rgba(255, 240, 220, 0.14);
+  --accent: #9cc49a; --accent-rgb: 156 196 154; --on-accent: #1f1b18; --accent-soft: #2c3a2e; --on-soft: #cfe3cc; --focus: #9cc49a;
+  --scl-thread: rgba(255, 240, 220, 0.04); --scl-gold: #d3a24c; --scl-solid: #2a2521;
+  --scl-core: rgba(255, 215, 150, 0.16); --scl-glow: rgba(255, 200, 120, 0.08); --scl-ray: rgba(255, 210, 140, 0.06);
+  --scl-cast: rgba(0, 0, 0, 0.5); --scl-cast-near: rgba(0, 0, 0, 0.4); --scl-edge: rgba(255, 230, 190, 0.08);
+}
+
+/* Linen ground and sunlight */
+html:has(.sc) {
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(0deg, var(--scl-thread) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, var(--scl-thread) 0 1px, transparent 1px 3px);
+}
+html:has(.sc) body { background: transparent; font-family: var(--font-ui); }
+html:has(.sc) body::before, html:has(.sc) body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+html:has(.sc) body::before { background: radial-gradient(ellipse 65% 55% at 3% -6%, var(--scl-core) 0%, var(--scl-glow) 24%, transparent 68%); }
+html:has(.sc) body::after {
+  background: repeating-linear-gradient(118deg, transparent 0 140px, var(--scl-ray) 170px 230px, transparent 260px 420px);
+  filter: blur(22px);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 0%, transparent 75%);
+  animation: scl-shimmer 10s ease-in-out infinite alternate;
+}
+@keyframes scl-shimmer { from { opacity: 0.65; } to { opacity: 1; } }
+html:has(.sc) .sc { position: relative; z-index: 1; }
+html:has(.sc) .tn-tabs { position: relative; z-index: 2; }
+
+/* Navbar */
+html:has(.sc) .tn-top, html:has(.sc) .tn-tabs { background: transparent; border-bottom-color: var(--line); }
+html:has(.sc) .tn-top { background: var(--bg); }
+html:has(.sc) .tn-brand { font-family: var(--scl-display); font-weight: 600; color: var(--text); }
+html:has(.sc) .tn-tabs a { font: 400 12px var(--font-ui); }
+html:has(.sc) .tn-tabs a[aria-current="page"] { border-bottom-width: 2px; }
+html:has(.sc) .tn-top button, html:has(.sc) .tn-top a.tn-icon { border-radius: 0; font-family: var(--font-ui); }
+html:has(.sc) .tn-pop, html:has(.sc) .tn-sheet { border-radius: 0; background: var(--scl-solid); }
+
+/* Title */
+html body .ct-app .sc.rl h1 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--scl-display); letter-spacing: 0; color: var(--text); }
+html body .ct-app .sc.rl h2, html body .ct-app .sc.rl h3 { font-family: var(--scl-display); }
+
+/* Buttons: square mono; slide cards keep their own look */
+html body .ct-app .sc.rl button:not(.sc-card):not(.sc-preset) { border-radius: 0; font: 500 12px/1.4 var(--font-ui); padding: 8px 16px; border: 1px solid var(--text); background: transparent; color: var(--text); box-shadow: none; }
+html body .ct-app .sc.rl button.small:not(.sc-card) { padding: 6px 12px; font-size: 11px; }
+html body .ct-app .sc.rl button:not(.sc-card):not(.sc-preset):hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+html body .ct-app .sc.rl button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: 3px 5px 12px -4px var(--scl-cast); }
+html body .ct-app .sc.rl button.primary:hover:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
+html body .ct-app .sc.rl button.secondary { border-color: var(--line); }
+html body .ct-app .sc.rl button.danger { border-color: var(--danger); color: var(--danger); }
+html body .ct-app .sc.rl .sc-star { border: 1px solid var(--line); }
+html body .ct-app .sc.rl .sc-star.on { color: var(--scl-gold); border-color: var(--scl-gold); }
+
+/* Columns become flat paper cards with a short green bar, lit top-left edge and a shadow down-right */
+html body .ct-app .sc.rl .sc-col { background: var(--panel); border: 1px solid var(--scl-thread); border-radius: 0; padding: 20px; min-width: 0;
+  box-shadow: inset 1px 1px 0 var(--scl-edge), 10px 16px 32px -8px var(--scl-cast), 3px 5px 10px -4px var(--scl-cast-near); }
+html body .ct-app .sc.rl .sc-col::before { content: ""; display: block; width: 34px; height: 3px; background: var(--accent); margin-bottom: 12px; }
+
+/* Controls: square, hairline, mono */
+html body .ct-app .sc.rl input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+html body .ct-app .sc.rl select { border-radius: 0; border: 1px solid var(--line); background: transparent; color: var(--text); font: 400 13px var(--font-ui); box-shadow: none; }
+html body .ct-app .sc.rl select option { background: var(--scl-solid); color: var(--text); }
+html body .ct-app .sc.rl textarea, html body .ct-app .sc.rl [contenteditable="true"], html body .ct-app .sc.rl .vtb-edit { border-radius: 0; border: 1px solid var(--line); background: transparent; }
+html body .ct-app .sc.rl .vtb-mirror { background: transparent; }
+html body .ct-app .sc.rl input[type="range"] { accent-color: var(--accent); }
+html body .ct-app .sc.rl details > summary { border-radius: 0; border: 1px dashed var(--line); font: 400 12px var(--font-ui); }
+html body .ct-app .sc.rl .sc-menu, html body .ct-app .sc.rl .sc-settings { border-radius: 0; background: var(--scl-solid); border: 1px solid var(--line); box-shadow: none; }
+html body .ct-app .sc.rl .sc-label, html body .ct-app .sc.rl label { font-family: var(--font-ui); }
+html body .ct-app .sc.rl .sc-group { font: 400 10.5px/1.2 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+html body .ct-app .sc.rl .sc-warn { border-left: 2px solid var(--scl-gold); border-radius: 0; background: none; padding-left: 10px; }
+html body .ct-app .sc.rl .sc-incoming { border-radius: 0; background: var(--accent-soft); color: var(--on-soft); }
+
+/* Slide frames: square corners and a cast shadow; the slides' own colours stay */
+html body .ct-app .sc.rl .sc-big { border-radius: 0; box-shadow: 12px 18px 36px -10px var(--scl-cast), 4px 6px 12px -4px var(--scl-cast-near); }
+html body .ct-app .sc.rl .sc-card, html body .ct-app .rl .sc-cards button { border-radius: 0; box-shadow: 4px 6px 12px -6px var(--scl-cast); }
+
+@media (max-width: 700px) {
+  html body .ct-app .sc.rl .sc-col { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { html:has(.sc) body::after { animation: none; } }
+
+/* Step numbers as serif numerals; the remaining rounded boxes become square, as on the Lyric page */
+html body .ct-app .sc.rl .lv2-step-head { align-items: baseline; gap: 10px; }
+html body .ct-app .sc.rl .lv2-step-n { width: auto; height: auto; background: none; color: var(--accent); border-radius: 0; font: 600 26px/1 var(--scl-display); }
+html body .ct-app .sc.rl .lv2-step-head h2 { font: 600 19px/1.1 var(--scl-display); }
+html body .ct-app .sc.rl .lv2-step-head::after { display: none; }
+html body .ct-app .sc.rl .sc-signin, html body .ct-app .sc.rl .sc-start, html body .ct-app .sc.rl .sc-item, html body .ct-app .sc.rl .sc-list,
+html body .ct-app .sc.rl .sc-start-tag, html body .ct-app .sc.rl .sc-new-tag, html body .ct-app .sc.rl .sc-presentation, html body .ct-app .sc.rl .sc-pick { border-radius: 0; }
+html body .ct-app .sc.rl .sc-signin { background: var(--accent-soft); box-shadow: none; }
+html body .ct-app .sc.rl .sc-num { border-radius: 0; font-family: var(--scl-display); }
+
+/* Text formatting card in the middle column: solid paper with a hairline, square tool buttons (colour swatches stay round) */
+html body .ct-app .sc.rl .sc-format-dock, html body .ct-app .sc.rl .sc-format-dock.cmp { background: var(--scl-solid); border: 1px solid var(--line); border-radius: 0; box-shadow: 3px 5px 12px -6px var(--scl-cast); }
+html body .ct-app .sc.rl .sc-format-dock.cmp button.tool { border-radius: 0 !important; border: 1px solid var(--line); background: transparent; color: var(--text); }
+html body .ct-app .sc.rl .sc-format-dock.cmp button.tool:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+/* Header bar: title on its own row; the slideshow strip and the study tools below it with room between them */
+html body .ct-app .sc.rl .sc-top { flex-wrap: wrap; align-items: center; column-gap: 32px; row-gap: 18px; padding: 8px 0 24px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
+html body .ct-app .sc.rl .sc-top > .sc-title { flex: 1 1 100%; }
+html body .ct-app .sc.rl .sc-top > .lv2-show { flex: 1 1 380px; min-width: 0; margin: 0; }
+html body .ct-app .sc.rl .sc-top > .sc-actions { margin-left: auto; gap: 12px; }
+html body .ct-app .sc.rl .lv2-show { padding: 10px 16px; gap: 6px 14px; border: 1px solid var(--line); border-radius: 0; background: transparent; box-shadow: none; }
+
+/* No sunlight glow (removed on request; the landing pages keep theirs) */
+html:has(.sc) body::before, html:has(.sc) body::after { content: none; }

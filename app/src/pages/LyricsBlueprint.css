@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap");
+
+/* Lyric page, blueprint skin (#lyrics-blueprint). Every value comes from app/DESIGN.md.
+   Scoped to .bp so the regular Lyric page (#lyrics-v2) is unchanged. The slides themselves keep their own colours. */
+html body .ct-app .lv2.lf.bp {
+  /* DESIGN.md colours */
+  --bp-orange: #ff5e1f; --bp-paper: #ffffff; --bp-ink: #262626; --bp-hair: #f0f0f0; --bp-quiet: #676767;
+  --bp-tertiary: #727272; --bp-pill-black: #1f1f1f; --bp-ember: #ff7038; --bp-sienna: #bf4c14; --bp-peach: #ffeee8;
+  --bp-crimson: #b52831;
+  --bp-sans: "Inter", Arial, sans-serif; /* substitute for STK Bureau Sans */
+  --bp-mono: "IBM Plex Mono", Menlo, monospace; /* substitute for Apercu Mono Pro */
+  --bp-ease: 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+
+  /* The app's own tokens, pointed at DESIGN.md, so every existing Lyric rule picks them up */
+  --bg: var(--bp-paper); --panel: var(--bp-paper); --sunken: var(--bp-paper); --text: var(--bp-ink); --muted: var(--bp-quiet);
+  --line: var(--bp-hair); --ctrl: var(--bp-hair); --text-rgb: 38 38 38;
+  --accent: var(--bp-orange); --accent-rgb: 255 94 31; --on-accent: var(--bp-paper); --accent-soft: var(--bp-peach); --on-soft: var(--bp-sienna);
+  --focus: var(--bp-orange); --danger: var(--bp-crimson); --hint: var(--bp-sienna); --card-shadow: none; --font-ui: var(--bp-sans);
+  color-scheme: light;
+
+  /* 1200px content column fenced by dashed hairline rails */
+  max-width: 1200px; margin: 0 auto; box-sizing: border-box;
+  padding: 32px 32px 128px;
+  border-left: 1px dashed var(--bp-hair); border-right: 1px dashed var(--bp-hair);
+  background: var(--bp-paper); color: var(--bp-ink);
+  font: 400 16px/1.2 var(--bp-sans); letter-spacing: -0.04px;
+}
+html:has(.bp), html:has(.bp) body { background: #ffffff; }
+
+/* Page title: section-heading 48px / 500 / 1.0 / -1.2px */
+html body .ct-app .lf.bp .lv2-top { gap: 8px 32px; padding: 0 0 32px; margin-bottom: 32px; border-bottom: 1px solid var(--bp-hair); }
+html body .ct-app .lf.bp .lv2-top h1 { font: 500 48px/1 var(--bp-sans); letter-spacing: -1.2px; color: var(--bp-ink); }
+
+/* Buttons: 9999px pills, 16px / 500, 6px 12px; colour changes ease over 0.2s */
+html body .ct-app .lf.bp button { border-radius: 9999px; padding: 6px 12px; font: 500 16px/24px var(--bp-sans); letter-spacing: 0; box-shadow: none; border: 1px solid var(--bp-hair); background: transparent; color: var(--bp-ink); transition: color var(--bp-ease), background-color var(--bp-ease), border-color var(--bp-ease); }
+html body .ct-app .lf.bp button.small { padding: 4px 10px; font-size: 14px; line-height: 1.15; letter-spacing: -0.14px; }
+/* Cloudflare Orange Pill Button: primary action on white */
+html body .ct-app .lf.bp button.primary { background: var(--bp-orange); border: 1px solid var(--bp-orange); color: var(--bp-paper); }
+html body .ct-app .lf.bp button.primary:hover:not(:disabled) { background: var(--bp-ember); border-color: var(--bp-ember); }
+/* Hairline Outline Pill: secondary actions */
+html body .ct-app .lf.bp button.secondary { background: transparent; border: 1px solid var(--bp-hair); color: var(--bp-ink); box-shadow: none; }
+html body .ct-app .lf.bp button.secondary:hover:not(:disabled), html body .ct-app .lf.bp button:hover:not(:disabled) { border-color: var(--bp-ink); }
+html body .ct-app .lf.bp button.quiet { border-color: transparent; color: var(--bp-quiet); }
+html body .ct-app .lf.bp button.danger { border-color: var(--bp-hair); color: var(--bp-crimson); }
+html body .ct-app .lf.bp button:disabled { opacity: 0.45; }
+html body .ct-app .lf.bp :focus-visible { outline: 2px solid var(--bp-orange); outline-offset: 2px; }
+
+/* Steps: card-title 18px / 500 / -0.45px; step numbers are orange pills; joined by a dashed hairline */
+html body .ct-app .lf.bp .lv2-grid { gap: 0; border: 1px solid var(--bp-hair); border-radius: 4px; }
+html body .ct-app .lf.bp .lf-stop { padding: 32px; gap: 8px; }
+html body .ct-app .lf.bp .lf-stop + .lf-stop { border-left: 1px solid var(--bp-hair); }
+html body .ct-app .lf.bp .lv2-step-head { gap: 8px; }
+html body .ct-app .lf.bp .lv2-step-n { width: 28px; height: 28px; border-radius: 9999px; background: var(--bp-orange); color: var(--bp-paper); font: 500 14px/1 var(--bp-sans); display: inline-grid; place-items: center; }
+html body .ct-app .lf.bp .lv2-step-head h2 { font: 500 18px/1.2 var(--bp-sans); letter-spacing: -0.45px; color: var(--bp-ink); }
+html body .ct-app .lf.bp .lv2-step-head::after { height: 0; border-top: 1px dashed var(--bp-hair); background: none; opacity: 1; border-radius: 0; }
+html body .ct-app .lf.bp .lf-sub, html body .ct-app .lf.bp .lv2-note, html body .ct-app .lf.bp .lv2-list-note { color: var(--bp-quiet); font: 400 14px/1.15 var(--bp-sans); letter-spacing: -0.14px; }
+
+/* Cards: flat Paper, 4px radius, 1px hairline, no shadow (Feature Grid Cell inside the steps) */
+html body .ct-app .lf.bp .lv2-card { background: var(--bp-paper); border: 0; border-radius: 4px; box-shadow: none; padding: 0; }
+
+/* Controls: 8px radius, 1px hairline, Paper */
+html body .ct-app .lf.bp input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+html body .ct-app .lf.bp select,
+html body .ct-app .lf.bp textarea { border-radius: 8px; border: 1px solid var(--bp-hair); background: var(--bp-paper); color: var(--bp-ink); font: 400 16px/1.2 var(--bp-sans); letter-spacing: -0.04px; padding: 8px 12px; box-shadow: none; transition: border-color var(--bp-ease); }
+html body .ct-app .lf.bp input:focus, html body .ct-app .lf.bp select:focus, html body .ct-app .lf.bp textarea:focus { border-color: var(--bp-orange); outline: none; }
+html body .ct-app .lf.bp input.lv2-title { font: 500 18px/1.2 var(--bp-sans); letter-spacing: -0.45px; }
+html body .ct-app .lf.bp textarea.lv2-lyrics { border-radius: 8px; padding: 16px; font: 400 16px/1.5 var(--bp-sans); }
+html body .ct-app .lf.bp input[type="range"] { accent-color: var(--bp-orange); }
+
+/* Song list: rows separated by hairlines; the open song is a Peach Wash row in orange (Deploy Status Card rows) */
+html body .ct-app .lf.bp .lv2-songs { gap: 0; }
+html body .ct-app .lf.bp .lv2-group { font: 500 13px/1 var(--bp-sans); color: var(--bp-tertiary); letter-spacing: 0; text-transform: none; padding: 16px 12px 8px; }
+html body .ct-app .lf.bp button.lv2-song { border: 0; border-bottom: 1px solid var(--bp-hair); border-radius: 0; padding: 8px 12px; background: transparent; color: var(--bp-ink); }
+html body .ct-app .lf.bp button.lv2-song:hover:not(:disabled) { background: var(--bp-peach); border-color: var(--bp-hair); }
+html body .ct-app .lf.bp button.lv2-song[aria-current="true"] { background: var(--bp-peach); color: var(--bp-orange); }
+html body .ct-app .lf.bp .lv2-song-name { font: 400 16px/1.2 var(--bp-sans); letter-spacing: -0.04px; }
+html body .ct-app .lf.bp button.lv2-song[aria-current="true"] .lv2-song-name { font-weight: 500; }
+html body .ct-app .lf.bp .lv2-song-meta { font: 400 14px/1.15 var(--bp-sans); color: var(--bp-quiet); }
+
+/* Tags and chips: 6px radius dashed hairline, 4px 10px */
+html body .ct-app .lf.bp .lv2-chip { background: transparent; color: var(--bp-ink); border: 1px dashed var(--bp-hair); border-radius: 6px; padding: 4px 10px; font: 400 14px/1.15 var(--bp-sans); }
+html body .ct-app .lf.bp .lv2-approve, html body .ct-app .lf.bp .lv2-added { background: var(--bp-peach); color: var(--bp-sienna); border: 0; border-radius: 4px; padding: 12px 16px; }
+html body .ct-app .lf.bp .lv2-confirm { box-shadow: none; border: 1px solid var(--bp-crimson); border-radius: 4px; }
+html body .ct-app .lf.bp .return-bar { background: var(--bp-peach); color: var(--bp-sienna); border-radius: 4px; }
+html body .ct-app .lf.bp .return-bar button { background: var(--bp-orange); color: var(--bp-paper); border-color: var(--bp-orange); }
+
+/* The "check the words" hint: a Peach Wash row instead of the yellow box */
+html body .ct-app .lf.bp .lv2-note { background: var(--bp-peach); color: var(--bp-sienna); border: 0; border-radius: 4px; padding: 12px 16px; box-shadow: none; }
+html body .ct-app .lf.bp .lv2-note span { color: var(--bp-sienna); font: 400 14px/1.15 var(--bp-sans); }
+html body .ct-app .lf.bp button.lv2-star { width: 38px; height: 38px; padding: 0; background: var(--bp-paper); border: 1px solid var(--bp-hair); color: var(--bp-quiet); }
+html body .ct-app .lf.bp button.lv2-star.on { color: var(--bp-orange); border-color: var(--bp-orange); }
+html body .ct-app .lf.bp .lv2-lib-toggle { border-radius: 8px; border: 1px solid var(--bp-hair); box-shadow: none; }
+
+/* Slide Appearance and menus: flat panels with a hairline */
+html body .ct-app .lf.bp .lf-ap > summary.lf-ap-btn, html body .ct-app .lf.bp .lv2-more summary { border-radius: 9999px; box-shadow: none; border: 1px solid var(--bp-hair); color: var(--bp-ink); font: 500 16px/24px var(--bp-sans); padding: 6px 12px; }
+html body .ct-app .lf.bp .lf-ap[open] > summary.lf-ap-btn { background: var(--bp-peach); border-color: var(--bp-orange); }
+html body .ct-app .lf.bp .lf-ap .lf-ap-panel, html body .ct-app .lf.bp .lv2-menu { background: var(--bp-paper); border: 1px solid var(--bp-hair); border-radius: 4px; box-shadow: none; }
+html body .ct-app .lf.bp .lf-ap-panel .rv2-line { background: var(--bp-paper); border: 1px solid var(--bp-hair); border-radius: 3px; }
+
+/* Thumbnails: near-square, hairline frame; the selected slide gets a 2px orange edge */
+html body .ct-app .lf.bp .lv2-thumbs > * { border-radius: 3px; box-shadow: none; }
+html body .ct-app .lf.bp .lv2-thumbs [aria-current="true"], html body .ct-app .lf.bp .lv2-thumbs .on, html body .ct-app .lf.bp .lv2-thumbs .active { outline: 2px solid var(--bp-orange); outline-offset: 0; }
+html body .ct-app .lf.bp .lv2-thumb-num, html body .ct-app .lf.bp .lv2-thumb-tag { font: 400 12px/1.2 var(--bp-mono); letter-spacing: -0.24px; color: var(--bp-quiet); }
+html body .ct-app .lf.bp .lv2-stage { border-radius: 4px; box-shadow: none; }
+
+/* Phones: one column; the steps stack with hairlines between them */
+@media (max-width: 900px) {
+  html body .ct-app .lv2.lf.bp { padding: 24px 16px 96px; border-left: 0; border-right: 0; }
+  html body .ct-app .lf.bp .lv2-top h1 { font-size: 32px; letter-spacing: -0.8px; }
+  html body .ct-app .lf.bp .lv2-grid { grid-template-columns: minmax(0, 1fr); }
+  html body .ct-app .lf.bp .lf-stop { padding: 24px 16px; }
+  html body .ct-app .lf.bp .lf-stop + .lf-stop { border-left: 0; border-top: 1px solid var(--bp-hair); }
+}
+@media (prefers-reduced-motion: reduce) { html body .ct-app .lf.bp button, html body .ct-app .lf.bp input, html body .ct-app .lf.bp textarea { transition: none; } }

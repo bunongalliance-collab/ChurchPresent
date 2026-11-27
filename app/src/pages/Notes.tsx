@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
-import { supabase } from "../lib/supabase";
+import { selectAll, supabase } from "../lib/supabase";
+import { withoutSheet } from "../reader/lyrics";
 
 // Where the app is opened from: visits by signed-in users (recorded by lib/visits.ts and api/visit.js).
 // Only admin accounts can read them; for anyone else the list comes back empty.
@@ -52,6 +53,61 @@ function VisitsSection() {
                   <td>{v.device || "—"}</td>
                   <td className="mono">{v.ip || "—"}</td>
                   <td>{place(v)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// Songs the Nau Mpro reader shows without a music sheet, read live from the song library
+function NoSheetSection() {
+  const [result, setResult] = useState<{ total: number; missing: { song: { id: string; number: string; title: string }; why: string }[] } | null>(null);
+  const [state, setState] = useState<"loading" | "error" | "ready" | "no-supabase">(supabase ? "loading" : "no-supabase");
+  const [error, setError] = useState("");
+
+  async function load() {
+    const sb = supabase;
+    if (!sb) return;
+    setState("loading");
+    const { data, error: err } = await selectAll((from, to) => sb.from("lyric_songs")
+      .select("id, title, song_number, lyrics, updated_at, score_path, score_images").order("id").range(from, to));
+    if (err) { setError(err.message); setState("error"); return; }
+    setResult(withoutSheet((data ?? []).map((r) => ({
+      id: String(r.id), number: r.song_number ?? "", title: r.title ?? "", lyrics: r.lyrics ?? "", updated: r.updated_at ?? "",
+      scorePath: r.score_path ?? "", scoreImages: Array.isArray(r.score_images) ? r.score_images : [],
+    }))));
+    setState("ready");
+  }
+  useEffect(() => { void load(); }, []);
+
+  return (
+    <section className="visits" aria-labelledby="nosheet-h">
+      <div className="visits-head">
+        <h2 id="nosheet-h">Songs without a music sheet{state === "ready" && result ? ` (${result.missing.length})` : ""}</h2>
+        {supabase && <button className="secondary small" onClick={() => void load()} disabled={state === "loading"}>Refresh</button>}
+      </div>
+      <p className="sub">
+        {state === "ready" && result ? `As the Nau Mpro app shows them: ${result.total - result.missing.length} of ${result.total} songs have a sheet. ` : "As the Nau Mpro app shows them. "}
+        Press a title to open the song on the Lyric page.
+      </p>
+      {state === "no-supabase" && <p className="empty">Needs the Supabase settings.</p>}
+      {state === "loading" && <p className="empty">Loading…</p>}
+      {state === "error" && <p className="empty">Could not load the songs: {error}. Check the connection and press Refresh.</p>}
+      {state === "ready" && result && !result.missing.length && <p className="empty">Every song has a music sheet.</p>}
+      {state === "ready" && result && result.missing.length > 0 && (
+        <div className="visits-scroll">
+          <table className="visits-table nosheet-table">
+            <thead><tr><th>No.</th><th>Song</th><th>Why</th></tr></thead>
+            <tbody>
+              {result.missing.map(({ song, why }) => (
+                <tr key={song.id}>
+                  <td>{song.number || "—"}</td>
+                  <td><a href={`#lyrics:${encodeURIComponent(song.id)}`}>{song.title || "(untitled)"}</a></td>
+                  <td>{why}</td>
                 </tr>
               ))}
             </tbody>
@@ -242,6 +298,7 @@ export default function Notes() {
             </section>
           ) : <p className="empty">Choose a note, or press New note.</p>}
         </div>
+        <NoSheetSection />
         <InstallsSection />
         <VisitsSection />
       </div>

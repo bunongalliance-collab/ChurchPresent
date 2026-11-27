@@ -1795,6 +1795,17 @@ textarea.th-field { resize: vertical; }
 .installs-count { margin: 0 0 12px; font-size: 0.95rem; }
 .installs-count strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
 .visits-table .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.nosheet-table td { white-space: normal; vertical-align: top; }
+.nosheet-table a { color: var(--accent); }
+.nosheet-table a:hover { text-decoration-thickness: 2px; }
+.nosheet-table td:first-child { width: 4em; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .nosheet-table thead { display: none; }
+  .nosheet-table tr { display: grid; grid-template-columns: 3.5em 1fr; border-bottom: 1px solid var(--line); }
+  .nosheet-table tr:last-child { border-bottom: 0; }
+  .nosheet-table td { border: 0; padding: 4px 10px; }
+  .nosheet-table td:last-child { grid-column: 2; color: var(--muted); }
+}
 
 /* Navbar on laptops and tablets: when the links don't fit on one line, they wrap to a second line
    instead of running off the page (phones use the menu button, at 700px and below) */

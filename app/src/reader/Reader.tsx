@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type TouchEvent } from "react";
 import type { ReaderSong } from "../lib/offlineCache";
 import { bySongNumber, loadSavedSongs, loadSongs, scoreUrl, type LoadResult } from "./data";
-import { fold, toSections } from "./lyrics";
+import { fold, isUnavailable, onePerSong, songKey, toSections } from "./lyrics";
 import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
 import { PULL_THRESHOLD, usePullToRefresh } from "./usePullToRefresh";
 import { inAppBrowser, isStandalone } from "./install";
@@ -18,6 +18,9 @@ const SIZE_KEY = "readerTextSize";
 const THEME_KEY = "readerTheme";
 const MIN_SIZE = 15, MAX_SIZE = 32;
 const MIN_ZOOM = 0.6, MAX_ZOOM = 2.5;
+const CHIP_LIMIT = 6;   // categories shown before "More"
+// A song's scan images (none for a missing page: the scan filed under it belongs to another song)
+const sheetUrls = (s: ReaderSong) => isUnavailable(s) ? [] : (s.scoreImages ?? []).map(scoreUrl).filter(Boolean);
 
 const readNum = (k: string, d: number) => { try { const v = parseInt(localStorage.getItem(k) || "", 10); return Number.isNaN(v) ? d : v; } catch { return d; } };
 const write = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } };
@@ -33,6 +36,7 @@ export default function Reader() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [lang, setLang] = useState("");
+  const [allCats, setAllCats] = useState(false);
   const [selId, setSelId] = useState<string | null>(idFromHash);
   const [size, setSize] = useState(() => Math.min(MAX_SIZE, Math.max(MIN_SIZE, readNum(SIZE_KEY, 19))));
   const [dark, setDark] = useState(() => document.documentElement.getAttribute("data-theme") === "dark");
@@ -66,16 +70,15 @@ export default function Reader() {
   }, [dark]);
 
   // The library can hold copies of one song (a team member saving someone else's song makes a copy).
-  // Show each number and title once, keeping the most recently updated copy.
-  const all = useMemo(() => {
-    const best = new Map<string, ReaderSong>();
-    for (const s of load?.songs ?? []) {
-      const key = `${s.number.trim()}|${fold(s.title)}`;
-      const had = best.get(key);
-      if (!had || s.updated > had.updated) best.set(key, s);
-    }
-    return [...best.values()].sort(bySongNumber);
-  }, [load]);
+  // Show each number and title once: the copy with the music sheet, else the most recently updated.
+  const all = useMemo(() => onePerSong(load?.songs ?? []).sort(bySongNumber), [load]);
+  // A link or an open song can point at a copy that is not the one shown: move to the shown one
+  useEffect(() => {
+    if (!selId || all.some((s) => s.id === selId)) return;
+    const copy = load?.songs.find((s) => s.id === selId);
+    const kept = copy && all.find((s) => songKey(s) === songKey(copy));
+    if (kept) setSelId(kept.id);
+  }, [all, load, selId]);
   // Today's service: the order of worship the team published from the Program, with its songs
   const [service, setService] = useState<PublishedService | null>(null);
   // Whose service: the church chosen once on this phone (no sign-in). With only one church it is chosen for them.
@@ -133,10 +136,13 @@ export default function Reader() {
   const noteTimer = useRef(0);
   const { pull, state: pullState } = usePullToRefresh(sideRef, async () => {
     const ok = await reload();
-    window.clearTimeout(noteTimer.current);
-    setNote(ok ? "Updated" : "Offline. Showing the saved copy.");
-    noteTimer.current = window.setTimeout(() => setNote(""), 1800);
+    setNoteBriefly(ok ? "Updated" : "Offline. Showing the saved copy.");
   });
+  function setNoteBriefly(text: string) {
+    window.clearTimeout(noteTimer.current);
+    setNote(text);
+    noteTimer.current = window.setTimeout(() => setNote(""), 1800);
+  }
   // The church question starts at the top of the list, even if it was scrolled down to "Change church"
   useEffect(() => { if (showAsk) sideRef.current?.scrollTo({ top: 0 }); }, [showAsk]);
   // Only what the congregation follows along with: songs, choirs, readings and scripture that are filled in
@@ -150,12 +156,15 @@ export default function Reader() {
     if (sub.kind !== "song") return null;
     if (sub.songId) {
       const byId = (load?.songs ?? []).find((x) => x.id === sub.songId);
-      if (byId) return all.find((x) => x.number.trim() === byId.number.trim() && fold(x.title) === fold(byId.title)) ?? byId;
+      if (byId) return all.find((x) => songKey(x) === songKey(byId)) ?? byId;
     }
     const m = sub.text.match(/^\s*(\d+)\s*[.)-]?\s*(.*)$/);
     if (m) return all.find((x) => x.number.trim() === m[1] && (!m[2] || fold(x.title) === fold(m[2]))) ?? all.find((x) => x.number.trim() === m[1]) ?? null;
     return all.find((x) => fold(x.title) === fold(sub.text)) ?? null;
   };
+
+  // The first song of Today's service that can be opened, for the welcome view
+  const firstToday = todayItems.flatMap((it) => it.subs.map(songFor)).find((x) => x && !isUnavailable(x)) ?? null;
 
   const categories = useMemo(() => [...new Set(all.map((s) => s.category).filter(Boolean))], [all]);
   const languages = useMemo(() => [...new Set(all.map((s) => s.language).filter(Boolean))], [all]);
@@ -188,12 +197,18 @@ export default function Reader() {
   const at = song ? order.findIndex((s) => s.id === song.id) : -1;
   const prev = at > 0 ? order[at - 1] : null;
   const next = at >= 0 && at < order.length - 1 ? order[at + 1] : null;
-  const images = (song?.scoreImages ?? []).map(scoreUrl).filter(Boolean);
-  const pdf = song?.scorePath ? scoreUrl(song.scorePath) : "";
+  const missing = !!song && isUnavailable(song);
+  const passage = !!song && song.id.startsWith("today-");   // a reading or scripture from Today's service
+  const images = song ? sheetUrls(song) : [];
+  const pdf = song?.scorePath && !missing ? scoreUrl(song.scorePath) : "";
+  const hasSheet = images.length > 0 || !!pdf;
+  // Without a sheet the lyrics take the whole space. Play mode keeps its screen, so swiping on stays in it.
+  const noSheet = !!song && !hasSheet && !playing;
   const music = song?.music;
 
-  // Every score link in the hymn book, for "Save all scores"
-  const allScores = useMemo(() => [...new Set(all.flatMap((s) => s.scoreImages ?? []).map(scoreUrl).filter(Boolean))], [all]);
+  // Every score link in the hymn book, for "Save all music sheets"
+  const allScores = useMemo(() => [...new Set(all.flatMap(sheetUrls))], [all]);
+  const sheetSongs = useMemo(() => all.filter((s) => sheetUrls(s).length).length, [all]);
   const [scoresSaved, setScoresSaved] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveNote, setSaveNote] = useState("");
@@ -213,9 +228,40 @@ export default function Reader() {
     else setSaveNote(failed ? `${failed} could not be saved. Check the connection and tap again.` : "All music sheets are saved on this device.");
   }
 
+  // Is the open song's sheet on this device? Checked again after saving, and after its images load.
+  const [sheetSaved, setSheetSaved] = useState<{ key: string; all: boolean } | null>(null);
+  const [checks, setChecks] = useState(0);
+  const [brokenSheet, setBrokenSheet] = useState("");   // the song whose sheet failed to load
+  const sheetKey = images.join("|");
+  useEffect(() => {
+    if (!sheetKey) return;
+    let live = true;
+    const urls = sheetKey.split("|");
+    const check = () => countSaved(urls).then((n) => { if (live) setSheetSaved({ key: sheetKey, all: n === urls.length }); });
+    check();
+    const t = window.setTimeout(check, 1500);   // the app's offline cache stores an image just after it shows
+    return () => { live = false; window.clearTimeout(t); };
+  }, [sheetKey, scoresSaved, checks]);
+  const thisSaved = sheetSaved?.key === sheetKey ? sheetSaved.all : null;
+  const [savingOne, setSavingOne] = useState("");
+  async function saveThis() {
+    setSavingOne(sheetKey);
+    await keepStorage();
+    const failed = await saveAll(images, () => {}, new AbortController().signal);
+    setSavingOne("");
+    setChecks((n) => n + 1);
+    countSaved(allScores).then(setScoresSaved);
+    setNoteBriefly(failed ? "Could not save. Check the connection." : "Music sheet saved");
+  }
+  const lyricsStored = passage || load?.source === "saved" || load?.stored !== false;
+  const canSave = typeof caches !== "undefined";
+  const saveThisButton = canSave && thisSaved === false && (
+    <button className="nm-save-one" onClick={saveThis} disabled={!!savingOne}>{savingOne === sheetKey ? "Saving…" : "Save this sheet"}</button>
+  );
+
   // The next and previous songs' scores load in the background, so swiping shows them at once
   useEffect(() => {
-    const urls = [next, prev].flatMap((s) => s?.scoreImages ?? []).map(scoreUrl).filter(Boolean);
+    const urls = [next, prev].flatMap((s) => s ? sheetUrls(s) : []);
     if (!urls.length) return;
     const t = window.setTimeout(() => prefetch(urls), 600);
     return () => window.clearTimeout(t);
@@ -239,6 +285,7 @@ export default function Reader() {
   }
   function togglePlay() {
     if (playing) { setPlaying(false); setZoom(1); return; }
+    if (!hasSheet) return;
     setPlaying(true);
     setTab("score");
     setDrawer(false);
@@ -283,15 +330,15 @@ export default function Reader() {
     if (!load) return "Loading songs…";
     const n = `${all.length} song${all.length === 1 ? "" : "s"}`;
     const when = load.savedAt ? new Date(load.savedAt).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "";
-    if (load.source === "online") return `Saved for offline · ${n}`;
-    if (load.source === "saved") return load.error ? `No connection · showing the copy saved ${when ? "on " + when : "earlier"} · ${n}` : `Saved for offline · ${n}`;
+    if (load.source === "online") return load.stored === false ? `Lyrics could not be saved on this device · ${n}` : `Lyrics saved for offline · ${n}`;
+    if (load.source === "saved") return load.error ? `No connection · showing the lyrics saved ${when ? "on " + when : "earlier"} · ${n}` : `Lyrics saved for offline · ${n}`;
     return load.error ? "Could not load songs. Connect to the internet once to save the hymn book on this device." : "No songs yet.";
   })();
 
-  const cls = ["nm", song ? "reading" : "", playing ? "playing" : "", drawer ? "drawer" : ""].filter(Boolean).join(" ");
+  const cls = ["nm", song ? "reading" : "", noSheet ? "nosheet" : "", playing ? "playing" : "", drawer ? "drawer" : ""].filter(Boolean).join(" ");
 
   return (
-    <div className={cls} data-tab={tab}>
+    <div className={cls} data-tab={noSheet ? "lyrics" : tab}>
       <header className="nm-bar">
         {song && <button className="nm-songs-btn" onClick={() => setDrawer((d) => !d)} aria-expanded={drawer} aria-controls="nm-side">Songs</button>}
         {song && <button className="nm-back" onClick={close} aria-label="Back to songs">‹</button>}
@@ -316,13 +363,15 @@ export default function Reader() {
             <button className="nm-step" onClick={() => prev && open(prev)} disabled={!prev} aria-label={prev ? `Previous song: ${prev.number} ${prev.title}` : "No previous song"} title="Previous song">‹</button>
             <button className="nm-step" onClick={() => next && open(next)} disabled={!next} aria-label={next ? `Next song: ${next.number} ${next.title}` : "No next song"} title="Next song">›</button>
           </div>
-          <button className="nm-play" onClick={togglePlay} aria-pressed={playing} aria-label="Play" title={playing ? "Leave play mode" : "Play: music sheet fills the screen"}>
-            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg><span>{playing ? "Playing" : "Play"}</span>
-          </button>
+          {!noSheet && (
+            <button className="nm-play" onClick={togglePlay} aria-pressed={playing} aria-label="Play" title={playing ? "Leave play mode" : "Play: music sheet fills the screen"}>
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg><span>{playing ? "Playing" : "Play"}</span>
+            </button>
+          )}
         </div>
       )}
 
-      {song && (
+      {song && !noSheet && (
         <div className="nm-tabs" role="tablist" aria-label="View">
           <button role="tab" aria-selected={tab === "lyrics"} aria-controls="nm-lyrics" onClick={() => setTab("lyrics")}>Lyrics</button>
           <button role="tab" aria-selected={tab === "score"} aria-controls="nm-score" onClick={() => setTab("score")}>Music Sheet</button>
@@ -357,7 +406,12 @@ export default function Reader() {
           {categories.length > 1 && (
             <div className="nm-chips" role="group" aria-label="Category">
               <button className={`nm-chip${!cat ? " on" : ""}`} aria-pressed={!cat} onClick={() => setCat("")}>All</button>
-              {categories.map((c) => <button key={c} className={`nm-chip${cat === c ? " on" : ""}`} aria-pressed={cat === c} onClick={() => setCat(cat === c ? "" : c)}>{c}</button>)}
+              {categories.filter((c, i) => allCats || i < CHIP_LIMIT || c === cat).map((c) => <button key={c} className={`nm-chip${cat === c ? " on" : ""}`} aria-pressed={cat === c} onClick={() => setCat(cat === c ? "" : c)}>{c}</button>)}
+              {categories.length > CHIP_LIMIT && (
+                <button className="nm-chip-more" aria-expanded={allCats} onClick={() => setAllCats((v) => !v)}>
+                  {allCats ? "Fewer categories" : `More categories (${categories.filter((c, i) => i >= CHIP_LIMIT && c !== cat).length})`}
+                </button>
+              )}
             </div>
           )}
           {languages.length > 1 && (
@@ -394,7 +448,7 @@ export default function Reader() {
                       return sg ? (
                         <button key={k} className={`nm-row nm-today-song${sg.id === selId ? " sel" : ""}`} onClick={() => open(sg)} aria-current={sg.id === selId ? "true" : undefined}>
                           <span className="nm-num">{sg.number}</span>
-                          <span className="nm-rt">{sg.title || "Untitled"}</span>
+                          <span className="nm-rt">{sg.title || "Untitled"}{isUnavailable(sg) && <span className="nm-na">Not available</span>}</span>
                         </button>
                       ) : <span key={k} className="nm-today-sub">{sub.text}</span>;
                     })}
@@ -407,12 +461,13 @@ export default function Reader() {
           {allScores.length > 0 && typeof caches !== "undefined" && (
             <div className="nm-offline">
               <span className="nm-offline-text" role="status">
-                {scoresSaved >= allScores.length ? `All ${allScores.length} music sheets saved for offline` : `Music sheets saved for offline: ${scoresSaved} of ${allScores.length}`}
+                {scoresSaved >= allScores.length ? `All ${allScores.length} music sheet pages saved for offline` : `Music sheet pages saved for offline: ${scoresSaved} of ${allScores.length}`}
+                {scoresSaved < allScores.length && <small>{`Saving downloads the sheet pictures for the ${sheetSongs} song${sheetSongs === 1 ? " that has" : "s that have"} one, about ${Math.max(1, Math.round((allScores.length - scoresSaved) * 0.15))} MB. Other songs have lyrics only.`}</small>}
                 {saveNote && <small>{saveNote}</small>}
               </span>
               {scoresSaved < allScores.length && (
                 <button className="nm-offline-btn" onClick={saveScores} aria-pressed={saving}>
-                  {saving ? "Pause" : scoresSaved ? "Save the rest" : `Save all music sheets (about ${Math.max(1, Math.round((allScores.length - scoresSaved) * 0.15))} MB)`}
+                  {saving ? "Pause" : scoresSaved ? "Save the rest" : "Save all music sheets"}
                 </button>
               )}
               {saving && <progress max={allScores.length} value={scoresSaved} aria-label="Music sheets saved" />}
@@ -423,7 +478,7 @@ export default function Reader() {
               <li key={s.id}>
                 <button className={`nm-row${s.id === selId ? " sel" : ""}`} onClick={() => open(s)} aria-current={s.id === selId ? "true" : undefined}>
                   <span className="nm-num">{s.number}</span>
-                  <span className="nm-rt">{s.title || "Untitled"}</span>
+                  <span className="nm-rt">{s.title || "Untitled"}{isUnavailable(s) && <span className="nm-na">Not available</span>}</span>
                 </button>
               </li>
             ))}
@@ -438,7 +493,17 @@ export default function Reader() {
         </aside>
 
         <main className="nm-lyrics" id="nm-lyrics" ref={lyricsRef} aria-label="Lyrics" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          {song ? (
+          {song && missing ? (
+            <section className="nm-missing" aria-labelledby="nm-missing-h">
+              <h2 id="nm-missing-h">Song {song.number} is not available</h2>
+              <p>Its page is missing from the scanned hymn book, so the words and music sheet are not here.</p>
+              <p>Look up number {song.number} in a printed Nau Mpro book, or ask the person leading the singing.</p>
+              <div className="nm-actions">
+                <button className="nm-go" onClick={close}>Back to the song list</button>
+                {next && <button className="nm-alt" onClick={() => open(next)}>Next song</button>}
+              </div>
+            </section>
+          ) : song ? (
             <article className="nm-song" style={{ fontSize: `${size}px` }}>
               <div className="nm-facts">
                 {refLine && <span>{refLine}</span>}
@@ -450,6 +515,15 @@ export default function Reader() {
                   <button onClick={() => setSize((v) => Math.min(MAX_SIZE, v + 2))} disabled={size >= MAX_SIZE} aria-label="Bigger text" title="Bigger text">A+</button>
                 </span>
               </div>
+              <p className="nm-avail">
+                <span>{lyricsStored ? "Lyrics saved for offline" : "Lyrics need a connection next time"}</span>
+                {!passage && <span>{!hasSheet ? "No music sheet for this song"
+                  : !images.length ? "Music sheet (PDF) may need a connection"
+                  : !canSave ? "This browser can’t save the music sheet"
+                  : thisSaved === null ? "Checking the music sheet…"
+                  : thisSaved ? "Music sheet saved for offline" : "Music sheet not saved for offline"}</span>}
+                {saveThisButton}
+              </p>
               {!!music?.chords.length && (
                 <div className="nm-chords" aria-label="Chords printed in this hymn">{music.chords.map((c, i) => <span key={i}>{c}</span>)}</div>
               )}
@@ -461,16 +535,27 @@ export default function Reader() {
               )) : <p className="nm-empty">This song has no words yet.</p>}
             </article>
           ) : (
-            <p className="nm-pick">Choose a song from the list.</p>
+            <section className="nm-welcome" aria-labelledby="nm-welcome-h">
+              <h1 id="nm-welcome-h">Choose a song</h1>
+              <ul>
+                <li><b>Find it</b> by typing a number, a title or a line of the words in the search box.</li>
+                <li><b>Browse</b> the list, or narrow it with the category and language buttons.</li>
+                <li><b>Before church</b>, lyrics are saved for offline after they load. To have music sheets without a connection too, use “Save all music sheets” above the list.</li>
+              </ul>
+              {firstToday && <button className="nm-go" onClick={() => open(firstToday)}>Start Today’s service: {firstToday.number} {firstToday.title}</button>}
+            </section>
           )}
         </main>
 
         <section className="nm-score" id="nm-score" ref={scoreRef} aria-label="Music sheet" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {song && (images.length ? (
             <div className="nm-score-inner" style={{ width: `${zoom * 100}%` }}>
+              {!playing && thisSaved === false && <p className="nm-avail"><span>Music sheet not saved for offline</span>{saveThisButton}</p>}
+              {brokenSheet === sheetKey && <p className="nm-empty" role="alert">The music sheet could not load. It is not saved on this device yet: connect to the internet and open this song again.</p>}
               {images.map((src, i) => (
                 <figure key={src}>
-                  <img src={src} alt={`Music sheet for hymn ${song.number}, part ${i + 1} of ${images.length}`} loading={i ? "lazy" : "eager"} />
+                  <img src={src} alt={`Music sheet for hymn ${song.number}, part ${i + 1} of ${images.length}`} loading={i ? "lazy" : "eager"}
+                    onLoad={() => { setBrokenSheet(""); setChecks((n) => n + 1); }} onError={() => setBrokenSheet(sheetKey)} />
                   {images.length > 1 && <figcaption>Part {i + 1} of {images.length}</figcaption>}
                 </figure>
               ))}
@@ -478,7 +563,7 @@ export default function Reader() {
           ) : pdf ? (
             <p className="nm-empty"><a href={pdf} target="_blank" rel="noopener">Open the music sheet (PDF)</a></p>
           ) : (
-            <p className="nm-empty">No music sheet for this song.</p>
+            <p className="nm-empty">{missing ? "This song is not available." : "No music sheet for this song."}</p>
           ))}
         </section>
       </div>

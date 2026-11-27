@@ -54,7 +54,7 @@ test('the Nau Mpro reader opens offline with saved songs', async ({ page, contex
   await page.reload();
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 30000 });
   await expect(page.locator('.nm-list .nm-row').first()).toBeVisible({ timeout: 20000 });
-  await expect(page.locator('.nm-saved')).toContainText('Saved for offline');
+  await expect(page.locator('.nm-saved')).toContainText('Lyrics saved for offline');
   await context.setOffline(true);
   await page.goto('/nau-mpro/', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveTitle('Nau Mpro');

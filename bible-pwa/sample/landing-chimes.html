@@ -1,0 +1,227 @@
+<title>Church Tools Landing</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: linen ground, one centred church roof with a curtain of falling Bunong letters under it; headline bottom-left, note bottom-right, app cards on the sides. */
+:root{
+  --linen:#e9e2d3; --thread:rgba(80,60,30,.07); --ink:#2b2420; --muted:#6d6155;
+  --burgundy:#7a1f2b; --roof:#8e2a35; --roof-dark:#5e1720; --wall:#f3ede1; --gold:#b8862f;
+  --glyph:rgba(43,36,32,.78); --card:#f4efe4; --shadow:rgba(60,40,20,.18);
+  --ray:rgba(255,236,190,.95); --sunglow:rgba(255,226,160,.9);
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --linen:#1f1b18; --thread:rgba(255,240,220,.04); --ink:#eee6d8; --muted:#a99c8c;
+  --burgundy:#d77a86; --roof:#9a3442; --roof-dark:#6a1f2a; --wall:#d9cfbe; --gold:#d3a24c;
+  --glyph:rgba(238,230,216,.75); --card:#2a2521; --shadow:rgba(0,0,0,.5);
+  --ray:rgba(255,215,140,.35); --sunglow:rgba(255,200,120,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --linen:#1f1b18; --thread:rgba(255,240,220,.04); --ink:#eee6d8; --muted:#a99c8c;
+  --burgundy:#d77a86; --roof:#9a3442; --roof-dark:#6a1f2a; --wall:#d9cfbe; --gold:#d3a24c;
+  --glyph:rgba(238,230,216,.75); --card:#2a2521; --shadow:rgba(0,0,0,.5);
+  --ray:rgba(255,215,140,.35); --sunglow:rgba(255,200,120,.3); color-scheme:dark}
+body{background:var(--linen);color:var(--ink);font-family:var(--mono);
+  background-image:repeating-linear-gradient(0deg,var(--thread) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,var(--thread) 0 1px,transparent 1px 3px);}
+.sun{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;mix-blend-mode:soft-light}
+.sun::before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 8% 0%,var(--sunglow) 0%,transparent 55%)}
+.sun i{position:absolute;top:-30%;height:170%;transform-origin:top left;transform:rotate(-28deg);
+  background:linear-gradient(180deg,var(--ray) 0%,transparent 75%);filter:blur(14px);animation:shimmer 9s ease-in-out infinite alternate}
+.sun i:nth-child(1){left:2%;width:90px}
+.sun i:nth-child(2){left:14%;width:40px;animation-delay:-3s}
+.sun i:nth-child(3){left:24%;width:140px;animation-delay:-6s}
+.sun i:nth-child(4){left:40%;width:60px;animation-delay:-2s}
+.sun i:nth-child(5){left:52%;width:110px;animation-delay:-5s}
+@keyframes shimmer{from{opacity:.55}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sun i{animation:none}}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px}
+nav{display:flex;align-items:center;gap:24px;font-size:12px}
+nav .brand{font-family:var(--display);font-weight:600;font-size:15px;margin-right:12px}
+nav a{color:var(--ink);text-decoration:none;opacity:.8}
+nav a:hover,nav a:focus-visible{opacity:1;text-decoration:underline;outline:none}
+nav a[aria-current]{opacity:1;border-bottom:1px solid var(--ink)}
+.signin{margin-left:auto;background:var(--ink);color:var(--linen);border:0;padding:8px 22px;font:500 12px var(--mono);cursor:pointer}
+.signin:hover{background:var(--burgundy)}
+.stage{position:relative;display:grid;grid-template-columns:1fr minmax(0,560px) 1fr;gap:16px;margin-top:28px}
+.roof{grid-column:2;width:100%;display:block;filter:drop-shadow(0 18px 18px var(--shadow))}
+canvas{grid-column:2;width:72%;justify-self:center;height:520px;margin-top:-6px;display:block}
+.side{align-self:start;margin-top:150px;display:flex;flex-direction:column;gap:6px;width:max-content;text-decoration:none;color:var(--ink);font-size:11px}
+.side.l{grid-column:1;grid-row:1;justify-self:start}
+.side.r{grid-column:3;grid-row:1;justify-self:end;text-align:right}
+.side .tile{background:var(--card);border:1px solid var(--muted);padding:10px 14px;font-family:var(--display);font-size:15px;box-shadow:0 4px 10px var(--shadow);transition:transform .2s}
+.side:hover .tile,.side:focus-visible .tile{transform:translateY(-3px);border-color:var(--burgundy)}
+.copy{position:absolute;left:0;bottom:30px;max-width:360px}
+.kicker{font-size:12px;color:var(--muted);margin:0 0 18px;max-width:200px;line-height:1.5}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,4vw,52px);line-height:1.02;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--burgundy)}
+.note{position:absolute;right:0;bottom:40px;max-width:230px;font-size:12px;line-height:1.6}
+.note b{display:block;margin-top:10px;font-weight:500;text-decoration:underline;cursor:pointer}
+section{margin-top:110px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(26px,3vw,36px);line-height:1.1;margin:0 0 28px;text-wrap:balance;max-width:640px}
+.apps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.app{background:var(--card);border:1px solid var(--thread);padding:24px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.app h3{font-family:var(--display);font-weight:600;font-size:22px;margin:0}
+.app p{margin:0;font-size:12.5px;line-height:1.65;color:var(--muted);flex:1}
+.app a{align-self:flex-start;color:var(--burgundy);font-weight:500;font-size:12px;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}
+.app a:hover,.app a:focus-visible{color:var(--ink);outline:none}
+.app .mark{width:34px;height:3px;background:var(--burgundy)}
+.sunday{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:40px;align-items:start}
+.date{font-family:var(--display);font-size:64px;line-height:1;margin:0}
+.date small{display:block;font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:10px}
+.sample{display:inline-block;margin-top:14px;font-size:10.5px;border:1px dashed var(--muted);padding:3px 8px;color:var(--muted)}
+.order{list-style:none;margin:0;padding:0;border-top:1px solid var(--muted)}
+.order li{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;padding:12px 0;border-bottom:1px solid var(--thread);font-size:13px;align-items:baseline}
+.order .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.order .w{font-family:var(--display);font-size:16px}
+.order .k{color:var(--burgundy);font-size:11px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;counter-reset:s}
+.steps li{counter-increment:s;border-top:2px solid var(--ink);padding-top:14px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.steps li::before{content:counter(s);display:block;font-family:var(--display);font-size:34px;color:var(--burgundy);line-height:1;margin-bottom:10px}
+.steps b{display:block;color:var(--ink);font-weight:500;font-size:13.5px;margin-bottom:4px}
+.team{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:40px;align-items:center}
+.team ul{margin:0;padding:0;list-style:none;display:grid;gap:12px;font-size:13px;line-height:1.6}
+.team li::before{content:"✝";color:var(--gold);margin-right:10px}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.btn{font:500 12px var(--mono);padding:10px 20px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.btn.dark{background:var(--ink);color:var(--linen)}
+.btn:hover,.btn:focus-visible{background:var(--burgundy);border-color:var(--burgundy);color:var(--linen);outline:none}
+.verse{text-align:center;padding-block:40px}
+.verse blockquote{font-family:var(--display);font-size:clamp(26px,3.4vw,42px);line-height:1.25;margin:0 auto;max-width:820px;text-wrap:balance}
+.verse cite{display:block;margin-top:18px;font-style:normal;font-size:12px;color:var(--muted)}
+footer{margin-top:110px;border-top:1px solid var(--muted);padding-top:24px;display:flex;flex-wrap:wrap;gap:24px 40px;font-size:12px;align-items:baseline}
+footer .brand{font-family:var(--display);font-size:16px;font-weight:600}
+footer a{color:var(--ink);text-decoration:none;opacity:.8}
+footer a:hover{opacity:1;text-decoration:underline}
+footer .end{margin-left:auto;color:var(--muted)}
+@media (max-width:820px){
+  section{margin-top:70px}
+  .apps,.sunday,.team{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  footer .end{margin-left:0}
+  nav a:not(.brand){display:none}
+  .stage{grid-template-columns:1fr}
+  .roof,canvas{grid-column:1}
+  canvas{height:300px}
+  .side{display:none}
+  .copy,.note{position:static;max-width:none;margin-top:20px}
+}
+@media (prefers-reduced-motion:reduce){.side .tile{transition:none}}
+</style>
+
+<div class="sun" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wrap">
+  <nav>
+    <span class="brand">Church Tools</span>
+    <a href="#" aria-current="page">Home</a>
+    <a href="#">Lyrics</a>
+    <a href="#">Service Slides</a>
+    <a href="#">Program</a>
+    <button class="signin" type="button">Sign in</button>
+  </nav>
+
+  <div class="stage">
+    <a class="side l" href="#"><span class="tile">Nau Mpro</span>Hymns ↗</a>
+    <a class="side r" href="#"><span class="tile">Nau Brah Ndu Ngơi</span>Bible ↗</a>
+
+    <svg class="roof" viewBox="0 0 560 300" aria-label="Church roof">
+      <rect x="276" y="30" width="8" height="66" fill="var(--gold)"/>
+      <rect x="262" y="46" width="36" height="7" fill="var(--gold)"/>
+      <polygon points="280,96 60,250 500,250" fill="var(--roof)" opacity=".55"/>
+      <polygon points="280,96 280,250 500,250" fill="var(--roof-dark)" opacity=".18"/>
+      <polyline points="56,252 280,94 504,252" fill="none" stroke="var(--roof-dark)" stroke-width="2" opacity=".5"/>
+      <rect x="160" y="252" width="240" height="48" fill="var(--wall)" opacity=".7"/>
+      <path d="M266 300v-14a14 14 0 0 1 28 0v14z" fill="var(--roof-dark)" opacity=".35"/>
+    </svg>
+    <canvas id="rain" aria-hidden="true"></canvas>
+
+    <div class="copy">
+      <p class="kicker">Montagnard Bunong Alliance Church · Sunday service</p>
+      <h1>Hymns, readings and slides for <em>every Sunday</em>, ready before the first song</h1>
+    </div>
+    <p class="note">Build the program, put the lyrics on the projector and share the service with the whole church.<b>Open Lyrics</b></p>
+  </div>
+
+  <section>
+    <p class="eyebrow">Three apps</p>
+    <h2>One for singing, one for reading, one for the team</h2>
+    <div class="apps">
+      <div class="app"><span class="mark"></span><h3>Nau Mpro</h3><p>The hymn book and this Sunday's service on your phone. No account needed. Pick your church once.</p><a href="#">Open Nau Mpro ↗</a></div>
+      <div class="app"><span class="mark"></span><h3>Nau Brah Ndu Ngơi</h3><p>The Bunong Bible. Books you open are saved for reading offline. Highlights and notes back up when you sign in.</p><a href="#">Open the Bible ↗</a></div>
+      <div class="app"><span class="mark"></span><h3>Church Tools</h3><p>For the worship team: the program, lyric slides, readings, scripture slides and the projector.</p><a href="#">Open Church Tools</a></div>
+    </div>
+  </section>
+
+  <section class="sunday">
+    <div>
+      <p class="eyebrow">This Sunday</p>
+      <p class="date">Nov 29<small>Sunday service · 10:30 AM</small></p>
+      <span class="sample">Example program</span>
+    </div>
+    <ol class="order">
+      <li><span class="t">10:30</span><span class="w">Welcome and prayer</span><span class="k"></span></li>
+      <li><span class="t">10:35</span><span class="w">Opening hymn</span><span class="k">Nau Mpro</span></li>
+      <li><span class="t">10:45</span><span class="w">Scripture reading</span><span class="k">Reading</span></li>
+      <li><span class="t">10:55</span><span class="w">Message</span><span class="k">Scripture</span></li>
+      <li><span class="t">11:35</span><span class="w">Closing hymn and blessing</span><span class="k">Nau Mpro</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <p class="eyebrow">How a Sunday comes together</p>
+    <h2>From program to projector</h2>
+    <ol class="steps">
+      <li><b>Plan the program</b>Fill in the Order of Worship. It saves for the whole team as you type.</li>
+      <li><b>Choose songs and readings</b>Pick from the hymn book and your church's readings.</li>
+      <li><b>Slides build themselves</b>Service Slides turns the program into a full deck.</li>
+      <li><b>Present</b>Open the projector view and step through the service.</li>
+    </ol>
+  </section>
+
+  <section class="team">
+    <div>
+      <p class="eyebrow">For your team</p>
+      <h2>Your church's work stays with your church</h2>
+      <div class="btns"><button class="btn dark" type="button">Start a church</button><button class="btn" type="button">Join with a code</button></div>
+    </div>
+    <ul>
+      <li>Admins and editors for each church</li>
+      <li>Join codes and invites for new members</li>
+      <li>A bell when a program is published or a song changes</li>
+      <li>Keep a presentation to yourself with Only me</li>
+    </ul>
+  </section>
+
+  <section class="verse">
+    <p class="eyebrow">Verse of the week</p>
+    <blockquote>Your word is a lamp to my feet and a light to my path.</blockquote>
+    <cite>Psalm 119:105 · the Bunong text will come from Nau Brah Ndu Ngơi</cite>
+  </section>
+
+  <footer>
+    <span class="brand">Church Tools</span>
+    <span>Montagnard Bunong Alliance Church</span>
+    <a href="#">Nau Mpro</a><a href="#">Nau Brah Ndu Ngơi</a><a href="#">Sign in</a>
+    <span class="end">Light / Dark</span>
+  </footer>
+</div>
+
+<script>
+const c=document.getElementById('rain'),x=c.getContext('2d');
+const chars="NAU MPRO BRAH NDU NGƠI ơ ư ă â ê ô đ Ơ Ư Ă Ê Ô Đ á à ả ã ạ ớ ờ ở ỡ ợ".replace(/ /g,'').split('');
+let W,H,cols,drops,size=13;
+function fit(){const r=c.getBoundingClientRect(),d=devicePixelRatio||1;W=r.width;H=r.height;c.width=W*d;c.height=H*d;x.setTransform(d,0,0,d,0,0);
+  cols=Math.floor(W/size);drops=Array.from({length:cols},()=>Math.random()*H/size);}
+function draw(still){x.clearRect(0,0,W,H);
+  const g=getComputedStyle(document.documentElement).getPropertyValue('--glyph');
+  x.font=`500 ${size-1}px "IBM Plex Mono",monospace`;x.textAlign='center';
+  for(let i=0;i<cols;i++){const rows=Math.floor(H/size);
+    for(let j=0;j<rows;j++){ if(((i*31+j*17+Math.floor(drops[i]))%5)===0) continue;
+      const fade=1-j/rows; x.globalAlpha=Math.max(0,fade*(.35+.65*((i*7+j)%3)/2));
+      x.fillStyle=g; x.fillText(chars[(i*13+j*7+Math.floor(drops[i]))%chars.length],i*size+size/2,j*size+size);}
+    if(!still) drops[i]+=.04+((i*7)%5)*.01;}
+  x.globalAlpha=1;}
+fit();addEventListener('resize',fit);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function loop(){draw(reduce);if(!reduce)requestAnimationFrame(loop)})();
+</script>

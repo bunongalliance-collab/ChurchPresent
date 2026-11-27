@@ -1,0 +1,163 @@
+<title>Lyric Page on Linen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Alegreya:wght@400&display=swap">
+<style>
+/* Layout: the Lyric page dressed like the home page: linen and sunlight, mono UI, serif headings, square buttons, flat paper cards with a short accent bar, forest green accent. */
+:root{
+  --linen:#efe7d5; --thread:rgba(80,60,30,.07); --ink:#2b2420; --muted:#6d6155; --line:rgba(80,60,30,.18);
+  --accent:#2f5a3c; --on-accent:#f4efe4; --soft:#dde6d3; --gold:#b8862f;
+  --card:rgba(244,239,228,.9); --edge:rgba(255,255,255,.85); --cast:rgba(70,55,25,.13); --cast-near:rgba(70,55,25,.09);
+  --core:rgba(255,254,245,1); --glow:rgba(255,226,150,.7); --ray:rgba(255,247,222,.8);
+  --slide-bg:#1f2a22; --slide-ink:#f3ecdc; --slide-label:rgba(243,236,220,.55);
+  --display:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",Menlo,monospace; --song:"Alegreya",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --linen:#1f1b18; --thread:rgba(255,240,220,.04); --ink:#eee6d8; --muted:#a99c8c; --line:rgba(255,240,220,.14);
+  --accent:#9cc49a; --on-accent:#1f1b18; --soft:#2c3a2e; --gold:#d3a24c;
+  --card:rgba(42,37,33,.9); --edge:rgba(255,230,190,.08); --cast:rgba(0,0,0,.5); --cast-near:rgba(0,0,0,.4);
+  --core:rgba(255,220,150,.35); --glow:rgba(255,200,120,.25); --ray:rgba(255,215,140,.3);
+  --slide-bg:#141a15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --linen:#1f1b18; --thread:rgba(255,240,220,.04); --ink:#eee6d8; --muted:#a99c8c; --line:rgba(255,240,220,.14);
+  --accent:#9cc49a; --on-accent:#1f1b18; --soft:#2c3a2e; --gold:#d3a24c;
+  --card:rgba(42,37,33,.9); --edge:rgba(255,230,190,.08); --cast:rgba(0,0,0,.5); --cast-near:rgba(0,0,0,.4);
+  --core:rgba(255,220,150,.35); --glow:rgba(255,200,120,.25); --ray:rgba(255,215,140,.3);
+  --slide-bg:#141a15; color-scheme:dark}
+body{background-color:var(--linen);color:var(--ink);font:13px/1.6 var(--mono);
+  background-image:repeating-linear-gradient(0deg,var(--thread) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,var(--thread) 0 1px,transparent 1px 3px)}
+.sun{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.sun::before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse 70% 60% at 4% -6%,var(--core) 0%,var(--glow) 22%,transparent 70%)}
+.sun i{position:absolute;top:-30%;height:170%;transform-origin:top left;transform:rotate(-28deg);background:linear-gradient(180deg,transparent 0%,var(--ray) 18%,transparent 80%);filter:blur(26px);animation:sh 9s ease-in-out infinite alternate}
+.sun i:nth-child(1){left:0;width:160px}.sun i:nth-child(2){left:14%;width:40px;animation-delay:-3s}.sun i:nth-child(3){left:22%;width:220px;animation-delay:-6s}.sun i:nth-child(4){left:40%;width:60px;animation-delay:-2s}.sun i:nth-child(5){left:50%;width:170px;animation-delay:-5s}
+@keyframes sh{from{opacity:.6}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sun i{animation:none}}
+.wrap{position:relative;max-width:1280px;margin:0 auto;padding-block:14px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Navbar: home page style, brand in serif, links in mono, square theme and sign-in buttons; page tabs underneath */
+.nav{display:flex;align-items:center;gap:22px;font-size:12px;white-space:nowrap}
+.brand{font:600 16px var(--display);margin-right:8px}
+.nav a{color:var(--ink);text-decoration:none;opacity:.8}
+.nav a:hover{opacity:1;text-decoration:underline}
+.nav .end{margin-left:auto;display:flex;gap:10px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:12px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:12px}
+.tabs a{color:var(--muted);text-decoration:none;padding:4px 0;border-bottom:2px solid transparent}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current]{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* Buttons: the home page's square mono buttons */
+.btn{font:500 12px var(--mono);padding:9px 18px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.dark{background:var(--ink);color:var(--linen)}
+.btn.dark:hover{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:3px 5px 12px -4px var(--cast)}
+.btn.small{padding:6px 12px;font-size:11px}
+.btn.ghost{border-color:var(--line)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.top{display:flex;flex-wrap:wrap;align-items:end;gap:10px 24px;margin:28px 0 22px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 clamp(30px,4vw,44px)/1.05 var(--display);margin:0}
+.actions{margin-left:auto;display:flex;gap:10px}
+
+/* Cards: flat paper like the home page's app cards, a short accent bar, shadow cast down-right */
+.grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.25fr) minmax(0,1fr);gap:22px}
+.card{background:var(--card);border:1px solid var(--thread);padding:20px;display:grid;gap:12px;align-content:start;min-width:0;
+  box-shadow:inset 1px 1px 0 var(--edge),10px 16px 32px -8px var(--cast),3px 5px 10px -4px var(--cast-near)}
+.bar{width:34px;height:3px;background:var(--accent)}
+.step{display:flex;align-items:baseline;gap:10px}
+.n{font:600 26px/1 var(--display);color:var(--accent)}
+h2{font:600 19px/1.1 var(--display);margin:0}
+.field{font:13px var(--mono);border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 10px;width:100%;box-sizing:border-box}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--muted);margin:0;border-left:2px solid var(--gold);padding-left:10px}
+.songs{display:grid;border-top:1px solid var(--line)}
+.song{padding:9px 4px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;cursor:pointer}
+.song b{font:600 15px var(--display);color:var(--muted)}
+.song span{font-size:12px}
+.song small{display:block;color:var(--muted);font-size:10.5px}
+.song.on{background:var(--soft)}
+.song.on b{color:var(--accent)}
+.group{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 4px 4px}
+.lyrics{font:16px/1.6 var(--song);border:1px solid var(--line);padding:12px 14px;white-space:pre-line;min-height:220px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:11px;border:1px dashed var(--line);padding:3px 8px;color:var(--muted)}
+
+/* Slides: dark forest ground, cream text, a gold rule, label in mono; still 16:9 and left-aligned from the top */
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;background:var(--slide-bg);color:var(--slide-ink);padding:10px 12px 22px;box-sizing:border-box;
+  font:500 clamp(16px,1.9vw,24px)/1.15 var(--display);box-shadow:12px 18px 36px -10px var(--cast),4px 6px 12px -4px var(--cast-near)}
+.stage::before{content:"";position:absolute;left:12px;bottom:12px;width:28px;height:2px;background:var(--gold)}
+.lab{position:absolute;right:10px;bottom:8px;font:10px var(--mono);color:var(--slide-label)}
+.thumbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.thumb{position:relative;aspect-ratio:16/9;background:var(--slide-bg);color:var(--slide-ink);font:500 9px/1.15 var(--display);padding:5px 6px;box-sizing:border-box;box-shadow:4px 6px 12px -6px var(--cast);cursor:pointer}
+.thumb .lab{font-size:7px;bottom:3px;right:5px}
+.thumb.on{outline:2px solid var(--accent);outline-offset:2px}
+.pager{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+.sample{font-size:10.5px;border:1px dashed var(--muted);padding:2px 8px;color:var(--muted);align-self:center}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.actions{margin-left:0}.nav a.hide{display:none}}
+</style>
+
+<div class="sun" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Main">
+      <span class="brand">NauBrah</span>
+      <a class="hide" href="#">Montagnard Bunong Alliance Church ▾</a>
+      <a class="hide" href="#">Apps ▾</a>
+      <span class="end"><button class="btn small ghost" type="button">VI</button><button class="btn small ghost" type="button">☾ Dark</button><button class="btn small dark" type="button">Sign in</button></span>
+    </nav>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#" aria-current="page">Hymn/Nau Mpro</a><a href="#">Readings</a><a href="#">Scripture</a><a href="#">Presentation Builder</a><a href="#">Presentations</a><a href="#">Program</a><a href="#">Service Slides</a><a href="#">Projector</a><a href="#">Thumbnail</a><a href="#">Notes</a><a href="#">Team</a>
+    </nav>
+  </header>
+
+  <div class="top">
+    <div><p class="eyebrow">Lyric · Sunday slides</p><h1>Create Slide Show</h1></div>
+    <span class="sample">Sample</span>
+    <div class="actions"><button class="btn" type="button">Download PowerPoint</button><button class="btn go" type="button">Present</button></div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <span class="bar"></span>
+      <div class="step"><span class="n">1</span><h2>Choose a song</h2></div>
+      <div class="row"><input class="field" id="q" type="search" placeholder="Search title, number or lyrics"><button class="btn small" type="button">+ New song</button></div>
+      <div class="songs">
+        <div class="group">Recently used</div>
+        <div class="song on"><b>2</b><span>GÂP TÂM RNÊ PĂNG<small>Bunong</small></span></div>
+        <div class="group">All songs</div>
+        <div class="song"><b>1</b><span>MÂT TON NAU BRAH AMOH YÊ-SU<small>Bunong</small></span></div>
+        <div class="song"><b>3</b><span>TÂM RNÊ YÊ-SU<small>Bunong</small></span></div>
+        <div class="song"><b>4</b><span>HĂN HOM HE<small>Bunong</small></span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <span class="bar"></span>
+      <div class="step"><span class="n">2</span><h2>Check the words</h2><button class="btn small dark" type="button" style="margin-left:auto">Save song</button></div>
+      <p class="note">If the lyric is incorrect, you can make changes and then save the song.</p>
+      <div class="row"><input class="field" id="t" value="GÂP TÂM RNÊ PĂNG" style="flex:1"><input class="field" id="no" value="2" style="width:56px"></div>
+      <div class="chips"><span class="chip">Bunong</span><span class="chip">Arial · 4 lines</span><span class="chip">Slide Appearance ▾</span></div>
+      <div class="lyrics">GÂP TÂM RNÊ PĂNG
+
+Verse 1
+(the song's lyrics show here)
+
+Chorus
+(the chorus shows here)</div>
+    </section>
+
+    <section class="card">
+      <span class="bar"></span>
+      <div class="step"><span class="n">3</span><h2>Preview the slides</h2></div>
+      <div class="stage">GÂP TÂM RNÊ PĂNG<span class="lab">1 / 6</span></div>
+      <div class="pager"><button class="btn small ghost" type="button">← Previous</button><span>Slide 1 of 6</span><button class="btn small ghost" type="button">Next →</button></div>
+      <div class="thumbs">
+        <div class="thumb on">GÂP TÂM RNÊ PĂNG<span class="lab">1</span></div>
+        <div class="thumb">Verse 1<span class="lab">V1</span></div>
+        <div class="thumb">Verse 1<span class="lab">V1</span></div>
+        <div class="thumb">Chorus<span class="lab">C</span></div>
+      </div>
+      <button class="btn go" type="button">+ Add to Presentation</button>
+    </section>
+  </div>
+</div>

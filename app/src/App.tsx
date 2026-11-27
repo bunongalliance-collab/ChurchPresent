@@ -51,6 +51,7 @@ function renderPage(page: string) {
   if (page === "#team") return <Team />;
   if (page === "#readings") return <Readings />;
   if (page === "#lyrics-v2") return <LyricsV2 />;
+  if (page === "#lyrics-blueprint") return <LyricsV2 skin="blueprint" />;
   if (page === "#readings-v2") return <ReadingsV2 />;
   if (page === "#program") return <Program />;
   if (page === "#program-v2") return <ProgramV2 />;

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./ScriptureLight.css";
 import { setTextSelection, VerseTextBox } from "../components/RichTextBox";
 import { QUEUED_NOTE, newId, saveRow, NOTHING_CHANGED } from "../lib/outbox";
 import { canDeleteWork, saveChurchId, useChurch } from "../lib/church";

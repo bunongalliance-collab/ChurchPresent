@@ -1,0 +1,124 @@
+<title>Selah Verse Sharing</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one column of four exhibits (A share text, B metadata, C card, D verse page), the card shown at true 1200x630 ratio */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#1b2430; --muted:#5b6675; --line:#dde2e8;
+  --ink:#14213a; --ink2:#0e3a44; --gold:#d8b46a; --accent:#2f5f8a;
+  --serif:"Cormorant Garamond",Georgia,serif; --sans:"Source Sans 3",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--surface:#161d27;--fg:#e6ebf1;--muted:#9aa6b4;--line:#283241;--accent:#8db7de;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f141b;--surface:#161d27;--fg:#e6ebf1;--muted:#9aa6b4;--line:#283241;--accent:#8db7de;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:48px}
+h1{font-family:var(--serif);font-weight:600;font-size:2.4rem;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:62ch;margin:.4rem 0 0}
+section{display:grid;gap:14px}
+.tag{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h2{font-family:var(--serif);font-size:1.6rem;margin:0}
+pre{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;font-family:var(--mono);font-size:.85rem;white-space:pre-wrap;overflow-x:auto}
+button{font:inherit;cursor:pointer}
+.copy{justify-self:start;background:var(--accent);color:var(--surface);border:0;border-radius:999px;padding:8px 18px;font-weight:600}
+.copy:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* C. OG card */
+.og{aspect-ratio:1200/630;max-width:100%;container-type:inline-size;border-radius:12px;overflow:hidden;position:relative;color:#f5f1e8;
+  background:radial-gradient(120% 90% at 85% 10%,#1f4c58 0%,transparent 55%),linear-gradient(160deg,var(--ink) 0%,var(--ink2) 100%)}
+.og-in{position:absolute;inset:0;padding:7cqw 8cqw;display:flex;flex-direction:column;justify-content:center;gap:3cqw}
+.og blockquote{margin:0;font-family:var(--serif);font-weight:500;font-size:5cqw;line-height:1.2;text-wrap:balance}
+.og .ref{display:flex;align-items:center;gap:1.6cqw;font-family:var(--sans);font-size:2.1cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.og .ref::before{content:"";width:5cqw;height:1px;background:var(--gold)}
+.og .brand{position:absolute;right:4cqw;bottom:3.4cqw;font-family:var(--serif);font-style:italic;font-size:2cqw;opacity:.6}
+.og .mark{position:absolute;left:4cqw;bottom:3cqw;width:2.4cqw;height:2.4cqw;opacity:.45}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+/* D. Verse page */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.vp-top{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.vp-top b{font-family:var(--serif);font-style:italic;font-size:1.2rem;font-weight:500}
+select{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.vp{padding:36px max(20px,6%) 40px;display:grid;gap:22px;max-width:640px;margin:0 auto}
+.vp .hero{font-family:var(--serif);font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.25;margin:0;text-wrap:balance}
+.vp .r{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.ctx{font-family:var(--serif);font-size:1.2rem;line-height:1.7;color:var(--muted);margin:0}
+.ctx sup{font-family:var(--sans);font-size:.65em;margin-right:3px;color:var(--muted)}
+.ctx mark{background:transparent;color:var(--fg);font-weight:600}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:999px;padding:10px 18px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);text-decoration:none}
+.btn.primary{background:var(--fg);color:var(--surface);border-color:var(--fg)}
+.quiet{font-size:.9rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.quiet a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Sharing a verse from Selah</h1>
+  <p class="lede">Sample of what is sent, what the link preview shows, and the page the recipient lands on. Scripture first everywhere; Selah stays small.</p>
+</header>
+
+<section>
+  <span class="tag">A · Share text (SMS, WhatsApp, Messenger, X)</span>
+  <pre id="sharetext">"Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth."
+
+— Psalm 46:10 (KJV)
+
+Read the full passage:
+https://selah.church/v/psalm-46-10
+
+Shared from Selah</pre>
+  <button class="copy" id="copybtn" type="button">Copy text</button>
+  <p class="note">Rules: verse in straight quotes so every app shows it; reference keeps the translation; the link sits on its own line so iMessage and WhatsApp turn it into the card below. For X, verses over ~200 characters are cut at a word with "…" so the post fits 280.</p>
+</section>
+
+<section>
+  <span class="tag">C · Link preview image, 1200 × 630</span>
+  <div class="og" role="img" aria-label="Share card: Psalm 46:10">
+    <div class="og-in">
+      <blockquote>Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.</blockquote>
+      <div class="ref">Psalm 46:10 · KJV</div>
+    </div>
+    <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="#f5f1e8" stroke-width="1.6"><path d="M12 3v18M6 9h12"/></svg>
+    <div class="brand">Selah</div>
+  </div>
+  <p class="note">Font size steps down with verse length (66 → 44 px) so long verses still read on a phone; the text is never clipped. Rendered by a Vercel function (<code>/api/og?ref=psalm-46-10&amp;t=kjv</code>) and cached.</p>
+</section>
+
+<section>
+  <span class="tag">B · Open Graph tags on the verse page</span>
+  <pre>&lt;meta property="og:title" content="Psalm 46:10 (KJV)"&gt;
+&lt;meta property="og:description" content="Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth."&gt;
+&lt;meta property="og:image" content="https://selah.church/api/og?ref=psalm-46-10&amp;t=kjv"&gt;
+&lt;meta property="og:image:width" content="1200"&gt;
+&lt;meta property="og:image:height" content="630"&gt;
+&lt;meta property="og:url" content="https://selah.church/v/psalm-46-10?t=kjv"&gt;
+&lt;meta property="og:type" content="article"&gt;
+&lt;meta name="twitter:card" content="summary_large_image"&gt;</pre>
+</section>
+
+<section>
+  <span class="tag">D · Verse page (what the recipient opens)</span>
+  <div class="phone">
+    <div class="vp-top"><b>Selah</b>
+      <label><span class="tag" style="margin-right:6px">Translation</span>
+      <select id="tr"><option>KJV</option><option>Bunong (VN)</option></select></label>
+    </div>
+    <div class="vp">
+      <span class="r">Psalm 46:10</span>
+      <p class="hero">Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.</p>
+      <p class="ctx"><sup>8</sup>Come, behold the works of the LORD, what desolations he hath made in the earth. <sup>9</sup>He maketh wars to cease unto the end of the earth; he breaketh the bow, and cutteth the spear in sunder; he burneth the chariot in the fire. <mark><sup>10</sup>Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.</mark> <sup>11</sup>The LORD of hosts is with us; the God of Jacob is our refuge. Selah.</p>
+      <div class="actions">
+        <a class="btn primary" href="#chapter">Read all of Psalm 46</a>
+        <button class="btn" type="button">Share this verse</button>
+      </div>
+      <div class="quiet"><span>Keep reading tomorrow where you left off.</span><a href="#open">Open in Selah</a></div>
+    </div>
+  </div>
+  <p class="note">Works without the app or an account. The chapter link opens the reader at Psalm 46 with verse 10 highlighted. "Open in Selah" is a small text link, not a banner.</p>
+</section>
+</div>
+<script>
+document.getElementById('copybtn').addEventListener('click',async e=>{
+  const t=document.getElementById('sharetext').textContent;
+  try{await navigator.clipboard.writeText(t);e.target.textContent='Copied'}
+  catch{const r=document.createRange();r.selectNodeContents(document.getElementById('sharetext'));getSelection().removeAllRanges();getSelection().addRange(r);e.target.textContent='Selected, press Copy'}
+});
+</script>
