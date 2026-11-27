@@ -2920,7 +2920,6 @@ html body .ct-app .hm h1:not(#hm-x) { margin: 0; font: 700 clamp(2rem, 4.6vw, 3r
   .hm-foot { padding-top: 6px; }
   .hm-open { width: 100%; justify-content: center; min-height: 40px; padding: 8px 10px; font-size: 0.88rem; border-radius: 10px; }
   .hm-open span { display: none; }
-  .hm-note { display: none; }
   .hm-group { margin-top: 22px; }
 }
 @media (max-width: 640px) {
