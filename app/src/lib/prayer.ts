@@ -1,7 +1,7 @@
 // Prayer requests (supabase/prayer-requests.sql). The congregation sends them from the Nau Mpro App without signing in
 // (sendPrayerRequest); the church's team reads them on the Prayer page (#prayer), chooses who follows up and marks them
 // answered. Requests for the pastors only are readable by the members marked Pastor (the admins when no one is): the database decides.
-import { supabase } from "./supabase";
+import { publicDb, supabase, withTimeout } from "./supabase";
 
 export interface PrayerRequest {
   id: string; church_id: string; name: string; body: string; pastors_only: boolean;
@@ -36,12 +36,14 @@ function deviceId(): string {
 
 // Send from the Nau Mpro App. Returns an error message for the person, or null when sent.
 export async function sendPrayerRequest(churchId: string, name: string, body: string, pastorsOnly: boolean): Promise<string | null> {
-  if (!supabase) return "Sending needs a connection to the church's database.";
+  if (!publicDb) return "Sending needs a connection to the church's database.";
   if (!navigator.onLine) return "You're offline. Connect to the internet and send again. Your words are still here.";
-  const { error } = await supabase.rpc("send_prayer_request", {
+  const late = { error: { message: "timeout" } };
+  const { error } = await withTimeout(publicDb.rpc("send_prayer_request", {
     cid: churchId, req_name: name.trim().slice(0, MAX_NAME), req_body: body.trim().slice(0, MAX_BODY), only_pastors: pastorsOnly, device_id: deviceId(),
-  });
+  }), 20000, late);
   if (!error) return null;
+  if (error.message === "timeout") return "The connection is very slow. Your request may still arrive: check My requests in a minute before sending again.";
   const m = error.message;
   if (/send_limit/.test(m)) return "You've sent several requests in the last hour. Please wait a little and send again.";
   if (/church_limit/.test(m)) return "Many requests came in just now. Please try again in an hour, or tell a pastor in person.";
@@ -108,10 +110,10 @@ export async function unmarkPrayed(id: string): Promise<string | null> {
 
 // This phone's own requests (found by the random id it sent them with). Empty when none, offline or not set up.
 export async function myPrayerRequests(): Promise<MyPrayerRequest[]> {
-  if (!supabase) return [];
+  if (!publicDb) return [];
   let id = "";
   try { id = localStorage.getItem(DEVICE_KEY) ?? ""; } catch { /* private mode */ }
   if (!id) return [];
-  const { data, error } = await supabase.rpc("my_prayer_requests", { device_id: id });
+  const { data, error } = await withTimeout(publicDb.rpc("my_prayer_requests", { device_id: id }), 15000, { data: null, error: { message: "timeout" } });
   return error ? [] : ((data ?? []) as MyPrayerRequest[]);
 }

@@ -7,6 +7,12 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 export const supabase: SupabaseClient | null = url && anonKey ? createClient(url, anonKey) : null;
 
+// A second client that never signs in, for calls anyone may make (the Nau Mpro App's prayer requests). It doesn't wait
+// for the signed-in session to load or refresh, which on phones can hold up every call for several seconds.
+export const publicDb: SupabaseClient | null = url && anonKey
+  ? createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "sb-public" } })
+  : null;
+
 // Sign-in changes, run just after Supabase's own handler. Supabase holds a lock while it calls these handlers
 // (for example while refreshing an expired token, which is common on phones after the browser pauses a tab);
 // a database call made inside the handler waits for that lock and never finishes. Deferring avoids that.

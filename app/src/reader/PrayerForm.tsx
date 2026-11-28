@@ -14,6 +14,8 @@ export default function PrayerForm({ church, onDone, onChooseChurch }: {
   const [body, setBody] = useState("");
   const [pastors, setPastors] = useState(false);
   const [sending, setSending] = useState(false);
+  const [slow, setSlow] = useState(false);
+  useEffect(() => { if (!sending) { setSlow(false); return; } const t = window.setTimeout(() => setSlow(true), 4000); return () => window.clearTimeout(t); }, [sending]);
   const [error, setError] = useState("");
   const [sent, setSent] = useState<null | { pastors: boolean }>(null);
   // "My requests": what this phone sent, and the pastors' answer (supabase/prayer-feedback.sql)
@@ -73,7 +75,7 @@ export default function PrayerForm({ church, onDone, onChooseChurch }: {
             <span>Sending to <b>{church.name}</b></span>
           </p>
           {error && <p className="nm-pray-err" role="alert">{error}</p>}
-          <button type="submit" className="nm-pray-send" disabled={!body.trim() || sending}>{sending ? "Sending…" : "Send prayer request"}</button>
+          <button type="submit" className="nm-pray-send" disabled={!body.trim() || sending}>{sending ? (slow ? "Still sending…" : "Sending…") : "Send prayer request"}</button>
         </form>
       )}
       {!!mine.length && !sent && (
