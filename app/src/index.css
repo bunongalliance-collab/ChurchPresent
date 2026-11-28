@@ -3005,8 +3005,11 @@ html body .ct-app .hm h1:not(#hm-x) { margin: 0; font: 700 clamp(2rem, 4.6vw, 3r
 .tn-me b { overflow-wrap: anywhere; }
 .tn-me span { color: var(--muted); font-size: 0.85rem; }
 .tn-signinpop { padding: 12px; width: 280px; }
+.tm-signin { max-width: 420px; display: grid; gap: 10px; }
+.tm-signin h2 { margin: 0; }
+.tm-signin .hint { margin: 0; }
 .tn-signin { display: grid; gap: 8px; }
-html body .ct-app .tn-signin input { width: 100%; min-height: 40px !important; height: auto !important; padding: 8px 10px !important; font-size: 0.95rem !important; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--bg); color: var(--text); }
+html body .ct-app .tn-signin input { width: 100%; min-height: 40px !important; height: auto !important; padding: 8px 10px !important; font-size: 16px !important; border: 1px solid var(--ctrl); border-radius: 8px; background: var(--bg); color: var(--text); }
 .tn-signin-acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .tn-signin-acts button:not(#tn-x) { flex: 1; min-height: 38px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); color: var(--text); font-weight: 600; font-family: var(--font-ui); }
 .tn-signin-acts button.pri:not(#tn-x) { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }

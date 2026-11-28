@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
 import { reloadPastors, setPastor } from "../lib/pastor";
+import SignInForm from "../components/SignInForm";
 import {
   useChurch, reloadChurches, switchChurch, loadTeam, loadWaitingChurches,
   acceptRequest, declineRequest, setRole, removeMember, invite, cancelInvite, renameChurch, renewCode, churchOwnership, offerOwnership, cancelOwnershipOffer, respondOwnership, type Ownership,
@@ -31,7 +32,13 @@ export default function Team() {
           {cur && <p className="sub">Who can change <b>{cur.name}</b>'s songs, readings and Sunday slides.</p>}
         </div>
         {!ch.ready ? <p className="empty">Loading…</p>
-          : !ch.session ? <p className="empty">Sign in to see your church's team, or to join one.</p>
+          : !ch.session ? (
+            <section className="tm-card tm-signin" aria-labelledby="tm-si">
+              <h2 id="tm-si">Sign in</h2>
+              <p className="hint">Sign in to see your church's team, or to join one. New here? Enter your email and a password, then Create account.</p>
+              <SignInForm />
+            </section>
+          )
           : ch.missing ? <p className="empty">The team tables aren't in the database yet. Run supabase/churches.sql in the Supabase SQL editor.</p>
           : (
             <>

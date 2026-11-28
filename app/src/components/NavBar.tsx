@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { currentTheme, setTheme, type Theme } from "../lib/theme";
 import { readForSlides, watchForSlides } from "../lib/forSlides";
 import { usePastor } from "../lib/pastor";
+import SignInForm from "./SignInForm";
 import { useChurch, switchChurch } from "../lib/church";
 import NotificationBell, { WelcomeBanner } from "./NotificationBell";
 import { countNewPrayer } from "../lib/prayer";
@@ -35,9 +36,6 @@ export default function NavBar() {
   const hash = (window.location.hash || "#").split(":")[0];
   const [session, setSession] = useState<Session | null>(null);
   const [menuOpen, setMenuOpen] = useState(false); // phone menu (hamburger)
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [msg, setMsg] = useState("");
   const [theme, setThemeState] = useState<Theme>(() => currentTheme());
   // Passages sent from the Bible reader and not yet added: a small count on the Scripture link
   const [waiting, setWaiting] = useState(() => readForSlides().length);
@@ -69,7 +67,7 @@ export default function NavBar() {
   useEffect(() => {
     if (!pop) return;
     const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : (e.target as Element).isConnected && !(e.target as Element).closest(".tn-popwrap")) setPop("");
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : (e.target as Element).isConnected && !(e.target as Element).closest(".tn-popwrap, .tn-sheet")) setPop("");
     };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", close);
@@ -90,16 +88,6 @@ export default function NavBar() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  async function auth(kind: "in" | "up") {
-    if (!supabase) return;
-    if (!email.trim() || pass.length < 6) { setMsg("Enter an email and a password of 6+ characters."); return; }
-    const creds = { email: email.trim(), password: pass };
-    const { data, error } = kind === "up" ? await supabase.auth.signUp(creds) : await supabase.auth.signInWithPassword(creds);
-    if (error) { setMsg(error.message); return; }
-    if (kind === "up" && !data.session) { setMsg("Account created. Check your email to confirm, then sign in."); return; }
-    setPass(""); setMsg(""); setPop("");
-  }
-
   const isCurrent = (href: string) => href === hash || (href === "#lyrics-v2" && hash === "#lyrics");
   const counts = (href: string) => (
     <>
@@ -110,19 +98,7 @@ export default function NavBar() {
   );
   const themeLabel = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
   const Chevron = () => <svg className="tn-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" /></svg>;
-  const signInForm = (
-    <form className="tn-signin" onSubmit={(e) => { e.preventDefault(); void auth("in"); }}>
-      <label className="tn-sr" htmlFor="tn-email">Email</label>
-      <input id="tn-email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-      <label className="tn-sr" htmlFor="tn-pass">Password</label>
-      <input id="tn-pass" type="password" placeholder="Password (6+ characters)" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" />
-      <div className="tn-signin-acts">
-        <button type="submit" className="pri">Sign in</button>
-        <button type="button" onClick={() => void auth("up")}>Create account</button>
-      </div>
-      {msg && <p className="tn-msg" role="alert">{msg}</p>}
-    </form>
-  );
+  const signInForm = <SignInForm onDone={() => { setPop(""); setMenuOpen(false); }} />;
 
   // Two rows: who and where you are (brand, church, apps, bell, theme, account), then every page as a tab.
   // Phones: one row (brand, bell, menu) and a menu sheet with everything else. Approved sample: bible-pwa/sample/navbar.html
@@ -176,7 +152,7 @@ export default function NavBar() {
                   {(session.user.email ?? "?")[0].toUpperCase()}
                 </button>
               ) : (
-                <button type="button" className="tn-signinbtn" aria-expanded={pop === "signin"} onClick={() => { setPop(pop === "signin" ? "" : "signin"); setMsg(""); }}>Sign in</button>
+                <button type="button" className="tn-signinbtn" aria-expanded={pop === "signin"} onClick={() => setPop(pop === "signin" ? "" : "signin")}>Sign in</button>
               )}
               {pop === "acct" && session && (
                 <div className="tn-pop tn-right" role="menu">
