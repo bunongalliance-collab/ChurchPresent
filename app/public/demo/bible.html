@@ -60,8 +60,11 @@
   .phones { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 300px); align-items: center; justify-content: center; gap: 12px; max-width: 860px; margin: 0 auto; }
   .col { display: grid; gap: 10px; justify-items: center; transition: opacity .4s; }
   .col.dim { opacity: .5; }
-  .tag { font: 500 12px var(--mono); color: var(--muted); display: flex; gap: 8px; align-items: center; }
-  .tag b { font: 600 15px var(--display); color: var(--ink); }
+  /* Whose phone it is: a message bubble pointing down at the phone */
+  .tag { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; margin-bottom: 6px; border-radius: 16px; background: var(--fg); color: var(--bg); font: 600 13px var(--sans); box-shadow: 0 4px 12px var(--pshadow); }
+  .tag::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; background: inherit; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+  .tag .ico { width: 14px; height: 14px; }
+  .tag.me { background: var(--sage); color: var(--surface); }
 
   /* The path the verse takes from one phone to the other */
   .link { position: relative; height: 140px; align-self: center; }
@@ -75,6 +78,19 @@
   .phone { position: relative; width: 100%; max-width: 300px; aspect-ratio: 300 / 600; border-radius: 36px; padding: 10px; background: #1b1816; box-shadow: 0 20px 40px var(--shadow), inset 0 0 0 2px #3a332e; }
   .scr { position: relative; height: 100%; border-radius: 28px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--sans); container-type: inline-size; }
   .notch { position: absolute; left: 50%; top: 8px; width: 34%; height: 18px; transform: translateX(-50%); border-radius: 10px; background: #1b1816; z-index: 9; }
+  /* Status bar, so each phone reads as a real phone */
+  .sbar { position: absolute; left: 0; right: 0; top: 0; height: 32px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font: 600 10px var(--sans); color: var(--fg); z-index: 8; pointer-events: none; }
+  .sbar .ics { display: flex; gap: 4px; align-items: center; }
+  .sbar .bat { width: 17px; height: 8px; border: 1.2px solid currentColor; border-radius: 2.5px; position: relative; }
+  .sbar .bat::after { content: ""; position: absolute; inset: 1px; right: 4px; background: currentColor; border-radius: 1px; }
+  .sbar .sig { width: 13px; height: 8px; background: linear-gradient(90deg, currentColor 0 2.5px, transparent 0 3.5px, currentColor 0 6px, transparent 0 7px, currentColor 0 9.5px, transparent 0 10.5px, currentColor 0); clip-path: polygon(0 100%, 100% 0, 100% 100%); }
+
+  /* Both phones: dark frame, pill camera, side buttons */
+  .phone.ios { border-radius: 40px; }
+  .phone.ios .scr { border-radius: 31px; }
+  .phone.ios::before, .phone.ios::after { content: ""; position: absolute; width: 3px; border-radius: 2px; background: #2a2521; }
+  .phone.ios::before { left: -3px; top: 22%; height: 9%; box-shadow: 0 calc(300px * .12) 0 #2a2521; }
+  .phone.ios::after { right: -3px; top: 27%; height: 14%; }
   .page { position: absolute; inset: 0; padding: 40px 18px 70px; transition: opacity .35s; }
   .page.off { opacity: 0; pointer-events: none; }
   .title { text-align: center; font-size: 10px; font-weight: 600; letter-spacing: .3em; color: var(--rmuted); margin: 0 0 14px; text-transform: uppercase; }
@@ -108,7 +124,12 @@
   .sheet h4 { margin: 0; font-size: 15px; } .sheet .sub { color: var(--rmuted); margin-top: -4px; }
   .clip { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--bg); font: 12.5px/1.5 var(--serif); }
   .k { font-size: 11px; font-weight: 600; color: var(--rmuted); }
-  .fld { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-height: 31px; background: var(--bg); display: flex; justify-content: space-between; gap: 6px; }
+  .fld { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-height: 31px; background: var(--bg); display: flex; justify-content: space-between; gap: 6px; position: relative; transition: border-color .3s, background .3s; }
+  /* The chosen church: a hand-drawn circle goes round it */
+  .fld.pick { border-color: var(--sage); background: var(--sage-soft); }
+  .ring { position: absolute; left: -9px; right: -9px; top: -8px; bottom: -8px; width: calc(100% + 18px); height: calc(100% + 16px); overflow: visible; pointer-events: none; }
+  .ring path { fill: none; stroke: var(--clay); stroke-width: 2.2; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .fld.pick .ring path { stroke-dashoffset: 0; transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); }
   .fld .car { display: inline-block; width: 1.5px; height: 13px; background: var(--sage); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
   .hint { margin: 0; font-size: 11px; color: var(--rmuted); line-height: 1.4; }
@@ -170,7 +191,7 @@
     .cap button span { display: none; } .cap button.on span { display: inline; }
     .sample { text-align: left; }
   }
-  @media (prefers-reduced-motion: reduce) { .cursor, .fly { display: none; } .col, .sheet, .acts, .nudge, .toast, .end { transition: none; } .v.flash { animation: none; background: var(--hl); } }
+  @media (prefers-reduced-motion: reduce) { .fld.pick .ring path { transition: none; } .cursor, .fly { display: none; } .col, .sheet, .acts, .nudge, .toast, .end { transition: none; } .v.flash { animation: none; background: var(--hl); } }
 
   /* Embedded on the Home page: only the demo loop */
   nav, .hero { display: none !important; }
@@ -178,6 +199,20 @@
   .wrap { padding: 4px 2px 24px; max-width: none; }
 </style>
 
+<style id="real-app">
+  /* ?real=1 (Demos page): show the app window in the real app's light colours (index.css), on any page theme */
+  body.real, body.real[data-theme="dark"], body.real[data-theme="light"] {
+    --app-bg: #F1F4EF; --app-panel: #F9FBF7; --app-sunken: #E6ECE2; --app-text: #243028; --app-muted: #5F6E64;
+    --app-accent: #1F5F4A; --on-accent: #FFFFFF; --app-soft: #D3E7DB; --app-on-soft: #174A3A;
+    --bg: #faf8f3; --surface: #ffffff; --fg: #26241f; --rmuted: #6b665c; --line: #e6e1d6;
+    --sage: #5f7a63; --sage-soft: #e7eee6; --clay: #a8603f; --gold: #b08a2e; --hl: #f4e7b8; --scrim: rgba(38,36,31,.32);
+  }
+  /* Text and marks inside the window follow the light window, not the page theme */
+  body.real .win { --ink: #2b2420; --muted: #6d6155; --linen: #efe7d5; --accent: #7a1f2b; --edge: rgba(43,36,32,.14); color-scheme: light; }
+  body.real .win { border: 1px solid rgba(36,48,40,.12); box-shadow: 0 2px 4px rgba(20,30,25,.06), 0 32px 70px -18px rgba(20,30,25,.38); }
+  body.real[data-theme="dark"] .win { border-color: rgba(255,255,255,.08); box-shadow: 0 34px 90px -16px rgba(0,0,0,.75); }
+</style>
+<script>if (new URLSearchParams(location.search).get("real") === "1") document.addEventListener("DOMContentLoaded", () => document.body.classList.add("real"));</script>
 </head>
 <body>
 <div class="wrap">
@@ -194,9 +229,9 @@
       <div class="stage" id="stage">
         <div class="phones" id="phones">
           <div class="col" id="colA">
-            <div class="tag"><b data-t="you">You</b><span data-t="youSub">share a verse</span></div>
-            <div class="phone"><div class="scr" id="scrA">
-              <span class="notch"></span>
+            <div class="tag me"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span data-t="you">Your phone</span></div>
+            <div class="phone ios"><div class="scr" id="scrA">
+              <span class="notch"></span><div class="sbar"><span>9:41</span><span class="ics"><span class="sig"></span><span class="bat"></span></span></div>
               <div class="page">
                 <p class="title">Nau Mprơ Ơm</p>
                 <p class="ref">Nau Mprơ Ơm 23</p>
@@ -219,7 +254,7 @@
                 <span class="sub">Nau Mprơ Ơm 23:1</span>
                 <p class="clip" id="clip"></p>
                 <span class="k" data-t="church">Church</span>
-                <div class="fld"><span>Montagnard Bunong Alliance</span><span>▾</span></div>
+                <div class="fld" id="churchFld"><span>Montagnard Bunong Alliance</span><span>▾</span><svg class="ring" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M30 5 C 80 -1, 165 0, 193 11 C 207 19, 194 35, 128 38 C 66 41, 7 37, 5 22 C 3 10, 26 4, 78 2"/></svg></div>
                 <span class="k" data-t="name">Your name</span>
                 <div class="fld"><span>Y-Ơn</span></div>
                 <span class="k" data-t="note">Note (optional)</span>
@@ -236,9 +271,9 @@
           </div>
 
           <div class="col dim" id="colB">
-            <div class="tag"><b data-t="them">Someone in your church</b></div>
-            <div class="phone"><div class="scr" id="scrB">
-              <span class="notch"></span>
+            <div class="tag"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span data-t="them">Che Chô’s phone</span></div>
+            <div class="phone ios"><div class="scr" id="scrB">
+              <span class="notch"></span><div class="sbar"><span>9:41</span><span class="ics"><span class="sig"></span><span class="bat"></span></span></div>
               <div class="page" id="pgGen">
                 <p class="title">Nau Ntơm</p>
                 <p class="ref">Nau Ntơm 1</p>
@@ -294,7 +329,7 @@
   $("clip").textContent = PSA[0][1];
 
   const T = { en: {}, vi: { h1a: "Một câu Kinh Thánh, ", h1em: "cả hội thánh", h1b: " cùng đọc.", bar: "Kinh Thánh tiếng Bunong", replay: "↻ Xem lại",
-    you: "Bạn", youSub: "chia sẻ một câu", them: "Một người trong hội thánh", linkLab: "cùng hội thánh",
+    you: "Điện thoại của bạn", them: "Điện thoại của Che Chô", linkLab: "cùng hội thánh",
     post: "Đăng lên nhóm hội thánh", church: "Hội thánh", name: "Tên của bạn", note: "Ghi chú (không bắt buộc)", cancel: "Huỷ", share: "Chia sẻ",
     latest: "Mới chia sẻ", noteTxt: "Cho bài giảng Chúa Nhật",
     s1: "Chọn một câu", s2: "Đăng lên hội thánh", s3: "Câu được gửi đến", s4: "Bấm Mới chia sẻ", s5: "Mở đúng câu đó",
@@ -336,6 +371,7 @@
     $("nudge").classList.remove("on", "new"); $("pgGen").classList.remove("off"); $("pgPsa").classList.add("off");
     $("from").classList.remove("on"); $("back").classList.remove("on"); $("barB").textContent = "Nau Ntơm 1 ▾";
     $("fly").style.transition = "none"; $("fly").style.opacity = 0; $("end").classList.remove("on");
+    $("churchFld").classList.remove("pick");
   };
 
   // 1 Tap verse 1: it is selected and the verse actions come up
@@ -345,10 +381,13 @@
   // 2 Post to church group: the sheet, a short note, Share
   const play2 = (t0) => {
     clickOn(t0 + 200, () => $("shareBtn"), () => { press($("shareBtn")); later(250, () => { $("scrim").classList.add("on"); $("sheet").classList.add("on"); $("acts").classList.add("off"); }); });
-    later(t0 + 1800, () => { $("car").hidden = false; });
+    // Choose the church: the pointer taps it and a circle goes round it
+    clickOn(t0 + 1000, () => $("churchFld"), () => $("churchFld").classList.add("pick"), .45, .5);
+    const t1 = t0 + CHURCH_MS;
+    later(t1 + 1800, () => { $("car").hidden = false; });
     const note = tr("note1");
-    [...note].forEach((ch, i) => later(t0 + 2000 + i * 55, () => { $("noteTxt").textContent += ch; }));
-    clickOn(t0 + 2000 + note.length * 55 + 300, () => $("shareGo"), () => { press($("shareGo")); $("car").hidden = true; });
+    [...note].forEach((ch, i) => later(t1 + 2000 + i * 55, () => { $("noteTxt").textContent += ch; }));
+    clickOn(t1 + 2000 + note.length * 55 + 300, () => $("shareGo"), () => { press($("shareGo")); $("car").hidden = true; });
   };
   // 3 It is posted: the sheet closes, the message shows, the verse travels to the other phone
   const play3 = (t0) => {
@@ -381,8 +420,9 @@
     later(t0 + 1200, () => aim($("b1"), .6, .5));
   };
   const STEP_MS = [2000, 0, 2700, 2000, 3600];
+  const CHURCH_MS = 2200; // time spent choosing the church before the note is typed
   const PLAYS = [play1, play2, play3, play4, play5];
-  const stepMs = (i) => i === 1 ? 2000 + tr("note1").length * 55 + 1500 : STEP_MS[i];
+  const stepMs = (i) => i === 1 ? CHURCH_MS + 2000 + tr("note1").length * 55 + 1500 : STEP_MS[i];
 
   const run = () => {
     reset();

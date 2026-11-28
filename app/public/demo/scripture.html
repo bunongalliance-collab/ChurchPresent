@@ -301,6 +301,20 @@
   body, body[data-theme="dark"] { background: transparent !important; background-image: none !important; }
   .wrap { padding: 4px 2px 24px; max-width: none; }
 </style>
+<style id="real-app">
+  /* ?real=1 (Demos page): show the app window in the real app's light colours (index.css), on any page theme */
+  body.real, body.real[data-theme="dark"], body.real[data-theme="light"] {
+    --app-bg: #F1F4EF; --app-panel: #F9FBF7; --app-sunken: #E6ECE2; --app-text: #243028; --app-muted: #5F6E64;
+    --app-accent: #1F5F4A; --on-accent: #FFFFFF; --app-soft: #D3E7DB; --app-on-soft: #174A3A;
+    --bg: #faf8f3; --surface: #ffffff; --fg: #26241f; --rmuted: #6b665c; --line: #e6e1d6;
+    --sage: #5f7a63; --sage-soft: #e7eee6; --clay: #a8603f; --gold: #b08a2e; --hl: #f4e7b8; --scrim: rgba(38,36,31,.32);
+  }
+  /* Text and marks inside the window follow the light window, not the page theme */
+  body.real .win { --ink: #2b2420; --muted: #6d6155; --linen: #efe7d5; --accent: #7a1f2b; --edge: rgba(43,36,32,.14); color-scheme: light; }
+  body.real .win { border: 1px solid rgba(36,48,40,.12); box-shadow: 0 2px 4px rgba(20,30,25,.06), 0 32px 70px -18px rgba(20,30,25,.38); }
+  body.real[data-theme="dark"] .win { border-color: rgba(255,255,255,.08); box-shadow: 0 34px 90px -16px rgba(0,0,0,.75); }
+</style>
+<script>if (new URLSearchParams(location.search).get("real") === "1") document.addEventListener("DOMContentLoaded", () => document.body.classList.add("real"));</script>
 </head>
 <body>
 <div class="wrap">

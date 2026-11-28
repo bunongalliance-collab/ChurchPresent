@@ -3,7 +3,8 @@ import { setTheme, type Theme } from "../lib/theme";
 import "./Home.css";
 
 // Demos page (#demos): the three demo loops from the home page (public/demo/*.html), all on one page,
-// one after another. Same look, theme and language switch as the home page.
+// one after another, each on its own band. The demos open with ?real=1, so their app windows show the
+// real app's light colours (index.css) on any page theme. Same theme and language switch as the home page.
 
 type Lang = "en" | "vi";
 type Which = "lyric" | "scripture" | "bible";
@@ -21,8 +22,6 @@ const TEXT = {
   en: {
     title: "Demos · NauBrah",
     eyebrow: "See it at work",
-    h1: "Three demos, one Sunday",
-    sub: "Watch NauBrah build hymn slides, Scripture slides and a shared Bible verse. Each demo plays on its own; press Replay to watch it again.",
     demos: {
       lyric: ["Lyric", "Pick a hymn from Nau Mpro and get slides ready for the projector."],
       scripture: ["Scripture", "Type a passage and NauBrah lays it out as readable slides."],
@@ -34,8 +33,6 @@ const TEXT = {
   vi: {
     title: "Xem thử · NauBrah",
     eyebrow: "Xem ứng dụng hoạt động",
-    h1: "Ba phần xem thử, một ngày Chúa Nhật",
-    sub: "Xem NauBrah làm trang chiếu bài hát, trang chiếu Kinh Thánh và chia sẻ một câu Kinh Thánh. Mỗi phần tự chạy; bấm Xem lại để xem lần nữa.",
     demos: {
       lyric: ["Bài hát", "Chọn một bài hát trong Nau Mpro và có ngay trang chiếu cho máy chiếu."],
       scripture: ["Kinh Thánh", "Gõ một đoạn Kinh Thánh, NauBrah sắp xếp thành trang chiếu dễ đọc."],
@@ -58,7 +55,7 @@ function DemoFrame({ which, label, theme, lang, eager }: { which: Which; label: 
   }, [which]);
   useEffect(() => { frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }, [theme, lang]);
   return (
-    <iframe ref={frame} title={label} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}`}
+    <iframe ref={frame} title={label} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}&real=1`}
       onLoad={() => frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin)}
       style={{ height }} loading={eager ? "eager" : "lazy"} />
   );
@@ -97,9 +94,7 @@ export default function Demos() {
         </header>
 
         <div className="hm-demos-head">
-          <p className="hm-eyebrow">{t.eyebrow}</p>
-          <h1>{t.h1}</h1>
-          <p className="hm-demos-sub">{t.sub}</p>
+          <h1 className="hm-sr">{t.eyebrow}</h1>
           <nav className="hm-demos-jump" aria-label={t.eyebrow}>
             {order.map((k, i) => <a key={k} href={`#demos:${k}`} onClick={(e) => { e.preventDefault(); document.getElementById(`demo-${k}`)?.scrollIntoView({ behavior: "smooth" }); }}>{i + 1}. {t.demos[k][0]}</a>)}
           </nav>
@@ -110,7 +105,7 @@ export default function Demos() {
             <p className="hm-eyebrow">{String(i + 1).padStart(2, "0")}</p>
             <h2>{t.demos[k][0]}</h2>
             <p className="hm-demos-sub">{t.demos[k][1]}</p>
-            <DemoFrame which={k} label={t.demos[k][0]} theme={theme} lang={lang} eager={i === 0} />
+            <div className="hm-demos-band"><DemoFrame which={k} label={t.demos[k][0]} theme={theme} lang={lang} eager={i === 0} /></div>
           </section>
         ))}
 
