@@ -9,10 +9,10 @@ import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
 import "./Pastor.css";
 
-// Pastor page (#pastor), for members marked Pastor on the Team page (supabase/pastors.sql). One focused column:
-// a link to Sunday's program, "Pray today" (open requests no pastor has prayed for yet, with "I prayed" and a short
-// note the sender sees in Nau Mpro; supabase/prayer-feedback.sql), then "Prayed" and "My work" folded away.
-// Approved sample: the "Pastor page" artifact (focused version).
+// Pastor page (#pastor), for members marked Pastor on the Team page (supabase/pastors.sql). One calm column in soft
+// (neumorphic) eggshell and emerald, with its own bottom menu: Pray (Sunday card, then open requests no pastor has
+// prayed for, with "I prayed" and a short note the sender sees in Nau Mpro; supabase/prayer-feedback.sql), Prayed
+// (last two weeks, Undo), My work and Sunday. Approved sample: the "Pastor page" artifact (soft style, bottom menu).
 
 const isoDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const ago = (iso: string) => {
@@ -27,6 +27,14 @@ const hello = () => { const h = new Date().getHours(); return h < 12 ? "Good mor
 const WEEK2 = 14 * 86400e3;
 
 interface Sunday { date: string; sermon: string }
+type View = "pray" | "prayed" | "work" | "sunday";
+// The bottom menu (Pastor page only)
+const DOCK: { v: View; label: string; icon: ReactNode }[] = [
+  { v: "pray", label: "Pray", icon: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /> },
+  { v: "prayed", label: "Prayed", icon: <path d="M5 12.5l4.5 4.5L19 7.5" /> },
+  { v: "work", label: "My work", icon: <path d="M6 4h9l4 4v12H6zM15 4v4h4M9 13h7M9 17h5" /> },
+  { v: "sunday", label: "Sunday", icon: <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></> },
+];
 interface Work { id: string; kind: "study" | "presentation"; title: string; updated: string; private: boolean }
 
 // The sermon title from a program's Order of Worship (typed lines, or older rows)
@@ -49,6 +57,7 @@ export default function Pastor() {
   const [noteFor, setNoteFor] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
+  const [view, setView] = useState<View>("pray");
 
   useEffect(() => { document.title = "Pastor · Church Tools"; }, []);
 
@@ -107,6 +116,9 @@ export default function Pastor() {
   const done = (prayers ?? []).filter((p) => p.prayed_at && Date.now() - new Date(p.prayed_at).getTime() < WEEK2);
   const who = (p: PrayerRequest) => p.name || "Anonymous";
 
+  const sunDate = sunday ? new Date(sunday.date + "T12:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }) : "";
+  const goView = (v: View) => { setView(v); window.scrollTo({ top: 0 }); };
+
   return (
     <>
       <NavBar />
@@ -117,64 +129,99 @@ export default function Pastor() {
               <p className="ps-date">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</p>
               <h1>{hello()}</h1>
             </header>
-            <a className="ps-sun" href="#program">
-              <span className="ps-sun-text">
-                <small>{sunday ? new Date(sunday.date + "T12:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }) : "This Sunday"}</small>
-                <b>{sunday ? sunday.sermon || "Sermon not filled in yet" : "No program yet"}</b>
-              </span>
-              <span className="ps-sun-go">Program<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></span>
-            </a>
-
-            <h2 id="ps-today">Pray today{prayers && open.length > 0 && <span className="ps-n">{open.length}</span>}</h2>
             {!setup && <p className="ps-note">To mark requests as prayed, run supabase/prayer-feedback.sql in the Supabase SQL editor.</p>}
-            {prayers === null ? <p className="empty">Loading…</p> : (
-              <ul className="ps-rows" aria-labelledby="ps-today">
-                {open.length ? open.map((p) => (
-                  <li className="ps-req" key={p.id}>
-                    <div className="ps-who"><b>{who(p)}</b> · {ago(p.created_at)}{p.pastors_only && <> · <span className="ps-lock">Pastors only</span></>}</div>
-                    <p className="ps-body">{p.body}</p>
-                    <div className="ps-side">
-                      <button className="ps-pray" disabled={busy === p.id || !setup} onClick={() => void prayed(p)}>I prayed</button>
-                      {noteFor !== p.id && <button className="ps-link" disabled={!setup} onClick={() => { setNoteFor(p.id); setNote(""); }}>Add a note</button>}
-                    </div>
-                    {noteFor === p.id && (
-                      <form className="ps-noteform" onSubmit={(e) => { e.preventDefault(); if (note.trim()) void prayed(p, note); }}>
-                        <label className="ps-sr" htmlFor={`ps-n-${p.id}`}>Note to {who(p)}</label>
-                        <input id={`ps-n-${p.id}`} autoFocus value={note} maxLength={MAX_NOTE} placeholder="We're praying with you."
-                          onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setNoteFor(""); }} />
-                        <button type="submit" disabled={!note.trim() || busy === p.id}>Send</button>
-                        <p className="ps-hint">{p.source === "app" ? `${p.name || "The sender"} sees this in Nau Mpro.` : "Added by the team, so only the team sees this note."}</p>
-                      </form>
-                    )}
-                  </li>
-                )) : <li className="ps-empty">{(prayers ?? []).length ? "Everyone has been prayed for. Thank you." : "No prayer requests yet."}</li>}
-              </ul>
+
+            {view === "pray" && (
+              <section className="ps-view" aria-labelledby="ps-today">
+                <button className="ps-sun ps-out" onClick={() => goView("sunday")}>
+                  <span className="ps-sun-text"><small>{sunday ? sunDate : "This Sunday"}</small><b>{sunday ? sunday.sermon || "Sermon not filled in yet" : "No program yet"}</b></span>
+                  <span className="ps-go ps-in" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></span>
+                </button>
+                <h2 id="ps-today">Pray today{prayers && open.length > 0 && <span className="ps-n ps-in">{open.length}</span>}</h2>
+                {prayers === null ? <p className="empty">Loading…</p> : open.length ? (
+                  <ul className="ps-cards">
+                    {open.map((p) => (
+                      <li className="ps-card ps-out" key={p.id}>
+                        <div className="ps-who"><b>{who(p)}</b> · {ago(p.created_at)}{p.pastors_only && <> · <span className="ps-lock">Pastors only</span></>}</div>
+                        <p className="ps-body">{p.body}</p>
+                        <div className="ps-acts">
+                          <button className="ps-btn ps-out" disabled={busy === p.id || !setup} onClick={() => void prayed(p)}>I prayed</button>
+                          {noteFor !== p.id && <button className="ps-link" disabled={!setup} onClick={() => { setNoteFor(p.id); setNote(""); }}>Add a note</button>}
+                        </div>
+                        {noteFor === p.id && (
+                          <form className="ps-noteform" onSubmit={(e) => { e.preventDefault(); if (note.trim()) void prayed(p, note); }}>
+                            <label className="ps-sr" htmlFor={`ps-n-${p.id}`}>Note to {who(p)}</label>
+                            <input className="ps-in" id={`ps-n-${p.id}`} autoFocus value={note} maxLength={MAX_NOTE} placeholder="We're praying with you."
+                              onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setNoteFor(""); }} />
+                            <button type="submit" className="ps-solid" disabled={!note.trim() || busy === p.id}>Send</button>
+                            <p className="ps-hint">{p.source === "app" ? `${p.name || "The sender"} sees this in Nau Mpro.` : "Added by the team, so only the team sees this note."}</p>
+                          </form>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className="ps-empty ps-in">{(prayers ?? []).length ? "Everyone has been prayed for. Thank you." : "No prayer requests yet."}</p>}
+              </section>
             )}
 
-            <div className="ps-folds">
-            {!!done.length && (
-              <details className="ps-fold">
-                <summary>Prayed<span>{done.length}</span></summary>
-                {done.map((p) => (
-                  <div className="ps-done" key={p.id}>
-                    <span><b>{who(p)}</b> · {p.body}</span>
-                    <button className="ps-link" onClick={() => void undo(p)}>Undo</button>
-                    {p.pastor_note && <q>{p.pastor_note}</q>}
+            {view === "prayed" && (
+              <section className="ps-view" aria-labelledby="ps-prayed-h">
+                <h2 id="ps-prayed-h">Prayed in the last two weeks</h2>
+                {done.length ? (
+                  <ul className="ps-cards">
+                    {done.map((p) => (
+                      <li className="ps-row ps-out" key={p.id}>
+                        <b>{who(p)}</b>
+                        <button className="ps-link" onClick={() => void undo(p)}>Undo</button>
+                        <span>{p.body}</span>
+                        {p.pastor_note && <q>{p.pastor_note}</q>}
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className="ps-empty ps-in">Nothing yet. Requests you pray for show here.</p>}
+              </section>
+            )}
+
+            {view === "work" && (
+              <section className="ps-view" aria-labelledby="ps-work-h">
+                <h2 id="ps-work-h">My work</h2>
+                {work === null ? <p className="empty">Loading…</p> : work.length ? (
+                  <ul className="ps-cards">
+                    {work.map((w) => (
+                      <li key={`${w.kind}-${w.id}`}>
+                        <a className="ps-row ps-out" href={w.kind === "presentation" ? `#builder:${w.id}` : "#scripture"}>
+                          <b>{w.title}</b><span className="ps-tag">{w.private ? "Only me" : "Team"}</span>
+                          <span>{w.kind === "study" ? "Scripture study" : "Presentation"}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className="ps-empty ps-in">Your scripture studies and presentations show here.</p>}
+              </section>
+            )}
+
+            {view === "sunday" && (
+              <section className="ps-view" aria-labelledby="ps-sun-h">
+                <h2 id="ps-sun-h">This Sunday</h2>
+                <div className="ps-card ps-out">
+                  <p className="ps-who">{sunday ? sunDate : "No program yet"}</p>
+                  <p className="ps-body ps-title">{sunday ? sunday.sermon || "Sermon not filled in yet" : "Start Sunday's program on the Program page."}</p>
+                  <div className="ps-acts">
+                    <a className="ps-solid" href="#program">Open Program</a>
+                    {sunday && <a className="ps-btn ps-out" href="#service">Service Slides</a>}
                   </div>
-                ))}
-              </details>
+                </div>
+              </section>
             )}
 
-            <details className="ps-fold">
-              <summary>My work{work && <span>{work.length}</span>}</summary>
-              {work?.length ? work.map((w) => (
-                <div className="ps-wk" key={`${w.kind}-${w.id}`}>
-                  <a href={w.kind === "presentation" ? `#builder:${w.id}` : "#scripture"}>{w.title}</a>
-                  <span>{w.kind === "study" ? "Study" : "Presentation"} · {w.private ? "Only me" : "Team"}</span>
-                </div>
-              )) : <p className="ps-hint">Your scripture studies and presentations show here.</p>}
-            </details>
-            </div>
+            <nav className="ps-dock ps-out" aria-label="Pastor">
+              {DOCK.map((d) => (
+                <button key={d.v} aria-current={view === d.v ? "page" : undefined} onClick={() => goView(d.v)}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">{d.icon}</svg>{d.label}
+                  {d.v === "pray" && open.length > 0 && <span className="ps-badge" aria-label={`, ${open.length} to pray for`}>{open.length}</span>}
+                </button>
+              ))}
+            </nav>
           </>
         ))}
       </main>
