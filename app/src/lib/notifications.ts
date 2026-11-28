@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "./supabase";
 import { useChurch } from "./church";
 
-export type Kind = "join_request" | "added" | "role" | "removed" | "church_waiting" | "program_new" | "published" | "republish" | "library_changed" | "ownership_offer" | "ownership_answer";
+export type Kind = "join_request" | "added" | "role" | "removed" | "church_waiting" | "program_new" | "published" | "republish" | "library_changed" | "ownership_offer" | "ownership_answer" | "prayer_request";
 export interface Note {
   id: string; kind: Kind; church_id: string | null; actor_email: string; created_at: string; read_at: string | null;
   data: {
@@ -15,6 +15,7 @@ export interface Note {
     service_date?: string;                                                   // programs: the Sunday
     item_kind?: "song" | "reading"; item_title?: string; change?: "update" | "delete"; program_id?: string;
     presentation_id?: string; presentation_title?: string;
+    request_id?: string; name?: string; pastors_only?: boolean; preview?: string; source?: "app" | "team";   // prayer_request
   };
 }
 

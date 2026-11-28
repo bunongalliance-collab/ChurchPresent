@@ -1,0 +1,76 @@
+/* Prayer page (#prayer). App colour tokens only (index.css), so light and dark both work.
+   Requests for the pastors only get the orange "private" edge used elsewhere for Only me. */
+html body .ct-app .py { max-width: 1280px; margin: 0 auto; padding: 16px 16px 48px; color: var(--text); font-family: var(--font-ui); }
+.py-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; margin-bottom: 18px; }
+.py-top h1 { margin: 0; font-size: 1.6rem; line-height: 1.2; font-weight: 700; }
+.py-top p { margin: 4px 0 0; color: var(--muted); max-width: 46em; }
+.py-note { padding: 14px 16px; border-radius: 10px; background: var(--panel); border: 1px solid var(--sunken); }
+.py-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+
+/* Add a request (from the team) */
+.py-add { display: grid; gap: 10px; margin-bottom: 16px; padding: 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--sunken); }
+.py-add h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.py-add label { display: grid; gap: 4px; font-weight: 600; font-size: 0.92rem; }
+.py-add input:not([type="checkbox"]), .py-add textarea { font: 16px/1.45 var(--font-ui); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); color: var(--text); }
+.py-add .py-check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.py-add .py-check input { width: 18px; height: 18px; accent-color: var(--private); }
+
+/* Open / Answered / All */
+.py-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.py-chips button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--ctrl); background: transparent; color: var(--text); font: 600 0.9rem var(--font-ui); cursor: pointer; }
+.py-chips button span { font-weight: 700; opacity: 0.65; }
+.py-chips button[aria-pressed="true"] { background: var(--accent-soft); color: var(--on-soft); border-color: transparent; }
+.py-empty { margin: 18px 0; padding: 24px; border-radius: 12px; border: 1px dashed var(--ctrl); color: var(--muted); text-align: center; }
+
+/* One request */
+.py-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px; }
+.py-card { display: grid; gap: 8px; padding: 14px 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--sunken); }
+.py-card.is-private { border-left: 4px solid var(--private); }
+.py-card.is-done .py-body { color: var(--muted); }
+.py-who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.py-who b { font-size: 1rem; font-weight: 700; }
+.py-when { color: var(--muted); font-size: 0.86rem; }
+.py-badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.py-badge svg, .py-lock-word svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
+.py-badge.new { background: var(--accent); color: var(--on-accent); }
+.py-badge.lock { background: var(--private-soft); color: var(--on-private); }
+.py-badge.done { background: var(--sunken); color: var(--muted); }
+.py-body { margin: 0; font-size: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.py-src { margin: -2px 0 0; color: var(--muted); font-size: 0.84rem; }
+.py-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-top: 10px; border-top: 1px solid var(--sunken); }
+.py-follow { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.86rem; white-space: nowrap; }
+.py-follow select { min-height: 36px; max-width: 240px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--ctrl); background: var(--bg); color: var(--text); font: 0.9rem var(--font-ui); }
+.py-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: auto; }
+.py-more { position: relative; }
+.py-more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; padding: 4px 12px; line-height: 1.2; border-radius: 6px; border: 1px solid var(--ctrl); font-size: 0.75rem; }
+.py-more summary:hover, .py-more[open] summary { background: var(--sunken); }
+.py-more summary::-webkit-details-marker { display: none; }
+.py-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 5; min-width: 220px; display: grid; padding: 6px; border-radius: 10px; background: var(--panel); border: 1px solid var(--ctrl); box-shadow: 0 12px 28px rgb(0 0 0 / 0.16); }
+.py-menu button { text-align: left; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text); font: 0.92rem var(--font-ui); cursor: pointer; }
+.py-menu button:hover { background: var(--sunken); }
+.py-menu button.danger { color: var(--danger); }
+
+/* Side: the QR code and who sees what */
+.py-side { position: sticky; top: 12px; display: grid; gap: 10px; padding: 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--sunken); }
+.py-side h2 { margin: 6px 0 0; font-size: 1rem; font-weight: 700; }
+.py-side h2:first-child { margin-top: 0; }
+.py-side p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.py-side p b { font-weight: 700; }
+.py-share { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; }
+.py-qr { width: 112px; height: 112px; padding: 4px; border-radius: 8px; background: #fff; }
+.py-qr svg { display: block; width: 100%; height: 100%; }
+.py-link { display: grid; gap: 8px; justify-items: start; }
+.py-link code { font-size: 0.75rem; overflow-wrap: anywhere; color: var(--muted); }
+.py-lock-word { color: var(--private); }
+
+@media (max-width: 900px) {
+  .py-grid { grid-template-columns: 1fr; }
+  .py-side { position: static; }
+}
+@media (max-width: 600px) {
+  .py-top h1 { font-size: 1.4rem; }
+  .py-acts { margin-left: 0; width: 100%; }
+  .py-acts button { flex: 1; }
+  .py-follow { width: 100%; }
+  .py-follow select { flex: 1; max-width: none; }
+}

@@ -27,6 +27,7 @@ const ICON: Record<Note["kind"], string> = {
   library_changed: "M9 18V5l12-2v13M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3ZM21 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3Z",
   ownership_offer: "M7 14a5 5 0 1 1 3.5-8.6L21 16v4h-4v-2h-2v-2h-2l-1.4-1.4A5 5 0 0 1 7 14Z",
   ownership_answer: "M7 14a5 5 0 1 1 3.5-8.6L21 16v4h-4v-2h-2v-2h-2l-1.4-1.4A5 5 0 0 1 7 14Z",
+  prayer_request: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z",
 };
 
 function Message({ n }: { n: Note }) {
@@ -37,6 +38,7 @@ function Message({ n }: { n: Note }) {
     case "role": return <><b>{who(n.actor_email)}</b> made you <b>{roleWord(n.data.role)}</b> of {church}.</>;
     case "removed": return <><b>{who(n.actor_email)}</b> removed you from {church}. You can still read and present.</>;
     case "church_waiting": return <>A new church, {church}, is waiting to be accepted.</>;
+    case "prayer_request": return <><b>{n.data.name || (n.data.source === "team" ? who(n.actor_email) : "Someone")}</b> {n.data.source === "team" && n.data.name ? <>(added by {who(n.actor_email)})</> : null} asked {church} to pray{n.data.pastors_only ? <>, <b>for the pastors only</b></> : null}: “{n.data.preview}{(n.data.preview?.length ?? 0) >= 90 ? "…" : ""}”</>;
     case "program_new": return <><b>{who(n.actor_email)}</b> started the program for <b>{sunday(n.data.service_date)}</b>.</>;
     case "published": return <><b>{who(n.actor_email)}</b> published the program for <b>{sunday(n.data.service_date)}</b> to the Nau Mpro App.</>;
     case "republish": return <>The program for <b>{sunday(n.data.service_date)}</b> changed after it was published. Publish again so the congregation sees the latest order.</>;
@@ -129,6 +131,7 @@ export default function NotificationBell() {
                       <p className="nb-done">{n.data.resolved === "accepted" ? `✓ Accepted${n.data.resolved_by ? ` by ${n.data.resolved_by}` : ""}.` : n.data.resolved === "declined" ? `Declined${n.data.resolved_by ? ` by ${n.data.resolved_by}` : ""}.` : "They cancelled the request."}</p>
                     )}
                     {n.kind === "church_waiting" && <a className="nb-link" href="#team" onClick={() => setOpen(false)}>Review on the Team page</a>}
+                    {n.kind === "prayer_request" && <a className="nb-link" href="#prayer" onClick={() => { setOpen(false); if (!n.read_at) void markRead([n.id]); }}>Open prayer requests</a>}
                     {n.kind === "republish" && n.data.resolved === "republished" && <p className="nb-done">✓ Published again.</p>}
                     {n.kind === "library_changed" && n.data.presentation_id && (
                       <a className="nb-link" href={`#builder:${n.data.presentation_id}`} onClick={() => { setOpen(false); if (!n.read_at) void markRead([n.id]); }}>Open the presentation</a>

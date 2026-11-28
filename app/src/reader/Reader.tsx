@@ -6,6 +6,7 @@ import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
 import { PULL_THRESHOLD, usePullToRefresh } from "./usePullToRefresh";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
+import PrayerSheet from "./PrayerSheet";
 import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
 import { followAlong, loadChurchList, loadTodayService, readerChurch, setReaderChurch, type PublishedService, type PubSub, type ReaderChurch } from "../lib/publishedService";
 
@@ -13,6 +14,7 @@ import { followAlong, loadChurchList, loadTodayService, readerChurch, setReaderC
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
 // Portrait tablets and phones: Lyrics and Score tabs. Play mode gives the score the whole screen.
 // Opening a song from the list adds a history step, so the phone's Back button returns to the list.
+// "Prayer request" (or the #prayer address, from the QR code in the program) opens a form to ask the church to pray.
 
 const SIZE_KEY = "readerTextSize";
 const THEME_KEY = "readerTheme";
@@ -56,9 +58,11 @@ export default function Reader() {
     return () => { live = false; };
   }, []);
 
-  // Back and forward buttons open and close songs
+  // The prayer request form, open while the address ends in #prayer
+  const [praying, setPraying] = useState(() => window.location.hash === "#prayer");
+  // Back and forward buttons open and close songs and the prayer form
   useEffect(() => {
-    const onPop = () => { setSelId(idFromHash()); setPlaying(false); setDrawer(false); };
+    const onPop = () => { setSelId(idFromHash()); setPraying(window.location.hash === "#prayer"); setPlaying(false); setDrawer(false); };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -99,6 +103,34 @@ export default function Reader() {
   }, [church, asking]);
   const pickChurch = (c: ReaderChurch | "none") => { setReaderChurch(c); setChurch(c); setAsking(false); setService(null); };
   const showAsk = (church === null || asking) && !!churchList?.length;
+  // A QR code in the church's program opens /nau-mpro/?church=<id>#prayer: the request goes to that church.
+  // A phone with no church chosen yet takes it as its church too.
+  const [qrChurch, setQrChurch] = useState<ReaderChurch | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("church");
+    if (!id) return;
+    params.delete("church");
+    const rest = params.toString();
+    window.history.replaceState(window.history.state, "", `${window.location.pathname}${rest ? `?${rest}` : ""}${window.location.hash}`);
+    loadChurchList().then((list) => {
+      const c = list?.find((x) => x.id === id);
+      if (!c) return;
+      setQrChurch(c);
+      if (readerChurch() === null || readerChurch() === "none") pickChurch(c);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const prayerChurch = qrChurch ?? (church && church !== "none" ? church : null);
+  function openPrayer() {
+    window.history.pushState({ reader: true, prayer: true }, "", "#prayer");
+    setPraying(true);
+    setDrawer(false);
+  }
+  function closePrayer() {
+    if (window.history.state?.prayer) window.history.back();
+    else { window.history.replaceState(null, "", window.location.pathname + window.location.search); setPraying(false); }
+  }
   const churchIdRef = useRef(churchId);
   churchIdRef.current = churchId;
   useEffect(() => { loadTodayService(churchId).then(setService); }, [churchId]);
@@ -420,6 +452,13 @@ export default function Reader() {
               {languages.map((l) => <button key={l} className={`nm-chip${lang === l ? " on" : ""}`} aria-pressed={lang === l} onClick={() => setLang(lang === l ? "" : l)}>{l}</button>)}
             </div>
           )}
+          {!q && !cat && !lang && (
+            <button className="nm-pray-btn" onClick={openPrayer}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
+              <span><b>Prayer request</b><small>Ask your church to pray for you</small></span>
+              <svg className="nm-pray-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          )}
           {churchId && !(service && todayItems.length > 0) && !q && !cat && !lang && (
             <div className="nm-today nm-today-none">
               <span className="nm-today-h">Today’s service</span>
@@ -542,7 +581,10 @@ export default function Reader() {
                 <li><b>Browse</b> the list, or narrow it with the category and language buttons.</li>
                 <li><b>Before church</b>, lyrics are saved for offline after they load. To have music sheets without a connection too, use “Save all music sheets” above the list.</li>
               </ul>
-              {firstToday && <button className="nm-go" onClick={() => open(firstToday)}>Start Today’s service: {firstToday.number} {firstToday.title}</button>}
+              <div className="nm-actions">
+                {firstToday && <button className="nm-go" onClick={() => open(firstToday)}>Start Today’s service: {firstToday.number} {firstToday.title}</button>}
+                <button className="nm-alt" onClick={openPrayer}>Send a prayer request</button>
+              </div>
             </section>
           )}
         </main>
@@ -583,6 +625,8 @@ export default function Reader() {
       )}
       {drawer && <div className="nm-scrim" onClick={() => setDrawer(false)} />}
       {note && <div className="nm-note" role="status">{note}</div>}
+      {praying && <PrayerSheet church={prayerChurch} onClose={closePrayer}
+        onChooseChurch={() => { closePrayer(); setAsking(true); if (song && drawerLayout()) setDrawer(true); }} />}
       <InstallPrompt />
       <OpenInBrowser />
     </div>

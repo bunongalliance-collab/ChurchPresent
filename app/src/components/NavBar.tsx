@@ -5,6 +5,7 @@ import { currentTheme, setTheme, type Theme } from "../lib/theme";
 import { readForSlides, watchForSlides } from "../lib/forSlides";
 import { useChurch, switchChurch } from "../lib/church";
 import NotificationBell, { WelcomeBanner } from "./NotificationBell";
+import { countNewPrayer } from "../lib/prayer";
 
 // Shared navigation for the app's pages. The current page is marked with aria-current.
 // Sign in and sign out live here, so they are the same on every page.
@@ -20,6 +21,7 @@ const PAGES: { href: string; label: string; divider?: boolean }[] = [
   { href: "#service", label: "Service Slides" },
   { href: "#projector", label: "Projector" },
   { href: "#thumbnail", label: "Thumbnail", divider: true },
+  { href: "#prayer", label: "Prayer" },
   { href: "#notes", label: "Notes" },
   { href: "#team", label: "Team" },
 ];
@@ -43,6 +45,14 @@ export default function NavBar() {
   const church = useChurch();
   const cur = church.current;
   const [asks, setAsks] = useState(0);
+  // Open prayer requests nobody follows up yet: a count on Prayer
+  const [newPrayer, setNewPrayer] = useState(0);
+  useEffect(() => {
+    if (!cur || cur.status !== "active") { setNewPrayer(0); return; }
+    let live = true;
+    void countNewPrayer(cur.id).then((n) => { if (live) setNewPrayer(n); });
+    return () => { live = false; };
+  }, [cur, hash]);
   // One menu open at a time: the church switcher, Apps, the account menu or the sign-in form
   const [pop, setPop] = useState<"" | "church" | "apps" | "acct" | "signin">("");
   useEffect(() => {
@@ -90,6 +100,7 @@ export default function NavBar() {
   const counts = (href: string) => (
     <>
       {href === "#team" && asks > 0 && <span className="tn-count" aria-label={`, ${asks} ${asks === 1 ? "person" : "people"} asking to join`}>{asks}</span>}
+      {href === "#prayer" && newPrayer > 0 && <span className="tn-count" aria-label={`, ${newPrayer} new prayer request${newPrayer === 1 ? "" : "s"}`}>{newPrayer}</span>}
       {href === "#scripture" && waiting > 0 && <span className="tn-count" aria-label={`, ${waiting} passage${waiting === 1 ? "" : "s"} from the Bible waiting`}>{waiting}</span>}
     </>
   );
