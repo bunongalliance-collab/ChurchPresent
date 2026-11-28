@@ -452,7 +452,8 @@ function useBunongVerse(on: boolean) {
   return on ? v : null;
 }
 
-// The Lyric and Scripture demo loops (public/demo/*.html), one at a time, sized to their content
+// The Lyric, Scripture and Bible demo loops (public/demo/*.html), one at a time, sized to their content.
+// Like the Demos page: on a full-width band, the app window in the real app's colours (?real=1).
 function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
   const [which, setWhich] = useState<"lyric" | "scripture" | "bible">("lyric");
   const [height, setHeight] = useState(760);
@@ -474,9 +475,11 @@ function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
           <button key={k} type="button" role="tab" aria-selected={which === k} className={which === k ? "on" : ""} onClick={() => setWhich(k)}>{label}</button>
         ))}
       </div>
-      <iframe ref={frame} key={which} title={tabs.find((x) => x[0] === which)![1]} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}`}
+      <div className="hm-demos-band">
+      <iframe ref={frame} key={which} title={tabs.find((x) => x[0] === which)![1]} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}&real=1`}
         onLoad={() => { first.current = { theme, lang }; frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }}
         style={{ height }} loading="lazy" />
+      </div>
       <a className="hm-demo-all" href="#demos">{vi ? "Xem cả ba phần trên một trang →" : "See all three demos on one page →"}</a>
     </section>
   );

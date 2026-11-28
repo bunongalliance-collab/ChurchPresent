@@ -189,7 +189,7 @@ div.hm-note { max-width: 300px; }
 .hm .hm-tagline { margin: 14px 0 0; }
 
 /* Demo loop (Lyric | Scripture) after How a Sunday comes together */
-.hm-demo-tabs { display: inline-flex; gap: 0; border: 1px solid var(--hm-ink); margin: 6px 0 16px; }
+.hm-demo-tabs { display: inline-flex; gap: 0; border: 1px solid var(--hm-ink); margin: 6px 0 0; }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"][type="button"] { -webkit-text-fill-color: currentColor; font: 500 12px var(--hm-mono); padding: 9px 18px; background: none; border: 0; color: var(--hm-ink); cursor: pointer; }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"]:hover:not(.on) { background: var(--hm-accent); color: var(--hm-linen); }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"][aria-selected="true"].on { background: var(--hm-ink); color: var(--hm-linen); }
