@@ -61,10 +61,11 @@
   .col { display: grid; gap: 10px; justify-items: center; transition: opacity .4s; }
   .col.dim { opacity: .5; }
   /* Whose phone it is: a message bubble pointing down at the phone */
-  .tag { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; margin-bottom: 6px; border-radius: 16px; background: var(--fg); color: var(--bg); font: 600 13px var(--sans); box-shadow: 0 4px 12px var(--pshadow); }
-  .tag::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; background: inherit; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
-  .tag .ico { width: 14px; height: 14px; }
-  .tag.me { background: var(--sage); color: var(--surface); }
+  .tag { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; margin-bottom: 10px; border-radius: 22px; background: #a4532f; color: #fff; font: 700 16px/1.1 var(--sans); letter-spacing: .01em;
+    border: 2px solid #fff; box-shadow: 0 8px 22px rgba(0,0,0,.22), 0 0 0 4px rgba(164, 83, 47, .22); }
+  .tag::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 14px; height: 14px; background: inherit; border: 2px solid #fff; border-top: 0; border-left: 0; transform: translateX(-50%) rotate(45deg); border-radius: 0 0 3px 0; }
+  .tag .ico { width: 18px; height: 18px; stroke-width: 2; }
+  .tag.me { background: #3f6b4c; box-shadow: 0 8px 22px rgba(0,0,0,.22), 0 0 0 4px rgba(63, 107, 76, .24); }
 
   /* The path the verse takes from one phone to the other */
   .link { position: relative; height: 140px; align-self: center; }
@@ -160,6 +161,14 @@
   .cap button i { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-style: normal; font-size: 11px; }
   .cap button.on { color: var(--ink); } .cap button.on i { background: var(--accent); border-color: var(--accent); color: var(--linen); }
   .cap button.done i { background: var(--app-sunken); border-color: var(--app-sunken); color: var(--ink); }
+
+  /* Before the ending: a short card, "Che Chô opens his phone" */
+  .scene { position: absolute; inset: 0; z-index: 24; display: grid; place-items: center; text-align: center; padding: 24px; background: color-mix(in srgb, var(--app-bg) 90%, transparent); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .5s; }
+  .scene.on { opacity: 1; }
+  .scene .ph { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: #a4532f; color: #fff; border: 3px solid #fff; box-shadow: 0 10px 26px rgba(0,0,0,.2); transform: scale(.8); transition: transform .5s cubic-bezier(.2,.9,.3,1.4); }
+  .scene.on .ph { transform: none; }
+  .scene .ph .ico { width: 30px; height: 30px; stroke-width: 1.8; }
+  .scene h3 { font: 600 clamp(24px, 3.4vw, 38px)/1.15 var(--display); margin: 0; color: var(--ink); text-wrap: balance; }
 
   /* The ending card */
   .end { position: absolute; inset: 0; z-index: 25; display: grid; place-items: center; text-align: center; padding: 24px; background: color-mix(in srgb, var(--app-bg) 88%, transparent); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .5s; }
@@ -302,8 +311,11 @@
           <button data-step="2" role="tab"><i>3</i><span data-t="s3">It arrives</span></button>
           <button data-step="3" role="tab"><i>4</i><span data-t="s4">Tap Latest shared</span></button>
           <button data-step="4" role="tab"><i>5</i><span data-t="s5">Back to the verse</span></button>
+          <button data-step="5" role="tab"><i>6</i><span data-t="s6">Che Chô opens his phone</span></button>
         </div>
       </div>
+
+      <div class="scene" id="scene"><div><span class="ph"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><h3 data-t="scene">Che Chô opens his phone</h3></div></div>
 
       <div class="end" id="end">
         <div>
@@ -332,7 +344,7 @@
     you: "Điện thoại của bạn", them: "Điện thoại của Che Chô", linkLab: "cùng hội thánh",
     post: "Đăng lên nhóm hội thánh", church: "Hội thánh", name: "Tên của bạn", note: "Ghi chú (không bắt buộc)", cancel: "Huỷ", share: "Chia sẻ",
     latest: "Mới chia sẻ", noteTxt: "Cho bài giảng Chúa Nhật",
-    s1: "Chọn một câu", s2: "Đăng lên hội thánh", s3: "Câu được gửi đến", s4: "Bấm Mới chia sẻ", s5: "Mở đúng câu đó",
+    s1: "Chọn một câu", s2: "Đăng lên hội thánh", s3: "Câu được gửi đến", s4: "Bấm Mới chia sẻ", s5: "Mở đúng câu đó", s6: "Che Chô mở điện thoại", scene: "Che Chô mở điện thoại",
     e1: "Một câu Kinh Thánh, ", e2: "cả hội thánh", e3: " cùng đọc.", endGo: "Mở Nau Brah Ndu Ngơi →",
     sample: "Bản mẫu với Nau Mprơ Ơm 23:1 trong Kinh Thánh tiếng Bunong. Câu chia sẻ chỉ đến những người chọn cùng hội thánh.",
     posted: "Đã đăng lên Montagnard Bunong Alliance", note1: "Cho bài giảng Chúa Nhật" } };
@@ -370,7 +382,7 @@
     $("noteTxt").textContent = ""; $("car").hidden = true; $("toast").classList.remove("on");
     $("nudge").classList.remove("on", "new"); $("pgGen").classList.remove("off"); $("pgPsa").classList.add("off");
     $("from").classList.remove("on"); $("back").classList.remove("on"); $("barB").textContent = "Nau Ntơm 1 ▾";
-    $("fly").style.transition = "none"; $("fly").style.opacity = 0; $("end").classList.remove("on");
+    $("fly").style.transition = "none"; $("fly").style.opacity = 0; $("end").classList.remove("on"); $("scene").classList.remove("on");
     $("churchFld").classList.remove("pick");
   };
 
@@ -419,23 +431,28 @@
     later(t0 + 300, () => { $("from").classList.add("on"); $("b1").classList.add("flash"); });
     later(t0 + 1200, () => aim($("b1"), .6, .5));
   };
-  const STEP_MS = [2000, 0, 2700, 2000, 3600];
+  // 6 Che Chô opens his phone: a short card before the ending
+  const play6 = (t0) => {
+    later(t0, () => { $("scene").classList.add("on"); cur.style.transform = "translate(-60px, 200px)"; });
+  };
+  const STEP_MS = [2000, 0, 2700, 2000, 3600, 2800];
   const CHURCH_MS = 2200; // time spent choosing the church before the note is typed
-  const PLAYS = [play1, play2, play3, play4, play5];
+  const PLAYS = [play1, play2, play3, play4, play5, play6];
   const stepMs = (i) => i === 1 ? CHURCH_MS + 2000 + tr("note1").length * 55 + 1500 : STEP_MS[i];
 
   const run = () => {
     reset();
     let t = 0;
     PLAYS.forEach((p, i) => { const at = t; later(at, () => setStep(i)); p(at); t += stepMs(i); });
-    later(t + 400, () => { $("end").classList.add("on"); cur.style.transform = "translate(-60px, 200px)"; });
+    later(t + 400, () => { $("scene").classList.remove("on"); $("end").classList.add("on"); cur.style.transform = "translate(-60px, 200px)"; });
     later(t + 6400, run);
   };
   // Jump to a moment: earlier moments finish at once, that one plays, then the loop stops there
   const jump = (s) => {
     reset();
     if (s >= 3) { $("nudge").classList.add("on", "new"); }
-    if (s === 4) play5(0); else PLAYS[s](0);
+    if (s >= 4) play5(0); else PLAYS[s](0);
+    if (s === 5) play6(0);
     setStep(s);
   };
   document.querySelectorAll("#cap [data-step]").forEach((b) => b.addEventListener("click", () => jump(+b.dataset.step)));
