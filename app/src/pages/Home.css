@@ -191,7 +191,7 @@ div.hm-note { max-width: 300px; }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"][type="button"] { -webkit-text-fill-color: currentColor; font: 500 12px var(--hm-mono); padding: 9px 18px; background: none; border: 0; color: var(--hm-ink); cursor: pointer; }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"]:hover:not(.on) { background: var(--hm-accent); color: var(--hm-linen); }
 .ct-app .hm .hm-demo .hm-demo-tabs button[role="tab"][aria-selected="true"].on { background: var(--hm-ink); color: var(--hm-linen); }
-.hm-demo iframe { display: block; width: 100%; border: 0; background: transparent; }
+.hm-demo iframe { display: block; width: 100%; border: 0; background: transparent; color-scheme: normal; }
 /* The hero's start button and See how it works stay on phones (an older index.css rule hides .hm-note there) */
 .hm-helps div.hm-note { display: block; }
 /* Nau Mpro and Nau Brah Ndu Ngơi in the navbar: small outlined chips, as installable apps */

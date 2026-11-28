@@ -7,11 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* VOICE: the existing NauBrah home, calm and warm
-     IDEA: the Lyric page itself, playing its three steps like a short screen recording
-     PICTURE: one app window with the three real columns: Choose a song, Check the words, Preview the slides
-     COLOUR and TYPE: home linen, burgundy and Fraunces outside; the app's own tokens and Arial slides inside
-     LAYOUT: headline and buttons, then the window; phones swipe between the three columns */
   :root {
     --linen: #efe7d5; --ink: #2b2420; --muted: #6d6155; --accent: #7a1f2b;
     --edge: rgba(43,36,32,.14); --shadow: rgba(60,40,20,.16);
@@ -31,7 +26,7 @@
   body { margin: 0; background: var(--linen); color: var(--ink); font-family: var(--mono); overflow-x: clip;
     background-image: radial-gradient(ellipse 70% 55% at 0% -10%, rgba(255,240,200,.75), transparent 70%); }
   body[data-theme="dark"] { background-image: radial-gradient(ellipse 70% 55% at 0% -10%, rgba(255,200,120,.12), transparent 70%); }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 14px 16px 60px; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 14px 16px 60px; }
   button { font: inherit; cursor: pointer; }
 
   nav { display: flex; align-items: center; gap: 22px; font-size: 12px; white-space: nowrap; }
@@ -48,11 +43,11 @@
   .btn.dark { background: var(--ink); color: var(--linen); }
 
   /* Step chooser above the window */
-  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
   .step { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: start; text-align: left; background: none; border: 0; border-top: 3px solid var(--edge); padding: 12px 4px 4px; color: var(--muted); position: relative; }
   .step .n { grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid currentColor; font-weight: 500; }
-  .step b { font: 600 18px var(--display); color: var(--ink); opacity: .55; }
-  .step small { font-size: 12px; line-height: 1.45; }
+  .step b { font: 600 17px var(--display); color: var(--ink); opacity: .55; }
+  .step small { font-size: 11.5px; line-height: 1.4; }
   .step::before { content: ""; position: absolute; left: 0; top: -3px; height: 3px; width: 0; background: var(--accent); }
   .step.done::before { width: 100%; }
   .step.on::before { animation: grow var(--dur, 4s) linear forwards; }
@@ -70,7 +65,7 @@
   .tabs .on { background: var(--app-soft); color: var(--app-on-soft); font-weight: 600; }
   .replay { margin-left: auto; background: none; border: 1px solid var(--app-sunken); color: var(--app-muted); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
 
-  .cols { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.35fr); gap: 12px; padding: 12px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr); gap: 12px; padding: 12px; }
   .col { background: var(--app-panel); border-radius: 10px; padding: 14px; transition: opacity .35s, box-shadow .35s; opacity: .45; display: flex; flex-direction: column; gap: 10px; min-height: 470px; }
   .col.on { opacity: 1; box-shadow: 0 0 0 2px var(--app-accent); }
   .col.done { opacity: 1; }
@@ -149,29 +144,38 @@
   .remote kbd { font: 600 11px var(--ui); border: 1px solid rgba(243,234,217,.5); border-radius: 4px; padding: 2px 6px; }
   .remote .k-on { background: #f3ead9; color: #241c16; }
 
+  /* 5 Hours to seconds: Dark cinematic credit message */
+  .c5 { position: absolute; inset: 12px; z-index: 4; opacity: 0; pointer-events: none; transition: opacity .6s; padding: 0; overflow: hidden; min-height: 0; box-shadow: none !important; }
+  .c5.on, .c5.done { opacity: 1; pointer-events: auto; }
+  .credit-panel { position: absolute; inset: 0; background: #171210; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid rgba(243,234,217,.12); color: #f3ead9; }
+  .credit-tag { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #a99c8c; margin-bottom: 10px; }
+  .credit-title { font-family: var(--display); font-size: clamp(26px, 2.8vw, 36px); font-weight: 600; color: #f3ead9; margin: 0 0 10px 0; line-height: 1.15; }
+  .credit-desc { font-size: 13px; line-height: 1.5; color: #b8aba0; max-width: 380px; margin: 0 0 20px 0; }
+  .credit-btn { display: inline-flex; align-items: center; justify-content: center; font: 500 12px var(--mono); padding: 9px 18px; background: #f3ead9; color: #171210; text-decoration: none; border-radius: 4px; transition: transform .15s; }
+
   .swipe { display: none; }
   .sample { font-size: 11px; color: var(--muted); margin: 12px 0 0; text-align: right; }
 
   /* Tablets: thinner columns, fewer song rows */
   @media (max-width: 1020px) {
-    .cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    .c3 { grid-column: 1 / -1; min-height: 0; }
-    .tabs span:nth-child(n+4) { display: none; }
+    .cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .c3, .c4, .c5 { grid-column: 1 / -1; min-height: 0; }
+    .tabs span:nth-child(n+5) { display: none; }
   }
-  /* Phones: the three columns become screens you swipe through; the demo moves to each as it plays */
+  /* Phones: columns become screens you swipe through */
   @media (max-width: 640px) {
     nav a:not(.brand) { display: none; }
     .btns { flex-direction: column; }
-    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+    .steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
     .step { grid-template-columns: 1fr; justify-items: center; text-align: center; padding-top: 10px; }
-    .step .n { grid-row: auto; } .step b { font-size: 12px; line-height: 1.2; } .step small { display: none; }
+    .step .n { grid-row: auto; width: 22px; height: 22px; font-size: 10px; } .step b { font-size: 10.5px; line-height: 1.1; } .step small { display: none; }
     .tabs { display: none; }
     .cols { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; padding: 10px; scrollbar-width: none; }
     .cols::-webkit-scrollbar { display: none; }
     .col { flex: 0 0 100%; scroll-snap-align: center; opacity: 1; min-height: 440px; }
     .col.on { box-shadow: none; }
     .c3 { min-height: 440px; }
-    .c4 { position: relative; inset: auto; opacity: 1; pointer-events: auto; flex: 0 0 100%; min-height: 440px; }
+    .c4, .c5 { position: relative; inset: auto; opacity: 1; pointer-events: auto; flex: 0 0 100%; min-height: 440px; }
     .screen { top: 16%; } .wallcross { display: none; }
     .pews { height: 30%; }
     .swipe { display: flex; justify-content: center; gap: 8px; padding: 0 0 12px; }
@@ -184,7 +188,7 @@
 
   /* The pointer that shows each click */
   .win { position: relative; }
-  .cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; transform: translate(70%, 110%); transition: transform .75s cubic-bezier(.45, 0, .2, 1), opacity .3s; }
+  .cursor { position: absolute; left: 0; top: 0; z-index: 30; pointer-events: none; transform: translate(70%, 110%); transition: transform .75s cubic-bezier(.45, 0, .2, 1), opacity .3s; }
   .cursor.hide { opacity: 0; }
   .cursor svg { display: block; width: 22px; height: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
   .cursor .tap { display: none; }
@@ -230,6 +234,7 @@
       <button class="step" data-step="1" role="tab"><span class="n">2</span><b data-t="s2">Check the words</b><small data-t="s2n">Every verse and chorus, ready to fix and save.</small></button>
       <button class="step" data-step="2" role="tab"><span class="n">3</span><b data-t="s3">Preview the slides</b><small data-t="s3n">Slides are made for you. Add them to the service.</small></button>
       <button class="step" data-step="3" role="tab"><span class="n">4</span><b data-t="s4">Present on the screen</b><small data-t="s4n">The projector shows each slide. One click moves on.</small></button>
+      <button class="step" data-step="4" role="tab"><span class="n">5</span><b data-t="s5">Hours to seconds</b><small data-t="s5n">What used to take an evening is ready instantly.</small></button>
     </div>
 
     <div class="win">
@@ -261,6 +266,7 @@
           <div class="thumbs" id="thumbs"></div>
           <div class="acts"><span class="go" id="present">▶ <span data-t="present">Present</span></span><span>⬇ PowerPoint</span></div>
         </div>
+
         <div class="col c4" data-col="3">
           <div class="room">
             <div class="head head4"><span class="n">4</span><h2 data-t="s4">Present on the screen</h2></div>
@@ -269,16 +275,26 @@
             <div class="screen" id="screen"><div class="t" id="scrT"></div><div class="lab" id="scrL"></div></div>
             <div class="pews" aria-hidden="true">
               <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-              <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
               <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i></div>
             </div>
             <div class="projector"></div>
             <div class="remote"><span id="scrCount"></span><kbd>←</kbd><kbd id="kNext">→</kbd></div>
           </div>
         </div>
+
+        <div class="col c5" data-col="4">
+          <div class="credit-panel">
+            <div class="credit-tag">NauBrah</div>
+            <h2 class="credit-title" data-t="s5title">Hours to seconds.</h2>
+            <p class="credit-desc" data-t="s5desc">Your entire service ready before Sunday morning.</p>
+            <a class="credit-btn" href="/#lyrics-v2" target="_top" data-t="s5btn">Start Building →</a>
+          </div>
+        </div>
       </div>
+
       <div class="cursor" id="cur" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 2l15 11.5-6.6.9 3.8 7.4-3 1.5-3.8-7.5L4 20z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="tap"></span><span class="ring"></span></div>
-      <div class="swipe" id="dots"><button data-step="0" aria-label="Step 1"><i></i></button><button data-step="1" aria-label="Step 2"><i></i></button><button data-step="2" aria-label="Step 3"><i></i></button><button data-step="3" aria-label="Step 4"><i></i></button></div>
+      <div class="swipe" id="dots"><button data-step="0" aria-label="Step 1"><i></i></button><button data-step="1" aria-label="Step 2"><i></i></button><button data-step="2" aria-label="Step 3"><i></i></button><button data-step="3" aria-label="Step 4"><i></i></button><button data-step="4" aria-label="Step 5"><i></i></button></div>
     </div>
     <p class="sample" data-t="sample">Sample demo with hymn 93 from Nau Mpro. Slides follow the app's lyric rules: 70 pt, left-aligned, starting at the top.</p>
   </section>
@@ -300,7 +316,12 @@
     en: {}, vi: { h1a: "Buổi lễ Chúa Nhật sẵn sàng trong ", h1em: "vài phút", h1b: ". Không phải vài giờ.", go: "Tạo trang trình chiếu đầu tiên →", how: "Xem cách hoạt động",
       s1: "Chọn bài hát", s1n: "Tìm trong 520 thánh ca theo tên, số hoặc lời.", s2: "Kiểm tra lời", s2n: "Mọi câu và điệp khúc, sẵn sàng để sửa và lưu.",
       s3: "Xem trước trình chiếu", s3n: "Trình chiếu được làm sẵn. Thêm vào buổi lễ.",
-      s4: "Chiếu lên màn hình", s4n: "Máy chiếu hiện từng trang. Một lần bấm để qua trang.", replay: "↻ Xem lại", ph: "Tìm tên, số hoặc lời bài hát",
+      s4: "Chiếu lên màn hình", s4n: "Máy chiếu hiện từng trang. Một lần bấm để qua trang.",
+      s5: "Từ giờ đến giây", s5n: "Khép lại chuỗi thao tác nhanh chóng.",
+      s5title: "Từ giờ đến giây.",
+      s5desc: "Toàn bộ buổi lễ sẵn sàng trước sáng chủ nhật.",
+      s5btn: "Bắt đầu ngay →",
+      replay: "↻ Xem lại", ph: "Tìm tên, số hoặc lời bài hát",
       cat: "Tất cả thể loại ▾", langs: "Tất cả ngôn ngữ ▾", save: "Lưu bài hát", s2note: "Nếu lời bài hát chưa đúng, bạn có thể chỉnh sửa rồi lưu bài hát.",
       add: "+ Thêm vào trình chiếu", empty: "Chọn bài hát để xem trình chiếu", prev: "← Trước", next: "Sau →", present: "Trình chiếu",
       sample: "Bản mẫu với bài 93 trong Nau Mpro. Trang trình chiếu theo quy tắc của ứng dụng: cỡ 70 pt, canh trái, bắt đầu từ trên.",
@@ -313,8 +334,6 @@
   const tr = (k) => T[lang][k];
   const $ = (id) => document.getElementById(id);
 
-  // Lyric slides, as the app makes them: 70 pt bold Arial on a 960 x 540 pt slide, 8 pt padding, 24 pt label band,
-  // a verse flows as one paragraph, a full slide continues on the next, never leave a single row on the last slide
   const SLIDES = (() => {
     const ctx = document.createElement("canvas").getContext("2d");
     ctx.font = "700 70px Arial, sans-serif";
@@ -340,7 +359,6 @@
     return out;
   })();
 
-  // Draw the parts that do not change
   const songsEl = $("songs");
   const renderSongs = (filter) => {
     const list = SONGS.filter(([n, t]) => !filter || t.toLowerCase().startsWith(filter.toLowerCase()) || String(n).startsWith(filter));
@@ -357,22 +375,18 @@
     thumbs.querySelectorAll(".th").forEach((t, k) => t.classList.toggle("cur", k === i));
   };
 
-  // The demo timeline
-  // The pointer: glides to a part of the window, then clicks it
   const win = document.querySelector(".win"), cur = $("cur");
   const spot = (q) => typeof q === "string" ? document.querySelector(q) : (typeof q === "function" ? q() : q);
   const aim = (q, dx = .5, dy = .5, again = false) => {
     const el = spot(q); if (!el) return;
     const w = win.getBoundingClientRect(), r = el.getBoundingClientRect();
     cur.style.transform = `translate(${r.left - w.left + r.width * dx}px, ${r.top - w.top + r.height * dy}px)`;
-    // on phones the screens may still be sliding: aim again once they settle
     if (phone() && !again) later(450, () => aim(q, dx, dy, true));
   };
   const tap = () => { cur.classList.remove("click"); void cur.offsetWidth; cur.classList.add("click"); };
-  // move at `at`, click at `at + 750`, then run fn
   const clickOn = (at, q, fn, dx, dy) => { later(at, () => aim(q, dx, dy)); later(at + 750, () => { tap(); fn && fn(); }); };
   const press = (el) => { el.classList.add("flash"); later(200, () => el.classList.remove("flash")); };
-  const STEP_MS = [4200, 4200, 3600, 9000];
+  const STEP_MS = [3600, 3600, 3200, 6500, 4200];
   let timers = [], step = -1, auto = true;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -394,35 +408,33 @@
     thumbs.querySelectorAll(".th").forEach(t => t.classList.remove("in", "cur"));
   };
 
-  // Step 1: type in the search, the list narrows, tap the hymn
   const play1 = (t0) => {
     clickOn(t0 + 300, "#search", () => { $("search").classList.add("focus"); $("ph").hidden = true; $("caret").hidden = false; }, .2, .5);
     "93".split("").forEach((ch, i) => later(t0 + 1300 + i * 350, () => { $("q").textContent += ch; renderSongs($("q").textContent); }));
     clickOn(t0 + 2200, () => songsEl.querySelector('[data-n="93"]'), () => songsEl.querySelector('[data-n="93"]').classList.add("pick"), .35, .5);
   };
-  // Step 2: the words fill in, section by section, then Save
+
   const play2 = (t0) => {
     later(t0, () => {
       $("title").textContent = SONGS[0][1]; $("num").textContent = "93";
       $("lyrics").innerHTML = SONG.map(([lab, ls]) => `<span class="ln"><span class="sec">${lab === "C" ? "Chorus" : "Verse " + lab.slice(1)}</span>\n${ls.join("\n")}\n\n</span>`).join("");
     });
-    SONG.forEach((_, i) => later(t0 + 300 + i * 500, () => $("lyrics").children[i].classList.add("in")));
+    SONG.forEach((_, i) => later(t0 + 300 + i * 400, () => $("lyrics").children[i].classList.add("in")));
     later(t0 + 400, () => aim("#lyrics", .55, .35));
-    clickOn(t0 + 2500, "#save", () => { $("save").classList.add("flash"); $("save").textContent = tr("saved"); later(200, () => $("save").classList.remove("flash")); });
-  };
-  // Step 3: the slides appear, the preview steps through them, Add to Presentation
-  const play3 = (t0) => {
-    later(t0 + 200, () => showSlide(0));
-    thumbs.querySelectorAll(".th").forEach((t, i) => later(t0 + 300 + i * 220, () => t.classList.add("in")));
-    clickOn(t0 + 2200, ".acts .go", () => press($("present")));
+    clickOn(t0 + 2200, "#save", () => { $("save").classList.add("flash"); $("save").textContent = tr("saved"); later(200, () => $("save").classList.remove("flash")); });
   };
 
-  // Step 4: the projector shows the slides one after another, the → key lights up for each
+  const play3 = (t0) => {
+    later(t0 + 200, () => showSlide(0));
+    thumbs.querySelectorAll(".th").forEach((t, i) => later(t0 + 300 + i * 180, () => t.classList.add("in")));
+    clickOn(t0 + 2000, ".acts .go", () => press($("present")));
+  };
+
   const project = (i) => {
     const sc = $("screen"); sc.classList.add("fade");
     later(reduce ? 0 : 300, () => { $("scrT").textContent = SLIDES[i].text; $("scrL").textContent = SLIDES[i].lab; $("scrCount").textContent = `${i + 1} / ${SLIDES.length}`; sc.classList.remove("fade"); });
   };
-  // Fit the screen to the room (as large as the wall allows) and aim the beam at its bottom corners
+
   const fitRoom = () => {
     const room = document.querySelector(".room"), sc = $("screen"), beam = document.querySelector(".beam");
     const W = room.clientWidth, H = room.clientHeight; if (!W || !H) return;
@@ -432,32 +444,38 @@
     beam.style.clipPath = `polygon(${W / 2 - 6}px ${H}px, ${W / 2 + 6}px ${H}px, ${l + w}px ${b}px, ${l + w}px ${top}px, ${l}px ${top}px, ${l}px ${b}px)`;
   };
   const roomRO = new ResizeObserver(fitRoom); roomRO.observe(document.querySelector(".room"));
+
   const play4 = (t0) => {
     later(t0, () => { $("scrT").textContent = SLIDES[0].text; $("scrL").textContent = SLIDES[0].lab; $("scrCount").textContent = `1 / ${SLIDES.length}`; });
-    later(t0 + 600, () => aim("#kNext"));
-    [1, 2, 3, 4].forEach((i, k) => later(t0 + 1800 + k * 1800, () => { tap(); $("kNext").classList.add("k-on"); later(250, () => $("kNext").classList.remove("k-on")); project(i); }));
+    later(t0 + 500, () => aim("#kNext"));
+    [1, 2, 3, 4].forEach((i, k) => later(t0 + 1200 + k * 1100, () => { tap(); $("kNext").classList.add("k-on"); later(250, () => $("kNext").classList.remove("k-on")); project(i); }));
+  };
+
+  const play5 = (t0) => {
+    clickOn(t0 + 800, ".credit-btn", () => press(document.querySelector(".credit-btn")));
   };
 
   const run = () => {
     reset(); auto = true;
     let t = 0;
-    [play1, play2, play3, play4].forEach((p, i) => { const at = t; later(at, () => setStep(i)); p(at); t += STEP_MS[i]; });
-    later(t + 2500, run);  // loop
+    [play1, play2, play3, play4, play5].forEach((p, i) => { const at = t; later(at, () => setStep(i)); p(at); t += STEP_MS[i]; });
+    later(t + 3000, run);
   };
-  // Jump to a step: finish the earlier ones at once and stop the loop there
+
   const jump = (s) => {
     reset(); auto = false;
     if (s >= 1) { renderSongs("93"); $("q").textContent = "93"; $("ph").hidden = true; songsEl.querySelector('[data-n="93"]').classList.add("pick"); }
     if (s >= 1) { play2(0); }
     if (s >= 2) { play3(0); }
     if (s >= 3) { play4(0); }
+    if (s >= 4) { play5(0); }
     if (s === 0) play1(0);
     setStep(s);
   };
+
   document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => jump(+b.dataset.step)));
   $("replay").addEventListener("click", run);
 
-  // On phones, a swipe changes the step shown above
   $("cols").addEventListener("scroll", () => {
     if (!phone()) return;
     const c = $("cols"), i = Math.round(c.scrollLeft / c.clientWidth);
@@ -473,7 +491,6 @@
     const dark = document.body.dataset.theme !== "dark"; document.body.dataset.theme = dark ? "dark" : ""; e.target.textContent = dark ? "☀ Light" : "☾ Dark";
   });
 
-  // Start when the demo scrolls into view
   if (reduce) jump(2);
   else new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); run(); } }, { threshold: .3 }).observe($("demo"));
   if (!reduce) setStep(-1), renderSongs("");

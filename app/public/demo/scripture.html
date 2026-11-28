@@ -229,6 +229,73 @@
   }
   @media (prefers-reduced-motion: reduce) { .cursor { display: none; } }
 
+  /* Step 4 ending card inside the projector room */
+  .screen .end-card {
+    position: absolute;
+    inset: 0;
+    background: var(--slide-bg);
+    color: var(--slide-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4cqw;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .45s ease;
+    z-index: 2;
+  }
+  .screen.ended .end-card {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .screen .end-eyebrow {
+    font: 600 1.9cqw/1.2 var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: #f2c14e;
+    margin-bottom: 1.4cqw;
+  }
+  .screen .end-title {
+    font: 600 5.2cqw/1.16 var(--display);
+    margin: 0 0 3.2cqw;
+    max-width: 21ch;
+  }
+  .screen .end-sub {
+    font: 400 2.4cqw/1.4 var(--ui);
+    opacity: .85;
+    margin: 0 0 3.2cqw;
+    max-width: 32ch;
+  }
+  .screen .end-actions {
+    display: flex;
+    gap: 1.6cqw;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .screen .end-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 1.5cqw 2.8cqw;
+    border-radius: .8cqw;
+    background: #f5f2ea;
+    color: #213648;
+    font: 600 2.2cqw/1 var(--mono);
+    text-decoration: none;
+    transition: transform .15s;
+  }
+  .screen .end-replay {
+    display: inline-flex;
+    align-items: center;
+    padding: 1.5cqw 2.4cqw;
+    border-radius: .8cqw;
+    border: 1px solid rgba(245, 242, 234, .45);
+    background: transparent;
+    color: #f5f2ea;
+    font: 500 2.1cqw/1 var(--mono);
+  }
+
   /* Embedded on the Home page: only the demo loop */
   nav, .hero, .steps { display: none !important; }
   body, body[data-theme="dark"] { background: transparent !important; background-image: none !important; }
@@ -305,7 +372,15 @@
             <div class="head head4"><span class="n">4</span><h2 data-t="s4">Present on the screen</h2></div>
             <span class="wallcross" aria-hidden="true"></span>
             <div class="beam"></div>
-            <div class="screen" id="screen"><div class="t" id="scrT"></div><div class="ref" id="scrR"></div></div>
+            <div class="screen" id="screen"><div class="t" id="scrT"></div><div class="ref" id="scrR"></div>
+<div class="end-card" id="endCard" aria-hidden="true">
+  <h3 class="end-title" id="endTitle">Pastors should spend<br>less time on slides, more time on worship.</h3>
+  <div class="end-actions">
+    <a class="end-cta" href="/#scripture" target="_top" id="endCta">Make Scripture Slides →</a>
+    <button type="button" class="end-replay" id="endReplay">↻ Replay</button>
+  </div>
+</div>
+</div>
             <div class="pews" aria-hidden="true">
               <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
               <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -498,6 +573,89 @@
   reset();
   if (reduce) jump(3);
   else new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); run(); } }, { threshold: .3 }).observe($("demo"));
+}
+</script>
+
+<script>
+{
+  const screen = document.getElementById("screen");
+  const endCard = document.getElementById("endCard");
+  const scrCount = document.getElementById("scrCount");
+  const kNext = document.getElementById("kNext");
+  const endTitle = document.getElementById("endTitle");
+  const endCta = document.getElementById("endCta");
+  const endReplay = document.getElementById("endReplay");
+
+  const COPY = {
+    en: {
+      title: "Pastors should spend\nless time on slides, more time on worship.",
+      cta: "Make Scripture Slides →",
+      replay: "↻ Replay"
+    },
+    vi: {
+      title: "Mục sư nên dành\nít thời gian soạn trang, nhiều thời gian thờ phượng.",
+      cta: "Tạo trang Kinh Thánh →",
+      replay: "↻ Xem lại"
+    }
+  };
+
+  let endTimer = null;
+
+  // Extend the auto-loop reset timeout so the ending slide stays visible longer before looping
+  const _setTimeout = window.setTimeout;
+  window.setTimeout = function(fn, delay, ...args) {
+    if (typeof delay === "number" && delay >= 22000 && typeof fn === "function") {
+      delay += 16150;
+    }
+    return _setTimeout.call(this, fn, delay, ...args);
+  };
+
+  const syncCopy = () => {
+    const c = COPY[document.documentElement.lang === "vi" ? "vi" : "en"];
+    endTitle.innerHTML = c.title.replace("\n", "<br>");
+    endCta.textContent = c.cta;
+    endReplay.textContent = c.replay;
+  };
+
+  const hideEnd = () => {
+    clearTimeout(endTimer);
+    screen.classList.remove("ended");
+    endCard.setAttribute("aria-hidden", "true");
+  };
+
+  const showEnd = () => {
+    syncCopy();
+    kNext.classList.add("k-on");
+    setTimeout(() => kNext.classList.remove("k-on"), 250);
+    screen.classList.add("ended");
+    endCard.setAttribute("aria-hidden", "false");
+  };
+
+  // Watch slide counter: when the last slide ("4 / 4") finishes displaying, advance to the ending slide
+  new MutationObserver(() => {
+    const txt = scrCount.textContent.trim();
+    const m = txt.match(/^(\d+)\s*\/\s*(\d+)$/);
+    if (!m) {
+      hideEnd();
+      return;
+    }
+    const [, curSlide, totalSlides] = m;
+    if (curSlide === totalSlides) {
+      clearTimeout(endTimer);
+      endTimer = setTimeout(showEnd, 1650);
+    } else {
+      hideEnd();
+    }
+  }).observe(scrCount, { childList: true, characterData: true, subtree: true });
+
+  // Clear ending card immediately whenever user replays, switches steps, or toggles language
+  document.getElementById("replay").addEventListener("click", hideEnd);
+  document.querySelectorAll("[data-step]").forEach(btn => btn.addEventListener("click", hideEnd));
+  document.getElementById("lang").addEventListener("click", () => { hideEnd(); syncCopy(); });
+  endReplay.addEventListener("click", () => {
+    hideEnd();
+    document.getElementById("replay").click();
+  });
 }
 </script>
 <script>
