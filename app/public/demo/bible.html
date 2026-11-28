@@ -162,7 +162,7 @@
   .cap button.on { color: var(--ink); } .cap button.on i { background: var(--accent); border-color: var(--accent); color: var(--linen); }
   .cap button.done i { background: var(--app-sunken); border-color: var(--app-sunken); color: var(--ink); }
 
-  /* Before the ending: a short card, "Che Chô opens his phone" */
+  /* After the verse arrives: a short card, "Che Chô opens his phone", then his phone */
   .scene { position: absolute; inset: 0; z-index: 24; display: grid; place-items: center; text-align: center; padding: 24px; background: color-mix(in srgb, var(--app-bg) 90%, transparent); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .5s; }
   .scene.on { opacity: 1; }
   .scene .ph { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: #a4532f; color: #fff; border: 3px solid #fff; box-shadow: 0 10px 26px rgba(0,0,0,.2); transform: scale(.8); transition: transform .5s cubic-bezier(.2,.9,.3,1.4); }
@@ -309,9 +309,9 @@
           <button data-step="0" role="tab"><i>1</i><span data-t="s1">Choose a verse</span></button>
           <button data-step="1" role="tab"><i>2</i><span data-t="s2">Post to your church</span></button>
           <button data-step="2" role="tab"><i>3</i><span data-t="s3">It arrives</span></button>
-          <button data-step="3" role="tab"><i>4</i><span data-t="s4">Tap Latest shared</span></button>
-          <button data-step="4" role="tab"><i>5</i><span data-t="s5">Back to the verse</span></button>
-          <button data-step="5" role="tab"><i>6</i><span data-t="s6">Che Chô opens his phone</span></button>
+          <button data-step="3" role="tab"><i>4</i><span data-t="s6">Che Chô opens his phone</span></button>
+          <button data-step="4" role="tab"><i>5</i><span data-t="s4">Tap Latest shared</span></button>
+          <button data-step="5" role="tab"><i>6</i><span data-t="s5">Back to the verse</span></button>
         </div>
       </div>
 
@@ -417,12 +417,12 @@
     });
     later(t0 + 1700, () => { $("nudge").classList.add("on", "new"); });
   };
-  // 4 The church member taps Latest shared
+  // 5 Che Chô taps Latest shared on his phone
   const play4 = (t0) => {
-    later(t0, () => { $("nudge").classList.add("on", "new"); });
+    later(t0, () => { $("scene").classList.remove("on"); $("nudge").classList.add("on", "new"); });
     clickOn(t0 + 600, () => $("nudge"), () => press($("nudge")), .5, .5);
   };
-  // 5 Their reader opens Psalm 23 at verse 1, who shared it and the note above
+  // 6 His reader opens Psalm 23 at verse 1, who shared it and the note above
   const play5 = (t0) => {
     later(t0, () => {
       $("nudge").classList.remove("on", "new"); $("pgGen").classList.add("off"); $("pgPsa").classList.remove("off");
@@ -431,13 +431,13 @@
     later(t0 + 300, () => { $("from").classList.add("on"); $("b1").classList.add("flash"); });
     later(t0 + 1200, () => aim($("b1"), .6, .5));
   };
-  // 6 Che Chô opens his phone: a short card before the ending
+  // 4 Che Chô opens his phone: a short card after the verse arrives, then his phone shows
   const play6 = (t0) => {
     later(t0, () => { $("scene").classList.add("on"); cur.style.transform = "translate(-60px, 200px)"; });
   };
-  const STEP_MS = [2000, 0, 2700, 2000, 3600, 2800];
+  const STEP_MS = [2000, 0, 2700, 2800, 2000, 3600];
   const CHURCH_MS = 2200; // time spent choosing the church before the note is typed
-  const PLAYS = [play1, play2, play3, play4, play5, play6];
+  const PLAYS = [play1, play2, play3, play6, play4, play5];
   const stepMs = (i) => i === 1 ? CHURCH_MS + 2000 + tr("note1").length * 55 + 1500 : STEP_MS[i];
 
   const run = () => {
@@ -451,8 +451,7 @@
   const jump = (s) => {
     reset();
     if (s >= 3) { $("nudge").classList.add("on", "new"); }
-    if (s >= 4) play5(0); else PLAYS[s](0);
-    if (s === 5) play6(0);
+    if (s === 5) play5(0); else PLAYS[s](0);
     setStep(s);
   };
   document.querySelectorAll("#cap [data-step]").forEach((b) => b.addEventListener("click", () => jump(+b.dataset.step)));

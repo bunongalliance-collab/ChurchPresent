@@ -86,8 +86,6 @@ export default function Demos() {
         <header className="hm-nav">
           <a className="hm-brand" href="#">NauBrah</a>
           <a href="#">{t.home}</a>
-          <a className="hm-pwa" href="/nau-mpro/"><span aria-hidden="true">↓</span> Nau Mpro</a>
-          <a className="hm-pwa" href="/nau-brah-ndu-ngoi/"><span aria-hidden="true">↓</span> Nau Brah Ndu Ngơi</a>
           <button type="button" className="hm-theme" onClick={toggleLang} aria-label={t.other} title={t.other}>{t.otherShort}</button>
           <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.light : t.dark}</button>
           <a className="hm-signin" href="#team">{t.signIn}</a>
