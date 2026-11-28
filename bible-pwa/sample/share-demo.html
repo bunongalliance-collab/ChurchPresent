@@ -1,0 +1,411 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bible Share Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  /* LAYOUT: the Home demo window; inside it two phones running the Bunong Bible reader, the sharer on the left and a church member on the right.
+     A pointer plays the five moments; a caption under the phones names each one. Phones: one phone at a time, the view slides to the other. */
+  :root {
+    /* Home page frame */
+    --linen: #efe7d5; --ink: #2b2420; --muted: #6d6155; --accent: #7a1f2b; --edge: rgba(43,36,32,.14); --shadow: rgba(60,40,20,.16);
+    --app-bg: #e9e0cc; --app-panel: #f6f0e2; --app-sunken: #ddd2bb;
+    /* The reader's own colours (bible.css) */
+    --bg: #faf8f3; --surface: #ffffff; --fg: #26241f; --rmuted: #6b665c; --line: #e6e1d6;
+    --sage: #5f7a63; --sage-soft: #e7eee6; --clay: #a8603f; --gold: #b08a2e; --hl: #f4e7b8; --scrim: rgba(38,36,31,.32); --pshadow: rgba(0,0,0,.12);
+    --display: "Fraunces", Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif; --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --linen: #1f1b18; --ink: #eee6d8; --muted: #a99c8c; --accent: #d77a86; --edge: rgba(255,240,220,.1); --shadow: rgba(0,0,0,.5);
+    --app-bg: #181512; --app-panel: #27221e; --app-sunken: #332c26;
+    --bg: #211F1E; --surface: #2B2826; --fg: #F2EEE9; --rmuted: #C2BBB4; --line: #48423E;
+    --sage: #A8B89F; --sage-soft: #38332F; --clay: #D0A091; --gold: #D9BC74; --hl: #574F35; --scrim: rgba(10,9,8,.6); --pshadow: rgba(0,0,0,.4); color-scheme: dark; } }
+  :root[data-theme="dark"], body[data-theme="dark"] {
+    --linen: #1f1b18; --ink: #eee6d8; --muted: #a99c8c; --accent: #d77a86; --edge: rgba(255,240,220,.1); --shadow: rgba(0,0,0,.5);
+    --app-bg: #181512; --app-panel: #27221e; --app-sunken: #332c26;
+    --bg: #211F1E; --surface: #2B2826; --fg: #F2EEE9; --rmuted: #C2BBB4; --line: #48423E;
+    --sage: #A8B89F; --sage-soft: #38332F; --clay: #D0A091; --gold: #D9BC74; --hl: #574F35; --scrim: rgba(10,9,8,.6); --pshadow: rgba(0,0,0,.4); color-scheme: dark; }
+  body[data-theme="light"] {
+    --linen: #efe7d5; --ink: #2b2420; --muted: #6d6155; --accent: #7a1f2b; --edge: rgba(43,36,32,.14); --shadow: rgba(60,40,20,.16);
+    --app-bg: #e9e0cc; --app-panel: #f6f0e2; --app-sunken: #ddd2bb;
+    --bg: #faf8f3; --surface: #ffffff; --fg: #26241f; --rmuted: #6b665c; --line: #e6e1d6;
+    --sage: #5f7a63; --sage-soft: #e7eee6; --clay: #a8603f; --gold: #b08a2e; --hl: #f4e7b8; --scrim: rgba(38,36,31,.32); --pshadow: rgba(0,0,0,.12); color-scheme: light; }
+
+  * { box-sizing: border-box; min-width: 0; }
+  body { margin: 0; background: var(--linen); color: var(--ink); font-family: var(--mono); overflow-x: clip; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  nav { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  nav .brand { font-family: var(--display); font-weight: 600; font-size: 16px; margin-right: auto; }
+  nav button { background: none; border: 1px solid var(--muted); color: var(--ink); font: 500 12px var(--mono); padding: 7px 12px; }
+  .hero { margin: 0 0 18px; max-width: 760px; }
+  .hero h1 { font: 600 clamp(28px, 4.4vw, 48px)/1.05 var(--display); margin: 0; text-wrap: balance; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+
+  /* The demo window, like the Lyric and Scripture demos */
+  .win { position: relative; background: var(--app-bg); border: 1px solid var(--edge); border-radius: 12px; box-shadow: 0 18px 50px var(--shadow); overflow: hidden; }
+  .wbar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--app-panel); border-bottom: 1px solid var(--app-sunken); font: 12px var(--sans); color: var(--muted); }
+  .dots { display: flex; gap: 5px; } .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--app-sunken); }
+  .wbar .who { font-weight: 600; color: var(--ink); }
+  .replay { margin-left: auto; background: none; border: 1px solid var(--app-sunken); color: var(--muted); border-radius: 6px; padding: 5px 10px; font: 12px var(--sans); }
+
+  .stage { position: relative; padding: 22px 16px 16px; }
+  .phones { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 300px); align-items: center; justify-content: center; gap: 12px; max-width: 860px; margin: 0 auto; }
+  .col { display: grid; gap: 10px; justify-items: center; transition: opacity .4s; }
+  .col.dim { opacity: .5; }
+  .tag { font: 500 12px var(--mono); color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  .tag b { font: 600 15px var(--display); color: var(--ink); }
+
+  /* The path the verse takes from one phone to the other */
+  .link { position: relative; height: 140px; align-self: center; }
+  .link svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .link path { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: .6; }
+  .link .lab { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); font: 11px var(--mono); color: var(--muted); text-align: center; white-space: nowrap; }
+  .fly { position: absolute; left: 0; top: 0; z-index: 15; pointer-events: none; padding: 6px 10px; border-radius: 8px; background: var(--surface); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 6px 18px var(--pshadow); font: 600 12px var(--sans); display: flex; gap: 6px; align-items: center; opacity: 0; white-space: nowrap; }
+  .fly svg { width: 14px; height: 14px; color: var(--clay); }
+
+  /* A phone running the reader */
+  .phone { position: relative; width: 100%; max-width: 300px; aspect-ratio: 300 / 600; border-radius: 36px; padding: 10px; background: #1b1816; box-shadow: 0 20px 40px var(--shadow), inset 0 0 0 2px #3a332e; }
+  .scr { position: relative; height: 100%; border-radius: 28px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--sans); container-type: inline-size; }
+  .notch { position: absolute; left: 50%; top: 8px; width: 34%; height: 18px; transform: translateX(-50%); border-radius: 10px; background: #1b1816; z-index: 9; }
+  .page { position: absolute; inset: 0; padding: 40px 18px 70px; transition: opacity .35s; }
+  .page.off { opacity: 0; pointer-events: none; }
+  .title { text-align: center; font-size: 10px; font-weight: 600; letter-spacing: .3em; color: var(--rmuted); margin: 0 0 14px; text-transform: uppercase; }
+  .ref { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--clay); margin: 0 0 8px; }
+  .h3 { font-size: 12px; font-weight: 600; margin: 0 0 6px; }
+  .passage { font: 15px/1.65 var(--serif); margin: 0; }
+  .passage p { margin: 0 0 .6em; }
+  .v { border-radius: 3px; transition: background .3s, box-shadow .3s; }
+  .v sup { font: 600 .6em var(--sans); color: var(--clay); margin-right: 2px; }
+  .v.on { box-shadow: inset 0 -2px 0 var(--sage); background: var(--sage-soft); }
+  .v.flash { animation: flash 2.4s ease-out; }
+  @keyframes flash { 0%, 35% { background: var(--hl); } 100% { background: transparent; } }
+
+  .rbar { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; padding: 0 12px 8px; display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-top: 1px solid var(--line); font-size: 13px; font-weight: 600; z-index: 3; }
+  .rbar .ics { display: flex; gap: 12px; color: var(--rmuted); }
+  .ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* Verse actions: the column of round buttons */
+  .acts { position: absolute; right: 10px; bottom: 66px; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 4; transition: opacity .25s, transform .25s; }
+  .acts.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  .acts .lab { font: 600 10px var(--sans); color: var(--rmuted); background: var(--bg); padding: 1px 6px; border-radius: 6px; }
+  .acts span.b { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--rmuted); border: 1px solid var(--line); box-shadow: 0 3px 10px var(--pshadow); transition: transform .15s, background .15s, color .15s; }
+  .acts span.b.pressed { background: var(--sage); border-color: var(--sage); color: var(--surface); transform: scale(.92); }
+
+  /* Post to church group: the bottom sheet */
+  .scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 5; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .scrim.on { opacity: 1; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-radius: 16px 16px 0 0; padding: 14px 14px 16px; display: grid; gap: 7px; transform: translateY(105%); transition: transform .4s cubic-bezier(.2,.8,.2,1); font-size: 12px; }
+  .sheet.on { transform: none; }
+  .sheet .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--line); justify-self: center; }
+  .sheet h4 { margin: 0; font-size: 15px; } .sheet .sub { color: var(--rmuted); margin-top: -4px; }
+  .clip { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--bg); font: 12.5px/1.5 var(--serif); }
+  .k { font-size: 11px; font-weight: 600; color: var(--rmuted); }
+  .fld { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-height: 31px; background: var(--bg); display: flex; justify-content: space-between; gap: 6px; }
+  .fld .car { display: inline-block; width: 1.5px; height: 13px; background: var(--sage); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hint { margin: 0; font-size: 11px; color: var(--rmuted); line-height: 1.4; }
+  .sbtns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+  .sbtns span { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); font-weight: 600; transition: transform .15s; }
+  .sbtns .pri { background: var(--sage); border-color: var(--sage); color: var(--surface); }
+  .sbtns .pri.pressed { transform: scale(.93); }
+
+  .toast { position: absolute; left: 50%; top: 34px; transform: translate(-50%, -8px); z-index: 8; background: var(--fg); color: var(--bg); padding: 7px 12px; border-radius: 8px; font-size: 11.5px; white-space: nowrap; opacity: 0; transition: opacity .3s, transform .3s; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Latest shared: the small button above the bottom bar */
+  .nudge { position: absolute; right: 10px; bottom: 64px; z-index: 4; display: flex; align-items: center; gap: 4px; padding: 6px 8px 6px 10px; border-radius: 8px; background: var(--bg); color: var(--rmuted); font-size: 11.5px; border: 1px solid var(--line); box-shadow: 0 3px 10px var(--pshadow); opacity: 0; transform: translateY(10px); transition: opacity .35s, transform .35s, color .2s; }
+  .nudge.on { opacity: 1; transform: none; }
+  .nudge.new { color: var(--fg); }
+  .nudge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--clay); }
+  .nudge.pressed { transform: scale(.95); }
+  .nudge .ico { width: 14px; height: 14px; }
+  .from { margin: 0 0 10px; padding: 8px 10px; border: 1px solid var(--line); background: var(--sage-soft); border-radius: 8px; font-size: 11.5px; line-height: 1.45; opacity: 0; transition: opacity .4s; }
+  .from.on { opacity: 1; }
+  .from b { font-weight: 600; }
+  .back { position: absolute; left: 10px; bottom: 64px; z-index: 4; padding: 6px 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); font-size: 11.5px; color: var(--rmuted); opacity: 0; transition: opacity .35s; }
+  .back.on { opacity: 1; }
+
+  /* The caption that names each moment */
+  .cap { display: flex; justify-content: center; gap: 6px; margin: 16px auto 0; flex-wrap: wrap; }
+  .cap button { display: flex; align-items: center; gap: 7px; border: 0; background: none; padding: 6px 8px; font: 12px var(--mono); color: var(--muted); border-radius: 6px; }
+  .cap button i { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-style: normal; font-size: 11px; }
+  .cap button.on { color: var(--ink); } .cap button.on i { background: var(--accent); border-color: var(--accent); color: var(--linen); }
+  .cap button.done i { background: var(--app-sunken); border-color: var(--app-sunken); color: var(--ink); }
+
+  /* The ending card */
+  .end { position: absolute; inset: 0; z-index: 25; display: grid; place-items: center; text-align: center; padding: 24px; background: color-mix(in srgb, var(--app-bg) 88%, transparent); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .5s; }
+  .end.on { opacity: 1; pointer-events: auto; }
+  .end h3 { font: 600 clamp(24px, 3.4vw, 38px)/1.15 var(--display); margin: 0 0 18px; max-width: 18ch; text-wrap: balance; color: var(--ink); }
+  .end h3 em { font-style: normal; color: var(--accent); }
+  .end .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .end a, .end button { font: 500 13px var(--mono); padding: 12px 18px; border: 1px solid var(--ink); color: var(--ink); background: none; text-decoration: none; }
+  .end a { background: var(--ink); color: var(--linen); }
+
+  /* The pointer */
+  .cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; transform: translate(-40px, 200px); transition: transform .75s cubic-bezier(.45,0,.2,1); }
+  .cursor .tap { display: block; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: rgba(120,120,120,.35); border: 2px solid rgba(255,255,255,.85); box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .cursor.click .tap { animation: press .3s ease-out; }
+  @keyframes press { 50% { transform: scale(.75); } }
+
+  .sample { font-size: 11px; color: var(--muted); margin: 12px 0 0; text-align: right; }
+
+  /* Phones: one phone at a time; the view slides to the other one */
+  @media (max-width: 700px) {
+    .phones { grid-template-columns: minmax(0, 1fr); }
+    .col { grid-area: 1 / 1; }
+    .link { display: none; }
+    .col.dim { opacity: 1; }
+    #colB { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
+    .phones.b #colA { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
+    .phones.b #colB { opacity: 1; visibility: visible; transition: opacity .5s; }
+    .phone { max-width: 290px; }
+    .cap button span { display: none; } .cap button.on span { display: inline; }
+    .sample { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cursor, .fly { display: none; } .col, .sheet, .acts, .nudge, .toast, .end { transition: none; } .v.flash { animation: none; background: var(--hl); } }
+</style>
+
+<div class="wrap">
+  <nav>
+    <span class="brand">NauBrah</span>
+    <button id="lang">VI</button>
+    <button id="theme">☾ Dark</button>
+  </nav>
+  <header class="hero"><h1><span data-t="h1a">One verse, </span><em data-t="h1em">the whole church</em><span data-t="h1b"> on the same page.</span></h1></header>
+
+  <section id="demo" aria-label="How sharing a verse works">
+    <div class="win">
+      <div class="wbar"><span class="dots"><i></i><i></i><i></i></span><span class="who">Nau Brah Ndu Ngơi</span><span data-t="bar">Bunong Bible</span><button class="replay" id="replay" data-t="replay">↻ Replay</button></div>
+      <div class="stage" id="stage">
+        <div class="phones" id="phones">
+          <div class="col" id="colA">
+            <div class="tag"><b data-t="you">You</b><span data-t="youSub">share a verse</span></div>
+            <div class="phone"><div class="scr" id="scrA">
+              <span class="notch"></span>
+              <div class="page">
+                <p class="title">Nau Mprơ Ơm</p>
+                <p class="ref">Nau Mprơ Ơm 23</p>
+                <p class="h3">Kôranh Brah Jêng Rmăk Gâp</p>
+                <div class="passage" id="psA"></div>
+              </div>
+              <div class="acts off" id="acts">
+                <span class="lab">v1</span>
+                <span class="b"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h6M14.5 4.5l5 5L10 19H5v-5z"/></svg></span>
+                <span class="b"><svg class="ico" viewBox="0 0 24 24"><path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4"/></svg></span>
+                <span class="b"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span>
+                <span class="b"><svg class="ico" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span>
+                <span class="b" id="shareBtn"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2v5M10 4h4"/><path d="M5 12l7-5 7 5"/><path d="M6.5 11v9h11v-9"/><path d="M10.5 20v-4a1.5 1.5 0 0 1 3 0v4"/></svg></span>
+              </div>
+              <div class="rbar"><span>Nau Mprơ Ơm 23 ▾</span><span class="ics"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></div>
+              <div class="scrim" id="scrim"></div>
+              <div class="sheet" id="sheet">
+                <span class="grab"></span>
+                <h4 data-t="post">Post to church group</h4>
+                <span class="sub">Nau Mprơ Ơm 23:1</span>
+                <p class="clip" id="clip"></p>
+                <span class="k" data-t="church">Church</span>
+                <div class="fld"><span>Montagnard Bunong Alliance</span><span>▾</span></div>
+                <span class="k" data-t="name">Your name</span>
+                <div class="fld"><span>Y-Ơn</span></div>
+                <span class="k" data-t="note">Note (optional)</span>
+                <div class="fld"><span><span id="noteTxt"></span><span class="car" id="car" hidden></span></span></div>
+                <div class="sbtns"><span data-t="cancel">Cancel</span><span class="pri" id="shareGo" data-t="share">Share</span></div>
+              </div>
+              <div class="toast" id="toast"></div>
+            </div></div>
+          </div>
+
+          <div class="link" aria-hidden="true">
+            <svg viewBox="0 0 100 140" preserveAspectRatio="none"><path id="arc" d="M0 70 C 30 0, 70 0, 100 70"/></svg>
+            <span class="lab" data-t="linkLab">same church</span>
+          </div>
+
+          <div class="col dim" id="colB">
+            <div class="tag"><b data-t="them">Someone in your church</b></div>
+            <div class="phone"><div class="scr" id="scrB">
+              <span class="notch"></span>
+              <div class="page" id="pgGen">
+                <p class="title">Nau Ntơm</p>
+                <p class="ref">Nau Ntơm 1</p>
+                <p class="h3">Nau Rhăk Njêng Neh Ntu Jêh Ri Bunuyh</p>
+                <div class="passage" id="psGen"></div>
+              </div>
+              <div class="page off" id="pgPsa">
+                <p class="title">Nau Mprơ Ơm</p>
+                <p class="ref">Nau Mprơ Ơm 23</p>
+                <p class="from" id="from"><b>Y-Ơn</b> · <span data-t="noteTxt">For Sunday's sermon</span></p>
+                <div class="passage" id="psB"></div>
+              </div>
+              <span class="back" id="back">← Nau Ntơm 1</span>
+              <span class="nudge" id="nudge"><span class="dot"></span><svg class="ico" viewBox="0 0 24 24"><path d="M12 2v5M10 4h4"/><path d="M5 12l7-5 7 5"/><path d="M6.5 11v9h11v-9"/></svg><span data-t="latest">Latest shared</span> · 23:1<svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+              <div class="rbar"><span id="barB">Nau Ntơm 1 ▾</span><span class="ics"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="fly" id="fly"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2v5M10 4h4"/><path d="M5 12l7-5 7 5"/><path d="M6.5 11v9h11v-9"/></svg>Nau Mprơ Ơm 23:1</div>
+        <div class="cursor" id="cur" aria-hidden="true"><span class="tap"></span></div>
+
+        <div class="cap" id="cap" role="tablist">
+          <button data-step="0" role="tab"><i>1</i><span data-t="s1">Choose a verse</span></button>
+          <button data-step="1" role="tab"><i>2</i><span data-t="s2">Post to your church</span></button>
+          <button data-step="2" role="tab"><i>3</i><span data-t="s3">It arrives</span></button>
+          <button data-step="3" role="tab"><i>4</i><span data-t="s4">Tap Latest shared</span></button>
+          <button data-step="4" role="tab"><i>5</i><span data-t="s5">Back to the verse</span></button>
+        </div>
+      </div>
+
+      <div class="end" id="end">
+        <div>
+          <h3><span data-t="e1">One verse, </span><em data-t="e2">the whole church</em><span data-t="e3"> on the same page.</span></h3>
+          <div class="btns"><a href="/nau-brah-ndu-ngoi/" target="_top" id="endGo" data-t="endGo">Open Nau Brah Ndu Ngơi →</a><button type="button" id="endReplay" data-t="replay">↻ Replay</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="sample" data-t="sample">Sample demo with Nau Mprơ Ơm 23:1 from the Bunong Bible. Sharing goes only to people who chose the same church.</p>
+  </section>
+</div>
+
+<script>
+{
+  const PSA = [[1, "Kôranh Brah jêng rmăk gâp, gâp mâu hôm pưt mpa ôh"], [2, "Păng ăn gâp rlu tâm ndrêch gơ̆ nse. Păng njŭn gâp tâm tu dak rngân đăp mpăn."], [3, "Păng ăn gâp sĭt n'hâm suan Păng leo gâp hăn di trong, tĭng nâu nau Păng hŏ ton jêh."], [4, "Nđâp tơ lah gâp hăn tâm rlŭng nau khĭt, gâp mâu hôm klach du ntil nau mhĭk ôh."]];
+  const GEN = [[1, "Ntơm sa ơm Brah Ndu rhăk njêng trôk jêh ri neh ntu."], [2, "Neh ntu geh lŭk rlăk jêh ri hŏng, jêh ri nau ngo nkŭm ta klơ mpiăt dak jru; jêh ri Brah Huêng Ueh Brah Ndu păn ta klơ mpiăt dak."], [3, "Brah Ndu lah: “Ăn geh nau ang;” jêh ri geh ro nau ang."], [4, "Brah Ndu saơ nau ang nây jêng ueh; jêh ri Brah Ndu tâm pă nau ang bơh nau ngo."]];
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const verses = (list, id) => list.map(([n, t]) => `<span class="v" data-v="${n}" id="${id}${n}"><sup>${n}</sup>${esc(t)}</span>`).join(" ");
+  const $ = (id) => document.getElementById(id);
+  $("psA").innerHTML = `<p>${verses(PSA, "a")}</p>`;
+  $("psB").innerHTML = `<p>${verses(PSA, "b")}</p>`;
+  $("psGen").innerHTML = `<p>${verses(GEN, "g")}</p>`;
+  $("clip").textContent = PSA[0][1];
+
+  const T = { en: {}, vi: { h1a: "Một câu Kinh Thánh, ", h1em: "cả hội thánh", h1b: " cùng đọc.", bar: "Kinh Thánh tiếng Bunong", replay: "↻ Xem lại",
+    you: "Bạn", youSub: "chia sẻ một câu", them: "Một người trong hội thánh", linkLab: "cùng hội thánh",
+    post: "Đăng lên nhóm hội thánh", church: "Hội thánh", name: "Tên của bạn", note: "Ghi chú (không bắt buộc)", cancel: "Huỷ", share: "Chia sẻ",
+    latest: "Mới chia sẻ", noteTxt: "Cho bài giảng Chúa Nhật",
+    s1: "Chọn một câu", s2: "Đăng lên hội thánh", s3: "Câu được gửi đến", s4: "Bấm Mới chia sẻ", s5: "Mở đúng câu đó",
+    e1: "Một câu Kinh Thánh, ", e2: "cả hội thánh", e3: " cùng đọc.", endGo: "Mở Nau Brah Ndu Ngơi →",
+    sample: "Bản mẫu với Nau Mprơ Ơm 23:1 trong Kinh Thánh tiếng Bunong. Câu chia sẻ chỉ đến những người chọn cùng hội thánh.",
+    posted: "Đã đăng lên Montagnard Bunong Alliance", note1: "Cho bài giảng Chúa Nhật" } };
+  document.querySelectorAll("[data-t]").forEach((e) => { T.en[e.dataset.t] = e.textContent; });
+  Object.assign(T.en, { posted: "Posted to Montagnard Bunong Alliance", note1: "For Sunday's sermon" });
+  let lang = "en";
+  const tr = (k) => T[lang][k];
+
+  // The pointer and the timeline
+  const stage = $("stage"), cur = $("cur");
+  let timers = [], step = -1;
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const narrow = () => matchMedia("(max-width: 700px)").matches;
+  const aim = (el, dx = .5, dy = .5) => {
+    const s = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+    cur.style.transform = `translate(${r.left - s.left + r.width * dx}px, ${r.top - s.top + r.height * dy}px)`;
+  };
+  const tap = () => { cur.classList.remove("click"); void cur.offsetWidth; cur.classList.add("click"); };
+  const clickOn = (at, el, fn, dx, dy) => { later(at, () => aim(el(), dx, dy)); later(at + 800, () => { tap(); fn && fn(); }); };
+  const press = (el) => { el.classList.add("pressed"); later(260, () => el.classList.remove("pressed")); };
+
+  const setStep = (s) => {
+    step = s;
+    document.querySelectorAll("#cap button").forEach((b, i) => { b.classList.toggle("on", i === s); b.classList.toggle("done", i < s); b.setAttribute("aria-selected", i === s); });
+    const onB = s >= 3;
+    $("colA").classList.toggle("dim", onB); $("colB").classList.toggle("dim", !onB && s !== 2);
+    $("phones").classList.toggle("b", onB);
+  };
+
+  const reset = () => {
+    timers.forEach(clearTimeout); timers = [];
+    document.querySelectorAll(".v").forEach((v) => v.classList.remove("on", "flash"));
+    $("acts").classList.add("off"); $("scrim").classList.remove("on"); $("sheet").classList.remove("on");
+    $("noteTxt").textContent = ""; $("car").hidden = true; $("toast").classList.remove("on");
+    $("nudge").classList.remove("on", "new"); $("pgGen").classList.remove("off"); $("pgPsa").classList.add("off");
+    $("from").classList.remove("on"); $("back").classList.remove("on"); $("barB").textContent = "Nau Ntơm 1 ▾";
+    $("fly").style.transition = "none"; $("fly").style.opacity = 0; $("end").classList.remove("on");
+  };
+
+  // 1 Tap verse 1: it is selected and the verse actions come up
+  const play1 = (t0) => {
+    clickOn(t0 + 300, () => $("a1"), () => { $("a1").classList.add("on"); $("acts").classList.remove("off"); }, .3, .5);
+  };
+  // 2 Post to church group: the sheet, a short note, Share
+  const play2 = (t0) => {
+    clickOn(t0 + 200, () => $("shareBtn"), () => { press($("shareBtn")); later(250, () => { $("scrim").classList.add("on"); $("sheet").classList.add("on"); $("acts").classList.add("off"); }); });
+    later(t0 + 1800, () => { $("car").hidden = false; });
+    const note = tr("note1");
+    [...note].forEach((ch, i) => later(t0 + 2000 + i * 55, () => { $("noteTxt").textContent += ch; }));
+    clickOn(t0 + 2000 + note.length * 55 + 300, () => $("shareGo"), () => { press($("shareGo")); $("car").hidden = true; });
+  };
+  // 3 It is posted: the sheet closes, the message shows, the verse travels to the other phone
+  const play3 = (t0) => {
+    later(t0, () => {
+      $("sheet").classList.remove("on"); $("scrim").classList.remove("on"); $("a1").classList.remove("on");
+      $("toast").textContent = tr("posted"); $("toast").classList.add("on");
+    });
+    later(t0 + 2200, () => $("toast").classList.remove("on"));
+    later(t0 + 500, () => {
+      const fly = $("fly"), s = stage.getBoundingClientRect(), a = $("scrA").getBoundingClientRect(), b = $("scrB").getBoundingClientRect();
+      const x0 = a.left - s.left + a.width / 2 - 60, y0 = a.top - s.top + 50, x1 = b.left - s.left + b.width - 150, y1 = b.top - s.top + b.height - 100;
+      fly.style.transition = "none"; fly.style.transform = `translate(${x0}px, ${y0}px)`; fly.style.opacity = narrow() ? 0 : 1; void fly.offsetWidth;
+      fly.style.transition = "transform 1.4s cubic-bezier(.45,0,.2,1), opacity .4s 1.2s";
+      fly.style.transform = `translate(${x1}px, ${y1}px)`; fly.style.opacity = 0;
+    });
+    later(t0 + 1700, () => { $("nudge").classList.add("on", "new"); });
+  };
+  // 4 The church member taps Latest shared
+  const play4 = (t0) => {
+    later(t0, () => { $("nudge").classList.add("on", "new"); });
+    clickOn(t0 + 600, () => $("nudge"), () => press($("nudge")), .5, .5);
+  };
+  // 5 Their reader opens Psalm 23 at verse 1, who shared it and the note above
+  const play5 = (t0) => {
+    later(t0, () => {
+      $("nudge").classList.remove("on", "new"); $("pgGen").classList.add("off"); $("pgPsa").classList.remove("off");
+      $("barB").textContent = "Nau Mprơ Ơm 23 ▾"; $("back").classList.add("on");
+    });
+    later(t0 + 300, () => { $("from").classList.add("on"); $("b1").classList.add("flash"); });
+    later(t0 + 1200, () => aim($("b1"), .6, .5));
+  };
+  const STEP_MS = [2000, 0, 2700, 2000, 3600];
+  const PLAYS = [play1, play2, play3, play4, play5];
+  const stepMs = (i) => i === 1 ? 2000 + tr("note1").length * 55 + 1500 : STEP_MS[i];
+
+  const run = () => {
+    reset();
+    let t = 0;
+    PLAYS.forEach((p, i) => { const at = t; later(at, () => setStep(i)); p(at); t += stepMs(i); });
+    later(t + 400, () => { $("end").classList.add("on"); cur.style.transform = "translate(-60px, 200px)"; });
+    later(t + 6400, run);
+  };
+  // Jump to a moment: earlier moments finish at once, that one plays, then the loop stops there
+  const jump = (s) => {
+    reset();
+    if (s >= 3) { $("nudge").classList.add("on", "new"); }
+    if (s === 4) play5(0); else PLAYS[s](0);
+    setStep(s);
+  };
+  document.querySelectorAll("#cap [data-step]").forEach((b) => b.addEventListener("click", () => jump(+b.dataset.step)));
+  $("replay").addEventListener("click", run);
+  $("endReplay").addEventListener("click", run);
+
+  $("lang").addEventListener("click", (e) => {
+    lang = lang === "en" ? "vi" : "en"; e.target.textContent = lang === "en" ? "VI" : "EN"; document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = T[lang][el.dataset.t]; });
+    run();
+  });
+  $("theme").addEventListener("click", (e) => {
+    const root = document.documentElement;
+    const dark = !(root.dataset.theme === "dark" || (!root.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches));
+    root.dataset.theme = dark ? "dark" : "light"; document.body.dataset.theme = root.dataset.theme;
+    e.target.textContent = dark ? "☀ Light" : "☾ Dark";
+  });
+
+  // Start when the demo scrolls into view; a still last moment for reduced motion
+  if (reduce) jump(4);
+  else new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); run(); } }, { threshold: .3 }).observe($("demo"));
+}
+</script>

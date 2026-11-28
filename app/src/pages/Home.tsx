@@ -454,7 +454,7 @@ function useBunongVerse(on: boolean) {
 
 // The Lyric and Scripture demo loops (public/demo/*.html), one at a time, sized to their content
 function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
-  const [which, setWhich] = useState<"lyric" | "scripture">("lyric");
+  const [which, setWhich] = useState<"lyric" | "scripture" | "bible">("lyric");
   const [height, setHeight] = useState(760);
   const frame = useRef<HTMLIFrameElement>(null);
   const first = useRef({ theme, lang });
@@ -465,7 +465,7 @@ function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
   }, [which]);
   useEffect(() => { frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }, [theme, lang]);
   const vi = lang === "vi";
-  const tabs: [typeof which, string][] = [["lyric", vi ? "Bài hát" : "Lyric"], ["scripture", vi ? "Kinh Thánh" : "Scripture"]];
+  const tabs: [typeof which, string][] = [["lyric", vi ? "Bài hát" : "Lyric"], ["scripture", vi ? "Kinh Thánh" : "Scripture"], ["bible", vi ? "Chia sẻ câu Kinh Thánh" : "Share a verse"]];
   return (
     <section id="demo" className="hm-demo" aria-label={vi ? "Xem ứng dụng hoạt động" : "See the app at work"}>
       <p className="hm-eyebrow">{vi ? "Xem ứng dụng hoạt động" : "See it at work"}</p>
