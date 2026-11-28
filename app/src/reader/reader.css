@@ -317,3 +317,15 @@ body { margin: 0; overflow: hidden; }
 .nm-pray-thanks .nm-actions { justify-content: center; }
 .nm-pray-ok { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: var(--nm-green-soft); color: var(--nm-green); }
 .nm-pray-ok svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* My requests (PrayerForm.tsx) */
+.nm-mine { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--nm-rule); }
+.nm-mine h3 { margin: 0 0 4px; font: 700 1.05rem/1.3 var(--nm-serif); color: var(--nm-ink); }
+.nm-mine ul { list-style: none; margin: 0; padding: 0; }
+.nm-mine li { padding: 12px 0; border-bottom: 1px solid var(--nm-rule); }
+.nm-mine li:last-child { border-bottom: 0; }
+.nm-mine-body { margin: 0; font-family: var(--nm-serif); color: var(--nm-ink); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.nm-mine-meta { margin: 2px 0 0; color: var(--nm-muted); font-size: 0.84rem; }
+.nm-mine-st { margin: 6px 0 0; font-size: 0.92rem; font-weight: 700; color: var(--nm-green); }
+.nm-mine-st.wait { color: var(--nm-muted); font-weight: 400; }
+.nm-mine-note { margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--nm-green-soft); color: var(--nm-ink); font-style: italic; }
+.nm-mine-hint { margin: 8px 0 0; color: var(--nm-muted); font-size: 0.82rem; }

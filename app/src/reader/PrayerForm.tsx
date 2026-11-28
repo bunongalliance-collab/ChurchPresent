@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { MAX_BODY, MAX_NAME, sendPrayerRequest } from "../lib/prayer";
+import { useEffect, useState } from "react";
+import { MAX_BODY, MAX_NAME, myPrayerRequests, sendPrayerRequest, type MyPrayerRequest } from "../lib/prayer";
 import type { ReaderChurch } from "../lib/publishedService";
 
 // Nau Mpro, Prayer tab: "Ask the church to pray". Anyone can send, without signing in, to the church chosen on this
-// phone (or the church in the QR code they scanned). Name is optional; "Only the pastors" keeps it to the church's admins.
+// phone (or the church in the QR code they scanned). Name is optional; "Only the pastors" keeps it to the church's pastors.
+// Below the form, "My requests" shows what this phone sent and whether a pastor prayed, with their note.
 export default function PrayerForm({ church, onDone, onChooseChurch }: {
   church: ReaderChurch | null;
   onDone: () => void;
@@ -15,6 +16,9 @@ export default function PrayerForm({ church, onDone, onChooseChurch }: {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState<null | { pastors: boolean }>(null);
+  // "My requests": what this phone sent, and the pastors' answer (supabase/prayer-feedback.sql)
+  const [mine, setMine] = useState<MyPrayerRequest[]>([]);
+  useEffect(() => { void myPrayerRequests().then(setMine); }, [sent]);
 
   async function send() {
     if (!church || !body.trim() || sending) return;
@@ -71,6 +75,28 @@ export default function PrayerForm({ church, onDone, onChooseChurch }: {
           {error && <p className="nm-pray-err" role="alert">{error}</p>}
           <button type="submit" className="nm-pray-send" disabled={!body.trim() || sending}>{sending ? "Sending…" : "Send prayer request"}</button>
         </form>
+      )}
+      {!!mine.length && !sent && (
+        <div className="nm-mine" aria-labelledby="nm-mine-h">
+          <h3 id="nm-mine-h">My requests</h3>
+          <ul>
+            {mine.map((r) => (
+              <li key={r.id}>
+                <p className="nm-mine-body">{r.body}</p>
+                <p className="nm-mine-meta">
+                  {new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  {r.pastors_only && " · Only the pastors"}
+                </p>
+                {r.status === "answered"
+                  ? <p className="nm-mine-st done">Answered. Praise God!</p>
+                  : r.prayed ? <p className="nm-mine-st">A pastor prayed for this</p>
+                  : <p className="nm-mine-st wait">Waiting for prayer</p>}
+                {r.pastor_note && <blockquote className="nm-mine-note">{r.pastor_note}</blockquote>}
+              </li>
+            ))}
+          </ul>
+          <p className="nm-mine-hint">Only this phone shows your requests.</p>
+        </div>
       )}
     </section>
   );

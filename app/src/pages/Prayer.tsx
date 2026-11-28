@@ -180,6 +180,7 @@ export default function Prayer() {
                           </div>
                           <p className="py-body">{p.body}</p>
                           {p.source === "team" && <p className="py-src">Added by {memberName(p.added_by) || "the team"}</p>}
+                          {p.prayed_at && <p className="py-prayed">Prayed by {memberName(p.prayed_by ?? null) || "a pastor"}{p.pastor_note && <> · <q>{p.pastor_note}</q></>}</p>}
                           <div className="py-foot">
                             <label className="py-follow">Following up
                               <select value={p.follow_up ?? ""} disabled={busy === p.id} onChange={(e) => void change(p, { follow_up: e.target.value || null })}>

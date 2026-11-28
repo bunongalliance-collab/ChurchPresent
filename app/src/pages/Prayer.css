@@ -36,6 +36,8 @@ html body .ct-app .py { max-width: 1280px; margin: 0 auto; padding: 16px 16px 48
 .py-badge.lock { background: var(--private-soft); color: var(--on-private); }
 .py-badge.done { background: var(--sunken); color: var(--muted); }
 .py-body { margin: 0; font-size: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.py-prayed { margin: 4px 0 0; font-size: 0.88rem; color: var(--on-soft); }
+.py-prayed q { font-style: italic; }
 .py-src { margin: -2px 0 0; color: var(--muted); font-size: 0.84rem; }
 .py-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-top: 10px; border-top: 1px solid var(--sunken); }
 .py-follow { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.86rem; white-space: nowrap; }
