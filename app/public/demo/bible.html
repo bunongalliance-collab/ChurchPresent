@@ -180,7 +180,7 @@
   .end a { background: var(--ink); color: var(--linen); }
 
   /* The pointer */
-  .cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; transform: translate(-40px, 200px); transition: transform .75s cubic-bezier(.45,0,.2,1); }
+  .cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; transform: translate(-40px, 200px); transition: transform 1s cubic-bezier(.45,0,.2,1); }
   .cursor .tap { display: block; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: rgba(120,120,120,.35); border: 2px solid rgba(255,255,255,.85); box-shadow: 0 1px 4px rgba(0,0,0,.35); }
   .cursor.click .tap { animation: press .3s ease-out; }
   @keyframes press { 50% { transform: scale(.75); } }
@@ -222,6 +222,11 @@
   body.real[data-theme="dark"] .win { border-color: rgba(255,255,255,.08); box-shadow: 0 34px 90px -16px rgba(0,0,0,.75); }
 </style>
 <script>if (new URLSearchParams(location.search).get("real") === "1") document.addEventListener("DOMContentLoaded", () => document.body.classList.add("real"));</script>
+<script>
+  // Pace: every timed moment of the demo runs this much slower (step lengths, typing, the pointer, the loop)
+  window.DEMO_SLOW = 1.35;
+  { const st = window.setTimeout; window.setTimeout = function (fn, ms, ...a) { return st.call(this, fn, typeof ms === "number" ? ms * window.DEMO_SLOW : ms, ...a); }; }
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -412,7 +417,7 @@
       const fly = $("fly"), s = stage.getBoundingClientRect(), a = $("scrA").getBoundingClientRect(), b = $("scrB").getBoundingClientRect();
       const x0 = a.left - s.left + a.width / 2 - 60, y0 = a.top - s.top + 50, x1 = b.left - s.left + b.width - 150, y1 = b.top - s.top + b.height - 100;
       fly.style.transition = "none"; fly.style.transform = `translate(${x0}px, ${y0}px)`; fly.style.opacity = narrow() ? 0 : 1; void fly.offsetWidth;
-      fly.style.transition = "transform 1.4s cubic-bezier(.45,0,.2,1), opacity .4s 1.2s";
+      fly.style.transition = "transform 1.8s cubic-bezier(.45,0,.2,1), opacity .4s 1.6s";
       fly.style.transform = `translate(${x1}px, ${y1}px)`; fly.style.opacity = 0;
     });
     later(t0 + 1700, () => { $("nudge").classList.add("on", "new"); });
