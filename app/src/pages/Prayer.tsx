@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import NavBar from "../components/NavBar";
 import { loadTeam, useChurch, type Member } from "../lib/church";
 import { addPrayer, deletePrayer, loadPrayerRequests, MAX_BODY, MAX_NAME, prayerLink, updatePrayer, type PrayerRequest } from "../lib/prayer";
+import { usePastor } from "../lib/pastor";
 import { qrSvg } from "../lib/remote";
 import { supabase } from "../lib/supabase";
 import { toast } from "../lib/toast";
@@ -9,7 +10,8 @@ import "./Prayer.css";
 
 // Prayer page (#prayer): the church's prayer requests, sent from the Nau Mpro App or added by the team.
 // The team chooses who follows up and marks requests answered. Requests for the pastors only show to admins only
-// (the database decides, supabase/prayer-requests.sql). Admins can delete, and mark a request for the pastors only.
+// (the database decides, supabase/prayer-requests.sql and pastors.sql). "Pastors" are the members marked Pastor on the
+// Team page, or the admins when no one is. Pastors can mark a request for the pastors only; admins can delete.
 
 type Filter = "open" | "answered" | "all";
 const FILTERS: { key: Filter; label: string }[] = [{ key: "open", label: "Open" }, { key: "answered", label: "Answered" }, { key: "all", label: "All" }];
@@ -32,6 +34,8 @@ export default function Prayer() {
   const cur = church.current;
   const me = church.session?.user.id ?? null;
   const admin = cur?.role === "admin";
+  const pastor = usePastor();
+  const pastorAccess = pastor.access;
   const [list, setList] = useState<PrayerRequest[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,8 +87,8 @@ export default function Prayer() {
     const err = await updatePrayer(p.id, patch);
     setBusy("");
     if (err) { setList(before); toast(err, true); return; }
-    // An editor who marks a request for the pastors only can no longer see it
-    if (patch.pastors_only && !admin) setList((l) => l.filter((x) => x.id !== p.id));
+    // Someone who isn't a pastor can no longer see a request once it's for the pastors only
+    if (patch.pastors_only && !pastorAccess) setList((l) => l.filter((x) => x.id !== p.id));
   }
 
   async function remove(p: PrayerRequest) {
@@ -104,7 +108,7 @@ export default function Prayer() {
     setBusy("");
     if (err) { toast(err, true); return; }
     setAddName(""); setAddBody(""); setAddPastors(false); setAdding(false);
-    if (addPastors && !admin) toast("Added for the pastors only. Only admins can see it.");
+    if (addPastors && !pastorAccess) toast("Added for the pastors only. Only the pastors can see it.");
     else toast("Request added.");
     void reload();
   }
@@ -147,7 +151,7 @@ export default function Prayer() {
                   <h2>Add a request someone shared with you</h2>
                   <label>Name <input value={addName} maxLength={MAX_NAME} onChange={(e) => setAddName(e.target.value)} placeholder="Optional" /></label>
                   <label>Request <textarea value={addBody} maxLength={MAX_BODY} rows={3} onChange={(e) => setAddBody(e.target.value)} /></label>
-                  <label className="py-check"><input type="checkbox" checked={addPastors} onChange={(e) => setAddPastors(e.target.checked)} /> Only the pastors (admins)</label>
+                  <label className="py-check"><input type="checkbox" checked={addPastors} onChange={(e) => setAddPastors(e.target.checked)} /> Only the pastors</label>
                   <div><button className="primary" type="submit" disabled={!addBody.trim() || busy === "add"}>{busy === "add" ? "Adding…" : "Add request"}</button></div>
                 </form>
               )}
@@ -192,14 +196,14 @@ export default function Prayer() {
                                 onClick={() => void change(p, { status: p.status === "answered" ? "open" : "answered" })}>
                                 {p.status === "answered" ? "Reopen" : "Mark answered"}
                               </button>
-                              {admin && (
+                              {(admin || pastorAccess) && (
                                 <details className="py-more">
                                   <summary aria-label={`More for the request from ${p.name || "Anonymous"}`}>More</summary>
                                   <div className="py-menu">
-                                    <button onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; void change(p, { pastors_only: !p.pastors_only }); }}>
+                                    {pastorAccess && <button onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; void change(p, { pastors_only: !p.pastors_only }); }}>
                                       {p.pastors_only ? "Share with the whole team" : "Make it pastors only"}
-                                    </button>
-                                    <button className="danger" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; void remove(p); }}>Delete</button>
+                                    </button>}
+                                    {admin && <button className="danger" onClick={(e) => { (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; void remove(p); }}>Delete</button>}
                                   </div>
                                 </details>
                               )}
@@ -223,7 +227,7 @@ export default function Prayer() {
                 </div>
               </div>
               <h2>Who sees what</h2>
-              <p>Admins and editors see every request, except those marked <b className="py-lock-word">Only the pastors</b>, which only admins see.{!admin && " As an editor, you won't see those."}</p>
+              <p>The team sees every request, except those marked <b className="py-lock-word">Only the pastors</b>, which only {pastor.anyPastor ? "the members marked Pastor on the Team page" : "the admins (no one is marked Pastor yet)"} see.{!pastorAccess && " You won't see those."}</p>
               <p>The team is told on the bell when a request comes in.</p>
             </aside>
           </div>

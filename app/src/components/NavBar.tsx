@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { currentTheme, setTheme, type Theme } from "../lib/theme";
 import { readForSlides, watchForSlides } from "../lib/forSlides";
+import { usePastor } from "../lib/pastor";
 import { useChurch, switchChurch } from "../lib/church";
 import NotificationBell, { WelcomeBanner } from "./NotificationBell";
 import { countNewPrayer } from "../lib/prayer";
@@ -53,6 +54,9 @@ export default function NavBar() {
     void countNewPrayer(cur.id).then((n) => { if (live) setNewPrayer(n); });
     return () => { live = false; };
   }, [cur, hash]);
+  // The Pastor tab: first, and only for members marked Pastor on the Team page (lib/pastor.ts)
+  const pastor = usePastor();
+  const pages = pastor.isPastor ? [{ href: "#pastor", label: "Pastor" }, ...PAGES] : PAGES;
   // One menu open at a time: the church switcher, Apps, the account menu or the sign-in form
   const [pop, setPop] = useState<"" | "church" | "apps" | "acct" | "signin">("");
   useEffect(() => {
@@ -194,7 +198,7 @@ export default function NavBar() {
 
       <nav className="tn-tabs" aria-label="Pages">
         <ul>
-          {PAGES.map((p) => (
+          {pages.map((p) => (
             <li key={p.href} className={p.divider ? "tn-div" : undefined}>
               <a href={p.href} aria-current={isCurrent(p.href) ? "page" : undefined}>{p.label}{counts(p.href)}</a>
             </li>
@@ -213,7 +217,7 @@ export default function NavBar() {
           )}
           {cur && church.churches.length <= 1 && <p className="tn-sheet-church">{cur.name}</p>}
           <nav aria-label="Pages">
-            {PAGES.map((p) => <a key={p.href} href={p.href} aria-current={isCurrent(p.href) ? "page" : undefined}>{p.label}{counts(p.href)}</a>)}
+            {pages.map((p) => <a key={p.href} href={p.href} aria-current={isCurrent(p.href) ? "page" : undefined}>{p.label}{counts(p.href)}</a>)}
             {APPS.map((a) => <a key={a.href} href={a.href} target="_blank" rel="noopener">{a.label} <span aria-hidden="true">↗</span></a>)}
           </nav>
           <div className="tn-sheet-foot">

@@ -1,0 +1,41 @@
+/* Pastor page (#pastor). App colour tokens only (index.css), so light and dark both work. */
+html body .ct-app .ps { max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; color: var(--text); font-family: var(--font-ui); }
+.ps-note a { color: var(--accent); }
+.ps-note { padding: 14px 16px; border-radius: 10px; background: var(--panel); border: 1px solid var(--sunken); }
+.ps-hello h1 { margin: 0; font-size: 1.6rem; line-height: 1.2; font-weight: 700; }
+.ps-hello p { margin: 4px 0 0; color: var(--muted); }
+.ps-role { display: inline-block; margin-top: 8px; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--on-soft); font-size: 0.82rem; font-weight: 700; }
+.ps-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 20px; align-items: start; }
+.ps-card { display: grid; gap: 10px; padding: 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--sunken); }
+.ps-card > header { display: flex; align-items: center; gap: 8px; }
+.ps-card h2 { flex: 1; margin: 0; font-size: 1.05rem; font-weight: 700; }
+.ps-card > header a { font-size: 0.86rem; font-weight: 600; color: var(--accent); text-decoration: none; }
+.ps-card > header a:hover { text-decoration: underline; }
+.ps-ic { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 8px; background: var(--accent-soft); color: var(--on-soft); }
+.ps-ic svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ps-stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.ps-stat { flex: 1 1 110px; padding: 8px 12px; border-radius: 10px; background: var(--bg); }
+.ps-stat b { display: block; font-size: 1.4rem; line-height: 1.2; }
+.ps-stat span { color: var(--muted); font-size: 0.84rem; }
+.ps-stat.lock b { color: var(--private); }
+.ps-rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.ps-rows li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 9px 0; border-top: 1px solid var(--sunken); }
+.ps-t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); text-decoration: none; }
+a.ps-t:hover { color: var(--accent); text-decoration: underline; }
+.ps-s { grid-column: 1 / -1; color: var(--muted); font-size: 0.86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ps-badge { align-self: center; padding: 1px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; white-space: nowrap; background: var(--sunken); color: var(--muted); }
+.ps-badge.lock { background: var(--private-soft); color: var(--on-private); }
+.ps-badge.new { background: var(--accent); color: var(--on-accent); }
+.ps-badge.ok { background: var(--accent-soft); color: var(--on-soft); }
+.ps-sun { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 0; font-size: 0.95rem; }
+.ps-sun dt { color: var(--muted); }
+.ps-sun dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.ps-muted { color: var(--muted); font-weight: 400; }
+.ps-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ps-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font-size: 0.8rem; line-height: 1.4; text-decoration: none; }
+.ps-btn.ghost { background: transparent; color: var(--accent); }
+.ps-btn:hover { filter: brightness(1.08); }
+.ps-soft { margin: 0; color: var(--muted); }
+.ps-soft a { color: var(--accent); }
+.ps-soon { margin: 0; padding: 12px; border: 1px dashed var(--ctrl); border-radius: 10px; color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 900px) { .ps-grid { grid-template-columns: 1fr; } }

@@ -79,7 +79,7 @@ export function useChurch(): ChurchState {
 }
 
 // ---------- Team ----------
-export interface Member { user_id: string; email: string; role: Role; added_at: string }
+export interface Member { user_id: string; email: string; role: Role; added_at: string; is_pastor?: boolean }
 export interface JoinRequest { user_id: string; email: string; created_at: string }
 export interface Invite { email: string; role: Role; created_at: string }
 export interface WaitingChurch { id: string; name: string; created_at: string }
@@ -90,7 +90,10 @@ const err = (e: { message: string } | null) => (e ? e.message : null);
 export async function loadTeam(cid: string): Promise<R<{ members: Member[]; requests: JoinRequest[]; invites: Invite[] }>> {
   const sb = supabase!;
   const [m, r, i] = await Promise.all([
-    sb.from("church_members").select("user_id, email, role, added_at").eq("church_id", cid).order("added_at"),
+    // is_pastor comes with supabase/pastors.sql; before it is run, the list loads without it
+    sb.from("church_members").select("user_id, email, role, added_at, is_pastor").eq("church_id", cid).order("added_at")
+      .then((res) => (res.error && /is_pastor/.test(res.error.message)
+        ? sb.from("church_members").select("user_id, email, role, added_at").eq("church_id", cid).order("added_at") : res)),
     sb.from("church_requests").select("user_id, email, created_at").eq("church_id", cid).order("created_at"),
     sb.from("church_invites").select("email, role, created_at").eq("church_id", cid).order("created_at"),
   ]);

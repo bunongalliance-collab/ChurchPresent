@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { toast } from "../lib/toast";
+import { reloadPastors, setPastor } from "../lib/pastor";
 import {
   useChurch, reloadChurches, switchChurch, loadTeam, loadWaitingChurches,
   acceptRequest, declineRequest, setRole, removeMember, invite, cancelInvite, renameChurch, renewCode, churchOwnership, offerOwnership, cancelOwnershipOffer, respondOwnership, type Ownership,
@@ -211,7 +212,7 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
                 <li className={`tm-p${you ? " you" : ""}`} key={m.user_id}>
                   <span className="tm-av" aria-hidden="true">{initials(m.email)}</span>
                   <div className="tm-who">
-                    <b>{m.email}{isOwner && <span className="tm-owner">Owner</span>}</b>
+                    <b>{m.email}{isOwner && <span className="tm-owner">Owner</span>}{m.is_pastor && <span className="tm-ptag">Pastor</span>}</b>
                     <small>{you ? (isOwner ? "You · started this church" : "You") : isOwner ? "Started this church" : `Added ${when(m.added_at)}`}</small>
                   </div>
                   {admin ? (
@@ -223,6 +224,17 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
                   {admin && (
                     <button className="tm-rm" aria-label={`Remove ${m.email}`} disabled={lock} onClick={() => setConfirm(m.user_id)}>
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                    </button>
+                  )}
+                  {admin && m.is_pastor !== undefined && (
+                    <button className={`${m.is_pastor ? "primary" : "secondary"} small tm-pastor`} aria-pressed={!!m.is_pastor}
+                      onClick={async () => {
+                        const error = await setPastor(cid, m.user_id, !m.is_pastor);
+                        if (error) { toast(error, true); return; }
+                        toast(m.is_pastor ? `${m.email} is no longer marked Pastor` : `${m.email} is now marked Pastor`);
+                        reloadPastors(); await load();
+                      }}>
+                      {m.is_pastor ? "✓ Pastor" : "Mark as pastor"}
                     </button>
                   )}
                   {canHandOver && <button className="secondary small tm-handover" onClick={() => setConfirm(`own:${m.user_id}`)}>Offer ownership…</button>}
@@ -256,6 +268,13 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
                 </li>
               );
             })}
+            {loaded && members.some((m) => m.is_pastor !== undefined) && (
+              <li className="tm-pnote" role="note">
+                {members.some((m) => m.is_pastor)
+                  ? <>Prayer requests marked <b>Only the pastors</b> go to: {members.filter((m) => m.is_pastor).map((m) => m.email).join(", ")}.</>
+                  : <>No one is marked Pastor, so requests marked <b>Only the pastors</b> go to the admins.</>}
+              </li>
+            )}
             {invites.map((i) => (
               <li className="tm-p invited" key={i.email}>
                 <span className="tm-av" aria-hidden="true">{initials(i.email)}</span>
@@ -309,6 +328,8 @@ function TeamView({ cid, role, code, name }: { cid: string; role: Role; code: st
           <ul><li>Everything an editor can do</li><li>Add, remove and change people on this page</li><li>Rename the church and change the join code</li><li>Publish Today's service to the Nau Mpro App</li></ul></div>
         <div className="tm-r"><span className="tm-tag editor">Editor</span>
           <ul><li>Edit the church's songs, readings and programs</li><li>Build Scripture slides and presentations for the team</li></ul></div>
+        <div className="tm-r"><span className="tm-tag pastor">Pastor</span>
+          <ul><li>A tag an admin adds to an admin or an editor</li><li>The Pastor page: prayer, this Sunday and their own work</li><li>Prayer requests marked Only the pastors (the admins get them when no one is a Pastor)</li></ul></div>
         <div className="tm-r"><span className="tm-tag member">Anyone else</span>
           <ul><li>Read songs, readings and the Bible</li><li>Use the Projector and Present</li><li className="no">Can't change the team's songs or readings</li></ul></div>
         <p className="hint">The <b>owner</b> is the person who started the church. Other admins can’t remove them or change their role; only the owner can offer the church to another admin, who must accept before it changes hands.</p>
