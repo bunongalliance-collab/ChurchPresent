@@ -336,7 +336,7 @@ function homeLang(): Lang {
 const TEXT = {
   en: {
     title: "NauBrah · Three apps for worship",
-    navLyrics: "Lyrics", navService: "Service Slides", navProgram: "Program",
+    navLyrics: "Lyrics", navService: "Service Slides", navProgram: "Program", pwaHint: "Open the app, then add it to your home screen",
     light: "☀ Light", dark: "☾ Dark", lightMode: "☀ Light mode", darkMode: "☾ Dark mode", signIn: "Sign in", other: "Tiếng Việt", otherShort: "VI",
     hymns: "Hymns ↗", bible: "Bible ↗",
     kicker: "Montagnard Bunong Alliance Church · Sunday service",
@@ -384,7 +384,7 @@ const TEXT = {
   },
   vi: {
     title: "NauBrah · Ba ứng dụng cho sự thờ phượng",
-    navLyrics: "Lời bài hát", navService: "Trình chiếu buổi lễ", navProgram: "Chương trình",
+    navLyrics: "Lời bài hát", navService: "Trình chiếu buổi lễ", navProgram: "Chương trình", pwaHint: "Mở ứng dụng rồi thêm vào màn hình chính",
     light: "☀ Sáng", dark: "☾ Tối", lightMode: "☀ Chế độ sáng", darkMode: "☾ Chế độ tối", signIn: "Đăng nhập", other: "English", otherShort: "EN",
     hymns: "Thánh ca ↗", bible: "Kinh Thánh ↗",
     kicker: "Hội Thánh Montagnard Bunong Alliance · Lễ Chúa Nhật",
@@ -452,6 +452,35 @@ function useBunongVerse(on: boolean) {
   return on ? v : null;
 }
 
+// The Lyric and Scripture demo loops (public/demo/*.html), one at a time, sized to their content
+function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
+  const [which, setWhich] = useState<"lyric" | "scripture">("lyric");
+  const [height, setHeight] = useState(760);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const first = useRef({ theme, lang });
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => { if (e.origin === location.origin && e.data?.name === which && e.data.demoHeight) setHeight(e.data.demoHeight); };
+    addEventListener("message", onMsg);
+    return () => removeEventListener("message", onMsg);
+  }, [which]);
+  useEffect(() => { frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }, [theme, lang]);
+  const vi = lang === "vi";
+  const tabs: [typeof which, string][] = [["lyric", vi ? "Bài hát" : "Lyric"], ["scripture", vi ? "Kinh Thánh" : "Scripture"]];
+  return (
+    <section id="demo" className="hm-demo" aria-label={vi ? "Xem ứng dụng hoạt động" : "See the app at work"}>
+      <p className="hm-eyebrow">{vi ? "Xem ứng dụng hoạt động" : "See it at work"}</p>
+      <div className="hm-demo-tabs" role="tablist">
+        {tabs.map(([k, label]) => (
+          <button key={k} type="button" role="tab" aria-selected={which === k} className={which === k ? "on" : ""} onClick={() => setWhich(k)}>{label}</button>
+        ))}
+      </div>
+      <iframe ref={frame} key={which} title={tabs.find((x) => x[0] === which)![1]} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}`}
+        onLoad={() => { first.current = { theme, lang }; frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }}
+        style={{ height }} loading="lazy" />
+    </section>
+  );
+}
+
 export default function Home({ variant = "classic" }: { variant?: "classic" | "helps" }) {
   const helps = variant === "helps";
   const [lang, setLangState] = useState<Lang>(homeLang);
@@ -483,6 +512,9 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           <a href="#lyrics-v2">{t.navLyrics}</a>
           <a href="#service">{t.navService}</a>
           <a href="#program">{t.navProgram}</a>
+          {/* The two installable apps: each opens its own page, where the browser offers to install it */}
+          <a className="hm-pwa" href="/nau-mpro/" title={t.pwaHint}><span aria-hidden="true">↓</span> Nau Mpro</a>
+          <a className="hm-pwa" href="/nau-brah-ndu-ngoi/" title={t.pwaHint}><span aria-hidden="true">↓</span> Nau Brah Ndu Ngơi</a>
           <button type="button" className="hm-theme" onClick={toggleLang} aria-label={t.other} title={t.other}>{t.otherShort}</button>
           <button type="button" className="hm-theme hm-theme-2" onClick={toggleTheme}>{theme === "dark" ? t.light : t.dark}</button>
           <a className="hm-signin" href="#team">{t.signIn}</a>
@@ -491,10 +523,7 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
         <div className="hm-stage">
           {helps ? <>
             {/* How it helps: the promise on the left, both reading apps stacked on the right */}
-            <div className="hm-side hm-r hm-stack">
-              <a className="hm-side" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
-              <a className="hm-side" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
-            </div>
+            {/* The two reading apps live in their own section further down */}
           </> : <>
             <a className="hm-side hm-l" href="/nau-mpro/"><span className="hm-tile">Nau Mpro</span>{t.hymns}</a>
             <a className="hm-side hm-r" href="/nau-brah-ndu-ngoi/"><span className="hm-tile">Nau Brah Ndu Ngơi</span>{t.bible}</a>
@@ -502,24 +531,26 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
           {HERO_ART === "bible" ? <OpenBible /> : <HutChurch />}
           <GlyphRain />
           <div className="hm-copy">
-            <p className="hm-kicker hm-sm-hide">{t.kicker}</p>
-            {helps
-              ? <><h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1><p className="hm-kicker hm-tagline">{t.xH1sub}</p></>
-              : <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>}
-          </div>
-          {helps ? (
-            <div className="hm-note">
-              <p className="hm-sm-hide">{t.xSub}</p>
-              <div className="hm-btns">
-                <a className="hm-btn hm-dark hm-go" href="#lyrics-v2">{t.xPlan}<span className="hm-arrow" aria-hidden="true">→</span></a>
-                <a className="hm-btn" href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }}>{t.xHow}</a>
+            {helps ? <>
+              {/* How it helps: the headline, then the buttons right under it */}
+              <h1 id="hm-h">{t.xH1a}<em>{t.xH1em}</em>{t.xH1b}</h1>
+              <div className="hm-note">
+                <p className="hm-sm-hide">{t.xSub}</p>
+                <div className="hm-btns">
+                  <a className="hm-btn hm-dark hm-go" href="#lyrics-v2">{t.xPlan}<span className="hm-arrow" aria-hidden="true">→</span></a>
+                  <a className="hm-btn" href="#demo" onClick={(e) => { e.preventDefault(); document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" }); }}>{t.xHow}</a>
+                </div>
+                <p className="hm-proof">{t.xProof}</p>
               </div>
-              <p className="hm-proof">{t.xProof}</p>
-            </div>
-          ) : (
-            <p className="hm-note">{t.note}<a href="#lyrics-v2">{t.openLyrics}</a></p>
-          )}
+            </> : <>
+              <p className="hm-kicker hm-sm-hide">{t.kicker}</p>
+              <h1 id="hm-h">{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>
+            </>}
+          </div>
+          {!helps && <p className="hm-note">{t.note}<a href="#lyrics-v2">{t.openLyrics}</a></p>}
         </div>
+
+        {helps && <DemoLoop theme={theme} lang={lang} />}
 
         {helps && (
           <section className="hm-compare">
@@ -562,11 +593,13 @@ export default function Home({ variant = "classic" }: { variant?: "classic" | "h
 
         <section id="how">
           <p className="hm-eyebrow">{t.stepsEyebrow}</p>
-          <h2>{helps ? <>{t.xStepsTitle} <span className="hm-h2-note">{t.xStepsNote}</span></> : t.stepsTitle}</h2>
+          <h2>{helps ? t.xStepsTitle : t.stepsTitle}</h2>
           <ol className="hm-steps">
             {(variant === "helps" ? t.xSteps : t.steps).map(([b, d]) => <li key={b}><b>{b}</b>{d}</li>)}
           </ol>
         </section>
+
+        {!helps && <DemoLoop theme={theme} lang={lang} />}
 
         <section className="hm-team">
           <div>

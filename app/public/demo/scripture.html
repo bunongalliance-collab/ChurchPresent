@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NauBrah · Scripture page demo (sample)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* VOICE: the existing NauBrah home, calm and warm
+     IDEA: the Scripture page itself, playing its three steps like a short screen recording
+     PICTURE: one app window with the three real columns: Choose the slides, Check the words, Preview the slides, then the projector
+     COLOUR and TYPE: home linen, burgundy and Fraunces outside; the app's own tokens and Arial slides inside
+     LAYOUT: headline and buttons, then the window; phones swipe between the three columns */
+  :root {
+    --linen: #efe7d5; --ink: #2b2420; --muted: #6d6155; --accent: #7a1f2b;
+    --edge: rgba(43,36,32,.14); --shadow: rgba(60,40,20,.16);
+    /* The app window in the Home page's linen and burgundy */
+    --app-bg: #e9e0cc; --app-panel: #f6f0e2; --app-sunken: #ddd2bb; --app-text: #2b2420; --app-muted: #6d6155;
+    --app-accent: #7a1f2b; --on-accent: #fff; --app-soft: #ecd5d3; --app-on-soft: #5e1620;
+    --slide-bg: #213648; --slide-text: #f5f2ea;
+    --display: "Fraunces", Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  body[data-theme="dark"] {
+    --linen: #1f1b18; --ink: #eee6d8; --muted: #a99c8c; --accent: #d77a86; --edge: rgba(255,240,220,.1); --shadow: rgba(0,0,0,.5);
+    --app-bg: #181512; --app-panel: #27221e; --app-sunken: #332c26; --app-text: #eee6d8; --app-muted: #a99c8c;
+    --app-accent: #d77a86; --on-accent: #1f1b18; --app-soft: #3d2629; --app-on-soft: #f0c3c8;
+  }
+  * { box-sizing: border-box; min-width: 0; }
+  body { margin: 0; background: var(--linen); color: var(--ink); font-family: var(--mono); overflow-x: clip;
+    background-image: radial-gradient(ellipse 70% 55% at 0% -10%, rgba(255,240,200,.75), transparent 70%); }
+  body[data-theme="dark"] { background-image: radial-gradient(ellipse 70% 55% at 0% -10%, rgba(255,200,120,.12), transparent 70%); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 14px 16px 60px; }
+  button { font: inherit; cursor: pointer; }
+
+  nav { display: flex; align-items: center; gap: 22px; font-size: 12px; white-space: nowrap; }
+  nav .brand { font-family: var(--display); font-weight: 600; font-size: 16px; }
+  nav a { color: var(--ink); text-decoration: none; opacity: .8; }
+  nav .sp { margin-left: auto; }
+  nav button { background: none; border: 1px solid var(--muted); color: var(--ink); font: 500 12px var(--mono); padding: 7px 12px; }
+
+  .hero { padding: clamp(26px, 5vw, 60px) 0 clamp(22px, 3vw, 34px); max-width: 860px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(34px, 5.4vw, 64px); line-height: 1.02; margin: 0; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+  .btn { display: inline-flex; justify-content: center; font: 500 14px var(--mono); padding: 14px 22px; border: 1px solid var(--ink); color: var(--ink); text-decoration: none; background: none; }
+  .btn.dark { background: var(--ink); color: var(--linen); }
+
+  /* Step chooser above the window */
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: start; text-align: left; background: none; border: 0; border-top: 3px solid var(--edge); padding: 12px 4px 4px; color: var(--muted); position: relative; }
+  .step .n { grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid currentColor; font-weight: 500; }
+  .step b { font: 600 18px var(--display); color: var(--ink); opacity: .55; }
+  .step small { font-size: 12px; line-height: 1.45; }
+  .step::before { content: ""; position: absolute; left: 0; top: -3px; height: 3px; width: 0; background: var(--accent); }
+  .step.done::before { width: 100%; }
+  .step.on::before { animation: grow var(--dur, 4s) linear forwards; }
+  .step.on, .step.done { color: var(--ink); }
+  .step.on b, .step.done b { opacity: 1; }
+  .step.on .n { background: var(--accent); border-color: var(--accent); color: var(--linen); }
+  @keyframes grow { from { width: 0; } to { width: 100%; } }
+
+  /* The app window */
+  .win { background: var(--app-bg); border-radius: 12px; box-shadow: 0 18px 50px var(--shadow); border: 1px solid var(--edge); overflow: hidden; font-family: var(--ui); color: var(--app-text); }
+  .bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--app-panel); font-size: 12px; border-bottom: 1px solid var(--app-sunken); }
+  .dots { display: flex; gap: 5px; } .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--app-sunken); }
+  .tabs { display: flex; gap: 4px; overflow: hidden; }
+  .tabs span { padding: 4px 9px; border-radius: 6px; color: var(--app-muted); white-space: nowrap; }
+  .tabs .on { background: var(--app-soft); color: var(--app-on-soft); font-weight: 600; }
+  .replay { margin-left: auto; background: none; border: 1px solid var(--app-sunken); color: var(--app-muted); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.35fr); gap: 12px; padding: 12px; }
+  .col { background: var(--app-panel); border-radius: 10px; padding: 14px; transition: opacity .35s, box-shadow .35s; opacity: .45; display: flex; flex-direction: column; gap: 10px; min-height: 470px; }
+  .col.on { opacity: 1; box-shadow: 0 0 0 2px var(--app-accent); }
+  .col.done { opacity: 1; }
+  .head { display: flex; align-items: center; gap: 8px; }
+  .head .n { width: 22px; height: 22px; border-radius: 50%; background: var(--app-accent); color: var(--on-accent); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
+  .head h2 { margin: 0; font-size: 15px; }
+  .head .act { margin-left: auto; background: var(--app-accent); color: var(--on-accent); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: transform .15s; }
+  .act.flash, .acts .go.flash { transform: scale(.94); }
+  .acts .go { transition: transform .15s; }
+  .note { font-size: 12px; color: var(--app-muted); margin: 0; line-height: 1.45; }
+
+  /* 1 Choose a song */
+  .search { display: flex; align-items: center; gap: 6px; background: var(--app-bg); border: 1.5px solid var(--app-sunken); border-radius: 8px; padding: 8px 10px; font-size: 13px; min-height: 36px; }
+  .search.focus { border-color: var(--app-accent); }
+  .search .ph { color: var(--app-muted); }
+  .caret { display: inline-block; width: 1.5px; height: 15px; background: var(--app-accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .filters { display: flex; gap: 6px; font-size: 11.5px; } .filters span { flex: 1; background: var(--app-bg); border: 1px solid var(--app-sunken); border-radius: 6px; padding: 5px 8px; color: var(--app-muted); }
+  .songs { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 13px; }
+  .songs .g { font-size: 11px; font-weight: 600; color: var(--app-muted); padding: 8px 8px 2px; text-transform: none; }
+  .songs .s { padding: 7px 8px; border-radius: 7px; display: grid; gap: 1px; transition: background .2s; }
+  .songs .s small { color: var(--app-muted); font-size: 11px; }
+  .songs .s.pick { background: var(--app-soft); color: var(--app-on-soft); font-weight: 600; }
+  .songs .s.hide { display: none; }
+
+  /* 2 Check the words */
+  .row { display: grid; grid-template-columns: 1fr 52px 30px; gap: 6px; }
+  .field { background: var(--app-bg); border: 1px solid var(--app-sunken); border-radius: 7px; padding: 7px 9px; font-size: 13px; min-height: 33px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .star { display: grid; place-items: center; color: var(--app-muted); }
+  .lyrics { flex: 1; background: var(--app-bg); border: 1px solid var(--app-sunken); border-radius: 7px; padding: 10px 11px; font: 12.5px/1.55 var(--ui); white-space: pre-wrap; overflow: hidden; min-height: 260px; max-height: 380px; position: relative; -webkit-mask-image: linear-gradient(#000 85%, transparent); mask-image: linear-gradient(#000 85%, transparent); }
+  .lyrics .sec { font-weight: 700; color: var(--app-accent); }
+  .lyrics .ln { opacity: 0; transition: opacity .25s; } .lyrics .ln.in { opacity: 1; }
+
+  /* 3 Preview the slides */
+  .stage { aspect-ratio: 16/9; background: var(--slide-bg); color: var(--slide-text); border-radius: 6px; position: relative; overflow: hidden; container-type: inline-size; }
+  .stage .t { position: absolute; left: 1.04cqw; top: 1.04cqw; right: 1.04cqw; font: 700 7.29cqw/1.15 Arial, sans-serif; white-space: pre-line; }
+  .stage .lab { position: absolute; right: 1.04cqw; bottom: 1.04cqw; font: 700 1.67cqw/1 Arial, sans-serif; opacity: .85; }
+  .stage.empty { display: grid; place-items: center; background: var(--app-sunken); color: var(--app-muted); font-size: 13px; }
+  .stage.empty .t, .stage.empty .lab, .stage:not(.empty) > span { display: none; }
+  .pnav { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--app-muted); }
+  .pnav span { background: var(--app-bg); border-radius: 6px; padding: 5px 9px; }
+  .thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .th { aspect-ratio: 16/9; background: var(--slide-bg); color: var(--slide-text); border-radius: 4px; position: relative; overflow: hidden; container-type: inline-size; opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; outline: 2px solid transparent; outline-offset: 2px; }
+  .th.in { opacity: 1; transform: none; }
+  .th.cur { outline-color: var(--app-accent); }
+  .th .t { position: absolute; inset: 1.04cqw; font: 700 7.29cqw/1.15 Arial, sans-serif; white-space: pre-line; overflow: hidden; }
+  .th .num { position: absolute; left: 3cqw; bottom: 3cqw; font: 600 9cqw/1 var(--ui); background: rgba(0,0,0,.45); padding: 1px 4px; border-radius: 3px; }
+  .acts { display: flex; gap: 8px; font-size: 12px; } .acts > span { padding: 6px 11px; border-radius: 6px; background: var(--app-bg); border: 1px solid var(--app-sunken); }
+  .acts .go { background: var(--app-accent); border-color: var(--app-accent); color: var(--on-accent); font-weight: 600; }
+
+  /* 4 Present: the church room, the projector beam and the screen */
+  .cols { position: relative; }
+  .c4 { position: absolute; inset: 12px; z-index: 3; opacity: 0; pointer-events: none; transition: opacity .6s; padding: 0; overflow: hidden; min-height: 0; box-shadow: none !important; }
+  .c4.on, .c4.done { opacity: 1; pointer-events: auto; }
+  .room { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 55% at 50% 38%, #4a3b2e, #241c16 70%, #17110d); container-type: inline-size; }
+  .room .head4 { position: absolute; left: 14px; top: 12px; z-index: 4; color: #f3ead9; }
+  .room .head4 h2 { color: #f3ead9; }
+  .room .head4 .n { background: #f3ead9; color: #241c16; }
+  .screen { position: absolute; left: 50%; top: 11%; width: 58%; transform: translateX(-50%); aspect-ratio: 16/9; background: var(--slide-bg); color: var(--slide-text); container-type: inline-size;
+    box-shadow: 0 0 0 .5cqw #e9e3d6, 0 0 60px 12px rgba(160, 190, 230, .25), 0 30px 60px rgba(0,0,0,.6); }
+  .screen .t { position: absolute; inset: 1.04cqw 1.04cqw auto; font: 700 7.29cqw/1.15 Arial, sans-serif; white-space: pre-line; transition: opacity .35s; }
+  .screen .lab { position: absolute; right: 1.04cqw; bottom: 1.04cqw; font: 700 1.67cqw/1 Arial, sans-serif; opacity: .85; }
+  .screen.fade .t { opacity: 0; }
+  .wallcross { position: absolute; left: 10%; top: 16%; width: 3.2%; aspect-ratio: 1/1.5; opacity: .55; }
+  .wallcross::before, .wallcross::after { content: ""; position: absolute; background: #8a6a45; border-radius: 2px; }
+  .wallcross::before { left: 42%; width: 16%; top: 0; bottom: 0; } .wallcross::after { top: 26%; height: 11%; left: 0; right: 0; }
+  .beam { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(200, 220, 255, .16), rgba(200, 220, 255, .03)); filter: blur(2px); }
+  .projector { position: absolute; left: 50%; bottom: 0; width: 8%; height: 3.2%; transform: translateX(-50%); background: #3b3a38; border-radius: 4px 4px 0 0; }
+  .projector::after { content: ""; position: absolute; left: 50%; top: -30%; width: 22%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(#fff, #bcd3f5 45%, transparent 70%); }
+  .pews { position: absolute; left: 0; right: 0; bottom: 0; height: 32%; }
+  .pew { position: absolute; left: 4%; right: 4%; height: 32%; display: flex; justify-content: space-around; align-items: flex-end; }
+  .pew::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: #3a2a1d; border-top: 2px solid #5a422c; border-radius: 3px; }
+  .pew i { position: relative; z-index: 1; height: 78%; aspect-ratio: 1/1.35; background: #120d0a; border-radius: 50% 50% 35% 35%; }
+  .pew:nth-child(1) { bottom: 64%; transform: scale(.82); opacity: .75; } .pew:nth-child(2) { bottom: 33%; transform: scale(.91); opacity: .88; } .pew:nth-child(3) { bottom: 2%; }
+  .remote { position: absolute; right: 14px; bottom: 12px; z-index: 4; display: flex; gap: 6px; font: 12px var(--ui); color: #f3ead9; align-items: center; }
+  .remote kbd { font: 600 11px var(--ui); border: 1px solid rgba(243,234,217,.5); border-radius: 4px; padding: 2px 6px; }
+  .remote .k-on { background: #f3ead9; color: #241c16; }
+
+  .swipe { display: none; }
+  .sample { font-size: 11px; color: var(--muted); margin: 12px 0 0; text-align: right; }
+
+  /* Tablets: thinner columns, fewer song rows */
+  @media (max-width: 1020px) {
+    .cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .c3 { grid-column: 1 / -1; min-height: 0; }
+    .tabs span:nth-child(n+4) { display: none; }
+  }
+  /* Phones: the three columns become screens you swipe through; the demo moves to each as it plays */
+  @media (max-width: 640px) {
+    nav a:not(.brand) { display: none; }
+    .btns { flex-direction: column; }
+    .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+    .step { grid-template-columns: 1fr; justify-items: center; text-align: center; padding-top: 10px; }
+    .step .n { grid-row: auto; } .step b { font-size: 12px; line-height: 1.2; } .step small { display: none; }
+    .tabs { display: none; }
+    .cols { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; padding: 10px; scrollbar-width: none; }
+    .cols::-webkit-scrollbar { display: none; }
+    .col { flex: 0 0 100%; scroll-snap-align: center; opacity: 1; min-height: 440px; }
+    .col.on { box-shadow: none; }
+    .c3 { min-height: 440px; }
+    .c4 { position: relative; inset: auto; opacity: 1; pointer-events: auto; flex: 0 0 100%; min-height: 440px; }
+    .screen { top: 16%; } .wallcross { display: none; }
+    .pews { height: 30%; }
+    .swipe { display: flex; justify-content: center; gap: 8px; padding: 0 0 12px; }
+    .swipe button { width: 44px; height: 24px; border: 0; background: none; display: grid; place-items: center; }
+    .swipe button i { width: 8px; height: 8px; border-radius: 50%; background: var(--app-sunken); transition: width .2s; }
+    .swipe button.on i { width: 22px; border-radius: 4px; background: var(--app-accent); }
+    .sample { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { .step.on::before { animation: none; width: 100%; } .caret { animation: none; } .th, .col, .lyrics .ln { transition: none; } }
+
+  /* Scripture page parts */
+  .start { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .start-tag { font-size: 11px; font-weight: 700; color: var(--app-accent); background: var(--app-soft); padding: 3px 8px; border-radius: 99px; }
+  .adds { display: flex; gap: 6px; }
+  .addb { font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--app-sunken); background: var(--app-bg); transition: transform .15s, background .15s; }
+  .addb.press { transform: scale(.94); background: var(--app-soft); color: var(--app-on-soft); }
+  .sl { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .it { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; padding: 8px; border-radius: 8px; border: 1px solid transparent; font-size: 13px; animation: newslide 1.6s ease-out; }
+  .it.sel { border-color: var(--app-accent); background: var(--app-soft); }
+  .it .num { width: 22px; height: 22px; border-radius: 50%; background: var(--app-bg); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .it small { display: block; color: var(--app-muted); font-size: 11px; } .it small em { font-style: normal; font-weight: 700; color: var(--app-accent); text-transform: uppercase; font-size: 10px; letter-spacing: .05em; }
+  .it .arr { font-size: 8px; line-height: 1.3; color: var(--app-muted); text-align: center; }
+  @keyframes newslide { from { background: var(--app-soft); transform: translateY(-4px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .ver { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--app-muted); background: var(--app-bg); border-radius: 7px; padding: 7px 9px; }
+  .ver b { color: var(--app-text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lbl { font-size: 11px; font-weight: 600; color: var(--app-muted); margin-bottom: 4px; }
+  .pick { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .phd { color: var(--app-muted); }
+  .fetch { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; background: var(--app-accent); color: var(--on-accent); transition: transform .15s; }
+  .fetch.press { transform: scale(.94); opacity: .8; }
+  .tools { display: flex; gap: 4px; flex-wrap: wrap; font-size: 11px; } .tools span { padding: 3px 7px; border: 1px solid var(--app-sunken); border-radius: 5px; background: var(--app-bg); }
+  .vtx { color: var(--app-accent); font-size: .8em; }
+  #text { min-height: 180px; max-height: 260px; }
+  .vn { font-size: .5em; vertical-align: .7em; line-height: 0; color: #f2c14e; }
+  .stage .t, .th .t, .screen .t { font-weight: 700; line-height: 1.3; font-size: 6.04cqw; }
+  .stage .ref, .th .rf, .screen .ref { position: absolute; right: 3%; bottom: 3%; font: 600 2.2cqw/1.2 Arial, sans-serif; opacity: .75; white-space: nowrap; }
+  .th .rf { font-size: 2.2cqw; }
+
+  /* The pointer that shows each click */
+  .win { position: relative; }
+  .cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; transform: translate(70%, 110%); transition: transform .75s cubic-bezier(.45, 0, .2, 1), opacity .3s; }
+  .cursor.hide { opacity: 0; }
+  .cursor svg { display: block; width: 22px; height: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+  .cursor .tap { display: none; }
+  .cursor .ring { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--app-accent); opacity: 0; }
+  .cursor.click .ring { animation: ring .5s ease-out; }
+  .cursor.click svg { animation: press .25s ease-out; }
+  @keyframes ring { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.4); opacity: 0; } }
+  @keyframes press { 50% { transform: scale(.85); } }
+  .c4 ~ .cursor .ring, .room .ring { border-color: #f3ead9; }
+  @media (max-width: 640px) {
+    .cursor svg { display: none; }
+    .cursor .tap { display: block; position: absolute; left: -13px; top: -13px; width: 26px; height: 26px; border-radius: 50%; background: rgba(120, 120, 120, .35); border: 2px solid rgba(255,255,255,.8); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+    .cursor.click .tap { animation: press .25s ease-out; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cursor { display: none; } }
+
+  /* Embedded on the Home page: only the demo loop */
+  nav, .hero, .steps { display: none !important; }
+  body, body[data-theme="dark"] { background: transparent !important; background-image: none !important; }
+  .wrap { padding: 4px 2px 24px; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <span class="brand">NauBrah</span>
+    <a href="#">Lyrics</a><a href="#">Scripture</a><a href="#">Program</a>
+    <button class="sp" id="lang">VI</button>
+    <button id="theme">☾ Dark</button>
+  </nav>
+
+  <header class="hero">
+    <h1><span data-t="h1a">Scripture on the screen in </span><em data-t="h1em">minutes</em><span data-t="h1b">. Not hours.</span></h1>
+    <div class="btns">
+      <a class="btn dark" href="#" data-t="go">Make Scripture Slides →</a>
+      <a class="btn" href="#demo" data-t="how">See how it works</a>
+    </div>
+  </header>
+
+  <section id="demo" aria-label="How the Scripture page works">
+    <div class="steps" role="tablist">
+      <button class="step" data-step="0" role="tab"><span class="n">1</span><b data-t="s1">Choose the slides</b><small data-t="s1n">Add a Bible passage, or your own slide.</small></button>
+      <button class="step" data-step="1" role="tab"><span class="n">2</span><b data-t="s2">Check the words</b><small data-t="s2n">Pick the book, chapter and verses. The text comes in.</small></button>
+      <button class="step" data-step="2" role="tab"><span class="n">3</span><b data-t="s3">Preview the slides</b><small data-t="s3n">The passage is split into slides for you.</small></button>
+      <button class="step" data-step="3" role="tab"><span class="n">4</span><b data-t="s4">Present on the screen</b><small data-t="s4n">The projector shows each slide. One click moves on.</small></button>
+    </div>
+
+    <div class="win">
+      <div class="bar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span class="tabs"><span>Nau Mpro</span><span>Readings</span><span class="on">Scripture</span><span>Presentation Builder</span><span>Program</span><span>Service Slides</span></span>
+        <button class="replay" id="replay" data-t="replay">↻ Replay</button>
+      </div>
+
+      <div class="cols" id="cols">
+        <div class="col c1" data-col="0">
+          <div class="head"><span class="n">1</span><h2 data-t="s1">Choose the slides</h2></div>
+          <div class="start"><span class="start-tag" data-t="startHere">Start here</span>
+            <div class="adds"><span class="addb" id="addPassage">+ <span data-t="passage">Passage</span></span><span class="addb">+ <span data-t="custom">Custom</span></span></div>
+          </div>
+          <ol class="sl" id="slideList"></ol>
+          <p class="note" id="emptyList" data-t="emptyList">No slides yet. Add a passage to begin.</p>
+        </div>
+
+        <div class="col c2" data-col="1">
+          <div class="head"><span class="n">2</span><h2 data-t="s2">Check the words</h2><span class="act" id="save" data-t="save">Save Study</span></div>
+          <div class="ver"><span data-t="version">Bible version</span><b>Bunong Bible (Vietnam dialect)</b></div>
+          <div><div class="lbl" data-t="passageLbl">Passage</div>
+            <div class="pick">
+              <div class="field" id="book"></div><div class="field" id="ch"></div><div class="field" id="vf"></div><div class="field" id="vt"></div>
+            </div>
+            <span class="fetch" id="fetch" data-t="fetch">Fetch passage</span>
+          </div>
+          <div><div class="lbl" data-t="titleLbl">Slide title</div><div class="field" id="stitle"></div></div>
+          <div class="tools" aria-hidden="true"><span><b>B</b></span><span><i>I</i></span><span><u>U</u></span><span data-t="colour">Colour</span><span data-t="mark">Mark</span><span data-t="clear">Clear</span></div>
+          <div class="lyrics" id="text"></div>
+        </div>
+
+        <div class="col c3" data-col="2">
+          <div class="head"><span class="n">3</span><h2 data-t="s3">Preview the slides</h2><span class="act" id="add" data-t="add">+ Add to Presentation</span></div>
+          <div class="field" id="study"></div>
+          <div class="stage empty" id="stage"><span data-t="empty">Nothing to preview yet.</span><div class="t" id="stageT"></div><div class="ref" id="stageR"></div></div>
+          <div class="pnav"><span data-t="prev">← Previous</span><em id="count" style="font-style:normal"></em><span data-t="next">Next →</span></div>
+          <div class="thumbs" id="thumbs"></div>
+          <div class="acts"><span class="go" id="present">▶ <span data-t="present">Present</span></span><span>⬇ PowerPoint</span></div>
+        </div>
+
+        <div class="col c4" data-col="3">
+          <div class="room">
+            <div class="head head4"><span class="n">4</span><h2 data-t="s4">Present on the screen</h2></div>
+            <span class="wallcross" aria-hidden="true"></span>
+            <div class="beam"></div>
+            <div class="screen" id="screen"><div class="t" id="scrT"></div><div class="ref" id="scrR"></div></div>
+            <div class="pews" aria-hidden="true">
+              <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="pew"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="projector"></div>
+            <div class="remote"><span id="scrCount"></span><kbd>←</kbd><kbd id="kNext">→</kbd></div>
+          </div>
+        </div>
+      </div>
+      <div class="cursor" id="cur" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 2l15 11.5-6.6.9 3.8 7.4-3 1.5-3.8-7.5L4 20z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="tap"></span><span class="ring"></span></div>
+      <div class="swipe" id="dots"><button data-step="0" aria-label="Step 1"><i></i></button><button data-step="1" aria-label="Step 2"><i></i></button><button data-step="2" aria-label="Step 3"><i></i></button><button data-step="3" aria-label="Step 4"><i></i></button></div>
+    </div>
+    <p class="sample" data-t="sample">Sample demo with Psalm 23:1-6 from the Bunong Bible. Slides follow the app's scripture rules: one size for the whole passage, text from the top, the reference in the band at the bottom.</p>
+  </section>
+</div>
+
+<script>
+{
+  const VERSES = [[1, "Kôranh Brah jêng rmăk gâp, gâp mâu hôm pưt mpa ôh"], [2, "Păng ăn gâp rlu tâm ndrêch gơ̆ nse. Păng njŭn gâp tâm tu dak rngân đăp mpăn."], [3, "Păng ăn gâp sĭt n'hâm suan Păng leo gâp hăn di trong, tĭng nâu nau Păng hŏ ton jêh."], [4, "Nđâp tơ lah gâp hăn tâm rlŭng nau khĭt, gâp mâu hôm klach du ntil nau mhĭk ôh. Yor lah May gŭ ndrel ma gâp. May rgong gâp ma mâng jra, n'gang gâp ma mâng kanuăk."], [5, "May nkra sưng sông sa ma gâp tă năp phung rlăng gâp. May rom gâp, May tŏ dak ƀâu ta sŏk gâp, May kêt âk dak ma kachok kŏ bêng ler, ăn gâp nhêt"], [6, "N'hêl nanê̆ nau ueh jêh ri nau yô̆ tă bơh kôranh Brah tĭng ndô̆ gâp ƀa ƀơ lĕ rngôch nar gâp gŭ rêh, jêh ri ngih Păng gŭ jêng ntŭk gâp gŭ n'ho ro."]];
+  const REF = "Nau Mprơ Ơm 23:1-6";
+  const T = {
+    en: {}, vi: { h1a: "Kinh Thánh lên màn hình trong ", h1em: "vài phút", h1b: ". Không phải vài giờ.", go: "Tạo trang Kinh Thánh →", how: "Xem cách hoạt động",
+      s1: "Chọn các trang", s1n: "Thêm một đoạn Kinh Thánh, hoặc trang của bạn.", s2: "Kiểm tra lời", s2n: "Chọn sách, chương và câu. Lời Kinh Thánh hiện ra.",
+      s3: "Xem trước trình chiếu", s3n: "Đoạn Kinh Thánh được chia sẵn thành các trang.", s4: "Chiếu lên màn hình", s4n: "Máy chiếu hiện từng trang. Một lần bấm để qua trang.",
+      replay: "↻ Xem lại", startHere: "Bắt đầu ở đây", passage: "Đoạn Kinh Thánh", custom: "Tự soạn", emptyList: "Chưa có trang nào. Thêm một đoạn Kinh Thánh để bắt đầu.",
+      save: "Lưu bài học", version: "Bản Kinh Thánh", passageLbl: "Đoạn Kinh Thánh", fetch: "Lấy đoạn Kinh Thánh", titleLbl: "Tiêu đề trang",
+      colour: "Màu", mark: "Tô sáng", clear: "Xoá", add: "+ Thêm vào trình chiếu", empty: "Chưa có gì để xem trước.", prev: "← Trước", next: "Sau →", present: "Trình chiếu",
+      sample: "Bản mẫu với Thi Thiên 23:1-6 trong Kinh Thánh tiếng Bunong. Trang trình chiếu theo quy tắc của ứng dụng: một cỡ chữ cho cả đoạn, chữ bắt đầu từ trên, câu tham chiếu ở dải dưới cùng.",
+      notFetched: "Đoạn Kinh Thánh (chưa lấy)", kindP: "Đoạn Kinh Thánh", isNew: "Mới", fetching: "Đang lấy…", added: "✓ Đã thêm", saved: "✓ Đã lưu", chapter: "Chương", from: "Từ", to: "Đến", book: "Sách…" },
+  };
+  document.querySelectorAll("[data-t]").forEach(e => T.en[e.dataset.t] = e.textContent);
+  Object.assign(T.en, { notFetched: "Passage (not fetched)", kindP: "Passage", isNew: "New", fetching: "Fetching…", added: "✓ Added", saved: "✓ Saved", chapter: "Chapter", from: "From", to: "To", book: "Book…" });
+  let lang = "en";
+  const tr = (k) => T[lang][k];
+  const $ = (id) => document.getElementById(id);
+
+  // Scripture slides, as the app makes them: 58 pt Arial on a 960 x 540 pt slide, 8 pt padding, a 60 pt band for the
+  // reference, line height 1.3, one size for the whole passage, words wrap at 97% of the width, as many lines as fit
+  const SLIDES = (() => {
+    const ctx = document.createElement("canvas").getContext("2d");
+    const size = 58, limit = (960 - 16) * 0.97, cap = Math.floor((540 - 16 - 60) / (size * 1.3));
+    const words = [];
+    VERSES.forEach(([n, t]) => { words.push({ n: String(n) }); t.split(/\s+/).forEach(w => words.push({ w })); });
+    const width = (row) => row.reduce((sum, x, i) => {
+      ctx.font = `700 ${x.n ? size / 2 : size}px Arial, sans-serif`;
+      let wd = ctx.measureText(x.n || x.w).width;
+      if (i) { ctx.font = `700 ${size}px Arial, sans-serif`; wd += ctx.measureText(" ").width; }
+      return sum + wd;
+    }, 0);
+    const rows = []; let cur = [];
+    for (const x of words) { const next = [...cur, x]; if (cur.length && width(next) > limit) { rows.push(cur); cur = [x]; } else cur = next; }
+    if (cur.length) rows.push(cur);
+    const out = []; for (let i = 0; i < rows.length; i += cap) out.push(rows.slice(i, i + cap));
+    return out;
+  })();
+  // Rows to HTML: verse numbers small and gold, raised like the app's
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const rowsHtml = (rows) => rows.map(r => r.map(x => x.n ? `<span class="vn">${x.n}</span>` : esc(x.w)).join(" ")).join("<br>");
+
+  const thumbs = $("thumbs");
+  thumbs.innerHTML = SLIDES.map((s, i) => `<div class="th"><div class="t">${rowsHtml(s)}</div><span class="rf">${esc(REF)}</span><span class="num">${i + 1}</span></div>`).join("");
+  const showSlide = (i) => {
+    $("stage").classList.remove("empty");
+    $("stageT").innerHTML = rowsHtml(SLIDES[i]); $("stageR").textContent = REF;
+    $("count").textContent = `${i + 1} / ${SLIDES.length}`;
+    thumbs.querySelectorAll(".th").forEach((t, k) => t.classList.toggle("cur", k === i));
+  };
+
+  // The pointer: glides to a part of the window, then clicks it
+  const win = document.querySelector(".win"), cur = $("cur");
+  const spot = (q) => typeof q === "string" ? document.querySelector(q) : (typeof q === "function" ? q() : q);
+  const aim = (q, dx = .5, dy = .5, again = false) => {
+    const el = spot(q); if (!el) return;
+    const w = win.getBoundingClientRect(), r = el.getBoundingClientRect();
+    cur.style.transform = `translate(${r.left - w.left + r.width * dx}px, ${r.top - w.top + r.height * dy}px)`;
+    // on phones the screens may still be sliding: aim again once they settle
+    if (phone() && !again) later(450, () => aim(q, dx, dy, true));
+  };
+  const tap = () => { cur.classList.remove("click"); void cur.offsetWidth; cur.classList.add("click"); };
+  // move at `at`, click at `at + 750`, then run fn
+  const clickOn = (at, q, fn, dx, dy) => { later(at, () => aim(q, dx, dy)); later(at + 750, () => { tap(); fn && fn(); }); };
+  const STEP_MS = [3200, 6600, 3600, Math.max(5400, SLIDES.length * 1800 + 1200)];
+  let timers = [], step = -1, auto = true;
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const phone = () => matchMedia("(max-width: 640px)").matches;
+
+  const setStep = (s) => {
+    step = s;
+    document.querySelectorAll(".step").forEach((b, i) => { b.classList.toggle("on", i === s); b.classList.toggle("done", i < s); b.style.setProperty("--dur", (auto ? STEP_MS[i] : 0) + "ms"); b.setAttribute("aria-selected", i === s); });
+    document.querySelectorAll(".col").forEach((c, i) => { c.classList.toggle("on", i === s); c.classList.toggle("done", i < s); });
+    document.querySelectorAll("#dots button").forEach((b, i) => b.classList.toggle("on", i === s));
+    if (s >= 0 && phone()) { const cols = $("cols"); cols.scrollTo({ left: cols.children[s].offsetLeft - cols.offsetLeft - 10, behavior: reduce ? "auto" : "smooth" }); }
+  };
+  const listItem = (title, isNew) => `<li class="it sel"><span class="num">1</span><span class="tx"><strong>${esc(title)}</strong><small>${tr("kindP")}${isNew ? ` · <em>${tr("isNew")}</em>` : ""}</small></span><span class="arr">▲<br>▼</span></li>`;
+  const ph = (id, key) => { $(id).innerHTML = `<span class="phd">${tr(key)}</span>`; };
+
+  const reset = () => {
+    timers.forEach(clearTimeout); timers = [];
+    $("slideList").innerHTML = ""; $("emptyList").hidden = false; $("addPassage").classList.remove("press");
+    ph("book", "book"); ph("ch", "chapter"); ph("vf", "from"); ph("vt", "to"); $("stitle").textContent = ""; $("text").innerHTML = "";
+    $("fetch").textContent = tr("fetch"); $("fetch").classList.remove("busy", "press");
+    $("study").textContent = ""; $("stage").classList.add("empty"); $("count").textContent = "";
+    $("save").textContent = tr("save"); $("add").textContent = tr("add");
+    thumbs.querySelectorAll(".th").forEach(t => t.classList.remove("in", "cur"));
+  };
+  const press = (el, label) => { el.classList.add("flash"); if (label) el.textContent = label; later(200, () => el.classList.remove("flash")); };
+
+  // 1 Add a passage slide
+  const play1 = (t0) => {
+    clickOn(t0 + 300, "#addPassage", () => $("addPassage").classList.add("press"));
+    later(t0 + 1300, () => { $("addPassage").classList.remove("press"); $("emptyList").hidden = true; $("slideList").innerHTML = listItem(tr("notFetched"), true); });
+  };
+  // 2 Book, chapter, verses, Fetch passage, the text comes in, the title fills, Save Study
+  const play2 = (t0) => {
+    clickOn(t0 + 200, "#book", () => $("book").textContent = "Nau Mprơ Ơm", .3);
+    clickOn(t0 + 1100, "#ch", () => $("ch").textContent = "23", .3);
+    clickOn(t0 + 1800, "#vf", () => $("vf").textContent = "1", .3);
+    clickOn(t0 + 2500, "#vt", () => $("vt").textContent = "6", .3);
+    clickOn(t0 + 3200, "#fetch", () => { $("fetch").classList.add("press"); $("fetch").textContent = tr("fetching"); });
+    later(t0 + 4300, () => {
+      $("fetch").classList.remove("press"); $("fetch").textContent = tr("fetch");
+      $("text").innerHTML = VERSES.map(([n, t]) => `<span class="ln"><b class="vtx">${n}</b> ${esc(t)}\n</span>`).join("");
+      $("stitle").textContent = REF; $("slideList").innerHTML = listItem(REF, true);
+    });
+    VERSES.forEach((_, i) => later(t0 + 4400 + i * 180, () => $("text").children[i]?.classList.add("in")));
+    clickOn(t0 + 5300, "#save", () => press($("save"), tr("saved")));
+  };
+  // 3 The slides appear, the preview steps through them, Add to Presentation
+  const play3 = (t0) => {
+    later(t0 + 200, () => { $("study").textContent = "Nau Mprơ Ơm 23"; showSlide(0); });
+    thumbs.querySelectorAll(".th").forEach((t, i) => later(t0 + 300 + i * 220, () => t.classList.add("in")));
+    clickOn(t0 + 2200, ".acts .go", () => press($("present")));
+  };
+  // 4 The projector
+  const fitRoom = () => {
+    const room = document.querySelector(".room"), sc = $("screen"), beam = document.querySelector(".beam");
+    const W = room.clientWidth, H = room.clientHeight; if (!W || !H) return;
+    const top = sc.offsetTop, w = Math.min(W * (phone() ? 0.88 : 0.6), (H * 0.66 - top) * 16 / 9);
+    sc.style.width = w + "px";
+    const l = (W - w) / 2, b = top + w * 9 / 16;
+    beam.style.clipPath = `polygon(${W / 2 - 6}px ${H}px, ${W / 2 + 6}px ${H}px, ${l + w}px ${b}px, ${l + w}px ${top}px, ${l}px ${top}px, ${l}px ${b}px)`;
+  };
+  const roomRO = new ResizeObserver(fitRoom); roomRO.observe(document.querySelector(".room"));
+  const project = (i, fade) => {
+    const sc = $("screen"); if (fade) sc.classList.add("fade");
+    later(fade && !reduce ? 300 : 0, () => { $("scrT").innerHTML = rowsHtml(SLIDES[i]); $("scrR").textContent = REF; $("scrCount").textContent = `${i + 1} / ${SLIDES.length}`; sc.classList.remove("fade"); });
+  };
+  const play4 = (t0) => {
+    later(t0, () => project(0, false));
+    later(t0 + 600, () => aim("#kNext"));
+    SLIDES.slice(1).forEach((_, k) => later(t0 + 1800 + k * 1800, () => { tap(); $("kNext").classList.add("k-on"); later(250, () => $("kNext").classList.remove("k-on")); project(k + 1, true); }));
+  };
+
+  const PLAYS = [play1, play2, play3, play4];
+  const run = () => {
+    reset(); auto = true;
+    let t = 0;
+    PLAYS.forEach((p, i) => { const at = t; later(at, () => setStep(i)); p(at); t += STEP_MS[i]; });
+    later(t + 2500, run);
+  };
+  // Jump to a step: the earlier steps finish at once, then that step plays and stays
+  const jump = (s) => {
+    reset(); auto = false;
+    if (s > 0) { // finished state of the earlier steps
+      $("emptyList").hidden = true; $("slideList").innerHTML = listItem(REF, false);
+      $("book").textContent = "Nau Mprơ Ơm"; $("ch").textContent = "23"; $("vf").textContent = "1"; $("vt").textContent = "6"; $("stitle").textContent = REF;
+      $("text").innerHTML = VERSES.map(([n, t]) => `<span class="ln in"><b class="vtx">${n}</b> ${esc(t)}\n</span>`).join("");
+    }
+    if (s > 2) { $("study").textContent = "Nau Mprơ Ơm 23"; showSlide(0); thumbs.querySelectorAll(".th").forEach(t => t.classList.add("in")); }
+    PLAYS[s](0); setStep(s);
+  };
+  document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => jump(+b.dataset.step)));
+  $("replay").addEventListener("click", run);
+  $("cols").addEventListener("scroll", () => {
+    if (!phone()) return;
+    const c = $("cols"), i = Math.round(c.scrollLeft / c.clientWidth);
+    document.querySelectorAll("#dots button").forEach((b, k) => b.classList.toggle("on", k === i));
+  }, { passive: true });
+  $("lang").addEventListener("click", (e) => {
+    lang = lang === "en" ? "vi" : "en"; e.target.textContent = lang === "en" ? "VI" : "EN"; document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach(el => el.textContent = T[lang][el.dataset.t]);
+    run();
+  });
+  $("theme").addEventListener("click", (e) => {
+    const dark = document.body.dataset.theme !== "dark"; document.body.dataset.theme = dark ? "dark" : ""; e.target.textContent = dark ? "☀ Light" : "☾ Dark";
+  });
+
+  reset();
+  if (reduce) jump(3);
+  else new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); run(); } }, { threshold: .3 }).observe($("demo"));
+}
+</script>
+<script>
+{
+  // Home page passes ?theme= and ?lang=, and sends {theme, lang} messages when they change
+  const apply = (theme, lang) => {
+    const th = document.getElementById("theme"), lb = document.getElementById("lang");
+    if (theme && (document.body.dataset.theme === "dark") !== (theme === "dark")) th.click();
+    if (lang && (document.documentElement.lang === "vi") !== (lang === "vi")) lb.click();
+  };
+  const p = new URLSearchParams(location.search);
+  apply(p.get("theme"), p.get("lang"));
+  addEventListener("message", (e) => { if (e.origin === location.origin && e.data && e.data.demo) apply(e.data.theme, e.data.lang); });
+  const send = () => parent.postMessage({ demoHeight: Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height), name: p.get("name") }, location.origin);
+  new ResizeObserver(send).observe(document.body); send();
+}
+</script>
+</body>
+</html>

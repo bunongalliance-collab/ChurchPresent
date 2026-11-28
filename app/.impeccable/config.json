@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "public/demo/scripture.html"
+        ],
+        "createdAt": "2026-11-28T02:10:55.875Z",
+        "reason": "Claude triage: the blue glow is the projector light on the screen in the church-room scene of the approved demo artifact"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "public/demo/lyric.html"
+        ],
+        "createdAt": "2026-11-28T02:10:55.900Z",
+        "reason": "Claude triage: the blue glow is the projector light on the screen in the church-room scene of the approved demo artifact"
+      }
+    ]
+  }
+}
