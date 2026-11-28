@@ -6,7 +6,7 @@ import InstallPrompt, { OPEN_INSTALL_EVENT } from "./InstallPrompt";
 import { PULL_THRESHOLD, usePullToRefresh } from "./usePullToRefresh";
 import { inAppBrowser, isStandalone } from "./install";
 import OpenInBrowser from "./OpenInBrowser";
-import PrayerSheet from "./PrayerSheet";
+import PrayerForm from "./PrayerForm";
 import { countSaved, keepStorage, prefetch, saveAll } from "./scores";
 import { followAlong, loadChurchList, loadTodayService, readerChurch, setReaderChurch, type PublishedService, type PubSub, type ReaderChurch } from "../lib/publishedService";
 
@@ -14,13 +14,13 @@ import { followAlong, loadChurchList, loadTodayService, readerChurch, setReaderC
 // Wide screens: song list | lyrics | score. Landscape tablets: the list in a drawer, lyrics beside the score.
 // Portrait tablets and phones: Lyrics and Score tabs. Play mode gives the score the whole screen.
 // Opening a song from the list adds a history step, so the phone's Back button returns to the list.
-// "Prayer request" (or the #prayer address, from the QR code in the program) opens a form to ask the church to pray.
+// The song list has three tabs: Songs, Today (the service the team published) and Prayer (ask the church to pray;
+// the #prayer address, from the QR code in the program, opens it).
 
 const SIZE_KEY = "readerTextSize";
 const THEME_KEY = "readerTheme";
 const MIN_SIZE = 15, MAX_SIZE = 32;
 const MIN_ZOOM = 0.6, MAX_ZOOM = 2.5;
-const CHIP_LIMIT = 6;   // categories shown before "More"
 // A song's scan images (none for a missing page: the scan filed under it belongs to another song)
 const sheetUrls = (s: ReaderSong) => isUnavailable(s) ? [] : (s.scoreImages ?? []).map(scoreUrl).filter(Boolean);
 
@@ -32,13 +32,12 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 const drawerLayout = () => window.matchMedia("(max-width: 1199px)").matches;
 
 type Tab = "lyrics" | "score";
+type SideTab = "songs" | "today" | "prayer";
 
 export default function Reader() {
   const [load, setLoad] = useState<LoadResult | null>(null);
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState("");
   const [lang, setLang] = useState("");
-  const [allCats, setAllCats] = useState(false);
   const [selId, setSelId] = useState<string | null>(idFromHash);
   const [size, setSize] = useState(() => Math.min(MAX_SIZE, Math.max(MIN_SIZE, readNum(SIZE_KEY, 19))));
   const [dark, setDark] = useState(() => document.documentElement.getAttribute("data-theme") === "dark");
@@ -58,11 +57,16 @@ export default function Reader() {
     return () => { live = false; };
   }, []);
 
-  // The prayer request form, open while the address ends in #prayer
-  const [praying, setPraying] = useState(() => window.location.hash === "#prayer");
-  // Back and forward buttons open and close songs and the prayer form
+  // The song list's tab. The #prayer address opens Prayer; the address is then cleared, so Back still works as before.
+  const [sideTab, setSideTabState] = useState<SideTab>(() => (window.location.hash === "#prayer" ? "prayer" : "songs"));
+  const tabChosen = useRef(window.location.hash === "#prayer");   // the person (or the link) chose a tab
+  const setSideTab = (t: SideTab) => { tabChosen.current = true; setSideTabState(t); };
   useEffect(() => {
-    const onPop = () => { setSelId(idFromHash()); setPraying(window.location.hash === "#prayer"); setPlaying(false); setDrawer(false); };
+    if (window.location.hash === "#prayer") window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+  }, []);
+  // Back and forward buttons open and close songs
+  useEffect(() => {
+    const onPop = () => { setSelId(idFromHash()); if (window.location.hash === "#prayer") setSideTab("prayer"); setPlaying(false); setDrawer(false); };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -122,14 +126,10 @@ export default function Reader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const prayerChurch = qrChurch ?? (church && church !== "none" ? church : null);
+  // From the welcome screen: show the Prayer tab (and the list, where it is a drawer)
   function openPrayer() {
-    window.history.pushState({ reader: true, prayer: true }, "", "#prayer");
-    setPraying(true);
-    setDrawer(false);
-  }
-  function closePrayer() {
-    if (window.history.state?.prayer) window.history.back();
-    else { window.history.replaceState(null, "", window.location.pathname + window.location.search); setPraying(false); }
+    setSideTab("prayer");
+    if (drawerLayout()) setDrawer(true);
   }
   const churchIdRef = useRef(churchId);
   churchIdRef.current = churchId;
@@ -195,22 +195,28 @@ export default function Reader() {
     return all.find((x) => fold(x.title) === fold(sub.text)) ?? null;
   };
 
+  // On the day of a published service, the list opens on Today (unless the person or a link chose a tab)
+  useEffect(() => {
+    if (tabChosen.current || !service || !todayItems.length) return;
+    const d = new Date(), today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    if (service.serviceDate === today) setSideTabState("today");
+  }, [service, todayItems.length]);
+
   // The first song of Today's service that can be opened, for the welcome view
   const firstToday = todayItems.flatMap((it) => it.subs.map(songFor)).find((x) => x && !isUnavailable(x)) ?? null;
 
-  const categories = useMemo(() => [...new Set(all.map((s) => s.category).filter(Boolean))], [all]);
   const languages = useMemo(() => [...new Set(all.map((s) => s.language).filter(Boolean))], [all]);
 
   // Search by number, title or words, ignoring accents. A number typed alone puts that song first.
   const shown = useMemo(() => {
     const term = fold(q);
-    const list = all.filter((s) => (!cat || s.category === cat) && (!lang || s.language === lang));
+    const list = all.filter((s) => !lang || s.language === lang);
     if (!term) return list;
     const exact = list.filter((s) => s.number === term);
     const titled = list.filter((s) => s.number !== term && (fold(s.title).includes(term) || s.number.startsWith(term)));
     const worded = list.filter((s) => !exact.includes(s) && !titled.includes(s) && fold(s.lyrics).includes(term));
     return [...exact, ...titled, ...worded];
-  }, [all, q, cat, lang]);
+  }, [all, q, lang]);
 
   const song = all.find((s) => s.id === selId) ?? todayTexts.find((s) => s.id === selId) ?? null;
   // Imported hymns open with the title and the reference line (TC 19, KM 2…). The heading already shows
@@ -376,7 +382,7 @@ export default function Reader() {
         {song && <button className="nm-back" onClick={close} aria-label="Back to songs">‹</button>}
         <div className="nm-brand">Nau <span>Mpro</span></div>
         <input className="nm-search" type="search" value={q} placeholder="Number, title or words" aria-label="Search songs"
-          onChange={(e) => { setQ(e.target.value); if (song && drawerLayout()) setDrawer(true); }}
+          onChange={(e) => { setQ(e.target.value); setSideTabState("songs"); if (song && drawerLayout()) setDrawer(true); }}
           onKeyDown={(e) => { if (e.key === "Enter" && shown[0]) open(shown[0]); }} />
         {!isStandalone() && !inAppBrowser() && (
           <button className="nm-install-btn" onClick={() => window.dispatchEvent(new Event(OPEN_INSTALL_EVENT))} title="Install the Nau Mpro app" aria-label="Install the Nau Mpro app">
@@ -435,42 +441,33 @@ export default function Reader() {
               <button className="nm-later" onClick={() => (asking && church !== null ? setAsking(false) : pickChurch("none"))}>{asking && church !== null ? "Cancel" : "Not now"}</button>
             </section>
           )}
-          {categories.length > 1 && (
-            <div className="nm-chips" role="group" aria-label="Category">
-              <button className={`nm-chip${!cat ? " on" : ""}`} aria-pressed={!cat} onClick={() => setCat("")}>All</button>
-              {categories.filter((c, i) => allCats || i < CHIP_LIMIT || c === cat).map((c) => <button key={c} className={`nm-chip${cat === c ? " on" : ""}`} aria-pressed={cat === c} onClick={() => setCat(cat === c ? "" : c)}>{c}</button>)}
-              {categories.length > CHIP_LIMIT && (
-                <button className="nm-chip-more" aria-expanded={allCats} onClick={() => setAllCats((v) => !v)}>
-                  {allCats ? "Fewer categories" : `More categories (${categories.filter((c, i) => i >= CHIP_LIMIT && c !== cat).length})`}
-                </button>
-              )}
-            </div>
-          )}
-          {languages.length > 1 && (
-            <div className="nm-chips" role="group" aria-label="Language">
-              <button className={`nm-chip${!lang ? " on" : ""}`} aria-pressed={!lang} onClick={() => setLang("")}>All languages</button>
-              {languages.map((l) => <button key={l} className={`nm-chip${lang === l ? " on" : ""}`} aria-pressed={lang === l} onClick={() => setLang(lang === l ? "" : l)}>{l}</button>)}
-            </div>
-          )}
-          {!q && !cat && !lang && (
-            <button className="nm-pray-btn" onClick={openPrayer}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
-              <span><b>Prayer request</b><small>Ask your church to pray for you</small></span>
-              <svg className="nm-pray-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+          {/* Songs | Today | Prayer */}
+          <div className="nm-stabs" role="tablist" aria-label="Show">
+            <button role="tab" id="nm-stab-songs" aria-selected={sideTab === "songs"} aria-controls="nm-stp" onClick={() => setSideTab("songs")}>Songs</button>
+            <button role="tab" id="nm-stab-today" aria-selected={sideTab === "today"} aria-controls="nm-stp" onClick={() => setSideTab("today")}>
+              Today{service && todayItems.length > 0 && <span className="nm-stab-dot" aria-label=", a service is ready" />}
             </button>
-          )}
-          {churchId && !(service && todayItems.length > 0) && !q && !cat && !lang && (
-            <div className="nm-today nm-today-none">
-              <span className="nm-today-h">Today’s service</span>
-              <p>Not ready yet. Check again on Sunday.</p>
-            </div>
-          )}
-          {service && todayItems.length > 0 && !q && !cat && !lang && (
-            <details className="nm-today" open>
-              <summary>
+            <button role="tab" id="nm-stab-prayer" aria-selected={sideTab === "prayer"} aria-controls="nm-stp" onClick={() => setSideTab("prayer")}>Prayer</button>
+          </div>
+          <div id="nm-stp" role="tabpanel" aria-labelledby={`nm-stab-${sideTab}`} className="nm-stp">
+          {sideTab === "today" && (
+            !churchId ? (
+              <div className="nm-today nm-today-none">
                 <span className="nm-today-h">Today’s service</span>
-                <span className="nm-today-d">{[service.title, service.dateLabel].filter(Boolean).join(" · ")}</span>
-              </summary>
+                <p>Choose your church to see its service each Sunday.</p>
+                <button className="nm-alt" onClick={() => setAsking(true)}>Choose your church</button>
+              </div>
+            ) : !(service && todayItems.length > 0) ? (
+              <div className="nm-today nm-today-none">
+                <span className="nm-today-h">Today’s service</span>
+                <p>Not ready yet. Check again on Sunday.</p>
+              </div>
+            ) : (
+              <section className="nm-today nm-today-tab" aria-label="Today’s service">
+                <div className="nm-today-top">
+                  <span className="nm-today-h">Today’s service</span>
+                  <span className="nm-today-d">{[service.title, service.dateLabel].filter(Boolean).join(" · ")}</span>
+                </div>
               <ol className="nm-today-list">
                 {todayItems.map((it, i) => (
                   <li key={i} className="nm-today-item">
@@ -494,7 +491,19 @@ export default function Reader() {
                   </li>
                 ))}
               </ol>
-            </details>
+              </section>
+            )
+          )}
+          {sideTab === "prayer" && (
+            <PrayerForm church={prayerChurch} onDone={() => setSideTab("songs")}
+              onChooseChurch={() => setAsking(true)} />
+          )}
+          {sideTab === "songs" && (<>
+          {languages.length > 1 && (
+            <div className="nm-chips" role="group" aria-label="Language">
+              <button className={`nm-chip${!lang ? " on" : ""}`} aria-pressed={!lang} onClick={() => setLang("")}>All languages</button>
+              {languages.map((l) => <button key={l} className={`nm-chip${lang === l ? " on" : ""}`} aria-pressed={lang === l} onClick={() => setLang(lang === l ? "" : l)}>{l}</button>)}
+            </div>
           )}
           <p className={`nm-saved${load?.error ? " warn" : ""}`} role="status">{savedLine}</p>
           {allScores.length > 0 && typeof caches !== "undefined" && (
@@ -523,6 +532,8 @@ export default function Reader() {
             ))}
             {load && all.length > 0 && !shown.length && <li className="nm-empty">No songs match. Try a number, a title or a line of the words.</li>}
           </ul>
+          </>)}
+          </div>
           {churchList !== null || church !== null ? (
             <div className="nm-church-foot">
               <span>{churchId && church !== "none" && church ? `Your church: ${church.name}` : "No church chosen"}</span>
@@ -578,7 +589,7 @@ export default function Reader() {
               <h1 id="nm-welcome-h">Choose a song</h1>
               <ul>
                 <li><b>Find it</b> by typing a number, a title or a line of the words in the search box.</li>
-                <li><b>Browse</b> the list, or narrow it with the category and language buttons.</li>
+                <li><b>Browse</b> the Songs list, or narrow it with the language buttons. <b>Today</b> has this Sunday’s service, and <b>Prayer</b> asks your church to pray for you.</li>
                 <li><b>Before church</b>, lyrics are saved for offline after they load. To have music sheets without a connection too, use “Save all music sheets” above the list.</li>
               </ul>
               <div className="nm-actions">
@@ -625,8 +636,6 @@ export default function Reader() {
       )}
       {drawer && <div className="nm-scrim" onClick={() => setDrawer(false)} />}
       {note && <div className="nm-note" role="status">{note}</div>}
-      {praying && <PrayerSheet church={prayerChurch} onClose={closePrayer}
-        onChooseChurch={() => { closePrayer(); setAsking(true); if (song && drawerLayout()) setDrawer(true); }} />}
       <InstallPrompt />
       <OpenInBrowser />
     </div>
