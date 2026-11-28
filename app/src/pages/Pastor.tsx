@@ -113,14 +113,19 @@ export default function Pastor() {
       <main className="ps">
         {gate ?? (!pastor.ready ? <p className="empty">Loading…</p> : (
           <>
-            <h1>{hello()}</h1>
+            <header className="ps-head">
+              <p className="ps-date">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</p>
+              <h1>{hello()}</h1>
+            </header>
             <a className="ps-sun" href="#program">
-              {sunday
-                ? <><b>{new Date(sunday.date + "T12:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}{sunday.sermon && ` · ${sunday.sermon}`}</b> Program →</>
-                : <><b>No program for Sunday yet</b> Program →</>}
+              <span className="ps-sun-text">
+                <small>{sunday ? new Date(sunday.date + "T12:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }) : "This Sunday"}</small>
+                <b>{sunday ? sunday.sermon || "Sermon not filled in yet" : "No program yet"}</b>
+              </span>
+              <span className="ps-sun-go">Program<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></span>
             </a>
 
-            <h2 id="ps-today">Pray today</h2>
+            <h2 id="ps-today">Pray today{prayers && open.length > 0 && <span className="ps-n">{open.length}</span>}</h2>
             {!setup && <p className="ps-note">To mark requests as prayed, run supabase/prayer-feedback.sql in the Supabase SQL editor.</p>}
             {prayers === null ? <p className="empty">Loading…</p> : (
               <ul className="ps-rows" aria-labelledby="ps-today">
@@ -146,9 +151,10 @@ export default function Pastor() {
               </ul>
             )}
 
+            <div className="ps-folds">
             {!!done.length && (
               <details className="ps-fold">
-                <summary>Prayed · {done.length}</summary>
+                <summary>Prayed<span>{done.length}</span></summary>
                 {done.map((p) => (
                   <div className="ps-done" key={p.id}>
                     <span><b>{who(p)}</b> · {p.body}</span>
@@ -160,7 +166,7 @@ export default function Pastor() {
             )}
 
             <details className="ps-fold">
-              <summary>My work{work ? ` · ${work.length}` : ""}</summary>
+              <summary>My work{work && <span>{work.length}</span>}</summary>
               {work?.length ? work.map((w) => (
                 <div className="ps-wk" key={`${w.kind}-${w.id}`}>
                   <a href={w.kind === "presentation" ? `#builder:${w.id}` : "#scripture"}>{w.title}</a>
@@ -168,6 +174,7 @@ export default function Pastor() {
                 </div>
               )) : <p className="ps-hint">Your scripture studies and presentations show here.</p>}
             </details>
+            </div>
           </>
         ))}
       </main>
