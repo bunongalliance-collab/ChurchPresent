@@ -477,6 +477,7 @@ function DemoLoop({ theme, lang }: { theme: Theme; lang: Lang }) {
       <iframe ref={frame} key={which} title={tabs.find((x) => x[0] === which)![1]} src={`/demo/${which}.html?name=${which}&theme=${first.current.theme}&lang=${first.current.lang}`}
         onLoad={() => { first.current = { theme, lang }; frame.current?.contentWindow?.postMessage({ demo: true, theme, lang }, location.origin); }}
         style={{ height }} loading="lazy" />
+      <a className="hm-demo-all" href="#demos">{vi ? "Xem cả ba phần trên một trang →" : "See all three demos on one page →"}</a>
     </section>
   );
 }

@@ -17,6 +17,7 @@ import Presentations from "./pages/Presentations";
 import Notes from "./pages/Notes";
 import Team from "./pages/Team";
 import Home from "./pages/Home";
+import Demos from "./pages/Demos";
 import Readings from "./pages/Readings";
 import Toasts from "./components/Toasts";
 
@@ -41,6 +42,7 @@ function renderPage(page: string) {
   // The "How it helps" page is the home page; the earlier one stays at #home-old
   if (page === "" || page === "#" || page === "#home" || page === "#home-new") return <Home variant="helps" />;
   if (page === "#home-old") return <Home />;
+  if (page === "#demos") return <Demos />;
   if (page === "#lyrics") return <LyricsV2 />;
   if (page === "#projector") return <Projector />;
   if (page === "#remote") return <Remote />;
